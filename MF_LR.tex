@@ -1,0 +1,169 @@
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+
+\usepackage[utf8]{inputenc}
+\usepackage{multirow}
+\usepackage{hyperref}
+\hypersetup{
+colorlinks=true,
+linkcolor=black,
+citecolor=black
+}
+\usepackage{caption}
+\usepackage{subfigure}
+\usepackage{mathrsfs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algcompatible}
+\usepackage{algpseudocode} \usepackage{romannum}
+\usepackage{amsmath}
+\usepackage{verbatimbox}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage{geometry}
+\geometry{left = 2.0cm, right = 2.0 cm, top = 2cm}
+%% The graphicx package provides the includegraphics command.
+\usepackage{graphicx}
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+\usepackage{bm}
+\usepackage{hyperref}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers after \end{frontmatter}.
+\usepackage{lineno}
+
+\usepackage{authblk}
+
+
+
+%% Title, authors and addresses
+
+\title{Relationship between Matrix/Tensor Factorization and Linear Regression}
+\author{Mengyan Zhang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+%% Text of abstract
+Linear regression aims to model the relationship between two variables by fitting a linear equation to observed data. Matrix or tensor factorization is to factorize matrix or tensor into two or more smaller size matrices or tensors, which can be viewed as a regression problem, where the independent variable is each entry in the matrix/tensor, the corresponding dependent variable is the estimated entry. Therefore, the methods for linear regression can also be applied to the matrix/tensor factorization. This tutorial aims to present these relationships between matrix/tensor factorization and linear regression in detail.
+\end{abstract}
+%There are several ways to find the best parameters of the linear equation, for example, we can use least squares to find the parameters which gives the minimum residuals. In probabilistic view, we can maximize the likelihood of observing a target value given we know the input location and parameters.
+% \begin{keyword}
+% Science \sep Publication \sep Complicated
+%% keywords here, in the form: keyword \sep keyword
+
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+
+% \end{keyword}
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+ & \textbf{\begin{tabular}[c]{@{}l@{}}Least Squares\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}Maximum Likelihood\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}Maximum A Posterior\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}Bayesian \\ Approaches\end{tabular}} \\
+ \hline
+\textbf{LR}   &  $\mathop{\arg\min}_{\bm{\theta}} {\| \bm{y} - X \bm{\theta}\|}_{F}^2$&   $\mathop{\arg\max}_{\bm{\theta}} p(\bm{y}| X, \bm{\theta}, \sigma)$&    $\mathop{\arg\max}_{\bm{\theta}} p(\bm{\theta}| X, \bm{y}, \sigma, \sigma_{\theta})$  &   $p(\bm{\theta}| X, \bm{y}, \sigma, \sigma_{\theta})$            \\ \hline
+\textbf{MF}&  $\mathop{\arg\min}_{U,V} \|A - UV\|_F^2$ &  
+$\mathop{\arg\max}_{U,V} p(A| U, V, \sigma)$  &   
+$\mathop{\arg\max}_{U,V} p(U,V| A, \sigma, \sigma_U, \sigma_V)$&  $p(U,V| A, \sigma, \sigma_U, \sigma_V)$  \\ \hline
+\textbf{TF} &  \textbf{\begin{tabular}[c]{@{}l@{}}$\mathop{\arg\min}_{E,R}$ \\ $\sum_{k=1}^K \|T_{:k:} - E R_k E^T\|_F^2$\end{tabular}} & 
+$\mathop{\arg\max}_{E,R} p(T| E, R, \sigma)$  & $\mathop{\arg\max}_{E,R} p(E,R| T, \sigma, \sigma_E, \sigma_R)$             &     $p(E,R| T, \sigma, \sigma_E, \sigma_R)$         \\ \hline
+\end{tabular}
+\caption{Relation between linear regression and matrix/tensor factorization. LR: linear regression; MF: matrix factorization; TF: tensor factorization}
+\end{table}
+
+%%
+%% Start line numbering here if you want
+%%
+\linenumbers
+
+\section{Linear Regression}
+%% main text
+For linear regression, given D dimensional inputs $\bm{x} \in \mathbb{R}^D$ and corresponding target $y \in \mathbb{R}$, we aim to find a linear model which can estimate the target value for unseen input accurately. Then linear model can be built as
+
+\begin{equation}
+\label{equ1}
+\hat{y} = f(\bm{x}) + \epsilon = \bm{x}^T \bm{\theta} + \epsilon,
+\end{equation}
+where  $\bm{\theta} \in \mathbb{R}^D$ are the parameters we seek, and $\epsilon \sim \mathbb{N}(0, \sigma)$ is i.i.d. Gaussian observation noise. %Then for N inputs $\bm{x_n} \in \mathcal{R}^D$ and corresponding target $y_n \in \mathbb{R}$, n = 1, ... , N. Assume conditional independence
+%$$p(y_i|\bm{x_i}) \bot p(y_j|\bm{x_j}),$$
+
+\subsection{Least Squares}
+
+Intuitively, we want to find the parameters which can estimate the target value as accurate as possible, i.e. the sum of squares of the vertical deviations as small as possible, which is known as   \href{https://en.wikipedia.org/wiki/Least_squares}{Least squares}. For N inputs $\bm{x_n} \in \mathcal{R}^D$ and corresponding target $y_n \in \mathbb{R}$, n = 1, ... , N, we find parameters $\bm{\theta}$ by,
+
+\begin{equation}
+\label{equ2}
+\mathop{\arg\min}_{\bm{\theta}} \ \ \sum_{n=1}^N (y_n - \hat{y_n})^2,
+\end{equation}
+where $\hat{y_n}$ is defined as Equation \ref{equ1}. In matrix form, we have
+
+\begin{equation}
+\mathop{\arg\min}_{\bm{\theta}} {\ \  \| \bm{y} - X \bm{\theta} - \sigma\|}_{F}^2,
+\end{equation}
+where $X := [\bm{x_1, ..., x_N}]^T \in \mathbb{R} ^{N \times D}$ and $\bm{y} := [y_1, ... , y_N]^T \in \mathbb{R}^N$.
+
+
+
+
+%\subsection{Maximum Likelihood Estimation}
+
+%\subsection{Maximum A Posterior}
+%\subsection{Bayesian Linear Regression}
+
+\section{Matrix Factorization}
+Matrix factorization is to factorize of a matrix into a product of matrices. For a given matrix $A \in \mathbb{R}^{N \times M}$, it can be factorized as the product as the product of $U \in \mathbb{R}^{N \times D}, V \in \mathbb{R}^{D \times M}$, i.e.
+
+\begin{equation}
+\hat{A} = UV,
+\end{equation}
+
+\subsection{Least Squares}
+
+Similar as linear regression, we want the estimated matrix $\hat{A}$ (i.e. the product of factorized matrices U and V) as much similar as the original matrix A. Thus the simplest way is to minimize the sum of error squares, 
+
+\begin{equation}
+\mathop{\arg\min}_{U,V} \ \ \sum_{i=1}^N \sum_{j=1}^M (a_{ij} - \hat{a_{ij}})^2,
+\end{equation}
+where $\hat{a_{ij}} = \bm{u_i}^T \bm{v_j}$ is the (i,j) entry of the estimated matrix $\hat{A}$. In matrix form, 
+
+\begin{equation}
+\mathop{\arg\min}_{U,V} \ \ \|A - UV\|_F^2,
+\end{equation}
+
+\section{Tensor Factorization}
+
+More generally, we need to deal with random dimension tensors rather than 2-d matrix. Using a three-way tensor $ T \in \mathbb{R}^{N \times K \times N} $ as example, we simplify the tensor factorization into multiple matrix factorizations, i.e. for each slice $T_{:k:}$, we have
+
+\begin{equation}
+\hat{T_{:k:}} = E R_k E^T, \ \ \ \textnormal{for} \ \ k = 1, ..., K,
+\end{equation}
+where $E \in \mathbb{R}^{N \times D}$, $R_k \in \mathbb{R}^{D \times D}$ are factorized matrices for slice k. Note that E will be the same for all slices.
+
+\subsection{Least Squares}
+
+Similar as matrix factorization, we still want to find the most similar estimated matrix by minimizing the mean squared error, i.e.
+
+\begin{equation}
+\mathop{\arg\min}_{E,R} \sum_{k=1}^K \|T_{:k:} - E R_k E^T\|_F^2,
+\end{equation}
+
+%\bibliographystyle{model1-num-names}
+%\bibliography{sample.bib}
+
+\end{document}
+
+%%
+%% End of file `elsarticle-template-1-num.tex'.
