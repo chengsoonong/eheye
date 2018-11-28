@@ -1,0 +1,74 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[left=2cm, right=2cm, top=1.5cm, bottom=1.5cm]{geometry}
+\title{Elaboration on Seminar Questions}
+\author{Ragib Zaman u6341578}
+
+\newcommand{\bi}[2]{ \binom{#1}{#2}  }
+\newcommand{\p}{\prod}
+\newcommand{\e}{\mathbf{e}}
+
+\begin{document}
+\maketitle
+
+\paragraph{When could it occur that $q_* \in \bar{\mathcal{Q}}\setminus \mathcal{Q}$? }
+\
+\newline
+Let $\bar{\mathbb{R}} = \mathbb{R} \cup \{ \pm \infty\}.$ 
+
+The Saddle-Point conditions for the Lagrangian on Slide 10 are $\nabla_p K(p, \lambda)=0$ and $\nabla_{\lambda} K(p,\lambda)=0.$ We may have $q_* \in \bar{\mathcal{Q}}\setminus \mathcal{Q}$ if there is no $\lambda \in \mathbb{R}^n$ with a corresponding $p = \mathcal{L}_F(q_0, M\lambda)$ satisfying those two conditions, but instead there is a $\lambda^* \in \bar{\mathbb{R}}^n$ with a corresponding $p= \mathcal{L}_F(q_0, M\lambda^*)$ satisfying those conditions. I poorly phrased this during the lecture as  '$\lambda$ has some components which are infinite'. I'll focus on the case of Logisitic Regression and try to clarify. 
+
+\paragraph{What does it mean for one of the regression coefficients to be $+\infty$ or $-\infty$?}
+\
+\newline
+In our optimization problem, we are finding the $\lambda$ that minimizes the log-loss on previously observed data:
+
+$$ B_F(\mathbf{0}, \mathcal{L}_F(q_0, M\lambda)) = \sum_{i=1}^m \log\left(1+\exp\left( -y_i \sum_{j=1}^n \lambda_j x_{ij}\right)\right).$$ Instead of saying 'the component $\lambda_j$ is $+\infty$', it would have been more correct to say 'the log-loss can always be decreased by increasing $\lambda_j.$ Analogously if '$\lambda_j$ is $-\infty$'. So in finding the argmin of the loss function, instead of converging to a $\lambda \in \mathbb{R}^n,$ we produce a sequence $\lambda_t \in \mathbb{R}^n$ where some components tend towards $+\infty$ or $-\infty.$  
+\paragraph{When does this happen?}
+\
+Fix $j.$ Suppose $y_i x_{ij} \geq 0$ for every sample number $i=1,\ldots, n,$ and $x_{ij}\neq 0$ for at least one value of $i.$ Then we can always reduce the log-loss on the observed data
+
+$$\sum_{i=1}^m \log\left(1+\exp\left(\sum_{j=1}^n (-\lambda_j) (y_i x_{ij})\right)\right)$$
+
+by increasing $\lambda_j$ further. Another way to see why $\lambda_j$ approaching $+\infty$ is being learned is because in this case, the observed data has shown that the sign of $j$-th feature is perfectly correlated to the label so an infinite value of $\lambda_j$ would return the correct values of exactly $p(y_i=1|x_i)=1$ if $x_i >0,$ and $p(y_i=-1|x_i)=1$ if $x_i <0.$
+
+\paragraph{How do you make predictions on new instances?}
+Suppose we have a sequence $\lambda_t$ which makes the log-loss on the observed data approach it's infimum, and some components tend towards $+\infty$ or $-\infty.$ We might hope that we could so some symbolic calculations with the 'infinite' weights in the natural way, e.g. 
+
+\[
+  p(y=1|x) =
+  \begin{cases}
+                                   1 & \text{if, for any j, }\lambda_j=+\infty \text{ and } x_j >0 \text{ or } \lambda_j=-\infty \text{ and } x_j <0  \\
+                                    0 & \text{if, for any j, }\lambda_j=+\infty \text{ and } x_j <0 \text{ or } \lambda_j=-\infty \text{ and } x_j >0  \\
+                                   \sigma(\sum \lambda_j x_j) & \text{otherwise (regarding $\pm \infty * 0 $ as 0)} \\
+  \end{cases}
+\]
+
+The issue with this is that in the training data we may have had e.g. two features $j$ and $j'$ both of which whose sign had perfect correlation with the labels, but then we are presented with an instance $x$ whose $j$ and $j'$-th features have opposite sign and the rule above would attempt to compute $p(y=1|x)$ as both $1$ and $0.$ This is a good example of how simply minimizing the loss on previously observed data may not produce a good predictor for new data. A hack is to use some large real numbers in place of $+\infty, -\infty$ there is no systematic way of making those choices. Regularization can be used to resolve these issues. 
+
+
+\paragraph{Edge cases for $W^+_{t,j}, W^-_{t,j}$ (Slide 14)}\
+As I mentioned in the seminar, the edge cases where one of these terms vanishes can actually come up easily. Here I characterize when. 
+\\
+By induction, $q_{t,i}>0.$ So $W^+_{t,j} = 0$ iff $\sum_{i: y_i x_{ij} \geq 0} |x_{ij}| = 0$ iff ($y_i x_{ij} \geq 0 $ implies $x_{ij}=0.$) \
+\\
+Similarly, $W^-_{t,j} = 0 $ iff $\sum_{i: y_i x_{ij} < 0)} |x_{ij}| = 0 $ iff there are no $i$ such that $y_i x_{ij}<0.$ 
+\\
+Therefore, $W^+_{t,j} = W^-_{t,j} = 0$ iff $x_{ij}=0$ for all $i.$ In this case, the log-loss on the observed data does not depend on the value of $\lambda_j.$ However, for making predictions, it seems safest to fix $\lambda_j = 0,$ as we don't want to give directional weight to a new $x$ with a non-zero $j$-th feature without any reason. \
+\\
+\\
+$W^-_{t,j}=0$ and $W^+_{t,j}>0$ implies that $\lambda_j = +\infty$ minimizes the log-loss.\\
+$W^+_{t,j}=0$ and $W^-_{t,j}>0$ implies that $\lambda_j = -\infty$ minimizes the log-loss.\\
+\\
+I am quite sure that the converses to the previous two statements is true as well (I may include a proof in my final report). If this is indeed the case, it will be all the more surprising that (Collins, Schapire, Singer, 2002) neglected these edge cases in their paper, as it would be the exact reason that we would have $q_*\in \bar{\mathcal{Q}}\setminus \mathcal{Q},$ and accounting for this possibility makes up a fair portion of their paper. 
+
+\end{document}
