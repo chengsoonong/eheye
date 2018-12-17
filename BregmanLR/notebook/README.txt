@@ -1,9 +1,12 @@
-The demo requires Python 3, numpy, scipy, matplotlib, scikit-learn and CVXPY. 
+The notebook BregmanLR_demo.ipynb is done for an semester project, and forms 15% of the course assessment.
+
+
+The demo requires Python 3, numpy, scipy, matplotlib, scikit-learn and CVXPY.
 
 To set up a conda environment to run the BregmanLR Demo:
 
 1) Enter this into a terminal opened in the folder containing demo_requirements.txt:
- 
+
 $ conda create --name demo_env --file demo_requirements.txt
 $ source activate demo_env
 $ jupyter notebook
