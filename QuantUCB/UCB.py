@@ -4,6 +4,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 import sklearn.kernel_approximation
 import scipy.optimize as opt
 from quantregression import QuantReg
+from qreg import QRegressor
 
 class GPUCB(object):
     """Perform GPUCB algorithm on environment
@@ -23,7 +24,7 @@ class GPUCB(object):
     regret_list: list for regret for each epoch 
     """
 
-    def __init__(self, x, t, alpha, beta=1.):
+    def __init__(self, x, t, init_list, alpha, beta=1.):
         """
         Arguments
         ---------------------------------
@@ -45,8 +46,12 @@ class GPUCB(object):
         self.beta = beta
         self.mu = np.zeros_like(x)
         self.sigma = 0.5 * np.ones_like(x)
+
+        #self.X = list(self.x[init_list])
         self.X = []
-        self.T = []
+        for i in self.x[init_list]:
+            self.X.append([i])
+        self.T = list(self.t[init_list])
         self.cumu_regret = 0
         self.regret_list = []
         self.gp = GaussianProcessRegressor(alpha = self.alpha)
@@ -67,11 +72,13 @@ class GPUCB(object):
         """
         if len(self.X) > 0:   
             self.beta = 2.0 * np.log(len(self.X) * (epoch + 1.0))/20
+        
+        self.gp.fit(self.X, self.T)
+        self.mu, self.sigma = self.gp.predict(self.x.reshape((self.x.shape[0],1)), return_std=True)
+
         idx = self.argmax_ucb()
         self.sample(idx)
         self.regret()
-        self.gp.fit(self.X, self.T)
-        self.mu, self.sigma = self.gp.predict(self.x.reshape((self.x.shape[0],1)), return_std=True)
 
     def sample(self, idx):
         """sample idx according to the gound truth
@@ -129,7 +136,7 @@ class QuantUCB(object):
     regret_list: list for regret for each epoch 
     """
 
-    def __init__(self, x, t, max_method='MUB',
+    def __init__(self, x, t, init_list, max_method='MUB',
                  uq=0.9, lq=0.1, uq_rate=0.0, beta=1.):
         
         #self.environment = environment
@@ -144,8 +151,8 @@ class QuantUCB(object):
         self.lq = lq
         self.uq_rate = uq_rate
 
-        self.X = []
-        self.T = []
+        self.X = list(self.x[init_list])
+        self.T = list(self.t[init_list])
         self.cumu_regret = 0
         self.regret_list = []
         
@@ -154,7 +161,9 @@ class QuantUCB(object):
         self.lb = -0.5 * np.ones_like(self.x)
         
         self.D = 50
-        self.QuantReg = QuantReg(self.D)
+        self.reg = QRegressor(C=1e2, probs=[lq,0.5,uq], gamma_out=1e-2, max_iter=1e4,
+                                verbose=False, lag_tol=1e-3, active_set=True)
+        #self.QuantReg = QuantReg(self.D)
         #self.sampler = sklearn.kernel_approximation.RBFSampler(n_components= self.D, gamma=0.1)
         
     def argmax_ucb(self, max_method, epoch):
@@ -176,14 +185,19 @@ class QuantUCB(object):
         self.regret_list.append(self.cumu_regret)
         
     def learn(self, epoch):
+    
+        #print(self.X)
+        #print(self.T)
+        #self.QuantReg.fit(self.X, self.T, self.uq, self.lq)
+        self.reg.fit(self.X, self.T, [self.lq,0.5,self.uq])
+        pred = self.reg.predict(self.x)
+        self.lb = pred[0]
+        self.predict = pred[1]
+        self.ub = pred[2]
+        #self.predict, self.ub, self.lb = self.QuantReg.predict(self.x)
         idx = self.argmax_ucb(self.max_method, epoch)
         self.sample(idx)
         self.regret()
-
-        #print(self.X)
-        #print(self.T)
-        self.QuantReg.fit(self.X, self.T, self.uq, self.lq)
-        self.predict, self.ub, self.lb = self.QuantReg.predict(self.x)
 
     def sample(self, idx):
         self.X.append(self.x[idx])
@@ -200,10 +214,11 @@ class QuantUCB(object):
         #test_range.shape = (num_test, 1)
 
         #test_range = self.x
-        preds, ub, lb = self.QuantReg.predict(test_range)
-        
-        ax.plot(test_range, preds, alpha=0.5, color='g', label = 'predict')
-        ax.fill_between(test_range, lb, ub, facecolor='k', alpha=0.2)
+        #preds, ub, lb = self.QuantReg.predict(test_range)
+        pred = self.reg.predict(test_range)
+
+        ax.plot(test_range, pred[1], alpha=0.5, color='g', label = 'predict')
+        ax.fill_between(test_range, pred[0], pred[2], facecolor='k', alpha=0.2)
         ax.scatter(self.X, self.T, c='r', marker='o', alpha=1.0, label = 'sample')
         #plt.savefig('fig_%02d.png' % len(self.X))
         plt.legend()
