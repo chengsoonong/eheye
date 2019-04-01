@@ -1,0 +1,163 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[mathscr]{eucal}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\title{QuantUCB Construction}
+\author{u6015325 }
+\date{March 2019}
+\bibliography{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}
+\item Policies 
+
+    \begin{enumerate}
+    \item Notations\\
+    In this report, we follow the notation in \cite{auer2002finite}. For K-armed bandit problem, define random variable $X_{i,n}$ as the rewards for a gambling machine indexed by arm i, where $1 \leq i \leq K$ and $n > 1$. Rewards from arm i are i.i.d. generated from unknown distribution with expection $\mu_i$. Rewards yield across mahcines i.e. $X_{i, s}$ and $X_{j, t}$ are independent but usually not identically distributed. 
+    Let $T_i(n)$ be the number of times machine i has been played during first n plays according to a policy A. The expected regret of A is the loss due to the policy A does not always play the best arm, which is defined as 
+    \begin{align}
+        \label{regret}
+        \mathbb{E}[R_n] = \mu^\ast n - \mu_j \sum_{j=1}^K \mathbb{E}[T_j(n)],
+    \end{align}
+
+    where $u^\ast = \mathop{max}\limits_{1 \leq i \leq K} u_i$
+    \item Inspirations\\
+    \begin{itemize}
+        \item UCB1\\
+            \begin{enumerate}
+                \item Policy\\
+                    \begin{align}
+                    \argmax_{j \in [1,k]} \bar{X}_{j,T_j(t-1)} + \sqrt{2 \log t/ T_j(t-1)}.
+                    \end{align}
+                where $\bar{X}_{j, T_j(t-1)}$ denotes the average reward obtained from arm j up to round t-1.
+                
+                \item Proof structure\\
+                    \begin{itemize}
+                        \item From (\ref{regret}) we know, to give bound of $\mathbb{E}[R_n]$, we just need to give bound of $\sum_{j=1}^K \mathbb{E}[T_j(n)]$. Intuitively, we care about how many times we choose sub-optimal arms under the policy.
+                        \item An arm i is selected iff it satisfies the policy and provide the maximum upper confidence bound, i.e. in the round t, arm i is selected if
+                            \begin{align}
+                                 \bar{X}^\ast_{T_{\ast}(t-1)} + \sqrt{2 \log t/ T_\ast(t-1)} \leq \bar{X}_{i, T_i(t-1)} + \sqrt{2 \log t/ T_i(t-1)}
+                            \end{align}
+                        The above inequality is used to calculate $T_i(n)$. 
+                        \item Use Chernoff-Hoeffding bound to calculate the bound of 
+                        \begin{align}
+                            P(\bar{X}^\ast_{T_{\ast}(t-1)} + \sqrt{2 \log (t-1)/ T_\ast(t-1)} \leq \mu^\ast)\\
+                            P(\bar{X}_{i, T_i(t-1)} - \sqrt{2 \log (t-1)/ T_i(t-1)} \geq \mu_i)
+                        \end{align}
+                    \end{itemize}
+                    
+            \end{enumerate}
+        \item KL-UCB
+        \item GP-UCB
+    \end{itemize}
+    
+    \item Policy choices\\
+        We are insteaded in including quantile as one term of the policy. The $\alpha$-quantile of random variable Y is defined as
+        \begin{align}
+            q_\alpha(Y) = \inf\{y \in \mathbb{R}| F(y) \geq \alpha\}.
+        \end{align}
+        Then there are several choices for the policy design,\\
+        \begin{enumerate}
+        \item Expectation + Quantile (dependent on t, $T_j(t-1)$)
+        \begin{align}
+        \argmax_{j \in [1,k]} \bar{X}_{j,T_j(t-1)} + q_{\alpha_{t-1, T_j(t-1)}(X_{j,:T_j(t-1)})},
+        \end{align}
+        where $X_{j,:T_j(n)}$ represents the set of reward of arm j up to the round n.\\
+        
+        But how to define $\alpha$?\\
+        1. $\alpha_{t, T_j(t)} = \sqrt{\log(t)/T_j(t)}$. Not constrained between 0 and 1.\\
+        2. $\alpha_{t, T_j(t)} = sigmoid (\sqrt{\log(t)/T_j(t)}) \in [0.5, 1)$. But $\alpha_{t, T_j(t)}$ is not proportional to $\sqrt{\log(t)/T_j(t)}$ anymore.\\
+        
+        So we need to design $\alpha_{t, T_j(t)}$ satisfy:\\
+        1. Make $q_{\alpha_{t-1, T_j(t-1)}(X_{j,:T_j(t)})} \varpropto \sqrt{\log(t)/T_j(t)}$.\\
+        2. $\alpha_{t, T_j(t)} \in [0.5, 1]$
+        
+            
+        \item Expectation + $\beta_t$ * Quantile (dependent on $T_j(t)$)\\
+            \begin{align}
+            \argmax_{j \in [1,k]} \bar{X}_{j,T_j(t-1)} + \beta_{t-1} q_{\alpha_{T_j(t-1)}(X_{j,:T_j(t-1)})},
+            \end{align}
+            where $\beta_t = \sqrt{\log t}, \alpha_{T_j(t)} = \sqrt{1/T_j(t)}$
+        \item Expectation + Quantile Difference (dependent on t, $T_j(t)$)
+        \begin{align}
+        \argmax_{j \in [1,k]} \bar{X}_{j,T_j(t-1)} + (q_{\alpha^U_{t-1, T_j(t-1)}(X_{j,:T_j(t-1)})} - q_{\alpha^L_{t-1, T_j(t-1)}(X_{j,:T_j(t-1)})}),
+        \end{align}
+        \item Quantile 
+            \begin{align}
+            \argmax_{j \in [1,k]} q_{\alpha_{t-1, T_j(t-1)}(X_{j,:T_j(t-1)})}
+            \end{align}
+        \end{enumerate}
+        
+    \end{enumerate}
+
+\item Proof\\
+Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary positive integer. We use the "Expectation + quantile" policy above. 
+\begin{align}
+    T_i(n) &= 1 + \sum_{t = k + 1}^n \{I_t = i\}\\
+           & \leq l + \sum_{t = k + 1}^n \{I_t = i, T_i(t-1) \geq l\}\\
+           & \leq l + \sum_{t = k + 1}^n \{\bar{X}_{\ast,T_\ast(t-1)} + q_{\alpha_{t-1, T_\ast(t-1)}(X_{\ast,:T_\ast(t-1)})} \leq \bar{X}_{i,T_i(t-1)} + q_{\alpha_{t-1, T_i(t-1)}(X_{i,:T_i(t-1)})}, T_i(t-1) \geq l\}\\
+           & \leq l + \sum_{t = k + 1}^n \{ \mathop{min}\limits_{0 < s < t}\bar{X}_{\ast,s} + q_{\alpha_{t-1, s}(X_{\ast,:s})} \leq \mathop{max}\limits_{l < s_i < t}\bar{X}_{i,s_i} + q_{\alpha_{t-1, s_i}(X_{i,:s_i})}\}\\
+           & \leq l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\bar{X}_{\ast,s} + q_{\alpha_{t-1, s}(X_{\ast,:s})} \leq \bar{X}_{i,s_i} + q_{\alpha_{t-1, s_i}(X_{i,:s_i})}\}
+\end{align}
+
+$\bar{X}_{\ast,s} + q_{\alpha_{t-1, s}(X_{\ast,:s})} \leq \bar{X}_{i,s_i} + q_{\alpha_{t-1, s_i}(X_{i,:s_i})}$ implies that at least one of the following must hold\\
+\begin{align}
+    \bar{X}_{\ast,s} + q_{\alpha_{t-1, s}(X_{\ast,:s})} \leq \mu^\ast\\
+    \bar{X}_{i,s_i} - q_{\alpha_{t-1, s_i}(X_{i,:s_i})} \geq \mu_i\\
+    \mu^\ast < \mu_i + 2 q_{\alpha_{t-1, s_i}(X_{i,:s_i})}
+\end{align}
+According to Chernoff-Hoeffding bound, 
+\begin{align}
+    P(\bar{X}_{\ast,s} + q_{\alpha_{t-1, s}(X_{\ast,:s})} \leq \mu^\ast) \leq e^{-2s [q_{\alpha_{t-1, s}}(X_{\ast,:s})]^2}
+\end{align}
+\item Issues
+
+    \begin{enumerate}
+    \item Should we include median as one term of the policy?\\
+    No. Policy should serve the goal/evaluation. The goal of the multi-armed bandits problem is to minimize the expected regret, which can be achieved by finding the arm returning the maximum expected rewards in each round. Maximizing the median rewards is not corresponding to the goal.
+    
+    \item Can quantiles (variance) represent uncertainty?\\
+    No, quantiles or variance will approach the true quantile/variance with the size of the sample set growing. So the quantiles/variance will not decrease when the number of sample size grows i.e. not proportional with $1/T_j(n)$.\\
+    The reason that the variance term of GPUCB represents uncertainty is that priors are included. Thus the variance term is corresponding with the information gain. \\ 
+    Maybe we can consider Bayes approaches for quantiles. Otherwise, we can also try to use quantiles to supply tighter confidence bound, which may lead to a tighter regret bound.
+    
+    \item How to use quantiles as estimation method?\\
+    Empirical quantile estimation method: \\
+    For discrete set of size n, we define the empirical quantile as
+    $$\hat{q}_\alpha(Y) = \inf \{y \in \mathbb{R}| F_{Y_n} (y) \geq \alpha\} = Y_n(i)$$
+    where $i$ is chosen such that
+    $$\frac{i-1}{n} < p \leq \frac{i}{n}$$
+    and $Y_n(1), ...., Y_n(n)$ are the order statistics of the sample,
+    $$Y_n(1)\leq ...\leq Y_n(n)$$ 
+    where $(Y_n(1), ...., Y_n(n))$ is a permutation of the sample $Y_1, ..., Y_n$\\
+        
+    Empirical quantile estimation method we used before is discrete. 0.8 quantile and 0.85 quantiles may correspond with the same number when the sample size is small. Thus the precision of this method is pretty low, which makes the UCB algorithm easily stuck on a sub-optimal arm. 
+    We need the quantile regression to give a continuous prediction. But how to use quantile regression for discrete arm (independent, not identically distributed), i.e. for each arm, we only get one independent random variable (the arms index).\\
+    Possible idea: for arm j, uniformly sample $Z_{j,t}$ for each reward $X_{j, t}$, use $Z_{j,t}$ as independent random variable  and $X_{j, t}$ as dependent random variable for quantile regression. Then we take the integral of the predictions as the $\alpha$-quantile (whether we have closed form for predictions?). \\
+    BTW, CVaR regression doesn't have elegant loss function, might be hard to convert to CVaR.
+    
+    \item UCB algorithms shouldn't stick on one arm (in principle), having lower bound as log rate. So if the regret stays at a scalar after a few rounds, then the policy is not good.
+    
+    \item Computational issues for quantile regression. \\
+    For each round, we estimate quantiles for all samples of all arms, which can be time-consuming. 
+    
+    \end{enumerate}
+
+
+\end{enumerate}
+
+\printbibliography
+\end{document}

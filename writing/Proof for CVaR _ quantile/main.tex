@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage[mathscr]{eucal}
+\newcommand{\numpy}{{\tt numpy}}    % tt font for numpy
+
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+\usepackage{amssymb}
+\begin{document}
+
+% ========== Edit your name here
+\author{Mengyan Zhang}
+\title{Proof for CVaR $\geq$ quantile}
+\maketitle
+
+\medskip
+
+For continuous random variable $Y \in \mathbb{R}$ and $\alpha \in (0,1)$, define $\alpha$-quantile as
+
+\begin{align}
+        q_\alpha(Y) = \inf \{y \in \mathbb{R}| F_Y (y) \geq \alpha \}
+    \end{align}
+    
+Define $\alpha$-superquantile (CVaR) as
+\begin{align}
+    \Bar{q}_\alpha(Y) = \mathbb{E}[Y|Y \geq q_\alpha(Y)]
+\end{align}
+
+Show that $\Bar{q}_\alpha(Y) \geq q_\alpha(Y)$\\
+
+Proof:\\
+
+Let $m = q_\alpha(Y) \in \mathbb{R}$, we need to show 
+
+\begin{align}
+    \mathbb{E}[Y|Y \geq m] \geq m
+\end{align}
+
+\begin{align}
+    & \mathbb{E}[Y|Y \geq m]\\
+    =& \int_{m}^\infty y p(y|y>m) dy\\
+    =& \int_{m}^\infty y \frac{p(y,y>m)}{p(y>m)} dy\\
+    \geq & \int_{m}^\infty m \frac{p(y,y>m)}{p(y>m)} dy\\
+    \geq & m \int_{m}^\infty \frac{p(y,y>m)}{p(y>m)} dy\\
+    \geq & m 
+\end{align}
+
+\end{document}
+\grid
+\grid
