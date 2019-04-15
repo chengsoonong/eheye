@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[mathscr]{eucal}
+\DeclareMathOperator*{\argmax}{argmax}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\urlstyle{same}
+ 
+
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\title{Takeaway points from papers}
+\author{u6015325 }
+\date{March 2019}
+\bibliography{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+\section{Auer 2012}
+\href{https://homes.di.unimi.it/~cesabian/Pubblicazioni/ml-02.pdf}{Finite-time Analysis of the Multiarmed Bandit Problem}
+
+There is a heuristic proposed by Auer et al. 2002, called UCB-Tuned, including estimates of variance into the UCB1 algorithm. The idea is similar as our idea of including quantiles.
+The UCB-Tuned performs better than UCB1 but Auer didn't prove a regret bound.
+\section{The KL-UCB Algorithm }
+\href{https://arxiv.org/abs/1102.2490}{The KL-UCB Algorithm for Bounded Stochastic Bandits and Beyond}
+\begin{enumerate}
+    \item KL-UCB reaches the lower-bound of Lai and Robbins (1985) for binary rewards (optimal).
+    \item KL-UCB is a general-purpose procedure for bounded bandits. In terms of the bounded rewards experiment in the paper, KL-UCB-exp and UCB-Tuned is most efficient, where UCB-Tuned performs slightly better. It leads us to think about for non-binary case, including variance/quantiles might be useful.
+    \item UCB-Tuned is risky, see figure one right panel. (the variance of the distribution of the number of draws of the suboptimal arm is high).
+    \item They claimed that results obtained from N = 1,000 independent runs or less are not reliable. And results obtained in configuration where N is much smaller than the number of rounds n are likely to be unreliable. In our current setting, N = 50, n = 5,000, which might be unreliable according to their claim.
+\end{enumerate}
+
+\section{Bandits With Heavy tail}
+\href{http://ieeexplore.ieee.org/document/6576820/}{Bandits With Heavy Tail}
+\begin{enumerate}
+    \item The Hoeffding inequality turns out to be crucial in
+order to achieve a regret of optimal order. However, when the
+sub-Gaussian assumption does not hold, one cannot expect the
+empirical mean to have such an accuracy.
+    \item The key to successful handling heavy-tailed reward distributions is to replace the empirical mean with other, more robust estimators of the mean, where in the paper three estimator is used, namely median-of-means, truncated mean, and Catoni’s -estimator.
+    \item The proof structure is:
+        \begin{enumerate}
+            \item first make \textit{Assumption 1} to bound the difference between estimated mean and the true mean (Hoeffding type, but without proof and without specify the estimator). \textit{Robust UCB} algorithm is proposed based the assumption. Interestingly, the assumption may be satisfied for significantly more general distributions (not only suits sub-gaussian) by using more sophisticated mean estimators. The basic requirement for Assumption 1 to be satisfied is that the distribution of the $X_t$ has a finite moment of order $1 + \varepsilon$.
+            \item Give a regret bound for \textit{Robust UCB} policy. Proofs are similar as the typical UCB proof, expect the confidence bound is different. 
+            \item The only remaining thing is to prove the proposed estimators satisfy \textit{Assumption 1}. 
+                \begin{itemize}
+                    \item Truncated Empirical Mean: proved with the assumption of the ($1+ \varepsilon$)th raw moment is bounded, using Bernstein’s inequality for bounded random variables.
+                    \item Median of Means: The simple idea is to divide the data into various disjoint blocks. Within each block one calculates the standard empirical mean and takes a median value of these empirical means. This approach solves the heavy tail problem with the Hoeffding inequality with a binomial distribution (within or without the blocks). 
+                \end{itemize}
+        \end{enumerate}
+\end{enumerate}
+
+\textbf{Considerations}: heavy tail distributions can be handled by carefully design the estimator, still using the our favourite  Hoeffding type bounds. So for our QuantUCB, can we also extend our approach to heavy tails easily by designing estimators like the Bubeck did (not only constrained as subgaussian)? 
+
+\section{Estimating Quantiles Values: An Empirical Study}
+
+\begin{enumerate}
+    \item Give proofs for centralization of empirical quantiles (they called \textit{representative sample}):
+        \begin{itemize}
+            \item Lemma 4.1 1 tells us that the representative sample method yields a quantile that is close to the target quantile q, with arbitrary precision.
+            \item Theorem 4.2 describes how many samples are necessary to ensure that the value of the kth sample is within $\gamma$ of s(q) (assumption: known density function f; small $\epsilon$, where $\epsilon$ is the added term of Taylor expansion).
+            \item Theorem 4.3 tells us that to achieve arbitrary value precision, we require more knowledge about the underlying distribution than in Theorem 4.2. That said, both theorems capture the intuition that as the density function approaches zero about some region, it becomes harder and harder to obtain a sample from said region.
+        \end{itemize}
+    \item Interpolation Heuristics
+\end{enumerate}
+
+\section{Bandits with risk measure}
+Quantiles and CVaR are used in multiarmed bandit problem with respect to risk measures:\href{http://link.springer.com/10.1007/978-3-642-40935-6_16}{Mailard, 2013} considers so-called coherence risk measures (CVaR, is one example of such a risk measure), and with an approach where the regret itself is redefined. They studied the deviations of the regret instead of the less informative expected regret.
+Value-at-Risk is considered in the context of a specific bandit policy family by \href{http://link.springer.com/10.1007/978-3-540-75225-7_15}{Audibert et al. [2007]}, \href{https://linkinghub.elsevier.com/retrieve/pii/S030439750900067X}{[2009]}.
+\end{document}
+
+
