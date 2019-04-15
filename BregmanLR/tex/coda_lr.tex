@@ -1,0 +1,57 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[left=2cm, right=2cm, top=1.5cm, bottom=1.5cm]{geometry}
+\title{Regression on Compositional Data}
+\author{Ragib Zaman u6341578}
+
+\newcommand{\bi}[2]{ \binom{#1}{#2}  }
+\newcommand{\p}{\prod}
+\newcommand{\e}{\mathbf{e}}
+
+\begin{document}
+\maketitle
+
+\paragraph{Introduction }
+\
+\newline
+Let $d$ be an integer greater than $1.$ The set $\Delta^d = \{ x \in \mathbb{R}^d_{\geq 0} \ | \ \| x \|_1 = 1 \}$ is called the probability simplex. Define$S^d$
+as the interior (wrt $\mathbb{R}^d$) of the probability simplex. Define the clr-plane as $U^d = \{ x \in \mathbb{R}^d \ | \ \sum x_i = 0\}.$ There is a bijection $clr : S^d \to U^d$ given by $[x_i] \mapsto [\log \frac{x_i}{g(x)}]$
+where $g(x)$ is the geometric mean of the components of $x.$ Let $W\in \mathbb{R}^{(d-1)\times d}$ be such that $WW^T= I_{d-1}$ and $W^TW = I_d - \frac{1}{d} \mathbf{1}_{d\times d}.$ Premultiplication by $W$ gives a bijection $U^d \to \mathbb{R}^{d-1}$ (with the inverse map being premultiplication by $W^T$). Composing this with the $clr$ map gives a bijection $ilr: S^d \to \mathbb{R}^{d-1}.$ Through this bijection $S^d$ inherits a Hilbert space structure from $\mathbb{R}^d.$ When the set $S^d$ is equipped with this Hilbert space structure it is called the Aitchison simplex, and its elements are called compositions. We shall denote addition and multiplication in the Aitchison simplex by $\oplus$ and $\otimes$ respectively. The $clr$ and $ilr$ maps are trivially isometric isomorphisms of $S^d.$ 
+\\
+Define $S^d_n \subset \mathbb{R}^{n \times d}$ as the set of matrices with $n$ rows, each row being a composition. We extend $clr$ and $ilr$ to such matrices by applying the functions row-wise. 
+
+\paragraph{A regression model}
+\
+\newline
+In (H. Wang et al, Multiple linear regression modeling for compositional data, 2013) the following regression model (clr-LR) is considered. Let $V$ and $U^{(k)}, k=1,\ldots, m$ be in $S^d_n,$ assumed to be centralized. Their model is given by $$ \hat{V} = \oplus_{k=1}^m \beta_k \otimes U^{(k)} $$
+
+Let $Y = ilr(V), \hat{Y} = ilr(\hat{V}), X^{(k)} = ilr( U^{(k)} ).$  Since $ilr$ is an isometric isomorphism, we have $$ \hat{Y} = \sum_{k=1}^m \beta_k X^{(k)}.$$
+
+To find $\beta \in \mathbb{R}^m,$ the authors minimize the Frobenius norm $ \| Y - \hat{Y} \|_F.$ Following (M Avalos-Fernandez et al,  Representation Learning of Compositional Data, 2018), we expect that the model may have better information geometry if we consider minimizing the following loss instead:
+
+$$ l_{CoDA} := D_{exp} \left( \sum_k \beta_k clr(U^{(k)} ), clr(V) \right)$$
+$$ = (\mathbf{1}_{n \times 1})^T \exp \left( (\sum_i \beta_i X^{(i)})W \right) \mathbf{1}_{d\times 1} - \operatorname{trace}(\tilde{V}^T (\sum_i \beta_i X^{(i)})W )$$
+
+See the Jupyter notebook for experiments comparing these two models.
+
+\paragraph{Other regression models}
+\
+\newline
+
+Other models for regression involving compositional data has been explored previously in the literature. To predict one composition from $m$ independent real variables, we can formulate the model 
+
+$$ z = b_0 \oplus (\oplus_{k} x_k \otimes b_k)$$ and solve for the compositions $b_k.$ This is referred to as "Model 2" in (H. Wang, 2013). Similarly to the previous section, we can consider a new loss function which may give better information geometry.
+
+In (Combettes, Muller, Regression models for compositional data, 2019) they consider the case of predicting a real value with the independent variable being a single composition. In cases where the predicted values are real numbers, we can map the predictions onto $S^2$ by the inverse-ilr map so that we may consider an alternate loss function similarly to the above cases, but this is a forced unnatural connection to the Aitchison simplex and we do not expect improved information geometry by doing this. 
+
+
+\end{document}
