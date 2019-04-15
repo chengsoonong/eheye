@@ -31,12 +31,12 @@
 \maketitle
 
 \section{Auer 2012}
-\href{https://homes.di.unimi.it/~cesabian/Pubblicazioni/ml-02.pdf}{Finite-time Analysis of the Multiarmed Bandit Problem}
+\href{https://homes.di.unimi.it/~cesabian/Pubblicazioni/ml-02.pdf}{Finite-time Analysis of the Multiarmed Bandit Problem} \cite{auer2002finite}
 
 There is a heuristic proposed by Auer et al. 2002, called UCB-Tuned, including estimates of variance into the UCB1 algorithm. The idea is similar as our idea of including quantiles.
 The UCB-Tuned performs better than UCB1 but Auer didn't prove a regret bound.
 \section{The KL-UCB Algorithm }
-\href{https://arxiv.org/abs/1102.2490}{The KL-UCB Algorithm for Bounded Stochastic Bandits and Beyond}
+\href{https://arxiv.org/abs/1102.2490}{The KL-UCB Algorithm for Bounded Stochastic Bandits and Beyond} \cite{garivier2011kl}
 \begin{enumerate}
     \item KL-UCB reaches the lower-bound of Lai and Robbins (1985) for binary rewards (optimal).
     \item KL-UCB is a general-purpose procedure for bounded bandits. In terms of the bounded rewards experiment in the paper, KL-UCB-exp and UCB-Tuned is most efficient, where UCB-Tuned performs slightly better. It leads us to think about for non-binary case, including variance/quantiles might be useful.
@@ -44,8 +44,8 @@ The UCB-Tuned performs better than UCB1 but Auer didn't prove a regret bound.
     \item They claimed that results obtained from N = 1,000 independent runs or less are not reliable. And results obtained in configuration where N is much smaller than the number of rounds n are likely to be unreliable. In our current setting, N = 50, n = 5,000, which might be unreliable according to their claim.
 \end{enumerate}
 
-\section{Bandits With Heavy tail}
-\href{http://ieeexplore.ieee.org/document/6576820/}{Bandits With Heavy Tail}
+\section{Bandits With Heavy tail} 
+\href{http://ieeexplore.ieee.org/document/6576820/}{Bandits With Heavy Tail}\cite{bubeck2013bandits}
 \begin{enumerate}
     \item The Hoeffding inequality turns out to be crucial in
 order to achieve a regret of optimal order. However, when the
@@ -66,21 +66,11 @@ empirical mean to have such an accuracy.
 
 \textbf{Considerations}: heavy tail distributions can be handled by carefully design the estimator, still using the our favourite  Hoeffding type bounds. So for our QuantUCB, can we also extend our approach to heavy tails easily by designing estimators like the Bubeck did (not only constrained as subgaussian)? 
 
-\section{Estimating Quantiles Values: An Empirical Study}
-
-\begin{enumerate}
-    \item Give proofs for centralization of empirical quantiles (they called \textit{representative sample}):
-        \begin{itemize}
-            \item Lemma 4.1 1 tells us that the representative sample method yields a quantile that is close to the target quantile q, with arbitrary precision.
-            \item Theorem 4.2 describes how many samples are necessary to ensure that the value of the kth sample is within $\gamma$ of s(q) (assumption: known density function f; small $\epsilon$, where $\epsilon$ is the added term of Taylor expansion).
-            \item Theorem 4.3 tells us that to achieve arbitrary value precision, we require more knowledge about the underlying distribution than in Theorem 4.2. That said, both theorems capture the intuition that as the density function approaches zero about some region, it becomes harder and harder to obtain a sample from said region.
-        \end{itemize}
-    \item Interpolation Heuristics
-\end{enumerate}
-
 \section{Bandits with risk measure}
-Quantiles and CVaR are used in multiarmed bandit problem with respect to risk measures:\href{http://link.springer.com/10.1007/978-3-642-40935-6_16}{Mailard, 2013} considers so-called coherence risk measures (CVaR, is one example of such a risk measure), and with an approach where the regret itself is redefined. They studied the deviations of the regret instead of the less informative expected regret.
-Value-at-Risk is considered in the context of a specific bandit policy family by \href{http://link.springer.com/10.1007/978-3-540-75225-7_15}{Audibert et al. [2007]}, \href{https://linkinghub.elsevier.com/retrieve/pii/S030439750900067X}{[2009]}.
+Quantiles and CVaR are used in multiarmed bandit problem with respect to risk measures:\cite{Maillard2013}  considers so-called coherence risk measures (CVaR, is one example of such a risk measure), and with an approach where the regret itself is redefined. They studied the deviations of the regret instead of the less informative expected regret.
+Value-at-Risk is considered in the context of a specific bandit policy family by \cite{Audibert2007}, \cite{AUDIBERT20091876}.
+
+\printbibliography
 \end{document}
 
 
