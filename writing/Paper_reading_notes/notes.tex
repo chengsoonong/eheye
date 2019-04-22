@@ -30,11 +30,99 @@
 
 \maketitle
 
-\section{Auer 2012}
+\textbf{Notes:} the notation among papers is not consistent, since I just copy the equation from papers to make the notes self-contained. And some of the definition of notations is not given in the notes (otherwise, it will make the notes too long), please refer to the paper if needed. 
+
+\section{Auer 2002}
 \href{https://homes.di.unimi.it/~cesabian/Pubblicazioni/ml-02.pdf}{Finite-time Analysis of the Multiarmed Bandit Problem} \cite{auer2002finite}
 
-There is a heuristic proposed by Auer et al. 2002, called UCB-Tuned, including estimates of variance into the UCB1 algorithm. The idea is similar as our idea of including quantiles.
-The UCB-Tuned performs better than UCB1 but Auer didn't prove a regret bound.
+\textbf{UCB1}: constructs the Upper
+Confidence Bound (UCB) for arm k at time t by adding the bias factor
+\begin{align}
+    \label{ucb1 confidence bound}
+    \sqrt{\frac{2 b^{2} \log t}{T_{k}(t-1)}}
+\end{align}
+to its sample-mean. They proved that the expected regret of this algorithm satisfies
+
+\begin{align}
+    \label{ucb1 regret bound}
+    \mathbb{E}\left[\hat{R}_{n}\right] \leq 8\left(\sum_{k : \mu_{k}<\mu^{*}} \frac{b^{2}}{\Delta_{k}}\right) \log (n)+O(1)
+\end{align}
+
+\textbf{UCB-Tuned:}
+First define an upper confidence bound for the variance of machine j. This means that machine j, which has been played s times during the first t plays, has a variance that is at most the sample variance plus $\sqrt{2 lnt/s}$
+\begin{align}
+    V_{j}(s) \stackrel{\mathrm{def}}{=}\left(\frac{1}{s} \sum_{\tau=1}^{s} X_{j, \tau}^{2}\right)-\overline{X}_{j, s}^{2}+\sqrt{\frac{2 \ln t}{s}}
+\end{align}
+
+Then replace (\ref{ucb1 confidence bound}) with 
+\begin{align}
+    \sqrt{\frac{\ln n}{n_{j}} \min \left\{1 / 4, V_{j}\left(n_{j}\right)\right\}}
+\end{align}
+
+The UCB-Tuned includes estimates of variance into the UCB1 algorithm, which performs better than UCB1 but \cite{auer2002finite} didn't prove a regret bound.\\
+
+Comment:\\
+However UCB-Tuned is only for Bernoulli random variables, where 1/4 is the upper bound on the variance of a Bernoulli random variable. For Gaussian, our experiment shows it performs worse than UCB1 ($ \min \left\{1 / 4, V_{j}\left(n_{j}\right)\right\}$ is turned to just $V_{j}\left(n_{j}\right)$). 
+
+\section{Audibert 2009}
+
+Exploration–exploitation tradeoff using variance estimates in multi-armed bandits \cite{AUDIBERT20091876}
+
+\begin{enumerate}
+    \item This paper considers a variant of the basic algorithm for the stochastic, multi-armed bandit problem that takes into account the empirical variance of the different arms. 
+    
+    \textbf{UCB-V:}
+    
+    \begin{align}
+        \sqrt{\frac{2 V_{k, T_{k}(t-1)} \mathcal{E}_{T_{k}(t-1), t}}{T_{k}(t-1)}}+c \frac{3 b \mathcal{E}_{T_{k}(t-1), t}}{T_{k}(t-1)}
+    \end{align}
+    
+    where $V_{k,s}$ is the empirical variance estimate for arm k based on s samples,
+    $\mathcal{E} = \mathcal{E}_{\cdot,\cdot}$ (viewed as a function of (s, t)) is the so-called exploration function. A typical choice for this function is $\mathcal{E}_{s,t} = \varsigma log(t)$. With this choice the algorithm’s behavior is controlled by the parameters $\varsigma, c > 0$.
+    
+    For c = 1 and $\varsigma$ = 1.2, 
+    \begin{align}
+        \mathbb{E}\left[\hat{R}_{n}\right] \leq 10 \sum_{k : \mu_{k}<\mu^{*}}\left(\frac{\sigma_{k}^{2}}{\Delta_{k}}+2 b\right) \log (n)
+    \end{align}
+    The main difference to the bound (\ref{ucb1 regret bound}) is that $b^2$ is replaced by $\sigma_k^2$ . However, notice that b still appears in the bound.
+    
+    \item In order to prove the above result they proved a novel tail bound on the sample average of i.i.d. random variables with bounded support. Unlike previous similar bounds, this bound uses the empirical variance and thus it might be of independent interest (corresponding to Theorem 1 in the original paper).
+    
+    Let $X_1 , . . . , X_t$ be i.i.d. random variables taking their values in [0, b]. Let $\mu = \mathbb{E}[X_1]$ be their common expected value. Consider the empirical mean $\bar{X}_t$ and variance $V_t$ defined respectively by
+    $$\overline{X}_{t}=\frac{\sum_{i=1}^{t} X_{i}}{t} \quad \text { and } \quad V_{t}=\frac{\sum_{i=1}^{t}\left(X_{i}-\overline{X}_{t}\right)^{2}}{t}$$
+    Then, for any $t \in N$ and $x > 0$, with probability at least $1-3e^{-x}$,
+    \begin{align}
+        \label{tail bound for ucbv}
+        \left|\overline{X}_{t}-\mu\right| \leq \sqrt{\frac{2 V_{t} x}{t}}+\frac{3 b x}{t}
+    \end{align}
+    
+    \item Theorem 2 says something about the sampling times of suboptimal arms (I haven't think and study much about that, but could be a good direction to think about).
+    
+    \item The paper also analyzed the risk that the
+regret of the studied algorithm is much higher than its expected value. It is about concentration of regret distribution. To do that, then defined the (cumulative) pseudo-regret
+\begin{align}
+    R_{n}=\sum_{k=1}^{K} T_{k}(n) \Delta_{k}
+\end{align}
+\end{enumerate}
+
+Considerations:
+
+\begin{enumerate}
+    \item The UCB-V policy looks like the improved version of UCB-Tuned with theoretical proof of regret. However, \cite{garivier2011kl} reported that UCB-V performs much worse than UCB-Tuned in most cases (need to figure out why). 
+    
+    \item In order to prove the QuantUCB regret bound, we should first prove (or if it exists, that'd be better) a tail bound on the sample average of i.i.d. random variables (with bounded support) similar as (\ref{tail bound for ucbv}), but with quantiles on the right hand side rather than variance. But this might not be possible, since quantile is not the natural term to describe the deviations of empirical mean from expectation (but variance is, and has been proved in Bernstein inequality). Without concentration proof, just trying multiply terms outside of quantiles doesn't sound good. 
+    
+    \item Another idea is to replace the variance using quantile differences in (\ref{tail bound for ucbv}), rather than just quantiles. That is, we want to prove
+    $$\left|\overline{X}_{t}-\mu\right| \leq \sqrt{\frac{2 (Q_t^u(\alpha) - Q_t^l(\alpha)) x}{t}}+\frac{3 b x}{t},$$
+    where $Q_t^u(\alpha)$ and $Q_t^l(\alpha)$ represents the upper and lower quantile function evaluated at $\alpha$ respectively (The quantile level can be same for different time step t?). The right hand side can be slightly different.
+    
+    To figure out whether it's possible, we need to first understand the proof of Theorem 1 in \cite{AUDIBERT20091876}. However, my feeling is that even if we can prove the relationship between expectation concentration and quantile differences, we need to reply on some other proof rather than \cite{AUDIBERT20091876}, since variance and quantile differences are still very different.
+    
+    I suspect different choices of quantile level $\alpha$ can give us different risks of regret. 
+    
+    \item The value at risk is used to measure the risk of the regret distribution. It is interesting. But a different direction is to think about whether using the value at risk to measure the reward distributions of arms could be interesting. It differs from the classic bandit problems. But using quantiles this way might be a more natural choice. That is, to measure true quantile - empirical quantile,  rather than true mean - empirical mean. 
+\end{enumerate}
+
 \section{The KL-UCB Algorithm }
 \href{https://arxiv.org/abs/1102.2490}{The KL-UCB Algorithm for Bounded Stochastic Bandits and Beyond} \cite{garivier2011kl}
 \begin{enumerate}
@@ -43,6 +131,8 @@ The UCB-Tuned performs better than UCB1 but Auer didn't prove a regret bound.
     \item UCB-Tuned is risky, see figure one right panel. (the variance of the distribution of the number of draws of the suboptimal arm is high).
     \item They claimed that results obtained from N = 1,000 independent runs or less are not reliable. And results obtained in configuration where N is much smaller than the number of rounds n are likely to be unreliable. In our current setting, N = 50, n = 5,000, which might be unreliable according to their claim.
 \end{enumerate}
+
+
 
 \section{Bandits With Heavy tail} 
 \href{http://ieeexplore.ieee.org/document/6576820/}{Bandits With Heavy Tail}\cite{bubeck2013bandits}
