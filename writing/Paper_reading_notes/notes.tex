@@ -160,6 +160,43 @@ empirical mean to have such an accuracy.
 Quantiles and CVaR are used in multiarmed bandit problem with respect to risk measures:\cite{Maillard2013}  considers so-called coherence risk measures (CVaR, is one example of such a risk measure), and with an approach where the regret itself is redefined. They studied the deviations of the regret instead of the less informative expected regret.
 Value-at-Risk is considered in the context of a specific bandit policy family by \cite{Audibert2007}, \cite{AUDIBERT20091876}.
 
+\section{Concentration inequalities for order statistics}
+
+Concentration inequalities for order statistics \cite{boucheron2012}
+
+
+This note describes non-asymptotic variance and tail bounds for order statistics of samples of independent identically distributed random variables.
+
+There are two main assumptions: 
+\begin{enumerate}
+    \item Fixed number of samples.
+    \item Non-decreasing hazard rate (a condition that is satisfied by Gaussian, exponential, Gumbel, logistic distributions, . . .). The hazard rate of an absolutely continuous probability distribution with distribution function F is: h = f /F where f and F = 1 - F are respectively the density and the survival function associated with F.
+\end{enumerate}
+
+The authors makes use of Efron-Stein inequalities to derive the \textbf{Exponential Efron-Stein inequality (Theorem 2.9 in the paper)}, we state it here, let $X_1,..., X_n$ be independently distributed according to F, $X_{(1)} \geq \ldots \geq X_{(n)}$ be the order statistics and let $\triangle_k = X_{(k)} - X_{(k+1)}$ be the $k^{th}$ spacing. Let $V_k = k \triangle_k^2$ denote the Efron-Stein estimate of the variance of $X_{(k)}$ (for k = 1, ..., n/2). If F has a non-decreasing hazard rate h, then for $1 \leq k \leq n/2$,
+\begin{align}
+    \operatorname{Var}\left[X_{(k)}\right] \leq \mathbb{E} V_{k} \leq \frac{2}{k} \mathbb{E}\left[\left(\frac{1}{h\left(X_{(k+1)}\right)}\right)^{2}\right]
+\end{align}
+For $\lambda \geq 0$, and $1\leq k \leq n/2$,
+\begin{align}
+    \label{Boucheron theorem 9-2}
+    \log \operatorname{Ee}^{\lambda\left(X_{(k)}-\mathrm{E} X_{(k)}\right)} \leq \lambda \frac{k}{2} \mathbb{E}\left[\Delta_{k}\left(e^{\lambda \Delta_{k}}-1\right)\right]=\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right]
+\end{align}
+It connects the logarithmic moment generating function of the k th order statistic with the exponential moments of the square root of the Efron-Stein estimate of variance $k \triangle_k^2$.
+Based on the above theorem, order statistics of Gaussian samples are analyzed and Bernstein inequalities for order statistics of \underline{absolute value} of independent \underline{standard Gaussian} random variables in Section 4 in \cite{boucheron2012}. \\
+
+Considerations:
+\begin{enumerate}
+    \item From formula (\ref{Boucheron theorem 9-2}), we can derive tail bound 
+    \begin{align}
+        P(X_{(k)} - \mathbb{E}X_{(k)} > t) &\leq \exp\{\log \operatorname{Ee}^{\lambda\left(X_{(k)}-\mathrm{E} X_{(k)}\right)} - \lambda t \}\\
+        &\leq \exp \{\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right] - \lambda t\}\\
+        &\leq \inf_{\lambda \geq 0} \exp \{\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right] - \lambda t\}
+    \end{align}
+    with the above two assumptions holding (fixed sample size, non-decreasing hazard rate). Note the one the right hand side, we have k and $k^{th}$ spacing $\triangle_k$. But still quantiles are not included.
+    
+    \item The paper includes Gaussian as an example, we still need to verify that we can indeed get an interesting bound for some other distributions. 
+\end{enumerate}
 \printbibliography
 \end{document}
 
