@@ -183,7 +183,16 @@ For $\lambda \geq 0$, and $1\leq k \leq n/2$,
     \log \operatorname{Ee}^{\lambda\left(X_{(k)}-\mathrm{E} X_{(k)}\right)} \leq \lambda \frac{k}{2} \mathbb{E}\left[\Delta_{k}\left(e^{\lambda \Delta_{k}}-1\right)\right]=\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right]
 \end{align}
 It connects the logarithmic moment generating function of the k th order statistic with the exponential moments of the square root of the Efron-Stein estimate of variance $k \triangle_k^2$.
-Based on the above theorem, order statistics of Gaussian samples are analyzed and Bernstein inequalities for order statistics of \underline{absolute value} of independent \underline{standard Gaussian} random variables in Section 4 in \cite{boucheron2012}. \\
+Based on the above theorem, order statistics of Gaussian samples are analyzed and Bernstein inequalities for order statistics of \underline{absolute value} of independent \underline{standard Gaussian} random variables in Section 4 in \cite{boucheron2012}. \textbf{As stated in Proposition 4.6}: Let $v_{n}=8 /(n \log 2)$, for all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$,
+
+\begin{align}
+    \label{Boucheron proposition 4.6-1}
+    \log \operatorname{Ee}^{\lambda\left(X_{(n / 2)}-\mathrm{E} X_{(n / 2)}\right)} \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}
+\end{align}
+For all $t > 0$
+\begin{align}
+    \mathbb{P}\left\{X_{(n / 2)}-\mathbb{E} X_{(n / 2)}>\sqrt{2 v_{n} t}+2 t \sqrt{v_{n} / n}\right\} \leq e^{-t}
+\end{align}
 
 Considerations:
 \begin{enumerate}
@@ -193,9 +202,11 @@ Considerations:
         &\leq \exp \{\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right] - \lambda t\}\\
         &\leq \inf_{\lambda \geq 0} \exp \{\lambda \frac{k}{2} \mathbb{E}\left[\sqrt{\frac{V_{k}}{k}}\left(e^{\lambda \sqrt{V_{k} / k}}-1\right)\right] - \lambda t\}
     \end{align}
-    with the above two assumptions holding (fixed sample size, non-decreasing hazard rate). Note the one the right hand side, we have k and $k^{th}$ spacing $\triangle_k$. But still quantiles are not included.
+    with the above two assumptions holding (fixed sample size, non-decreasing hazard rate). Note the one the right hand side, we have k and $k^{th}$ spacing $\triangle_k$ (also, why not dependent on n?). But still quantiles are not included.
     
-    \item The paper includes Gaussian as an example, we still need to verify that we can indeed get an interesting bound for some other distributions. 
+    \item The paper includes Gaussian as an example, because for Gaussian we can easily derive a bound using the pdf and cdf distribution. However, if we don't specify a distribution form, we cannot get rid of $\triangle_k$ in the bound, which may make the bound looks not that interesting. In terms of whether we can give an interesting bound for other distributions other than Gaussian, we still need to do more proofs to verify.  
+    
+    \item One problem of (\ref{Boucheron proposition 4.6-1}) is that $v_n$ is not variance or second order moment. 
 \end{enumerate}
 \printbibliography
 \end{document}
