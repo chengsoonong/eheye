@@ -6,6 +6,9 @@
 \usepackage[mathscr]{eucal}
 \usepackage{color}
 \DeclareMathOperator*{\argmax}{argmax}
+\usepackage{amsthm}
+
+\theoremstyle{plain}
 
 \topmargin -.5in
 \textheight 9in
@@ -13,7 +16,15 @@
 \evensidemargin -.25in
 \textwidth 7in
 
-\title{QuantUCB Construction}
+\newtheorem{lemma}{Lemma}
+\newtheorem{lemmaproof}{Proof of Lemma}
+
+\newtheorem{theo}{Theorem}
+\newtheorem{theoproof}{Proof of Theorem}
+
+\newtheorem{defi}{Definition}
+
+\title{QuantUCB for Order Statistics}
 \author{u6015325 }
 \date{\today}
 \bibliography{ref.bib}
@@ -26,7 +37,7 @@
 
 \subsection{Problem Statement}
 
-    For a stochastic K-armed bandit problem, there is a set of distributions $v = (P_i: i \in \mathcal{K})$, where $\mathcal{K}$ is the set of available actions with size K. In each round $t \in \{1, ..., n\}$, a learner chooses an action $A_t = i \in \mathcal{K}$ according to a policy $\pi$, and gets a reward which is sampled from $P_i$. The goal of designing such a policy is normally to maximize expected cumulative reward (i.e. minimize expected cumulative regret). For this work, instead of caring about the cumulative reward, we focus on the order statistics of the reward, for example, median or more generally quantiles. We give the definitions and notations in the following section. 
+    For a stochastic K-armed bandit problem, there is a set of distributions $v = (P_i: i \in \mathcal{K})$, where $\mathcal{K}$ is the set of available actions with size K. In each round $t \in \{1, ..., n\}$, a learner chooses an action $A_t = i \in \mathcal{K}$ according to a policy $\pi$, and gets a reward which is sampled from $P_i$. The goal of designing such a policy is usually to maximize expected cumulative reward (i.e. minimize expected cumulative regret). For this work, instead of caring about the cumulative reward, we focus on the order statistics of the reward, for example, median or more generally quantiles. We give the definitions and notations in the following section. 
     
 \subsection{Definitions and Notations}
     
@@ -59,7 +70,7 @@ The empirical quantile function relies on the the sorted samples of arm i up to 
     \hat{Q}_{i, T_i(t)}(\alpha) = Y_{i,\lceil \alpha T_i(t) \rceil}
 \end{align}
     
-    The expected regret for total n rounds is the loss due to the policy $\pi$ does not always play the best arm (the arm which maximum order statistics). We define the expected regret in terms of $\alpha-$quantile as 
+    The expected regret for total n rounds is the loss due to the policy $\pi$ does not always play the best arm (the arm with maximum order statistics). We define the expected regret in terms of $\alpha-$quantile as 
     \begin{align}
         \label{regret}
         \mathbb{E}[R_n] = Q^\ast(\alpha) n -  \sum_{i=1}^K Q_{i}(\alpha) \mathbb{E}[T_i(n)],
@@ -82,14 +93,21 @@ where $p = 4 \log t$, $q = T_i(t) - \lceil \alpha T_i(t) \rceil$, $\lambda = \su
 \end{align}
 For simplicity, we denote $B_i(t, T_i(t), \alpha) = \frac{p}{\lambda} - \frac{q}{2} \mathbb{E}[d_{q} (\exp\{\lambda d_{q}\} - 1)]$\\
 
-\textbf{Definition 1} (Hazard Rate)\cite{boucheron2012}. The hazard rate of an absolutely continuous probability
+\begin{defi}
+(Hazard Rate)\cite{boucheron2012}. The hazard rate of an absolutely continuous probability
 distribution with distribution function F is: $h = f /\bar{F}$ where f and $\bar{F} = 1 - F$ are respectively the density and the survival function associated with F.\\
+\end{defi}
 
-\textbf{Theorem 1} (Regret bound). \\
+\begin{theo}
+(Regret bound). \\
 
 For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most ... \\
+\end{theo}
 
-\textbf{Lemma 1}. Let $X_1,..., X_n$ be independently distributed according to cumulative density distribution F, $Y_{1} \leq \ldots \leq Y_{n}$ be the order statistics and let $d_q = Y_{n-q} - Y_{n-q-1}$ be the $q^{th}$ spacing. Then with $q = n - \lceil \alpha n \rceil (i.e. 1 - \frac{q+1}{n} \leq \alpha \leq 1 - \frac{q}{n})$, if F has a non-decreasing hazard rate h, then for $\lambda \geq 0$, and $1\leq k \leq n/2$,
+\begin{proof}
+
+\begin{lemma}
+Let $X_1,..., X_n$ be independently distributed according to cumulative density distribution F, $Y_{1} \leq \ldots \leq Y_{n}$ be the order statistics and let $d_q = Y_{n-q} - Y_{n-q-1}$ be the $q^{th}$ spacing. Then with $q = n - \lceil \alpha n \rceil (i.e. 1 - \frac{q+1}{n} \leq \alpha \leq 1 - \frac{q}{n})$, if F has a non-decreasing hazard rate h, then for $\lambda \geq 0$, and $1\leq k \leq n/2$,
 \begin{align}
     \label{Boucheron theorem 9-2}
     \log \mathbb{E}e^{\lambda\left(\Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]\right)} \leq \lambda \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]
@@ -101,16 +119,24 @@ And tail bound is
    \label{Lemma 1-3}
    P\{\mathbb{E}[ \Hat{Q}(\alpha)] - \Hat{Q}(\alpha) \geq \frac{\varepsilon}{\lambda} - \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]\} \leq e^{-\varepsilon}
 \end{align}
+\end{lemma}
 
-\textbf{Proof of Lemma 1}. (\ref{Boucheron theorem 9-2}) can be derived from \cite{boucheron2012}(Theorem 2.9).  Let $S = \Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]$, then according to Markov's inequality,
+\begin{proof}
+(\ref{Boucheron theorem 9-2}) can be derived from \cite{boucheron2012}(Theorem 2.9).  Let $S = \Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]$, then according to Markov's inequality,
 \begin{align}
     P \{S \geq t\} \leq \frac{\mathbb{E}[e^{\lambda S}]}{e^{\lambda t}} \leq \exp\{\lambda \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right] - \lambda t\},
 \end{align}
-from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can be similarly proved (\textcolor{red}{how??}). \\
- 
-\textbf{Proof of Theorem 1}. \\
+from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can be similarly proved (\textcolor{red}{how??}).
+\end{proof}
 
-    Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary positive integer. For $t \geq 1$,
+\begin{lemma}
+Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary positive integer. For $t \geq 1$, the number of arm r is chosen is bounded by
+\begin{align}
+    T_i(n) \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}
+\end{align}
+\end{lemma}
+ 
+\begin{proof}
     \begin{align}
         T_i(n) =& 1 + \sum_{t = k + 1}^n \{I_t = i\}\\
                \leq & l + \sum_{t = k + 1}^n (\{I_t = i\} \cup \{T_i(t-1) \geq l\})\\
@@ -121,8 +147,11 @@ from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can
                \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}
     \end{align}
     where the symbols with $*$ representing the properties of the best arm (i.e. the arm with maximum $\alpha-$quantiles $Q_i(\alpha)$). From step (\ref{proof: minmax}) to (\ref{proof: union bound}), we use the union bound. And in the step (\ref{proof: union bound}), t is summed from 1 to infinity to make sure the arm i can be played for s times.\\
-    
-    \textbf{Lemma 2}. $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$ implies that at least one of the following must hold\\
+\end{proof}
+
+\begin{lemma}
+\label{lemma 3}
+    $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$ implies that at least one of the following must hold\\
     \begin{align}
         \label{lemma 1.1}
         \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]\\
@@ -131,8 +160,10 @@ from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can
         \label{lemma 1.3}
         \mathbb{E}[\hat{Q}_{*, s}(\alpha)] < \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] + 2 B_i(t, s_i, \alpha)
     \end{align}
-    
-     \textbf{Proof of Lemma 1}: Assume all of the three inequalities are not true, then we have
+\end{lemma}
+
+\begin{proof}
+Assume all of the three inequalities are not true, then we have
     \begin{align}
         \label{proof lemma 1.1}
          \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) >  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]\\
@@ -149,8 +180,22 @@ from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can
         &= 2 B_i(t, s_i, \alpha),
     \end{align}
     which is contradicted to (\ref{proof lemma 1.3}), the assumption that all of the three inequalities are not true doesn't hold. Lemma 1 is proved to be true.\\
-    
-    According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1.2}) as
+\end{proof}
+
+\begin{lemma}
+    The expected number of arm i is chosen is bounded by 
+    \begin{align}
+        \mathbb{E}[T_i(n)] \leq ?
+    \end{align}
+\end{lemma}
+
+\begin{proof}
+To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$. From Lemma \ref{lemma 3} we know, if we make (\ref{lemma 1.3}) false, then 
+\begin{align}
+    & P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)) \\
+    \leq &  P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) + P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])
+\end{align}
+According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1.2}) as
     \begin{align}
         P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) \leq  e^{-4lnt} = t^{-4}\\
         P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])  \leq  e^{-4lnt} = t^{-4}
@@ -163,6 +208,12 @@ from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can
         \geq & \mu^\ast - \mu_i - \triangle_i = 0
     \end{align}
     (\textcolor{red}{Cannot derive a value of l to satisfy that?})
+\end{proof}
+    
+    
+    
+    
+\end{proof}
 
 \printbibliography
 \end{document}
