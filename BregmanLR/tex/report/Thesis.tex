@@ -22,6 +22,9 @@
 \newtheorem{Remark}[equation]{Remark}
 \newtheorem{Example}[equation]{Example}
 
+
+\usepackage{amsmath,amsfonts,amsthm,bm}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % personal macros
@@ -100,7 +103,7 @@ Let $d$ be a positive integer. The positive orthant of $\mathbb{R}^d$ is the set
 Include an example with unnormalised compositions. 
 \end{Example}
 
-\section{Barriers to treating CoDA with standard methods}
+\section{Obstacles in treating CoDA with standard methods}
 
 In machine learning and statistics we wish to analyse data to perform tasks such as regression, classification or representation learning, however most standard methods such as linear regression, logistic regression and principal component analysis assumes that the data resides in some Euclidean space $\mathbb{R}^d.$ While a composition may appear to be as such, they are actually equivalence classes with infinitely many representatives, each representative being a point in $\mathbb{R}^d.$ The most naive approach to modelling CoDA would be to simply forget the equivalence class structure and replace it with the representative which was originally provided in the data. This quickly becomes problematic, since the standard methods are not robust against positive scaling of the input data as one requires when modelling CoDA. One way to address this is to define a unique representative from each class, with a natural choice being the representative whose components sum to $1.$ 
 
@@ -185,7 +188,13 @@ To predict one composition $z$ from $m$ independent real variables $x_k$, we can
 $$ z = b_0 \oplus (\oplus_{k} x_k \otimes b_k)$$ and solve for the compositions $b_k.$ This is referred to as "Model 2" in (H. Wang, 2013). Similarly to the previous section, we can consider a new loss function which may give better information geometry.
 
 \section{Multiple linear regression for CoDA features and CoDA prediction}
-In (H. Wang et al, Multiple linear regression modeling for compositional data, 2013) the following regression model (clr-LR) is considered. Suppose we have labels $V$ and features $U^{(k)}, k=1,\ldots, m$ in $S^d_n,$ assumed to be centralized. Their model is given by $$ \hat{V} = \oplus_{k=1}^m \beta_k \otimes U^{(k)} $$
+
+In this section we focus on models which predict an independent composition variable with several dependent composition variables.
+
+\subsection{clr-LR by Wang et al.}
+In (H. Wang et al, Multiple linear regression modeling for compositional data, 2013) the authors wish to model a dependent composition variable as a linear combination (in the Aitchison geometry) of $k$ independent composition variables, and learn the $m$ coefficients $\beta_1, \ldots, \beta_m \in \mathbb{R}$ which make this estimator minimize the sum of the Aitchison distances between the labelled values and the predictions. \
+
+More specifically, their model (which we call clr-LR) has the following form. Suppose we have labels $V$ and features $U^{(k)}, k=1,\ldots, m$ in $S^d_n,$ assumed to be centralized. Their model is given by $$ \hat{V} = \oplus_{k=1}^m \beta_k \otimes U^{(k)} $$
 
 Let $Y = ilr(V), \hat{Y} = ilr(\hat{V}), X^{(k)} = ilr( U^{(k)} ).$  Since $ilr$ is an isometric isomorphism, we have $$ \hat{Y} = \sum_{k=1}^m \beta_k X^{(k)}.$$
 
@@ -194,8 +203,38 @@ To find $\beta \in \mathbb{R}^m,$ the authors minimize the Frobenius norm $ \| Y
 $$ l_{CoDA} := D_{exp} \left( \sum_k \beta_k clr(U^{(k)} ), clr(V) \right)$$
 $$ = (\mathbf{1}_{n \times 1})^T \exp \left( (\sum_i \beta_i X^{(i)})W \right) \mathbf{1}_{d\times 1} - \operatorname{trace}(\tilde{V}^T (\sum_i \beta_i X^{(i)})W )$$
 
-Experimentally, evaluated on metrics on $\Delta^d$ such as Fisher-Rao distance, symmetric KL distance, L1 distance and L2 distance, these two models appear to be very similar, with CoDA-LR usually having 1 to 2 percent higher error than clr-LR. A goal is to design a dataset that causes these two models to show a greater disparity from one another and to understand why the might be so similar. 
+Let $g$ and $h$ denote the first and second term in the gauged-KL-loss respectively. 
+$$ g(\beta) = \sum_{i=1}^d \sum_{j=1}^n \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_k C^{(k)}_{ij} \right)$$
+$$ h(\beta) = \operatorname{trace}\left( \tilde{V}^T \left( \sum_k \beta_k C^{(k)} \right)  \right) = \sum_k \beta_k \operatorname{trace}\left( \tilde{V}^T C^{(k)} \right) $$
 
+We have $$ \frac{ \partial g}{\partial \beta_r } = \sum_{i=1}^d \sum_{j=1}^n C^{(r)}_{ij} \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_k C^{(k)}_{ij} \right)$$
+$$ \frac{ \partial h}{\partial \beta_r } = \operatorname{trace}\left( \tilde{V}^T C^{(r)}\right)$$
+
+This loss function is convex in $\beta$ and we can compute the gradient, so we can find the optimal $\beta$ by standard methods. In our experiments we used Scipy's BFGS optimizer and evaluated the results against metrics on $\Delta^d$ such as Fisher-Rao distance, symmetric KL distance, L1 distance and L2 distance.
+
+On a variety of datasets these two loss functions produce quite similar results. CoDA-LR usually has 1 to 2 percent higher error than clr-LR, although there are instances where CoDA-LR has lower error than clr-LR. The similarity between the results is perhaps unsurprising given the relatively small number of learnable paramaters ($m$) in clr-LR. 
+
+\subsection{Learning a bias composition}
+In (Wang. et al) the authors wished to learn only the real coefficients of a linear estimator. By doing this, they maintained a strong parallel with linear regression on real valued data and were able to produce a simple closed form solution for their optimal coefficients. However, since there is no appropriate identity composition they can not learn a bias parameter $\beta_0 \in \mathbb{R}.$ To address this issue they centralized their matrices of compositional data, and during inference they would uncentralize the output of the linear estimator by adding the center of the training set. \
+\\
+\\
+Instead of estimating a bias term by the center of the training labels, we could learn a bias term from the data in the following way. Again, suppose we have compositional datasets $V, U^{(k)}$ as defined above and some loss function $l(v, v')$. Consider the problem of finding $m$ real numbers $\beta_1,\ldots, \beta_m \in \mathbb{R}$ and a composition $\bm{\beta}_0 = [ \beta_{0, 1}, \ldots, \beta_{0, d} ] \in S^d$ such that the estimator
+$$ \hat{v}  = \bm{\beta}_0 \oplus \beta_1 \otimes u_1 \oplus \ldots \oplus \beta_m \otimes u_m $$ 
+
+minimizes the total loss $\sum_{i=1}^n l(v, \hat{v}).$ Through the $ilr$ transformation one could view this model as having $m + d-1$ learnable real parameters:
+
+$$ \hat{y} = ilr(\bm{\beta}_0) + \beta_1 x_1 + \ldots + \beta_m x_m$$
+Again, such a model may not have enough parameters to model compositional datasets with many parts (large $d$). 
+\subsection{Matrix Coefficient Model}
+In the previous two sections the form of the estimators had simple forms in the ilr domain with ilr-transformed compositional data $Y, X^{(k)},$ and optimization was most easily performed in the ilr domain. Pursuing this to its most general form, we could consider the estimator:
+
+$$ \hat{y} = \bm{\beta}_0 + x_1 \bm{\beta}_1 + \ldots + x_m \bm{\beta}_m$$
+
+where $\bm{\beta}_0$ is a row vector of length $d-1,$ and $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are $(d-1) \times (d-1)$ matrices.  
+\\
+This estimator has $m(d-1)^2 + d-1$ learnable paramaters. While this may be able to express complex relations between compositional variables, most compositional datasets do not have enough samples to learn these parameters with good generalisation. As a compromise, one may consider the special case where $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are diagonal matrices. In that case there are $(m+1)(d-1)$ learnable parameters.
+\\
+A drawback to this model is that it has no simple formulation in the original domain of the Aitchison simplex, and the learnable parameters become very difficult to interpret.  
 
 \chapter*{Appendix}
 .
@@ -203,55 +242,17 @@ Experimentally, evaluated on metrics on $\Delta^d$ such as Fisher-Rao distance, 
 %% Bibliography %%
 \begin{thebibliography}{10}
 
-    \bibitem{logodds}
-   {\sc  A.~Banerjee}
-    \newblock 'An Analysis of Logistic Models:
-Exponential Family Connections and Online Performance'.
-    \newblock {\em 2007 SIAM International Conference on Data Mining}
-    2007.  
-    
 
-    
+\bibitem{SBTPCA}
+{\sc M.~ Avalos-Fernandex, R.~ Nock, C.S.~ Ong, J.~ Rouar, K.~ Sun}, "Representation Learning of Compositional data", NIPS'18 Proceedings of the 30th International Conference on Neural Information Processing Systems, p. 19-27, 2016. 
 
-    \bibitem{mean}
-    {\sc A.~Banerjee, X.~Gou, H.~Wang}
-    \newblock  'On the Optimality of Conditional Expectation as a Bregman Predictor'
-    \newblock {\em IEEE Trans. on Information Theory} Vol 51(7)
-    2005.  
-    
-    \bibitem{Bi}
-{\sc J.~ Borwein and A.~ Lewis}, {\em Convex Analysis and Nonlinear Optimization}, (2 ed.). Springer. p. 76, 2006.
+\bibitem{SBT}
+{\sc R.~ Nock, A.~ Menon and C.S.~ Ong}, "A scaled Bregman theorem with applications", Advances in Neural Information Processing Systems 31 (NIPS 2018)
 
-\bibitem{Collins}
-   {\sc  M.~Collins, R.E.~Schapire, Y.~Singer}
-    \newblock 'Logistic Regression, AdaBoost and Bregman Distances'
-    \newblock {\em Machine Learning}, 48(1/2/3).
-    2002.
-    
-
-    \bibitem{pietra}
-    {\sc S.~Della Pietra, V.~Della Pietra, J.~Lafferty}, 'Duality and Auxiliary Functions for Bregman Distances', {\em Tech. rep. CMU-CS-01-109, School of Computer Science, Carnegie Mellon University.} 2001.
-    
-\bibitem{GLM}
-{\sc A.~J.~ Dobson and A.~G.~ Barnett}, {\em Introduction to Generalized Linear Models},  Boca Raton, FL: Chapman and Hall/CRC, 2008.
+\bibitem{Wang}
+{\sc H.~ Wang, L.~ Shangguan, J.~ Wu, R.~ Guan}, "Multiple linear regression modeling for compositional data", J. Neurocomputing, Volume 122, p. 490-500, 2013.
 
 
-    \bibitem{Someone2000}
-   {\sc  T.~Huang, M.~Gupta}
-    \newblock Bregman distance to L1 regularized logistic regression.
-    \newblock {\em International Conference on Pattern Recognition}
-    2008.  
-    
-
-\bibitem{NEF}
-{\sc C.~ Morris}, "Natural Exponential Families with Quadratic Variance Functions", Annals of Statistics,
-10 (1), p65-80. 1982
-
-\bibitem{flash}
-{\sc F.~ Nielsen, V.~ Garcia}, "Statistical exponential families: A digest with flash cards", arXiv:0911.4863v2, 2011.
-
-\bibitem{Cheng}
-{\sc R.~ Nock, A.~ Menon and C.~ Ong}, "A scaled Bregman theorem with applications", NIPS'16 Proceedings of the 30th International Conference on Neural Information Processing Systems, p. 19-27, 2016. 
 
 
 
