@@ -223,7 +223,7 @@ In the (t+1) round, pick an arm with index
 \label{policy normal}
    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}
 \end{align}
-where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8}{T_i(t) log2}$. 
+where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8}{T_i(t) log2}$. $T_i(t)$ is the number of times arm i has been played until round t.  
 
 The policy includes two parts, where the first part is the empirical median of the rewards, the second part is the confidence bound and we denote it as,
 
@@ -243,23 +243,20 @@ Thus, the policy in (\ref{policy normal}) can be written as,
 \end{align}
 
 \begin{theo}
-(Regret bound for policy of standard normal distribution). \\
+(Regret bound for policy of absolute value of standard normal distribution). \\
 
 For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most 
 
 \begin{align}
-    \begin{cases} 
-          \sum_{i: m_i < m_\ast} \frac{32 \sqrt{2} \log n \triangle_{i, 1/2}}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) &  \text{if} \quad  \lceil \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil \geq 1 \\
-          (2 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) & \text{otherwise} 
-   \end{cases}
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
-where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$.  
+where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$. 
 \end{theo}
 
 \begin{proof}
 
 \begin{lemma}
-Let $\hat{m}_{i, T_i(t)}$ is the empirical median of arm i in round t, where $T_i(n)$ represents the number of samples for arm i in the $t^th$ round. Let $v_t = 8/(T_i(t) \log 2)$. For all $ 0 \leq \lambda \leq T_i(n)/(2 \sqrt{v_t})$,
+Let $\hat{m}_{i, T_i(t)}$ is the empirical median of arm i in round t, where $T_i(n)$ represents the number of samples for arm i in the $t^{th}$ round. Let $v_t = 8/(T_i(t) \log 2)$. For all $ 0 \leq \lambda \leq T_i(n)/(2 \sqrt{v_t})$,
 
 \begin{align}
     \label{Boucheron propo 4.6}
@@ -279,7 +276,7 @@ And for all $t > 0$, the tail bound is
 \end{proof}
 
 \begin{lemma}
-Let $l$ be an arbitrary positive integer, $\hat{m}_{*, s}$ is the empirical median of the reward samples of the best arm (i.e. the arm with maximum median) when it has been played s times, $\hat{m}_{i, s_i}$, similarly, is the empirical median of the reward samples of arm i when it has been played $s_i$ times. $B_i(t, s_i)$ is defined as (\ref{B_i(i, T_i(t)) definition}). For $t \geq 1$, the number of arm i is chosen ($T_i(n)$) is bounded by
+Let $l$ be an arbitrary positive integer, $\hat{m}_{*, s}$ is the empirical median of the reward samples of the best arm (i.e. the arm with maximum median) when it has been played s times, similarly $\hat{m}_{i, s_i}$ is the empirical median of the reward samples of arm i when it has been played $s_i$ times. $B_i(t, s_i)$ is defined as (\ref{B_i(i, T_i(t)) definition}). For $t \geq 1$, the number of arm i is chosen ($T_i(n)$) is bounded by
 \begin{align}
     T_i(n) \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{m}_{*, s} + B_*(t, s)  \leq \hat{m}_{i, s_i} + B_i(t, s_i)\}
 \end{align}
@@ -339,12 +336,9 @@ Assume all of the three inequalities are not true, then we have
 \label{Lemma 8: bound for E[T_i(n)]}
     The expected number of arm i is chosen for totally n rounds is bounded by 
     \begin{align}
-        \mathbb{E}[T_i(n)] \leq  \begin{cases} 
-           \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} + 1 + \frac{\pi^2}{3} &  \text{if}  \quad \lceil\frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil \geq 1 \\
-          2 + \frac{\pi^2}{3} & \text{otherwise} 
-   \end{cases}
+        \mathbb{E}[T_i(n)] \leq  \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} + 1 + \frac{\pi^2}{3}
     \end{align}
-    where $\triangle_{i, 1\2} = m_\ast - m_i = \mathbb{E}[\hat{m}_\ast] - \mathbb{E}[\hat{m}_i]$.
+    where $\triangle_{i, 1\2} = m_\ast - m_i = \mathbb{E}[\hat{m}_\ast] - \mathbb{E}[\hat{m}_i]$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$.
 \end{lemma}
 
 \begin{proof}
@@ -370,37 +364,35 @@ According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1
         & \leq \frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i}\\
         & \leq \frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i}
     \end{align}
-    By solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, we get 
+    By solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, when $\triangle_{i, 1/2} \sqrt{\log 2} \geq 16 \sqrt{\log n}$ , 
     
     \begin{align}
-        s_i \geq \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} = - 2\sqrt{2 \log n} + \frac{2 \sqrt{2 \log2 \log n } \triangle_{i, 1/2}}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}}
+        s_i \geq \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} 
+    \end{align}
+    
+    However this assumption doesn't hold in most of the cases, so we need to solve the inequality by directly solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i} \leq 1/2 \triangle_{i, 1/2}$, let $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$,
+    \begin{align}
+        s_i \geq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} 
     \end{align}
     
     Then we have pairwise $l'$ which makes (\ref{lemma 7.3}) false,
-    
-    \[ l' = \begin{cases} 
-      \lceil \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil &  \text{if} \lceil \quad \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil \geq 1 \\
-      1 & \text{otherwise} 
-   \end{cases}
-        \]
+   \begin{align}
+       l' = \lceil \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} \rceil = \lceil \frac{(128 + 32 \sqrt{2 \log 2} \triangle_{i, 1/2} + 64 \sqrt{4 + 2 \sqrt{2 \log 2} \triangle_{i, 1/2}}) \log n}{\log 2 \triangle_{i, 1/2}^2} \rceil
+   \end{align} 
+   
     So we get the bound of $\mathbb{E}[T_i(n)]$ as,
     \begin{align}
         \mathbb{E}[T_i(n)] &\leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l'}^{t-1} P(\hat{m}_{*, s} + B_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]) + P(\hat{m}_{i, s_i} - B_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}])\\
         & \leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = 1}^{t-1} 2 t^{-4}\\
-        & \leq \begin{cases} 
-           \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} + 1 + \frac{\pi^2}{3} &  \text{if} \lceil \quad \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil \geq 1 \\
-          2 + \frac{\pi^2}{3} & \text{otherwise} 
-   \end{cases}
+        & \leq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} + 1 + \frac{\pi^2}{3}
     \end{align}
    
 \end{proof}
 
 According to Lemma \ref{Lemma 8: bound for E[T_i(n)]}, we derive the upper bound for expected regret,
 \begin{align}
-    \mathbb{E}[R_n] \leq \begin{cases} 
-          \sum_{i: m_i < m_\ast} \frac{32 \sqrt{2} \log n \triangle_{i, 1/2}}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) &  \text{if} \quad  \lceil \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} \rceil \geq 1 \\
-          (2 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) & \text{otherwise} 
-   \end{cases}
+    \mathbb{E}[R_n] \leq 
+          \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
    
 \end{proof}
