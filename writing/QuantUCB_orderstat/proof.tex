@@ -37,16 +37,16 @@
 
 \subsection{Problem Statement}
 
-    For a stochastic K-armed bandit problem, there is a set of distributions $v = (P_i: i \in \mathcal{K})$, where $\mathcal{K}$ is the set of available actions with size K. In each round $t \in \{1, ..., n\}$, a learner chooses an action $A_t = i \in \mathcal{K}$ according to a policy $\pi$, and gets a reward which is sampled from $P_i$. The goal of designing such a policy is usually to maximize expected cumulative reward (i.e. minimize expected cumulative regret). For this work, instead of caring about the cumulative reward, we focus on the order statistics of the reward, for example, median or more generally quantiles. We give the definitions and notations in the following section. 
-    
+    For a stochastic K-armed bandit problem, there is a set of distributions $v = (P_i: i \in \mathcal{K})$, where $\mathcal{K}$ is the set of available actions with size K. In each round $t \in \{1, ..., n\}$, a learner chooses an action $A_t = i \in \mathcal{K}$ according to a policy $\pi$, and gets a reward which is sampled from $P_i$. The goal of designing such a policy is usually to maximize expected cumulative reward (i.e. minimize expected cumulative regret). For this work, instead of caring about the cumulative reward, we focus on the order statistics of the reward, for example, median or more generally quantiles. We give the definitions and notations in the following section.
+
 \subsection{Definitions and Notations}
-    
-    Let $T_i(t)$ be the number of times machine i has been played during first t plays. 
+
+    Let $T_i(t)$ be the number of times machine i has been played during first t plays.
     \begin{align}
         %T_i(t) = \sum_{s = 1}^t \mathbb{I} \{A_s = i\},
         T_i(t) = \sum_{s = 1}^t \mathbb{I}_{\{i\}} (A_s),
     \end{align}
-    where $\mathbb{I}_A: \Omega\rightarrow \{0,1\}$ is the indicator function of $A \subseteq \Omega$, which is defined as, 
+    where $\mathbb{I}_A: \Omega\rightarrow \{0,1\}$ is the indicator function of $A \subseteq \Omega$, which is defined as,
     \begin{align}
         \mathbb{I}_A(w) = \begin{cases}
                             1 & w \in A;\\
@@ -54,25 +54,25 @@
                             \end{cases}
     \end{align}
     Then $X_{i,T_i(t)}$ is defined as the reward i.i.d. sampled from $P_i$ in round $t$ (when arm i has been played $T_i(n)$ times). \\
-    
+
     Assume the cumulative distribution function $F_{X_i}: \mathbb{R} \rightarrow [0,1]$ of  is continuous, strictly monotonic and differential. Then the quantile function $Q_{i}:  [0,1]\rightarrow \mathbb{R}$ is defined as,
 \begin{align}
     Q_{i}(\alpha) &= F_{X_i}^{-1}(\alpha)\\
     &= \inf \{x \in \mathbb{R}| F_{X_i}(x) \geq \alpha\},
 \end{align}
 
-The largest $\alpha-$quantile of all arms is then 
+The largest $\alpha-$quantile of all arms is then
 \begin{align}
     Q^\ast(\alpha) = \max_{i\in \mathcal{K}} Q_{i}(\alpha).
 \end{align}
 The empirical quantile function relies on the the sorted samples of arm i up to round t, assume $Y_{i,1} \leq Y_{i,2} ... \leq Y_{i,T_i(t)}$, where $(Y_{i,1} \leq Y_{i,2} ... \leq Y_{i,T_i(t)})$ is the permutation of the samples $X_{i,1} \leq X_{i,2} ... \leq X_{i,T_i(t)}$, then the empirical quantile function is defined as,
 \begin{align}
-    \hat{Q}_{i, T_i(t)}(\alpha) = Y_{i,\lceil \alpha T_i(t) \rceil}
+    \hat{Q}_{i, T_i(t)}(\alpha) = Y_{i,\left\lceil \alpha T_i(t) \right\rceil}
 \end{align}
 
 When $\alpha = \frac{1}{2}$, $Q_i(\alpha)$ is the median of the arm i's reward distribution. We define $m_i = Q_i(1/2)$, similarly we define the largest median of all arms as $m^*$, and the empirial median is $\hat{m}_{i, T_i(t)}$.
-    
-    The expected regret for total n rounds is the loss due to the policy $\pi$ does not always play the best arm (the arm with maximum order statistics). We define the expected regret in terms of $\alpha-$quantile as 
+
+    The expected regret for total n rounds is the loss due to the policy $\pi$ does not always play the best arm (the arm with maximum order statistics). We define the expected regret in terms of $\alpha-$quantile as
     \begin{align}
         \label{regret}
         \mathbb{E}[R_n] = Q^\ast(\alpha) n -  \sum_{i=1}^K Q_{i}(\alpha) \mathbb{E}[T_i(n)],
@@ -81,17 +81,17 @@ When $\alpha = \frac{1}{2}$, $Q_i(\alpha)$ is the median of the arm i's reward d
     \begin{align}
         \mathbb{E}[R_n] = \sum_{i = 1}^K \triangle_{i, \alpha} \mathbb{E}[T_i(n)].
     \end{align}
-    
+
 \section{Policy and Regret Bound}
 
 \textbf{Proposed policy for arbitrary distribution}\\
-In the (t+1) round, pick an arm with index 
+In the (t+1) round, pick an arm with index
 \begin{align}
    \argmax_{i \in \mathcal{K}} \hat{Q}_{i, T_i(t)}(\alpha) + \frac{p}{\lambda} - \frac{q}{2} \mathbb{E}[d_{q} (\exp\{\lambda d_{q}\} - 1)]
 \end{align}
-where $p = 4 \log t$, $q = T_i(t) - \lceil \alpha T_i(t) \rceil$, $\lambda = \sup \{ \lambda \geq 0 | \lambda p - \log \mathbb{E}[\exp\{\lambda (\hat{Q}_{i, T_i(t)}(\alpha) - \mathbb{E}\hat{Q}_{i, T_i(t)}(\alpha))\}]\}$ And $d_q$ is the difference between the $\{T_i(t) - q\}^{th}$ and $\{T_i(t) - (q + 1)\}^{th}$ order statistics,
+where $p = 4 \log t$, $q = T_i(t) - \left\lceil \alpha T_i(t) \right\rceil$, $\lambda = \sup \{ \lambda \geq 0 | \lambda p - \log \mathbb{E}[\exp\{\lambda (\hat{Q}_{i, T_i(t)}(\alpha) - \mathbb{E}\hat{Q}_{i, T_i(t)}(\alpha))\}]\}$ And $d_q$ is the difference between the $\{T_i(t) - q\}^{th}$ and $\{T_i(t) - (q + 1)\}^{th}$ order statistics,
 \begin{align}
-    d_q = Y_{i,T_i(t) - q} - Y_{i,T_i(t) - (q + 1)} = Y_{i, \lceil \alpha T_i(t) \rceil} - Y_{i, \lceil \alpha T_i(t) \rceil - 1}
+    d_q = Y_{i,T_i(t) - q} - Y_{i,T_i(t) - (q + 1)} = Y_{i, \left\lceil \alpha T_i(t) \right\rceil} - Y_{i, \left\lceil \alpha T_i(t) \right\rceil - 1}
 \end{align}
 For simplicity, we denote $B_i(t, T_i(t), \alpha) = \frac{p}{\lambda} - \frac{q}{2} \mathbb{E}[d_{q} (\exp\{\lambda d_{q}\} - 1)]$\\
 
@@ -109,12 +109,12 @@ For all K $>$ 1, if the proposed policy is run on K machines with absolute rewar
 \begin{proof}
 
 \begin{lemma}
-Let $X_1,..., X_n$ be independently distributed according to cumulative density distribution F, $Y_{1} \leq \ldots \leq Y_{n}$ be the order statistics and let $d_q = Y_{n-q} - Y_{n-q-1}$ be the $q^{th}$ spacing. Then with $q = n - \lceil \alpha n \rceil (i.e. 1 - \frac{q+1}{n} \leq \alpha \leq 1 - \frac{q}{n})$, if F has a non-decreasing hazard rate h, then for $\lambda \geq 0$, and $1\leq k \leq n/2$,
+Let $X_1,..., X_n$ be independently distributed according to cumulative density distribution F, $Y_{1} \leq \ldots \leq Y_{n}$ be the order statistics and let $d_q = Y_{n-q} - Y_{n-q-1}$ be the $q^{th}$ spacing. Then with $q = n - \left\lceil \alpha n \right\rceil (i.e. 1 - \frac{q+1}{n} \leq \alpha \leq 1 - \frac{q}{n})$, if F has a non-decreasing hazard rate h, then for $\lambda \geq 0$, and $1\leq k \leq n/2$,
 \begin{align}
     \label{Boucheron theorem 9-2}
     \log \mathbb{E}e^{\lambda\left(\Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]\right)} \leq \lambda \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]
 \end{align}
-And tail bound is 
+And tail bound is
 \begin{align}
     \label{Lemma 1-2}
    P\{\Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)] \geq \frac{\varepsilon}{\lambda} - \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]\} \leq e^{-\varepsilon}\\
@@ -137,7 +137,7 @@ Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary posi
     T_i(n) \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}
 \end{align}
 \end{lemma}
- 
+
 \begin{proof}
     \begin{align}
         T_i(n) =& 1 + \sum_{t = k + 1}^n \{I_t = i\}\\
@@ -174,9 +174,9 @@ Assume all of the three inequalities are not true, then we have
         \label{proof lemma 1.3}
         \mathbb{E}[\hat{Q}_{*, s}(\alpha)] \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] + 2 B_i(t, s_i, \alpha)
     \end{align}
-    (\ref{proof lemma 1.1}) - (\ref{proof lemma 1.2}) we get, 
+    (\ref{proof lemma 1.1}) - (\ref{proof lemma 1.2}) we get,
     \begin{align}
-         \mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] &< 
+         \mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] &<
          \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) - (\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha)) \\
         & \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha) - (\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha)) \\
         &= 2 B_i(t, s_i, \alpha),
@@ -185,14 +185,14 @@ Assume all of the three inequalities are not true, then we have
 \end{proof}
 
 \begin{lemma}
-    The expected number of arm i is chosen is bounded by 
+    The expected number of arm i is chosen is bounded by
     \begin{align}
         \mathbb{E}[T_i(n)] \leq ?
     \end{align}
 \end{lemma}
 
 \begin{proof}
-To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$. From Lemma \ref{lemma 3} we know, if we make (\ref{lemma 1.3}) false, then 
+To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$. From Lemma \ref{lemma 3} we know, if we make (\ref{lemma 1.3}) false, then
 \begin{align}
     & P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)) \\
     \leq &  P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) + P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])
@@ -202,7 +202,7 @@ According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1
         P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) \leq  e^{-4lnt} = t^{-4}\\
         P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])  \leq  e^{-4lnt} = t^{-4}
     \end{align}
-    
+
     For $l = ...$, (\ref{lemma 1.3}) is false.
     \begin{align}
         & \mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] - 2 B_i(t, s_i, \alpha) \\
@@ -211,19 +211,19 @@ According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1
     \end{align}
     (\textcolor{red}{Cannot derive a value of l to satisfy that?})
 \end{proof}
-   
+
 \end{proof}
 
 
 \section{Policy and Regret Bound for Gaussian Reward}
 
 \textbf{Proposed policy for absolute value of standard normal distribution}\\
-In the (t+1) round, pick an arm with index 
+In the (t+1) round, pick an arm with index
 \begin{align}
 \label{policy normal}
    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}
 \end{align}
-where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8}{T_i(t) log2}$. $T_i(t)$ is the number of times arm i has been played until round t.  
+where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8}{T_i(t) log2}$. $T_i(t)$ is the number of times arm i has been played until round t.
 
 The policy includes two parts, where the first part is the empirical median of the rewards, the second part is the confidence bound and we denote it as,
 
@@ -232,7 +232,7 @@ The policy includes two parts, where the first part is the empirical median of t
 B_i(t, T_i(t)) &= \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}\\
 &= \sqrt{2 \times \frac{8}{T_i(t) \log 2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{8}{T_i(t) \log 2} \times \frac{1}{T_i(t)}}\\
 &= \sqrt{\frac{64 \log t}{T_i(t) \log 2}} + \sqrt{\frac{64 \log^2 t \times 8}{T_i^2(t) \log 2}}\\
-&= \frac{\sqrt{64 \log t T__i(t)} + \sqrt{64 \log^2 t \times 8}}{\sqrt{T_i^2(t) \log 2}}\\
+&= \frac{\sqrt{64 \log t T_i(t)} + \sqrt{64 \log^2 t \times 8}}{\sqrt{T_i^2(t) \log 2}}\\
 \label{B_i(i, T_i(t)) definition 2}
 &= \frac{8 \sqrt{\log t} (\sqrt{ T_i(t)} + \sqrt{8\log t})}{T_i(t)  \sqrt{\log 2}}
 \end{align}
@@ -245,12 +245,12 @@ Thus, the policy in (\ref{policy normal}) can be written as,
 \begin{theo}
 (Regret bound for policy of absolute value of standard normal distribution). \\
 
-For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most 
+For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most
 
 \begin{align}
-    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2})
 \end{align}
-where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$. 
+where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$.
 \end{theo}
 
 \begin{proof}
@@ -260,9 +260,9 @@ Let $\hat{m}_{i, T_i(t)}$ is the empirical median of arm i in round t, where $T_
 
 \begin{align}
     \label{Boucheron propo 4.6}
-    \log \mathbb{E} e^{\lambda\left(\hat{m}_{i, T_i(t)}-\mathbb{E}[ \hat{m}_{i, T_i(t)}]\right)} \leq \frac{v_t \lambda^2}{2(1-2\lambda \sqrt{v_t/T_i(t)})} 
+    \log \mathbb{E} e^{\lambda\left(\hat{m}_{i, T_i(t)}-\mathbb{E}[ \hat{m}_{i, T_i(t)}]\right)} \leq \frac{v_t \lambda^2}{2(1-2\lambda \sqrt{v_t/T_i(t)})}
 \end{align}
-And for all $t > 0$, the tail bound is 
+And for all $t > 0$, the tail bound is
 \begin{align}
     \label{Lemma 5 tail bound 1}
    P\left( \hat{m}_{i, T_i(t)}-\mathbb{E}[ \hat{m}_{i, T_i(t)}] \geq \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)} \right) \leq e^{-\varepsilon}\\
@@ -281,7 +281,7 @@ Let $l$ be an arbitrary positive integer, $\hat{m}_{*, s}$ is the empirical medi
     T_i(n) \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{m}_{*, s} + B_*(t, s)  \leq \hat{m}_{i, s_i} + B_i(t, s_i)\}
 \end{align}
 \end{lemma}
- 
+
 \begin{proof}
 Let $I_t$ represent the arm we chose in the round t
     \begin{align}
@@ -322,9 +322,9 @@ Assume all of the three inequalities are not true, then we have
         \label{proof lemma 7.3}
         \mathbb{E}[\hat{m}_{*, s}] \geq \mathbb{E}[\hat{m}_{i, s_i}] + 2 B_i(t, s_i)
     \end{align}
-    (\ref{proof lemma 7.1}) - (\ref{proof lemma 7.2}) we get, 
+    (\ref{proof lemma 7.1}) - (\ref{proof lemma 7.2}) we get,
     \begin{align}
-         \mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}] &< 
+         \mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}] &<
          \hat{m}_{*, s} + B_*(t, s) - (\hat{m}_{i, s_i} - B_i(t, s_i)) \\
         & \leq \hat{m}_{i, s_i} + B_i(t, s_i) - (\hat{m}_{i, s_i} - B_i(t, s_i)) \\
         &= 2 B_i(t, s_i),
@@ -334,15 +334,15 @@ Assume all of the three inequalities are not true, then we have
 
 \begin{lemma}
 \label{Lemma 8: bound for E[T_i(n)]}
-    The expected number of arm i is chosen for totally n rounds is bounded by 
+    The expected number of arm i is chosen for totally n rounds is bounded by
     \begin{align}
         \mathbb{E}[T_i(n)] \leq  \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} + 1 + \frac{\pi^2}{3}
     \end{align}
-    where $\triangle_{i, 1\2} = m_\ast - m_i = \mathbb{E}[\hat{m}_\ast] - \mathbb{E}[\hat{m}_i]$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$.
+    where $\triangle_{i, 1/2} = m_\ast - m_i = \mathbb{E}[\hat{m}_\ast] - \mathbb{E}[\hat{m}_i]$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$.
 \end{lemma}
 
 \begin{proof}
-To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{m}_{*, s} + B_*(t, s)  \leq \hat{m}_{i, s_i} + B_i(t, s_i)$. From Lemma \ref{lemma 7} we know, if we make (\ref{lemma 7.3}) false, then 
+To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{m}_{*, s} + B_*(t, s)  \leq \hat{m}_{i, s_i} + B_i(t, s_i)$. From Lemma \ref{lemma 7} we know, if we make (\ref{lemma 7.3}) false, then
 \begin{align}
     & P(\hat{m}_{*, s} + B_*(t, s)  \leq \hat{m}_{i, s_i} + B_i(t, s_i)) \\
     \leq &  P(\hat{m}_{*, s} + B_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]) + P(\hat{m}_{i, s_i} - B_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}])
@@ -352,51 +352,50 @@ According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1
         P(\hat{m}_{*, s} + B_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]) \leq  e^{-4\log t} = t^{-4}\\
         P(\hat{m}_{i, s_i} - B_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}])  \leq  e^{-4\log t} = t^{-4}
     \end{align}
-    
-    Then our goal is to find the value of l to make (\ref{lemma 1.3}) false, i.e. 
+
+    Then our goal is to find the value of l to make (\ref{lemma 1.3}) false, i.e.
     \begin{align}
     \label{goal to find l}
         B_i(t, s_i) \leq  \frac{1}{2}(\mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}])\\
     \end{align}
-    Remind that $\triangle_{i, 1/2} = m_* - m_i = \mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}]$, then (\ref{goal to find l}) can be written as $B_i(t, s_i) \leq  \frac{1}{2} \triangle_{i, 1/2}$. According to (\ref{B_i(i, T_i(t)) definition 2}) and with $t \leq n, s_i \geq l \geq 1$, 
+    Remind that $\triangle_{i, 1/2} = m_* - m_i = \mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}]$, then (\ref{goal to find l}) can be written as $B_i(t, s_i) \leq  \frac{1}{2} \triangle_{i, 1/2}$. According to (\ref{B_i(i, T_i(t)) definition 2}) and with $t \leq n, s_i \geq l \geq 1$,
     \begin{align}
         B_i(t, s_i) &= \frac{8 \sqrt{\log t} (\sqrt{ s_i} + \sqrt{8\log t})}{s_i  \sqrt{\log 2}}\\
         & \leq \frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i}\\
         & \leq \frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i}
     \end{align}
-    By solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, when $\triangle_{i, 1/2} \sqrt{\log 2} \geq 16 \sqrt{\log n}$ , 
-    
+    By solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, when $\triangle_{i, 1/2} \sqrt{\log 2} \geq 16 \sqrt{\log n}$ ,
+
     \begin{align}
-        s_i \geq \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} 
+        s_i \geq \frac{32 \sqrt{2} \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}}
     \end{align}
-    
+
     However this assumption doesn't hold in most of the cases, so we need to solve the inequality by directly solving $\frac{8 \sqrt{\log n}}{\sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i} \leq 1/2 \triangle_{i, 1/2}$, let $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$,
     \begin{align}
-        s_i \geq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} 
+        s_i \geq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2}
     \end{align}
-    
+
     Then we have pairwise $l'$ which makes (\ref{lemma 7.3}) false,
    \begin{align}
-       l' = \lceil \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} \rceil = \lceil \frac{(128 + 32 \sqrt{2 \log 2} \triangle_{i, 1/2} + 64 \sqrt{4 + 2 \sqrt{2 \log 2} \triangle_{i, 1/2}}) \log n}{\log 2 \triangle_{i, 1/2}^2} \rceil
-   \end{align} 
-   
+       l' = \left\lceil \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} \right\rceil = \left\lceil \frac{(128 + 32 \sqrt{2 \log 2} \triangle_{i, 1/2} + 64 \sqrt{4 + 2 \sqrt{2 \log 2} \triangle_{i, 1/2}}) \log n}{\log 2 \triangle_{i, 1/2}^2} \right\rceil
+   \end{align}
+
     So we get the bound of $\mathbb{E}[T_i(n)]$ as,
     \begin{align}
         \mathbb{E}[T_i(n)] &\leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l'}^{t-1} P(\hat{m}_{*, s} + B_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]) + P(\hat{m}_{i, s_i} - B_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}])\\
         & \leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = 1}^{t-1} 2 t^{-4}\\
         & \leq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} + 1 + \frac{\pi^2}{3}
     \end{align}
-   
+
 \end{proof}
 
 According to Lemma \ref{Lemma 8: bound for E[T_i(n)]}, we derive the upper bound for expected regret,
 \begin{align}
-    \mathbb{E}[R_n] \leq 
-          \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+    \mathbb{E}[R_n] \leq
+          \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2})
 \end{align}
-   
-\end{proof}
 
+\end{proof}
 
 \printbibliography
 \end{document}
