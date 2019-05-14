@@ -9,6 +9,7 @@
 *.synctex.gz
 *.bcf
 *.run.xml
+*.toc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
