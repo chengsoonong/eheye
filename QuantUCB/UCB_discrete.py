@@ -101,6 +101,7 @@ class UCB_discrete(ABC):
         for i in range(len(self.env),self.num_rounds):
             #print('Round: ', i)
             idx = self.argmax_ucb(i)
+            self.selectedActions.append(idx)
             #print('select arm: ', idx)
             reward = self.sample(idx)
             #self.num_played[idx] += 1
@@ -125,6 +126,66 @@ class UCB_discrete(ABC):
         self.sample_rewards[idx].append(reward)
         self.cumulativeReward += reward
         return reward
+
+class UCB_os(UCB_discrete):
+    """class for UCB of order statistics 
+    (in terms of absolute value of standard gaussian distribution)
+    regret is evaluted in terms of median rather than mean. 
+
+    Arguments
+    -------------------------------------------------------------
+    medians: list
+        sequence of medians of arms 
+    """
+    def __init__(self, env, num_rounds, medians):
+        self.medians = medians
+        bestarm = np.argmax(self.medians)
+        super().__init__(env, num_rounds, bestarm)
+
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        policy = []
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            emp_median = np.median(reward)
+            t_i = len(reward)
+            v_t = 8.0/( t_i * np.log(2))
+            eps = 4 * np.log(t)
+            b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
+            policy.append(emp_median + b)
+            #print(policy)
+        return np.argmax(policy)
+
+    def regret(self):
+        """Calculate cumulative regret and record it
+
+        Parameters
+        -----------------------------
+        idx: int
+            the idx of arm with maximum ucb in the current round
+        reward: float
+            sample reward for the current round
+
+        Return
+        -----------------------------
+        None
+        """
+        my_regret = 0
+        for key, value in self.sample_rewards.items():
+            mu_diff = self.medians[self.bestarm] - self.medians[key]
+            my_regret += mu_diff * len(value)
+        self.cumulativeRegrets.append(my_regret)
+
 
 class QuantUCB(UCB_discrete):
     """Base class for Quantile UCB
@@ -292,12 +353,33 @@ class QuantUCB_Gau(UCB_discrete):
         ucbs = []
         for arm in sorted(self.sample_rewards.keys()):
             reward = self.sample_rewards[arm]
-            quant = self.quantile(arm, self.alpha_level(t, len(reward)))
             mean_reward = np.mean(reward)
-            #quant = self.linear_inter_quant(self.alpha_level(t, len(reward)), reward)
+            
+            # choice 1: compute ucb using true quantiles
+            # quant = self.quantile(arm, self.alpha_level(t, len(reward)))
+            
+            # choice 2: compute ucb using estimated quantiles with linear interpolation
+            # quant = self.linear_inter_quant(self.alpha_level(t, len(reward)), reward) 
+
+            # choice 3: empirical quantiles + sqrt(2lnt/s)
+            # quant = self.linear_inter_quant(self.alpha_level(t, len(reward)), reward) + np.sqrt(2 * np.log(t)/len(reward))
+
+            # choice 4: empirical quantile difference with fixed alpha (0.9, 0.1) + sqrt(2 lnt/s)
+            # quant = self.linear_inter_quant(0.9, reward) - self.linear_inter_quant(0.5, reward) + np.sqrt(2 * np.log(t)/len(reward))
+
+            # choice 5: ucb1 tuned
+            quant = np.var(reward) + np.sqrt(2 * np.log(t)/len(reward))
+
             #print('arm ', arm, 'mean reward: ', mean_reward, ' quant:', quant)
             #print('mean + quant: ', mean_reward + quant)
-            ucbs.append(mean_reward + quant)
+            
+            # mean + beta * quantile
+            beta = np.sqrt(np.log(self.num_rounds)/len(reward))
+
+            # mean + quantile 
+            #beta = 1
+
+            ucbs.append(mean_reward + beta * quant)
             
         assert len(ucbs) == len(self.env)
         return np.argmax(ucbs)
@@ -465,9 +547,9 @@ class Environment():
         self.scale = scale
         self.skewness = skewness
 
-    
+    """
     def sample(self):
-        """uniformly generate x (between 0 and 1), 
+        uniformly generate x (between 0 and 1), 
            generate normal or skewed normal samples
         
         sigma = self.skewness/np.sqrt(1.0 + self.skewness**2) 
@@ -476,8 +558,8 @@ class Environment():
         if u0 >= 0:
             return u1*self.scale + self.loc
         return (-u1)*self.scale + self.loc 
-        """
+    """
 
     def sample(self):
-        return np.random.normal(self.loc, self.scale)
+        return np.abs(np.random.normal(self.loc, self.scale))
 
