@@ -5,7 +5,9 @@
 
 % options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\def\SMSsection{College of Engineering and Computer Science}
+\def\SMSsection{Supervised by Dr. Cheng Soon Ong.\\
+\vfil
+College of Engineering and Computer Science}
 \DeclareOption{pure}{\def\SMSsection{College of Engineering and Computer Science}}
 \DeclareOption{applied}{\def\SMSsection{Applied Mathematics}}
 \DeclareOption{stats}{\def\SMSsection{Statistics}}
@@ -16,12 +18,12 @@
 \def\MasterClass{amsbook}
 
 % degree types
-\def\@thesistype{An essay}
+\def\@thesistype{A report}
 \def\@degree{something cool}
-\DeclareOption{BA}{\def\@thesistype{An essay}
+\DeclareOption{BA}{\def\@thesistype{A report}
                    \def\@degree{B.A.~(Honours)}
 }
-\DeclareOption{BSc}{\def\@thesistype{An essay}
+\DeclareOption{BSc}{\def\@thesistype{A report}
                     \def\@degree{B.Sc.~(Honours)}
 }
 \DeclareOption{MA}{\def\@thesistype{A thesis}
@@ -195,9 +197,8 @@
     \begin{center}
       \ifHandBook\relax
       \else
-        \@thesistype\ submitted in partial fulfillment of\\
-        the requirements for the course\\
-       COMP8755 - Individual Computing Project
+        \@thesistype\ submitted for the course
+       COMP8755 - Individual Computing Project.\\
       \fi
     \vfil\vfil
       {\large\SMSsection\\[5pt]

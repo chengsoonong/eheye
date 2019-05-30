@@ -1,6 +1,5 @@
-% thesis using usydthesis.cls - Andrew Mathas 5/2002
 \documentclass[BSc]{usydthesis}
-% \includeonly{chapt1}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \author{Ragib Zaman}
@@ -29,43 +28,24 @@
 
 % personal macros
 
-% natural numbers, real numbers, etc
+% common spaces
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\R}{\mathbb{R}}
-\newcommand{\C}{\mathbb{C}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\Proj}{\mathbb{P}}
-\newcommand{\T}{\mathbf{\theta}}
-\newcommand{\face}{\prec}
-\newcommand{\V}{\vee}
-\newcommand{\la}{\lambda}
+\newcommand{\Sb}{\mathbb{S}}
+\newcommand{\Hb}{\mathbb{H}}
+\newcommand{\U}{\mathbb{U}}
 
 \newcommand{\Lag}{\mathcal{L}}
 \newcommand{\M}{\mathbf{\mu}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\x}{\mathbf{x}}
-% macros for End(X) and Hom(X,Y)
-\DeclareMathOperator{\End}{End}
-\DeclareMathOperator{\Hom}{Hom}
+
 \DeclareMathOperator{\im}{im}
-\DeclareMathOperator{\Cone}{Cone}
-\DeclareMathOperator{\Spec}{Spec}
 % for f:X -> Y; the default spacing isn't great
 \newcommand{\map}[2]{\,{:}\,#1\!\longrightarrow\!#2}
 \newcommand{\B}[1]{\mathbf{#1}}
 % example \varphi \map{X}{Y}
 
-%Short Exact Sequences e.g \ses{X}{f}{Y}{g}{Z} will produce the s.e.s 0 to X to Y via f to Z via g to 0
-
-\newcommand{\ses}[5]{
-  \begin{equation*}
-    0\xrightarrow{}
-    #1\xrightarrow{#2}
-    #3\xrightarrow{#4}
-    #5\xrightarrow{}
-    0
-  \end{equation*}
-}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}  
@@ -74,73 +54,198 @@
 \pagenumbering{roman}
 
 \maketitle          % creates the title page
-\chapter*{Abstract}
-In this report we explore regression models involving Compositional Data (CoDA). We begin by defining CoDA, looking at examples and understanding why the analysis of CoDA requires special treatment. Then we give an overview of the current standard methods of dealing specifically with CoDA developed and popularised primary by J. Aitchison as well as several others. We then review some regression models for CoDA, giving particular focus to a model presented in (H. Wang et al, 2013) where the dependent variable and all independent variables are compositions. Motivated by ideas from Information Geometry, we consider alternate loss functions for this regression model and evaluate its success compared to traditional models across several metrics.\\ 
-\section*{Acknowledgments}
+
+\chapter*{Acknowledgments}
 First and foremost I would like to thank Dr. Cheng Soon Ong. I greatly value the wisdom he has shared with me, helping me identify the core ideas in machine learning and the links between. His willingness to give his time so generously and with such patience has been very much appreciated.\\
 
 I would also like to thank Dr. Weifa Liang and Dr. Stephen Gould for taking the responsibilities of course convener and examiner respectively. Without their contribution I would not have been able to have the pleasure of completing this course. 
+
+\chapter*{Abstract}
+In this report we explore regression models involving compositional data. We provide some background of the de-facto standard methods of analysing compositional data originally developed primarily by Aitchison (1982, 1986) and Egozcue (2003). After surveying regression problems involving compositions and models for studying them, we give particular focus to a problem where all variables are compositions with the same number of parts and a model for that problem introduced by Wang et al. (2013). We propose new models for this problem and, motivated by ideas from Information Geometry, consider alternate loss functions for these models. Finally, we evaluate these approaches across a variety of datasets and performance metrics.\\ 
+
+
+
 \tableofcontents    % creates the table of contents
 
 % reset the page numbering and change to arabic numbers
 \newpage\setcounter{page}{1}\pagenumbering{arabic}
 
-\chapter{Compositional Data}
-\section{Introduction}
-\
-\newline
-A composition with $d$ parts is a point in $\mathbb{R}^d_{\geq 0}$ modulo scaling by positive factors. Data consisting of compositions is called Compositional Data (CoDA). As the name suggestions, compositions are data which contains the information of the relative abdundance of $d$ parts which form a whole. They commonly arise in fields such as chemistry, biology, geology and survey design, where samples are taken from an object due to it being impractical or unnecessary to take measurement of the entire object. In compositions the relative proportions of the $d$ parts contain the meaningful information rather than the actual values of the parts themselves. Below we formally define compositions and give some examples. \
-\\
--Include an appendix for equivalence relations, equivalence classes and quotient sets?
+\chapter{Introduction}
+Compositions are data which contain the information of the relative proportions of multiple parts which together form a whole. They commonly arise in fields such as chemistry, biology, geology and election forecasting, where samples are taken from an object due to it being impractical or unnecessary to take measurement of the entire object. In compositions the relative proportions of the parts contain the meaningful information rather than the actual values of the parts themselves. Thus, compositions are invariant under scaling of all the components by some positive factor.\\
 
+In machine learning we attempt to analyse data to perform tasks such as regression or dimensionality reduction, however standard methods such as linear regression and principal component analysis (PCA) often require that the data naturally resides in some Euclidean space $\mathbb{R}^d,$ which compositions do not. The most naive approach to modelling compositions is to simply forget their special structure and use whichever raw numbers are provided in the original data. This is problematic, since the models in standard methods are not invariant under positive scaling of the input data, so we may get different results depending on how the original data was chosen to be represented. Although there are obvious approaches to get around this (such as normalising the data so the components always sum to $1$), there are still several issues.\\
+
+ \begin{itemize}
+  \item The model functions of standard methods often require us to add points together and multiply by real coefficients. The usual vector space operations of $\mathbb{R}^d$ do not apply naturally to compositions. For example, scalar multiplication reduces to the identity map. We require a natural vector space structure on the probablity simplex to use similar model functions to the standard ones.\\
+ \item To minimise the standard loss functions we require a suitable notion of distance for compositions. While we could forget the special structure of compositions and, for example, use the Euclidean metric on normalised points, it is unclear whether this is appropriate.\\
+  \item Compositions lie in a strict subspace of Euclidean space, as their components always sum to some fixed constant. This poses issues in models which require the data matrix to have full rank for issues related to uniqueness and/or numerical stability.\\ 
+ \end{itemize}
+ 
+Even if one could directly apply a standard method, it is natural to expect that a model which specifically addresses and/or incorporates the special structure of compositions will outperform a model which ignores it. In the first systematic treatment of the statistics of compositional data, Aitchison (1982, 1986) defined a Hilbert space structure on compositions and introduced the centered log-ratio transform which naturally maps compositions to a subspace of Euclidean space subject to a constraint. Egozcue et al. (2003) extended this by introducing the isometric log-ratio transform which removed the constraint and gave a natural way to derive Aitchison's Hilbert space structure. Although this allows us to transform compositions into Euclidean data, it may not always be most appropriate to measure the distance between compositions by the Euclidean distance between the transformed points. Avalos-Fernandez et al. (2018) studied PCA on compositional data, measuring quality of fit of a subspace by a general Bregman divergence and giving evidence that using the Kullback-Liebler divergence may be a desirable alternative in some applications.\\
+
+After setting up some required background, we investigate regression problems involving compositional data. Of particular interest is modelling a dependent compositional variable as a function of multiple independent compositional variables. We review a model introduced by Wang et al. (2013) before introducing some new models for this problem. 
+ 
+ 
+ 
+\chapter{Background}
+
+In this chapter we define compositions and the spaces and operations that are commonly used to manipulate them. 
+
+\section{Definition and Examples}
 \begin{Definition}
-Let $d$ be a positive integer. The positive orthant of $\mathbb{R}^d$ is the set $\mathbb{R}^d_{\geq 0 } := \{ x \in \mathbb{R}^d \ | \ x_i \geq 0, \ i=1,\ldots, d\}.$ We can define as equivalence relation $\sim$ on $\mathbb{R}^d_{\geq 0}$ where for $x, x' \in \mathbb{R}^d_{\geq 0}$ we have $x \sim x'$ if and only if $x = \lambda x'$ for some $\lambda > 0.$ A composition is an equivalence class which is an element of the quotient set $\mathbb{R}^d_{\geq 0}/\sim. $  
+Let $d$ be a positive integer. Let $\sim$ be the equivalence relation on the positive orthant $\mathbb{R}^d_{\geq 0}$ where for $x, x' \in \mathbb{R}^d_{\geq 0}$ we have $x \sim x'$ if and only if $x = \lambda x'$ for some $\lambda > 0.$ A $d$-part composition is an element of the quotient set $\mathbb{R}^d_{\geq 0}/\sim.$ (See Appendix V).
 \end{Definition}
 
-\section{Examples}
 
 \begin{Example}
-Include an example with unnormalised compositions. 
+In a two party election we may survey members of various electorates for their preferred party and collect the following results.
+
+\begin{table}[hbt!]
+\centering
+\begin{tabular}{|l|l|l|} 
+\hline
+Electorate   & Party A & Party B  \\ 
+\hline
+Electorate 1 &   23    &   31     \\
+Electorate 2 &   34    &   27     \\
+Electorate 3 &   13    &   15     \\
+\hline
+\end{tabular}
+\end{table}
+
+The data points for each electorate may be regarded as a 2-part composition. For Electorate 1 the point is $[(23,31)].$ If the total votes in Electorate 1 for Party A and Party B were instead 46 and 62 respectively, our data point would be the same composition since $[(23,31)] = [(46,62)].$ 
 \end{Example}
 
-\section{Obstacles in treating CoDA with standard methods}
+\begin{Example}
 
-In machine learning and statistics we wish to analyse data to perform tasks such as regression, classification or representation learning, however most standard methods such as linear regression, logistic regression and principal component analysis assumes that the data resides in some Euclidean space $\mathbb{R}^d.$ While a composition may appear to be as such, they are actually equivalence classes with infinitely many representatives, each representative being a point in $\mathbb{R}^d.$ The most naive approach to modelling CoDA would be to simply forget the equivalence class structure and replace it with the representative which was originally provided in the data. This quickly becomes problematic, since the standard methods are not robust against positive scaling of the input data as one requires when modelling CoDA. One way to address this is to define a unique representative from each class, with a natural choice being the representative whose components sum to $1.$ 
+Four common varieties of steel have approximate elemental compositions as below. If we took a 10 gram sample of a piece of steel whose variety is not known and it contained 0.015 grams of Carbon, 0.035 grams of Manganese and 9.95 grams of Iron, we may classify it as Mild Carbon, as $[(0.015, 0.035, 9.95)] = [(0.15, 0.35, 99.5)].$
+
+\begin{table}[hbt!]
+\centering
+\begin{tabular}{|l|l|l|l|} 
+\hline
+Steel Variant    & \% Carbon & \% Manganese & \% Iron  \\ 
+\hline
+Mild Carbon      & 0.15      & 0.35         & 99.50    \\
+Medium Carbon    & 0.4       & 0.9          & 98.7     \\
+High Carbon      & 0.7       & 0.8          & 98.5     \\
+Very High Carbon & 1.5       & 1.0          & 97.5     \\
+\hline
+\end{tabular}
+\end{table}
+\end{Example}
+
+\begin{Example}
+Three super funds have invested their assets into economic sectors as below (amounts are MM \$AUD). Fund A and Fund C have the same composition and we may expect their Return on Investment (ROI) to be similar. 
+ \begin{table}[hbt!]
+\centering
+\begin{tabular}{|l|l|l|l|} 
+\hline
+Super Fund & Technology & Real Estate & Other Sectors   \\ 
+\hline
+Fund A     & 233.3      & 45.2        & 432.3           \\
+Fund B     & 154.3      & 64.6        & 356.7           \\
+Fund C     & 699.9      & 135.6       & 1296.9          \\
+\hline
+\end{tabular}
+\end{table}
+\end{Example}
+\begin{Remark}
+When we understand that a point is a composition we usually omit the brackets. 
+\end{Remark}
+
+\section{Coordinates and transformations for compositions}
+
+We now present a set of coordinate systems and maps between them which help in the analysis of compositions. Many operations on compositions try to map compositions bijectively over to spaces that are closer to Euclidean space, so that we can apply known techniques and avoid complications of quotient spaces. These operations usually require that all the components of a composition are non-zero, and would lead to infinte values otherwise. Thus, most treatments of compositional data proceed with this assumption of strictly positive components in their analysis. In practice most measurements have some amount of error associated to them and the target they try to analyse varies continuously with respect to the components, which they use to justify replacing any zero components with a small positive value. This value is often chosen somewhat arbitrarily (such as by Avalos-Fernandez et al. (2016) and Wang et al. (2013)). Martin-Fernandez (2003) studied a systemic approach to choosing this value and gave some arguments towards its suitabiltiy, and this method is now offered in statistical computing packages (such as Scikit-Bio's 'Compositions' package for Python (Scikit-Bio 2019), and the 'compositions' package for R (CRAN 2019)) as the primary way to dealing with zero values. Some studies involving compositional data use techniques which can deal with zero components directly such as that by Scealy \& Welsh (2014). For the rest of this report we assume our compositions have no zero valued components. 
 
 \begin{Definition}
-The set $\Delta^d = \{ x \in \mathbb{R}^d_{\geq 0} \ | \ \| x \|_1 = 1 \}$ is called the probability simplex. By associating a composition (an equivalence class) with its unique representative in the probability simplex, for the rest of this report we shall refer to points in the probability simplex as compositions. 
+ We define the following spaces.
+ \begin{align*}
+  S^d &= \bigg\{ x \in \mathbb{R}_{>0}^d \ \bigg| \ \sum_{i=1}^d x_i = 1 \bigg\} \\
+  H^d &= \bigg\{ x \in \mathbb{R}_{>0}^d \ \bigg| \ \prod_{i=1}^d x_i = 1 \bigg\} \\
+  U^d &= \bigg\{ x \in \mathbb{R}^d \ \ \ \bigg| \ \sum_{i=1}^d x_i = 0 \bigg\} \\
+ \end{align*}
+The space $S^d$ is the interior of the probability simplex, and in the context of compositional data analysis is sometimes called the 'Aitchison space/complex/geometry' although we reserve this term for when this space is endowed with the Hilbert space structure described in the next section. The space $H^d$ is generally not named, though we may say a composition in this space is given in hyperbolic coordinates. The hyperplane $U^d$ is sometimes called the clr-plane. 
 \end{Definition}
 
-While representing compositions with points in the probability simplex resolves the issue of being robust with respect to scaling by positive factors, several issues still remain.
- \begin{itemize}
-  \item The predictor functions of standard methods require us to add points together and multiply by real coefficients. If we use the usual vector space operations of $\mathbb{R}^d$ on compositions, the result will generally not be a composition (it will not lie on the probability simplex). Normalising the result is not an adequate solution, as e.g. multiplication by real coefficients reduces to the identity map. We require a natural vector space structure on the probablity simplex to form similar predictor functions to the standard ones.
- \item To minimise the loss functions of standard methods, we require a suitable notion of distance for compositions. While $\Delta^d$ inherits the Euclidean metric from $\mathbb{R}^d,$ it is unclear whether this is most appropriate.
-  \item The probability simplex lies in a $d-1$ dimensional subspace of $\mathbb{R}^d.$ This poses issues in models such as linear regression and PCA which requires the data matrix to have full rank. 
-  \item Vapnik's Principle - "When solving a problem of interest, do not solve a more general problem as an intermediate step" [Cite]. A corollary of this is to always use as much structure available in a (machine learning/statistics) problem as possible. Thus, we expect that models which specifically address the special structure of compositions will outperform models which were designed for the more general space $\mathbb{R}^d.$ 
- \end{itemize}
+The oblique hyperplane $U^d$ has dimension $d-1,$ and by applying a rotation we can isometrically map $U^d$ to the $d-1$ dimensional subspace of $\mathbb{R}^{d}$ defined by $x_d=0.$ We fix one particular rotation, a $(d-1) \times d$ matrix $W$ such that $WW^T = I_{d-1}$ and $W^TW = I_d - \frac{1}{d} \mathbf{1}_{d\times d},$ which is obtained through a Gram-Scmidt process described by Egozcue (2003). Any other rotation $W'$ with these properties could be used in place of $W$ however $W$ is simple to compute and using other $W'$ can be seen as applying $W$ and then further flipping, rotating or shifting the space $\mathbb{R}^{d-1},$ which provides no additional benefite for data analysis (Egozcue 2003). 
 
-\section{Transformations for CoDA}
-
-We now present a set of coordinate systems and maps between them which arise frequently and prove to be useful when attempting to circumvent the issues described above. In the following we pose the additional assumption that all compositions have no zero valued components.  [Literature that naturally addresses zeros] [Literature that addresses zeros with ad-hoc approach]. 
 
 \begin{Definition}
-Define $S^d := \{ x \in \mathbb{R}^d \ | \ \| x \|_1 = 1 \text{ and } x_i>0, i=1,\ldots, d\},$ i.e. $S^d$ is the interior (wrt $\mathbb{R}^d$) of the probability simplex. Define the clr-plane as $U^d = \{ x \in \mathbb{R}^d \ | \ \sum x_i = 0\}.$ There is a bijection $clr : S^d \to U^d$ given by $[x_i] \mapsto [\log \frac{x_i}{g(x)}]$
-where $g(x)$ is the geometric mean of the components of $x.$ Let $W\in \mathbb{R}^{(d-1)\times d}$ be such that $WW^T= I_{d-1}$ and $W^TW = I_d - \frac{1}{d} \mathbf{1}_{d\times d}.$ Then premultiplication by $W$ gives a bijection $U^d \to \mathbb{R}^{d-1}$ (with the inverse map being premultiplication by $W^T$). Composing this with the $clr$ map gives a bijection $ilr: S^d \to \mathbb{R}^{d-1}.$ Define $S^d_n \subset \mathbb{R}^{n \times d}$ as the set of matrices with $n$ rows, each row being a composition. We extend $clr$ and $ilr$ to such matrices by applying the functions row-wise. \
+ Define $g(x)$ to be the geometric mean of the components of $x,$ and interpret $\exp$ and $\log$ functions on a vector as component-wise application. We define a sequence of maps between the coodinate spaces.   \\
+
+$ \scalebox{1.5}{$ \R^d_{> 0}/\sim \ \  \xrightarrow[{[x]\mapsto \frac{1}{\| x\|_1} x }]{{\mathcal{C}}} S^d \  \xrightarrow[{x \mapsto \frac{x}{g(x)}}]{{\tilde{\cdot}}} \ H^d \xrightarrow[{x \mapsto \log x}]{{\log}}\ U^d \ \xrightarrow[{x\mapsto Wx}]{{W}}\ \R^{d-1} $}$
 \\
-Through the ilr map, $S^d$ inherits a Hilbert space structure from $\mathbb{R}^{d-1}.$ When the set $S^d$ is equipped with this Hilbert space structure it is called the Aitchison simplex. We shall denote addition and multiplication in the Aitchison simplex by $\oplus$ and $\otimes$ respectively. The $clr$ and $ilr$ maps are trivially isometric isomorphisms of $S^d.$ A summary of these coordinate systems and maps between them is given in the diagram below. [Latex the Diagram,  Mention the alr transform in a footnote?]
+\\
+\\
+\\
+$ \scalebox{1.5}{$ \ \ \ \  \R^d_{> 0}/\sim \ \ \ \ \xleftarrow[{x\mapsto [x] }]{\text{quotient}} \ \ \  S^d \xleftarrow[{x \mapsto \frac{1}{\| x\|_1} x}]{{\mathcal{C}'}} H^d \xleftarrow[{x \mapsto \exp x}]{{\exp}} U^d \xleftarrow[{x\mapsto W^Tx}]{{W^T}}\R^{d-1} $}$
 \end{Definition}
 
-\begin{center}
- \includegraphics[scale=0.17]{./maps.jpg}
- % results.jpg: 0x0 pixel, 0dpi, nanxnan cm, bb=
-\end{center}
+All maps in the above definition are well-defined, continuous and bijective (with their inverse function given by the map in the opposite direction). Through these maps, we can transform a composition into coordinates expressed in any of the above spaces. The centered log-ratio map 
+\begin{align*}
+ clr : S^d &\to U^d \\
+    x &\mapsto \log \frac{x}{g(x)}
+\end{align*} 
+was introduced by Aitchison (1982) and the isometric log-ratio map 
+\begin{align*}
+ ilr : S^d &\to \mathbb{R}^{d-1} \\
+    x &\mapsto W \log \frac{x}{g(x)}
+\end{align*}
+was introduced by Egozcue (2003). Both of these maps (and their inverses) can be seen as compositions of consecutive maps in the definition above. Since these maps have been introduced, the standard approach to analysing compositional data has been to apply classical machine learning techniques to the transformed coordinates. Some of those techniques can be given an interpretation strictly within the Aitchison simplex $S^d.$
+
 
 \section{Hilbert Space Structure of the Aitchison Simplex}
-Explicit forms of addition, scalar multiplication, inner product, norm, distance. 
+Recall that if $X$ and $Y$ are two topological spaces, a map $f:X\to Y$ is called a homeomorphism if it is a continuous bijective map whose inverse is also continuous. The existence of a homeomorphism between $X$ and $Y$ indicates that $X$ and $Y$ are equivalent in terms of topological structure. The isometric log-ratio function provides a homeomorphism from $S^d$ to $\mathbb{R}^{d-1},$ and through this map we can also transport the Hilbert space structure of $\mathbb{R}^{d-1}$ onto $S^d.$ 
 
-Points in $S^d$ are subject to an equality condition and $d$ inequality conditions. The clr map reduces this to a single equality condition, and the ilr map further reduces this to no conditions at all. Thus, one approach for machine learning on CoDA is to transport the data to $\mathbb{R}^{d-1}$ via the ilr map, use a standard model in that space, and then transform back to $S^d.$ Empircally, this approach to dealing with CoDA has proved to be quite effective and has been considered as state of the art since the ilr transform was first proposed in (1984?) until quite recently. It addresses the points in the previous section about dealing specifically with CoDA and providing a vector space structure, a metric, and a full rank data matrix so that standard methods can be applied, but we still need to investigate whether other ways to model CoDA exist and on what types of CoDA such models are most effective on. 
+\begin{Proposition}
+ Let $X$ be a topological space and $H$ be a Hilbert space with addition, scalar multiplication and the inner product of $H$ denoted by $+,\  \cdot$ and $ \langle \cdot, \cdot \rangle$ respectively. Let $f: X \to H$ be a homeomorphism. Define the maps
+\begin{align*}
+ \odot : \mathbb{R} \times X &\to X \\
+    \alpha \odot x &= f^{-1}( \alpha \cdot f(x) )\\
+    \ \\
+ \oplus : X \times X &\to X \\
+    x \oplus x' &= f^{-1}( f(x) + f(x'))\\
+    \ \\
+ \langle \cdot, \cdot \rangle_X : X \times X &\to \mathbb{R}_{\geq 0} \\
+    \langle x, x' \rangle_X &= \langle f(x), f(x') \rangle
+\end{align*}
+Then, equipped with those maps, $X$ is a Hilbert space and $f$ is an isometry between $X$ and $H.$
+\end{Proposition}
 
-\chapter{Information Geometry of the Probability Simplex}
+\begin{proof}
+ It is trivial to verify that the defined maps satisfy the axioms of an inner product space. Now we check that $X$ is a Hilbert space, that is we verify that $X$ is a complete metric space under the metric induced by the inner product. Let $(x_n)$ be a Cauchy sequence in $X,$ and fix an arbitrary value $\epsilon > 0.$ By the continuity of $f,$ there exists a $\delta>0$ such that $\| f(x) - f(x') \| < \epsilon$ for all $x, x' \in X$ such that $\| x\ominus x'\|_X < \delta.$ Since $(x_n)$ is a Cauchy sequence, there exists a positive integer $N$ such that $\| x_n \ominus x_m \|_X < \delta$ for all $n,m > N.$ Hence we have $\| f(x_n) - f(x_m) \| < \epsilon$ for all $n,m > N,$ proving that $f(x_n)$ is a Cauchy sequence in $H.$ Therefore, $f(x_n) \to z$ for some $z\in H.$ By the definition of the inner product of $X,$ we have $\| f^{-1}(z) \ominus x_n \|_X = \| z - f(x_n) \| \to 0$ so $(x_n)$ converges in $X,$ proving the claim that $X$ is a Hilbert space. The fact that $f$ is an isometry between $X$ and $H$ is essentially a tautology given how we have defined the inner product of $X.$
+\end{proof}
+
+Applying this to the isometric log-ratio transform, equipping the following operations onto the Aitchison simplex $S^d$ produces a Hilbert space.  
+\begin{align*}
+ \odot : \mathbb{R} \times S^d &\to S^d \\
+    \alpha \odot x &= \frac{1}{\sum_{i} x_i^{\alpha}} [x_i^{\alpha}] \\
+    \ \\
+ \oplus : S^d \times S^d &\to S^d \\
+    x \oplus x' &= \frac{1}{\sum_i x_i y_i} [x_i y_i] \\
+    \ \\
+ \langle \cdot, \cdot \rangle_a : S^d \times S^d &\to \mathbb{R}_{\geq 0} \\
+    \langle x, x' \rangle_a &= \sum_{i=1}^d \log \left( \frac{x_i}{g(x)} \right)\log \left( \frac{y_i}{g(y)} \right)
+\end{align*}
+
+\begin{Example}
+Suppose for example that $s, s' \in S^d$ with ilr coordinates $x, x' \in \mathbb{R}^{d-1}.$ A learning model may make predictions by linear combinations of the Euclidean vectors, say something of the form $\beta \cdot x + \beta' \cdot x',$ and then inverting the ilr transform. With the Hilbert space structure of the Aitchison simplex, this can instead be interpreted entirely as operations within the simplex - $\beta \odot s \oplus \beta' \odot.$ 
+\end{Example}
+
+In $\mathbb{R}^{d-1}$ we can define the center of points $x_1,\ldots, x_n \in \mathbb{R}^{d-1}$ to be the mean $\frac{1}{n} \sum_{i=1}^n x_i.$ We can transfer this to define a center of compositions.
+
+\begin{Definition}
+ Suppose $u_1, \ldots, u_n \in S^d$ are compositions. The center of these points is given by 
+ 
+$$ \overline{u} = \frac{1}{n} \odot \bigoplus_{i=1}^n u_i$$
+To centralize a set of compositions, we subtract the center from each element of the set. 
+\end{Definition}
+
+The following method is easily verified to be equivalent to but more computationally efficient than computing the center from the above definition. First form the vector in $\mathbb{R}^d$ where the $i$-th component is the geometric mean of the $i$-th components of all the compositions in the set. Then normalize this vector so that it lies in $S^d.$ 
+
+
+\section{Information Geometry of the Probability Simplex}
 [Expand background on statistical manifolds, FIM, KL-divergence, distance on Riemannian manifolds as geodesic distance...]
 Each point in the probability simplex $\Delta^d$ corresponds naturally to a discrete probability distribution over $d$ states, so $\Delta^d$ can be viewed as a $d-1$ dimensional statistical manifold. A natural Riemannian metric for statistical manifolds is the Fisher information metric. The Fisher-Rao distance between two points on a statistical manifold as the distance between those points on the Riemannian manifold with metric given by the FIM. \
 \\
@@ -162,37 +267,52 @@ As $p \to q$ in $\Delta^d,$ we have $D_{KL}(p, q) \sim 2 d_{FR}^2 (p,q).$ Thus, 
 As $p\to e_i$ and $q\to e_j,$ $i\neq j,$ the KL divergence $D_{KL}(p,q)$ tends to infinity. Under the same conditions, $2 d_{FR}^2(p,q)$ approaches a finite value.  
 \end{Remark}
 
-\begin{Remark}
-Suppose we have two models which approximates a composition $y \in \Delta^d$ with the same parameterised function $f_{\beta}(x_1,\ldots, x_m)$ and seek to find the $\beta\in \mathbb{R}^m$ which minimizes a loss function of the form $\ell  = \sum_{j=1}^m d(y_j, f_{\beta}(x_{j1}, \ldots, x_{jm}),$ with the only difference between the two models being the distance measures $d_1$ and $d_2.$ \
+
+
+
+\chapter{Regression with Compositions}
+
+We now briefly define the possible forms of a regression problem involving compositions before we discuss the particular problem that was our focus. \\
 \\
 
-Intuitively, we could expose a difference between the two models by using a dataset such that the labels are near points $p$ in the simplex $\Delta^d$ for which the difference between $d_1(p,q)$ and $d_2(p,q)$ (where $q$ is a point near $p$) is large compared to other areas of the simplex. Specifically (See Section 3.3 in the next chapter) in the case where $d_1$ is the KL divergence and $d_2$ is the Aitchison distance (i.e. the distance on $\Delta^d$ induced by the Euclidean distance on clr coordinates) , are such points related to points for which the Fisher Information Metric under clr coordinates is most dissimilar to the identity matrix? (And what is the correct notion of dissimilar?)    \
-\\
-As an example, take $x\in \Delta^d,$ $x= (1/d, \ldots, 1/d).$ Then $clr(x) = (0,\ldots, 0)$ and the FIM under clr coordinates is given by $\frac{1}{d} I_d - \frac{1}{d^2} \mathbf{1}_{d\times d}.$ What does this indicate exactly?
-\\
-Another example - Let $x = (0.998, 0.001, 0.001) \in \Delta^3.$ Then the FIM under the coordinates $\tilde{x}$ is approximately 
-$$ \begin{bmatrix}1.2 \cdot 10^{-6} & 10^{-1}\\10^{-1} & 10^{-4} \end{bmatrix} $$
-How should this be interpreted?
-\end{Remark}
+\section{General regression}
+In general, we may wish to estimate a continuous target (either a real number or a composition) given a set of real numbers and a set of compositions. More precisely, we may have 
+
+\begin{itemize}
+ \item A continuous target $y$ with either $y\in \mathbb{R}$ or $y\in S^{d_0}.$
+ \item Independent compositional variables $s_1,\ldots, s_m$ where $s_i$ has $d_i$ parts.
+ \item Independent real variables $x_1, \ldots, x_{m'}$.
+\end{itemize}
+ 
+A regression problem is to learn a function $f$ such that $f(s_1,\ldots, s_m, x_1, \ldots, x_{m'})$ gives a good estimate of the target variable $y,$ where the quality of an estimate is given by a predetermined loss function. Unfortunately there is no accepted convention for naming the various special cases of this regression problem.
+
+\begin{Example}
+ A common case is the problem of predicting a real value given a single independent compositional variable. For example, Aitchison (1986) studies the problem of using the relative sand/silt/clay composition of a sediment sample taken from an Artic lake to estimate the depth in the lake from which the sample was taken. 
+\end{Example}
+
+\begin{Example}
+ Another common case is the problem of predicting a composition given $m$ independent real variables. An example would be modelling the adult/child composition of a household, given their annual expenditure on 10 categories of retail goods. One model commonly used for this problem is the following:
+ 
+ $$ b_0 \oplus \left( \bigoplus_{k=1}^m x_k \odot b_k \right)$$
+ 
+ Here the learned parameters $b_i$ are compositions within the same simplex as the target, and the loss between the estimate and label is given by the distance within the Aitchison simplex. This model was first introduced by Aitchision \& Shen (1980) and the algorithm for computing the parameters has been greatly improved by Aitchision \& Egozcue (2005).
+\end{Example}
 
 
-\chapter{Regression models on CoDA}
 
 
-\section{Simple linear regression with CoDA feature and real prediction}
-In (Combettes, Muller, Regression models for compositional data, 2019) they consider the case of predicting a real value with the independent variable being a single composition. In cases where the predicted values are real numbers, we can map the predictions onto $S^2$ by the inverse-ilr map so that we may consider an alternate loss function as implied by the previous chapter, but this is a forced unnatural connection to the Aitchison simplex and we do not expect improved information geometry by doing this. 
+\section{Aitchison Simplex Regression}
 
-\section{Multiple linear regression with real features and CoDA prediction}
-To predict one composition $z$ from $m$ independent real variables $x_k$, we can formulate the model 
+Another special case, and the case which is the main focus on this report, is when we wish to model a target $y \in S^d$ given $m$ independent compositional variables $x_1,\ldots, x_m \in S^d.$ In this case, all of the inputs and outputs of the model lie within the same Aitchison simplex $S^d,$ and we call this problem Aitchison Simplex Regression. \\
 
-$$ z = b_0 \oplus (\oplus_{k} x_k \otimes b_k)$$ and solve for the compositions $b_k.$ This is referred to as "Model 2" in (H. Wang, 2013). Similarly to the previous section, we can consider a new loss function which may give better information geometry.
+Wang et al. (2013) proposed the following model for this problem:
 
-\section{Multiple linear regression for CoDA features and CoDA prediction}
+$$ f(x_1, \ldots, x_m) = \bigoplus_{i=1}^m \beta_i \odot x_i $$ and provide a closed form solution for the parameters $\beta_i$ which minimize the error when the loss between an estimate and the true label is given by the Aitchison distance. Their derivation relies on the property that, when transformed by the ilr function, this model has a very particular form which reduces to the form of linear regression in Euclidean space. Note that this form does not accomodate learning a bias term. As a compromise, their method is to first preprocess all of their data by centralizing all of the variables (see Section 2.3), forming their model on this centered data, and then uncentering (adding back the centers) to form a prediction.  
 
-In this section we focus on models which predict an independent composition variable with several dependent composition variables.
+\section{KL loss for Aitchison Simplex Regression}
+Wang et al. (2013) fit a model which minimizes the average Aitchison distance between the true values and their estimates, which is equivalent to minimizing the L2 error of the ilr transformed coordinates. As discussed in Section 2.4, although this loss is mathematically convenient to work with it may not best capture the information geometric properties of the Aitchison simplex. \\
 
-\subsection{clr-LR by Wang et al.}
-In (H. Wang et al, Multiple linear regression modeling for compositional data, 2013) the authors wish to model a dependent composition variable as a linear combination (in the Aitchison geometry) of $k$ independent composition variables, and learn the $m$ coefficients $\beta_1, \ldots, \beta_m \in \mathbb{R}$ which make this estimator minimize the sum of the Aitchison distances between the labelled values and the predictions. \
+PRESENT NEW LOSS AND GRADIENT, so rewrite the equations below in new notation.
 
 More specifically, their model (which we call clr-LR) has the following form. Suppose we have labels $V$ and features $U^{(k)}, k=1,\ldots, m$ in $S^d_n,$ assumed to be centralized. Their model is given by $$ \hat{V} = \oplus_{k=1}^m \beta_k \otimes U^{(k)} $$
 
@@ -214,43 +334,76 @@ This loss function is convex in $\beta$ and we can compute the gradient, so we c
 
 On a variety of datasets these two loss functions produce quite similar results. CoDA-LR usually has 1 to 2 percent higher error than clr-LR, although there are instances where CoDA-LR has lower error than clr-LR. The similarity between the results is perhaps unsurprising given the relatively small number of learnable paramaters ($m$) in clr-LR. 
 
-\subsection{Learning a bias composition}
-In (Wang. et al) the authors wished to learn only the real coefficients of a linear estimator. By doing this, they maintained a strong parallel with linear regression on real valued data and were able to produce a simple closed form solution for their optimal coefficients. However, since there is no appropriate identity composition they can not learn a bias parameter $\beta_0 \in \mathbb{R}.$ To address this issue they centralized their matrices of compositional data, and during inference they would uncentralize the output of the linear estimator by adding the center of the training set. \
-\\
-\\
-Instead of estimating a bias term by the center of the training labels, we could learn a bias term from the data in the following way. Again, suppose we have compositional datasets $V, U^{(k)}$ as defined above and some loss function $l(v, v')$. Consider the problem of finding $m$ real numbers $\beta_1,\ldots, \beta_m \in \mathbb{R}$ and a composition $\bm{\beta}_0 = [ \beta_{0, 1}, \ldots, \beta_{0, d} ] \in S^d$ such that the estimator
-$$ \hat{v}  = \bm{\beta}_0 \oplus \beta_1 \otimes u_1 \oplus \ldots \oplus \beta_m \otimes u_m $$ 
 
-minimizes the total loss $\sum_{i=1}^n l(v, \hat{v}).$ Through the $ilr$ transformation one could view this model as having $m + d-1$ learnable real parameters:
 
-$$ \hat{y} = ilr(\bm{\beta}_0) + \beta_1 x_1 + \ldots + \beta_m x_m$$
-Again, such a model may not have enough parameters to model compositional datasets with many parts (large $d$). 
-\subsection{Matrix Coefficient Model}
-In the previous two sections the form of the estimators had simple forms in the ilr domain with ilr-transformed compositional data $Y, X^{(k)},$ and optimization was most easily performed in the ilr domain. Pursuing this to its most general form, we could consider the estimator:
 
-$$ \hat{y} = \bm{\beta}_0 + x_1 \bm{\beta}_1 + \ldots + x_m \bm{\beta}_m$$
+\section{Bias learning model for Aitchison Simplex Regression}
+
+Wang et al's (2013) method for computing the closed form of the learnable parameters breaks down if one extends the model to directly learn a bias composition $\bm{\beta}_0 \in S^d$ in addition to the real parameters $\beta_1,\ldots, \beta_m$ as in the form below:
+
+$$ f(x_1, \ldots, x_m) = \bm{\beta}_0 \oplus \ \bigoplus_{i=1}^m \beta_i \odot x_i $$
+
+Here we describe methods of computing the parameters for this model which minimize the L2-loss and the KL-loss.
+
+\section{Matrix Coefficient Model for Aitchison Simplex Regression}
+
+In the previously introduced models for Aitchison Simplex Regression, although the models could be expressed purely as operations within the Aitchision simplex it was also convenient to look at the models in the ilr-transformed domain. Suppose $w\in \mathbb{R}^{d-1}$ denotes an ilr-transformed estimate of the target and $z_1, \ldots, z_m$ denotes the ilr-transformed independent variables. The following model generalizes the previously models:
+
+$$ w = \bm{\beta}_0 + w_1 \bm{\beta}_1 + \ldots + w_m \bm{\beta}_m$$
 
 where $\bm{\beta}_0$ is a row vector of length $d-1,$ and $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are $(d-1) \times (d-1)$ matrices.  
 \\
-This estimator has $m(d-1)^2 + d-1$ learnable paramaters. While this may be able to express complex relations between compositional variables, most compositional datasets do not have enough samples to learn these parameters with good generalisation. As a compromise, one may consider the special case where $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are diagonal matrices. In that case there are $(m+1)(d-1)$ learnable parameters.
+This model has $m(d-1)^2 + d-1$ learnable paramaters. This general model may be able to learn complex relations between compositional variables, however many compositional datasets do not have enough samples to learn these parameters with good generalisation. As a compromise, one may consider the special case where $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are diagonal matrices, in which case there are $(m+1)(d-1)$ learnable parameters.
 \\
-A drawback to this model is that it has no simple formulation in the original domain of the Aitchison simplex, and the learnable parameters become very difficult to interpret.  
+A drawback to these models are that they have no simple formulation in the original domain of the Aitchison simplex, and the learnable parameters become more difficult to interpret. \\
 
-\chapter*{Appendix}
-.
+Present way to compute the learnable parameters.
+
+\chapter{Experimental Methodology}
+TO DO:
+
+\begin{itemize}
+ \item Brief description of datasets, including how I generated artificial datasets
+ \item Software platform
+ \item Hardware platform
+ \item Definition of the metrics used to evaluate models
+\end{itemize}
+
+\chapter{Results and Discussion}
+
+\chapter{Conclusion}
+
 
 %% Bibliography %%
-\begin{thebibliography}{10}
+\begin{thebibliography}{0}
+
+\bibitem{Aitchison82}
+{\sc Aitchison, J 1982}, 'The statistical analysis of compositional data (with discussion)', Journal of the Royal Statistical Society B, Volume 44(2), pp. 139-177.
+
+\bibitem{Aitchision86}
+{\sc Aitchison, J 1986}, 'The Statistical Analysis of Compositional Data', Chapman and Hall, New York.
+
+\bibitem{AitchisionEgozcue}
+{\sc Aitchision, J \& Egozcue, J.J 2005}, 'Compositional data analysis: where are we and where should we be heading?', Mathematical Geology, Volume 37(7), pp. 829-850.
+
+\bibitem{AitchisionShen}
+{\sc Aitchison, J \& Shen, S.M 1980}, 'Logistic-normal distributions: some properties and uses', Biometrika, Volume 67(2), pp. 261-272.
+
+\bibitem{Amari16}
+{\sc Amari, S.I 2016}, 'Information Geometry and its Applications', Spinger-Verlag, Berlin.
+
+\bibitem{Avalos16}
+{\sc Avalos-Fernandez, M, Nock, R, Ong, C.S, Rouar, J, \& Sun, K 2016}, 'Representation Learning of Compositional data', NIPS'18 Proceedings of the 32nd International Conference on Neural Information Processing Systems. 
 
 
-\bibitem{SBTPCA}
-{\sc M.~ Avalos-Fernandex, R.~ Nock, C.S.~ Ong, J.~ Rouar, K.~ Sun}, "Representation Learning of Compositional data", NIPS'18 Proceedings of the 30th International Conference on Neural Information Processing Systems, p. 19-27, 2016. 
+\bibitem{Egozcue03}
+{\sc Egozcue, J.J, Pawlowsky-Glahn, V, Mateu-Figueras, G \& Barcelo-Vidal, C 2003}, 'Isometric logratio transformations for compositional data analysis', Mathematical Geology Journal, Volume 35, pp. 279-300.
 
-\bibitem{SBT}
-{\sc R.~ Nock, A.~ Menon and C.S.~ Ong}, "A scaled Bregman theorem with applications", Advances in Neural Information Processing Systems 31 (NIPS 2018)
+\bibitem{Nock18}
+{\sc Nock, R, Menon, A \& Ong, C.S 2018}, 'A scaled Bregman theorem with applications', NIPS'16 Proceedings of the 30th International Conference on Neural Information Processing Systems. 
 
-\bibitem{Wang}
-{\sc H.~ Wang, L.~ Shangguan, J.~ Wu, R.~ Guan}, "Multiple linear regression modeling for compositional data", J. Neurocomputing, Volume 122, p. 490-500, 2013.
+\bibitem{Wang13}
+{\sc Wang, H, Shangguan, L, Wu, J, \& Guan, R, 2013}, 'Multiple linear regression modeling for compositional data', J. Neurocomputing, Volume 122, pp. 490-500.
 
 
 
@@ -259,6 +412,8 @@ A drawback to this model is that it has no simple formulation in the original do
 
 \end{thebibliography}
 
+\chapter*{Appendix}
+.
 
 \end{document}
 
