@@ -55,13 +55,13 @@
 
 \maketitle          % creates the title page
 
-\chapter*{Acknowledgments}
-First and foremost I would like to thank Dr. Cheng Soon Ong. I greatly value the wisdom he has shared with me, helping me identify the core ideas in machine learning and the links between. His willingness to give his time so generously and with such patience has been very much appreciated.\\
+\chapter*{Acknowledgements}
+First and foremost I would like to thank Dr. Cheng Soon Ong. I greatly value the wisdom he has shared with me, helping me identify the core ideas of machine learning and the links in between. His willingness to give his time so generously and with such patience has been very much appreciated.\\
 
 I would also like to thank Dr. Weifa Liang and Dr. Stephen Gould for taking the responsibilities of course convener and examiner respectively. Without their contribution I would not have been able to have the pleasure of completing this course. 
 
 \chapter*{Abstract}
-In this report we explore regression models involving compositional data. We provide some background of the de-facto standard methods of analysing compositional data originally developed primarily by Aitchison (1982, 1986) and Egozcue (2003). After surveying regression problems involving compositions and models for studying them, we give particular focus to a problem where all variables are compositions with the same number of parts and a model for that problem introduced by Wang et al. (2013). We propose new models for this problem and, motivated by ideas from Information Geometry, consider alternate loss functions for these models. Finally, we evaluate these approaches across a variety of datasets and performance metrics.\\ 
+In this report we explore regression models involving compositional data. We provide some background of the standard methods of analysing compositional data originally developed primarily by Aitchison (1982, 1986) and Egozcue (2003). After surveying regression problems involving compositions and models for studying them, we give particular focus to a problem we call Aitchison Simplex Regression, where all variables are compositions within the same simplex. A model for this problem was introduced by Wang et al. (2013). In this report we propose several new models for this problem, incorporating bias terms and gauged-KL divergence loss functions.\\ 
 
 
 
@@ -78,10 +78,10 @@ In machine learning we attempt to analyse data to perform tasks such as regressi
  \begin{itemize}
   \item The model functions of standard methods often require us to add points together and multiply by real coefficients. The usual vector space operations of $\mathbb{R}^d$ do not apply naturally to compositions. For example, scalar multiplication reduces to the identity map. We require a natural vector space structure on the probablity simplex to use similar model functions to the standard ones.\\
  \item To minimise the standard loss functions we require a suitable notion of distance for compositions. While we could forget the special structure of compositions and, for example, use the Euclidean metric on normalised points, it is unclear whether this is appropriate.\\
-  \item Compositions lie in a strict subspace of Euclidean space, as their components always sum to some fixed constant. This poses issues in models which require the data matrix to have full rank for issues related to uniqueness and/or numerical stability.\\ 
+  \item Compositions lie in a strict subspace of Euclidean space, as their components always sum to some fixed constant. This means that the data matrices do not have full rank and have a singular covariance matrix, which can bring issues related to uniqueness and/or numerical stability in certain machine learning algorithms.\\ 
  \end{itemize}
  
-Even if one could directly apply a standard method, it is natural to expect that a model which specifically addresses and/or incorporates the special structure of compositions will outperform a model which ignores it. In the first systematic treatment of the statistics of compositional data, Aitchison (1982, 1986) defined a Hilbert space structure on compositions and introduced the centered log-ratio transform which naturally maps compositions to a subspace of Euclidean space subject to a constraint. Egozcue et al. (2003) extended this by introducing the isometric log-ratio transform which removed the constraint and gave a natural way to derive Aitchison's Hilbert space structure. Although this allows us to transform compositions into Euclidean data, it may not always be most appropriate to measure the distance between compositions by the Euclidean distance between the transformed points. Avalos-Fernandez et al. (2018) studied PCA on compositional data, measuring quality of fit of a subspace by a general Bregman divergence and giving evidence that using the Kullback-Liebler divergence may be a desirable alternative in some applications.\\
+Even if one could directly apply a standard method, it is natural to expect that a model which specifically addresses and/or incorporates the special structure of compositions will outperform a model which ignores it. In the first systematic treatments of the statistics of compositional data, Aitchison (1982, 1986) defined a Hilbert space structure on compositions and introduced the centred log-ratio transform which naturally maps compositions to a subspace of Euclidean space subject to a constraint. Egozcue et al. (2003) extended this by introducing the isometric log-ratio transform which removed the constraint and gave a natural way to derive Aitchison's Hilbert space structure. Although this allows us to transform compositions into Euclidean data, it may not always be most appropriate to measure the distance between compositions by the Euclidean distance between the transformed points. Avalos-Fernandez et al. (2018) studied PCA on compositional data, measuring quality of fit of a subspace by a general Bregman divergence and giving evidence that using the Kullback-Liebler divergence may be a desirable alternative in some applications.\\
 
 After setting up some required background, we investigate regression problems involving compositional data. Of particular interest is modelling a dependent compositional variable as a function of multiple independent compositional variables. We review a model introduced by Wang et al. (2013) before introducing some new models for this problem. 
  
@@ -89,13 +89,14 @@ After setting up some required background, we investigate regression problems in
  
 \chapter{Background}
 
-In this chapter we define compositions and the spaces and operations that are commonly used to manipulate them. 
+In this chapter we define compositions and the essential spaces and operations that are commonly used to manipulate them. These will give us a better understanding of what regression models involving compositions may look like and will be used heavily in the next chapter.
 
 \section{Definition and Examples}
 \begin{Definition}
-Let $d$ be a positive integer. Let $\sim$ be the equivalence relation on the positive orthant $\mathbb{R}^d_{\geq 0}$ where for $x, x' \in \mathbb{R}^d_{\geq 0}$ we have $x \sim x'$ if and only if $x = \lambda x'$ for some $\lambda > 0.$ A $d$-part composition is an element of the quotient set $\mathbb{R}^d_{\geq 0}/\sim.$ (See Appendix V).
+Let $d$ be a positive integer. Let $\sim$ be the equivalence relation on the positive orthant $\mathbb{R}^d_{\geq 0}$ where for $x, x' \in \mathbb{R}^d_{\geq 0}$ we have $x \sim x'$ if and only if $x = \lambda x'$ for some $\lambda > 0.$ A $d$-part composition is an element of the quotient set $\mathbb{R}^d_{\geq 0}/\sim.$ 
 \end{Definition}
 
+We refer the reader to Herstein (1975) for a concise discussion on equivalence relations, equivalence classes and quotient sets, although they have get the essential idea from the examples below.
 
 \begin{Example}
 In a two party election we may survey members of various electorates for their preferred party and collect the following results.
@@ -156,7 +157,7 @@ When we understand that a point is a composition we usually omit the brackets.
 
 \section{Coordinates and transformations for compositions}
 
-We now present a set of coordinate systems and maps between them which help in the analysis of compositions. Many operations on compositions try to map compositions bijectively over to spaces that are closer to Euclidean space, so that we can apply known techniques and avoid complications of quotient spaces. These operations usually require that all the components of a composition are non-zero, and would lead to infinte values otherwise. Thus, most treatments of compositional data proceed with this assumption of strictly positive components in their analysis. In practice most measurements have some amount of error associated to them and the target they try to analyse varies continuously with respect to the components, which they use to justify replacing any zero components with a small positive value. This value is often chosen somewhat arbitrarily (such as by Avalos-Fernandez et al. (2016) and Wang et al. (2013)). Martin-Fernandez (2003) studied a systemic approach to choosing this value and gave some arguments towards its suitabiltiy, and this method is now offered in statistical computing packages (such as Scikit-Bio's 'Compositions' package for Python (Scikit-Bio 2019), and the 'compositions' package for R (CRAN 2019)) as the primary way to dealing with zero values. Some studies involving compositional data use techniques which can deal with zero components directly such as that by Scealy \& Welsh (2014). For the rest of this report we assume our compositions have no zero valued components. 
+We now present a set of coordinate systems and maps between them which help in the analysis of compositions. Many operations on compositions try to map compositions bijectively over to spaces that are closer to Euclidean space, so that we can apply known techniques and avoid complications of quotient spaces. These operations usually require that all the components of a composition are non-zero, and would lead to infinite values otherwise. Thus, most treatments of compositional data proceed with this assumption of strictly positive components in their analysis. In practice most measurements have some amount of error associated to them and the target they try to analyse varies continuously with respect to the components, which they use to justify replacing any zero components with a small positive value. This value is often chosen somewhat arbitrarily (such as by Avalos-Fernandez et al. (2016) and Wang et al. (2013)). Martin-Fernandez (2003) studied a systemic approach to choosing this value and gave some arguments towards its suitability, and this method is now offered in statistical computing packages (such as Scikit-Bio's 'Compositions' package for Python (Scikit-Bio 2019), and the 'compositions' package for R (CRAN 2019)) as the primary way to dealing with zero values. Some studies involving compositional data use techniques which can deal with zero components directly such as that by Scealy \& Welsh (2014). For the rest of this report we assume our compositions have no zero valued components. 
 
 \begin{Definition}
  We define the following spaces.
@@ -168,7 +169,7 @@ We now present a set of coordinate systems and maps between them which help in t
 The space $S^d$ is the interior of the probability simplex, and in the context of compositional data analysis is sometimes called the 'Aitchison space/complex/geometry' although we reserve this term for when this space is endowed with the Hilbert space structure described in the next section. The space $H^d$ is generally not named, though we may say a composition in this space is given in hyperbolic coordinates. The hyperplane $U^d$ is sometimes called the clr-plane. 
 \end{Definition}
 
-The oblique hyperplane $U^d$ has dimension $d-1,$ and by applying a rotation we can isometrically map $U^d$ to the $d-1$ dimensional subspace of $\mathbb{R}^{d}$ defined by $x_d=0.$ We fix one particular rotation, a $(d-1) \times d$ matrix $W$ such that $WW^T = I_{d-1}$ and $W^TW = I_d - \frac{1}{d} \mathbf{1}_{d\times d},$ which is obtained through a Gram-Scmidt process described by Egozcue (2003). Any other rotation $W'$ with these properties could be used in place of $W$ however $W$ is simple to compute and using other $W'$ can be seen as applying $W$ and then further flipping, rotating or shifting the space $\mathbb{R}^{d-1},$ which provides no additional benefite for data analysis (Egozcue 2003). 
+The oblique hyperplane $U^d$ has dimension $d-1,$ and by applying a rotation we can isometrically map $U^d$ to the $d-1$ dimensional subspace of $\mathbb{R}^{d}$ defined by $x_d=0.$ We fix one particular rotation, a $(d-1) \times d$ matrix $W$ such that $WW^T = I_{d-1}$ and $W^TW = I_d - \frac{1}{d} \mathbf{1}_{d\times d},$ which is obtained through a Gram-Scmidt process described by Egozcue (2003). Any other rotation $W'$ with these properties could be used in place of $W$ however $W$ is simple to compute and using other $W'$ can be seen as applying $W$ and then further flipping, rotating or shifting the space $\mathbb{R}^{d-1},$ which provides no additional benefit for data analysis (Egozcue 2003). 
 
 
 \begin{Definition}
@@ -182,7 +183,7 @@ $ \scalebox{1.5}{$ \R^d_{> 0}/\sim \ \  \xrightarrow[{[x]\mapsto \frac{1}{\| x\|
 $ \scalebox{1.5}{$ \ \ \ \  \R^d_{> 0}/\sim \ \ \ \ \xleftarrow[{x\mapsto [x] }]{\text{quotient}} \ \ \  S^d \xleftarrow[{x \mapsto \frac{1}{\| x\|_1} x}]{{\mathcal{C}'}} H^d \xleftarrow[{x \mapsto \exp x}]{{\exp}} U^d \xleftarrow[{x\mapsto W^Tx}]{{W^T}}\R^{d-1} $}$
 \end{Definition}
 
-All maps in the above definition are well-defined, continuous and bijective (with their inverse function given by the map in the opposite direction). Through these maps, we can transform a composition into coordinates expressed in any of the above spaces. The centered log-ratio map 
+All maps in the above definition are well-defined, continuous and bijective (with their inverse function given by the map in the opposite direction). Through these maps, we can transform a composition into coordinates expressed in any of the above spaces. The centred log-ratio map 
 \begin{align*}
  clr : S^d &\to U^d \\
     x &\mapsto \log \frac{x}{g(x)}
@@ -233,48 +234,25 @@ Applying this to the isometric log-ratio transform, equipping the following oper
 Suppose for example that $s, s' \in S^d$ with ilr coordinates $x, x' \in \mathbb{R}^{d-1}.$ A learning model may make predictions by linear combinations of the Euclidean vectors, say something of the form $\beta \cdot x + \beta' \cdot x',$ and then inverting the ilr transform. With the Hilbert space structure of the Aitchison simplex, this can instead be interpreted entirely as operations within the simplex - $\beta \odot s \oplus \beta' \odot.$ 
 \end{Example}
 
-In $\mathbb{R}^{d-1}$ we can define the center of points $x_1,\ldots, x_n \in \mathbb{R}^{d-1}$ to be the mean $\frac{1}{n} \sum_{i=1}^n x_i.$ We can transfer this to define a center of compositions.
+\section{Centralisation}
+
+In $\mathbb{R}^{d-1}$ we can define the centre of points $x_1,\ldots, x_n \in \mathbb{R}^{d-1}$ to be the mean $\frac{1}{n} \sum_{i=1}^n x_i.$ We can transfer this to define a centre of compositions.
 
 \begin{Definition}
- Suppose $u_1, \ldots, u_n \in S^d$ are compositions. The center of these points is given by 
+ Suppose $u_1, \ldots, u_n \in S^d$ are compositions. The centre of these points is given by 
  
 $$ \overline{u} = \frac{1}{n} \odot \bigoplus_{i=1}^n u_i$$
-To centralize a set of compositions, we subtract the center from each element of the set. 
+To centralise a set of compositions, we subtract the centre from each element of the set. 
 \end{Definition}
 
-The following method is easily verified to be equivalent to but more computationally efficient than computing the center from the above definition. First form the vector in $\mathbb{R}^d$ where the $i$-th component is the geometric mean of the $i$-th components of all the compositions in the set. Then normalize this vector so that it lies in $S^d.$ 
-
-
-\section{Information Geometry of the Probability Simplex}
-[Expand background on statistical manifolds, FIM, KL-divergence, distance on Riemannian manifolds as geodesic distance...]
-Each point in the probability simplex $\Delta^d$ corresponds naturally to a discrete probability distribution over $d$ states, so $\Delta^d$ can be viewed as a $d-1$ dimensional statistical manifold. A natural Riemannian metric for statistical manifolds is the Fisher information metric. The Fisher-Rao distance between two points on a statistical manifold as the distance between those points on the Riemannian manifold with metric given by the FIM. \
-\\
-\begin{Proposition}
-The Fisher-Rao distance between $x,y \in \Delta^d$ is given by $$d_{FR}(x,y) = \arccos \left( \sum_{i=1}^d \sqrt{x_i y_i} \right).$$
-\end{Proposition}
-
-\begin{proof}
-\end{proof}
-
-\begin{Proposition}
-As $p \to q$ in $\Delta^d,$ we have $D_{KL}(p, q) \sim 2 d_{FR}^2 (p,q).$ Thus, the KL divergence provides a local approximation to the Fisher-Rao distance.
-\end{Proposition}
-
-\begin{proof}
-\end{proof}
-
-\begin{Remark}
-As $p\to e_i$ and $q\to e_j,$ $i\neq j,$ the KL divergence $D_{KL}(p,q)$ tends to infinity. Under the same conditions, $2 d_{FR}^2(p,q)$ approaches a finite value.  
-\end{Remark}
-
-
+The following method is easily verified to be equivalent to but more computationally efficient than computing the centre from the above definition. First form the vector in $\mathbb{R}^d$ where the $i$-th component is the geometric mean of the $i$-th components of all the compositions in the set. Then normalise this vector so that it lies in $S^d.$ We can centre a set of compositions by subtracting their centre from each of them, and un-centre by adding the centre back. \\
+\
+We now have sufficient background to discuss regression problems involving compositional data and the various methods of approaching them.
 
 
 \chapter{Regression with Compositions}
 
 We now briefly define the possible forms of a regression problem involving compositions before we discuss the particular problem that was our focus. \\
-\\
-
 \section{General regression}
 In general, we may wish to estimate a continuous target (either a real number or a composition) given a set of real numbers and a set of compositions. More precisely, we may have 
 
@@ -287,7 +265,7 @@ In general, we may wish to estimate a continuous target (either a real number or
 A regression problem is to learn a function $f$ such that $f(s_1,\ldots, s_m, x_1, \ldots, x_{m'})$ gives a good estimate of the target variable $y,$ where the quality of an estimate is given by a predetermined loss function. Unfortunately there is no accepted convention for naming the various special cases of this regression problem.
 
 \begin{Example}
- A common case is the problem of predicting a real value given a single independent compositional variable. For example, Aitchison (1986) studies the problem of using the relative sand/silt/clay composition of a sediment sample taken from an Artic lake to estimate the depth in the lake from which the sample was taken. 
+ A common case is the problem of predicting a real value given a single independent compositional variable. For example, Aitchison (1986) studies the problem of using the relative sand/silt/clay composition of a sediment sample taken from an Arctic lake to estimate the depth in the lake from which the sample was taken. 
 \end{Example}
 
 \begin{Example}
@@ -303,76 +281,231 @@ A regression problem is to learn a function $f$ such that $f(s_1,\ldots, s_m, x_
 
 \section{Aitchison Simplex Regression}
 
-Another special case, and the case which is the main focus on this report, is when we wish to model a target $y \in S^d$ given $m$ independent compositional variables $x_1,\ldots, x_m \in S^d.$ In this case, all of the inputs and outputs of the model lie within the same Aitchison simplex $S^d,$ and we call this problem Aitchison Simplex Regression. \\
+The case which is the main focus on this report is when we wish to model a target $y \in S^d$ given $m$ independent compositional variables $x_1,\ldots, x_m \in S^d.$ In this case, all of the inputs and outputs of the model lie within the same Aitchison simplex $S^d,$ and we call this problem Aitchison Simplex Regression. \\
 
+A naive attempt at this problem would be to simply treat the the compositions as values in $\mathbb{R}^d$ and apply standard linear regression models. One quickly sees that if we do this, we produce outputs which are almost never compositions. Even intending to normalise the outputs is insufficient, as we can not normalise the output is even a single component is negative (which is often the case). The most promising approach forward is to think in terms of clr and ilr coordinates introduced in the previous chapter, and the following models make heavy use of these transformations.
+
+\subsection{Model by Wang et al. (2013)}
 Wang et al. (2013) proposed the following model for this problem:
+$$ f(x_1, \ldots, x_m) = \bigoplus_{i=1}^m \beta_i \odot x_i $$ and provide a closed form solution for the parameters $\beta_i$ which minimise the error when the loss between an estimate and the true label is given by the Aitchison distance. Their derivation relies on the property that, when transformed by the ilr function, this model has a very particular form which reduces to the form of linear regression in Euclidean space. Note that this form does not accommodate learning a bias term. As a compromise, their method is to first pre-process all of the data by centralising all of the variables, training their model on this centred data, and then un-centre to form a prediction. 
 
-$$ f(x_1, \ldots, x_m) = \bigoplus_{i=1}^m \beta_i \odot x_i $$ and provide a closed form solution for the parameters $\beta_i$ which minimize the error when the loss between an estimate and the true label is given by the Aitchison distance. Their derivation relies on the property that, when transformed by the ilr function, this model has a very particular form which reduces to the form of linear regression in Euclidean space. Note that this form does not accomodate learning a bias term. As a compromise, their method is to first preprocess all of their data by centralizing all of the variables (see Section 2.3), forming their model on this centered data, and then uncentering (adding back the centers) to form a prediction.  
-
-\section{KL loss for Aitchison Simplex Regression}
-Wang et al. (2013) fit a model which minimizes the average Aitchison distance between the true values and their estimates, which is equivalent to minimizing the L2 error of the ilr transformed coordinates. As discussed in Section 2.4, although this loss is mathematically convenient to work with it may not best capture the information geometric properties of the Aitchison simplex. \\
-
-PRESENT NEW LOSS AND GRADIENT, so rewrite the equations below in new notation.
-
-More specifically, their model (which we call clr-LR) has the following form. Suppose we have labels $V$ and features $U^{(k)}, k=1,\ldots, m$ in $S^d_n,$ assumed to be centralized. Their model is given by $$ \hat{V} = \oplus_{k=1}^m \beta_k \otimes U^{(k)} $$
-
-Let $Y = ilr(V), \hat{Y} = ilr(\hat{V}), X^{(k)} = ilr( U^{(k)} ).$  Since $ilr$ is an isometric isomorphism, we have $$ \hat{Y} = \sum_{k=1}^m \beta_k X^{(k)}.$$
-
-To find $\beta \in \mathbb{R}^m,$ the authors minimize the Frobenius norm $ \| Y - \hat{Y} \|_F.$ [Derive closed form solution]. Following (Section 4.2 of) (M Avalos-Fernandez et al,  Representation Learning of Compositional Data, 2018), we expect that the model may have better information geometry if we consider minimizing the following loss instead:
-
-$$ l_{CoDA} := D_{exp} \left( \sum_k \beta_k clr(U^{(k)} ), clr(V) \right)$$
-$$ = (\mathbf{1}_{n \times 1})^T \exp \left( (\sum_i \beta_i X^{(i)})W \right) \mathbf{1}_{d\times 1} - \operatorname{trace}(\tilde{V}^T (\sum_i \beta_i X^{(i)})W )$$
-
-Let $g$ and $h$ denote the first and second term in the gauged-KL-loss respectively. 
-$$ g(\beta) = \sum_{i=1}^d \sum_{j=1}^n \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_k C^{(k)}_{ij} \right)$$
-$$ h(\beta) = \operatorname{trace}\left( \tilde{V}^T \left( \sum_k \beta_k C^{(k)} \right)  \right) = \sum_k \beta_k \operatorname{trace}\left( \tilde{V}^T C^{(k)} \right) $$
-
-We have $$ \frac{ \partial g}{\partial \beta_r } = \sum_{i=1}^d \sum_{j=1}^n C^{(r)}_{ij} \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_k C^{(k)}_{ij} \right)$$
-$$ \frac{ \partial h}{\partial \beta_r } = \operatorname{trace}\left( \tilde{V}^T C^{(r)}\right)$$
-
-This loss function is convex in $\beta$ and we can compute the gradient, so we can find the optimal $\beta$ by standard methods. In our experiments we used Scipy's BFGS optimizer and evaluated the results against metrics on $\Delta^d$ such as Fisher-Rao distance, symmetric KL distance, L1 distance and L2 distance.
-
-On a variety of datasets these two loss functions produce quite similar results. CoDA-LR usually has 1 to 2 percent higher error than clr-LR, although there are instances where CoDA-LR has lower error than clr-LR. The similarity between the results is perhaps unsurprising given the relatively small number of learnable paramaters ($m$) in clr-LR. 
-
-
-
-
-\section{Bias learning model for Aitchison Simplex Regression}
-
+\subsection{Bias learning model for Aitchision Simplex Regression}
 Wang et al's (2013) method for computing the closed form of the learnable parameters breaks down if one extends the model to directly learn a bias composition $\bm{\beta}_0 \in S^d$ in addition to the real parameters $\beta_1,\ldots, \beta_m$ as in the form below:
-
 $$ f(x_1, \ldots, x_m) = \bm{\beta}_0 \oplus \ \bigoplus_{i=1}^m \beta_i \odot x_i $$
 
-Here we describe methods of computing the parameters for this model which minimize the L2-loss and the KL-loss.
+Although incorporating a bias term makes a closed form solution for all of the parameters more difficult to obtain, by transforming the model into ilr coordinates we can apply standard methods of unconstrained convex optimisation to compute the parameters. 
+
+\section{KL loss for Aitchison Simplex Regression}
+
+Information Geometry is the study of statistical manifolds. These are smooth manifolds where each point corresponds to a probability distribution, and each of these distributions are over the same probability space. Such manifolds are special because they can always be equipped with a metric, the Fisher Information Metric, which gives them the structure of a Riemannian manifold. This metric has several special properties which makes it a natural choice for studying the geometry of a statistical manifold. For example, Chentsov's Theorem states that it is the unique (up to rescaling) Riemannian metric that is invariant under sufficient statistics (Dowty 2018). For a detailed discussion we refer the reader to Amari (2016).\\
+\\
+For Riemannian manifolds, the metric defines a continuously varying inner-product (and thus, distance metric) locally at each point. We can thus define the length of a path to be the result of integrating over infinitesimally small intervals along the path. A path between two points whose length in the infimum of the lengths of all paths between those points is called a geodesic. We thus have a natural distance metric globally over the manifold, given by the length of a geodesic path. In the case of statistical manifolds with the Fisher Information Metric, this is known as the Fisher-Rao distance. In practice, this distance is difficult to compute for most manifolds. \\
+\\
+The Aitchison Simplex $S^d$ is naturally regarded as a statistical manifold as it a smooth manifold where each point corresponds to a discrete distribution over $d$ states. In this case it can be shown that the Fisher-Rao distance between $x,y\in S^d$ is given by (Amari, 2016):
+$$ d_{FR}(x,y) = \operatorname{arccos}\left( \sum_{i=1}^d \sqrt{x_i y_i} \right)$$
+This gives a natural distance between points in $S^d$ which we may try to use in a regression model, but taking the Fisher-Rao distance as the loss function in models for Aitchison Simplex Regression leads to an difficult optimisation problem. Therefore we instead use a certain local approximation. As discussed in Section 4.2 of the paper by Avalos-Fernandez et al. (2018), there exists a gauged version of the Kullback-Liebler (KL) divergence which is a good local approximation of the Fisher-Rao loss, and we use that as a basis for a new loss function for Aitchison Simplex Regression.
+\begin{Definition}
+ Define $S^d_n$ as the set of $n \times (d-1)$ matrices where each of the $n$ rows is a composition in $S^d.$ Let $V\in S^d_n$ be a matrix of $n$ target compositions which is approximated by some $V'\in S^d_n$.
+We define a gauged-KL loss between $V$ and $V'$ by:
+$$ \ell_{KL} (V,V') = D_{\varphi}\left( \tilde{V}, \exp(V')\right)$$
+where $D_{\varphi}$ is the Bregman divergence generated by the function $\varphi(z) = z \log z - z.$
+\end{Definition}
+
+Note that the convex dual of $\varphi$ is $\varphi^*(z) = \exp z$ and $\nabla \varphi (\tilde{V}) = clr(V),$ so by the duality property of Bregman divergences (Boyd \& Vandenberghe, 2004) we have
+\begin{align*}
+ \ell_{KL} (V,V') &= D_{\exp} \left( clr(V'), clr(V) \right)\\
+                  &= (\mathbf{1}_{n\times 1})^T \exp\left( clr(V')\right) \mathbf{1}_{d\times 1} \\
+                  & \ \ \ - \operatorname{trace} \left( \tilde{V}^T clr(V') \right)) \ \ + \ \ \text{const.}
+\end{align*}
+Now let $U^{(1)}, \ldots, U^{(m)} \in S^d_n$ be the data matrices of the $m$ independent compositional variables. In the case where $V'$ is given by an unbiased linear model (such as introduced by Wang. et al (2013)), we have $V' = \sum_k \beta_k U^{(k)}.$ Let $Y = ilr(V) \in \mathbb{R}^{n \times (d-1)},$  $X^{(k)} = ilr (U^{(k)})\in \mathbb{R}^{n \times (d-1)}$ and $C^{(k)} = clr (U^{(k)})\in \mathbb{R}^{n \times d}$ be the transformed versions of the variables (where the ilr/clr functions are applied row-wise). \\
+
+Letting $g$ and $h$ denote the first and second term in the gauged-KL-loss respectively we have 
+\begin{align*}
+ g(\beta) &= \sum_{i=1}^d \sum_{j=1}^n \exp \left( clr(V')_{i,j} \right)\\
+         &= \sum_{i=1}^d \sum_{j=1}^n \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_m C^{(m)}_{ij}
+ \right)\\
+ \ & \ \\
+ h(\beta) &= \operatorname{trace}\left( \tilde{V}^T \left( clr(V') \right)  \right)\\
+        &= \operatorname{trace}\left( \tilde{V}^T \left( \sum_k \beta_k C^{(k)} \right)  \right)\\
+          &= \sum_k \beta_k \operatorname{trace}\left( \tilde{V}^T C^{(k)} \right)\\
+\end{align*}
+from which we can calculate
+\begin{align*}
+ \frac{ \partial g}{\partial \beta_k } &= \sum_{i=1}^d \sum_{j=1}^n C^{(k)}_{ij} \exp \left( \beta_1 C^{(1)}_{ij} + \ldots + \beta_m C^{(m)}_{ij} \right) \\
+ \frac{ \partial h}{\partial \beta_k } &= \operatorname{trace}\left( \tilde{V}^T C^{(k)}\right)
+\end{align*}
+
+If we include a bias term in our model and denote the ilr coordinates of the bias term by the row vector $\alpha = [\alpha_1, \ldots, \alpha_{d-1}],$ then we similarly have 
+\begin{align*}
+ g(\alpha, \beta) &= \sum_{i=1}^d \sum_{j=1}^n \exp \left( \mathbf{1}_{n\times 1} \alpha W + clr(V')\right)_{i,j} \\
+         &= \sum_{i=1}^d \sum_{j=1}^n \exp \left(\alpha \cdot W^{(j)} + \beta_1 C^{(1)}_{ij} + \ldots + \beta_m C^{(m)}_{ij}
+ \right)\\
+ \ & \ \\
+ h(\alpha, \beta) &= \operatorname{trace}\left( \tilde{V}^T \left( \mathbf{1}_{n\times 1} \alpha W +clr(V') \right)  \right)\\
+        &= \operatorname{trace}\left( \tilde{V}^T \left( \mathbf{1}_{n\times 1}\alpha W + \sum_k \beta_k C^{(k)} \right)  \right)\\
+          &= \operatorname{trace}\left(\alpha W \tilde{V}^T \mathbf{1}_{n\times 1} \right) + \sum_k \beta_k \operatorname{trace}\left( \tilde{V}^T C^{(k)} \right)\\
+          &= \alpha W \tilde{V}^T \mathbf{1}_{n\times 1}  + \sum_k \beta_k \operatorname{trace}\left( \tilde{V}^T C^{(k)} \right)
+\end{align*}
+from which we can calculate
+
+\begin{align*}
+ \frac{ \partial g}{\partial \beta_k } &= \sum_{i=1}^d \sum_{j=1}^n C^{(k)}_{ij} \exp \left(\alpha \cdot W^{(j)} +  \beta_1 C^{(1)}_{ij} + \ldots + \beta_m C^{(m)}_{ij} \right) \\
+ \frac{ \partial g}{\partial \alpha_p } &= \sum_{i=1}^d \sum_{j=1}^n W_{pj} \exp \left(\alpha \cdot W^{(j)} +  \beta_1 C^{(1)}_{ij} + \ldots + \beta_m C^{(m)}_{ij} \right) \\
+ \ & \ \\
+ \frac{ \partial h}{\partial \beta_k } &= \operatorname{trace}\left( \tilde{V}^T C^{(k)}\right)\\
+ \frac{ \partial h}{\partial \alpha_p } &= W \tilde{V}^T \mathbf{1}_{n\times 1}
+\end{align*}
+
+In both the biased and unbiased cases the gauged-KL loss function is convex in the learnable parameters so we can find the optimal parameter value by standard first-order methods for unconstrained convex optimisation. We now have several choices in creating models for the Aitchison Simplex Regression problem. We may or may not include a bias term, use the L2 or KL loss function, and we may centralise our data before training and then un-centre the predictions. This gives a total of 8 models to consider. We present the results of some experiments with these models in the next chapter.
+
 
 \section{Matrix Coefficient Model for Aitchison Simplex Regression}
 
-In the previously introduced models for Aitchison Simplex Regression, although the models could be expressed purely as operations within the Aitchision simplex it was also convenient to look at the models in the ilr-transformed domain. Suppose $w\in \mathbb{R}^{d-1}$ denotes an ilr-transformed estimate of the target and $z_1, \ldots, z_m$ denotes the ilr-transformed independent variables. The following model generalizes the previously models:
-
-$$ w = \bm{\beta}_0 + w_1 \bm{\beta}_1 + \ldots + w_m \bm{\beta}_m$$
+In the previously introduced models for Aitchison Simplex Regression, although the models could be expressed purely as operations within the Aitchision simplex it was also convenient to look at the models in the ilr-transformed domain. Suppose $w\in \mathbb{R}^{d-1}$ denotes an ilr-transformed estimate of the target and $z_1, \ldots, z_m$ denotes the ilr-transformed independent variables. The following model generalises the previously discussed models:
+$$ w = \bm{\beta}_0 + z_1 \bm{\beta}_1 + \ldots + z_m \bm{\beta}_m$$
 
 where $\bm{\beta}_0$ is a row vector of length $d-1,$ and $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are $(d-1) \times (d-1)$ matrices.  
 \\
-This model has $m(d-1)^2 + d-1$ learnable paramaters. This general model may be able to learn complex relations between compositional variables, however many compositional datasets do not have enough samples to learn these parameters with good generalisation. As a compromise, one may consider the special case where $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are diagonal matrices, in which case there are $(m+1)(d-1)$ learnable parameters.
+This model has $m(d-1)^2 + d-1$ parameters. While this may be able to learn more complex relations between compositional variables, many compositional data sets do not have enough samples to learn this many parameters without over-fitting. To reduce the number of parameters, one might consider special cases such as where $\bm{\beta}_1, \ldots, \bm{\beta}_m$ are diagonal matrices, in which case there are $(m+1)(d-1)$ learnable parameters, or assume the matrices $\bm{\beta}_k$ have a low rank structure. \\
 \\
-A drawback to these models are that they have no simple formulation in the original domain of the Aitchison simplex, and the learnable parameters become more difficult to interpret. \\
+Another drawback to these models is that they have no simple interpretation in the original domain of the Aitchison simplex, which makes the learned parameters more difficult to interpret. We leave further investigation of these general models for future work.\\
 
-Present way to compute the learnable parameters.
-
-\chapter{Experimental Methodology}
-TO DO:
-
-\begin{itemize}
- \item Brief description of datasets, including how I generated artificial datasets
- \item Software platform
- \item Hardware platform
- \item Definition of the metrics used to evaluate models
-\end{itemize}
 
 \chapter{Results and Discussion}
+We have tested the 8 previously discussed models across the following 4 data sets. \\
+\\
+\begin{itemize}
+ \item 'Economic Data' is taken from Wang et al. (2013). It has 16 samples, modelling the Primary/Secondary/Tertiary Sector Composition of Gross Regional Product (GRP) produced in Shanghai by the Sector Composition of Employment and Investment. $(n,d,m) = (16,3,3)$ \\
+ \item 'D17' is taken from Aitchison (1986) and collects the subjective diagnostic probabilities for 3 diseases assigned by 15 clinicians and 15 statisticians. $(n,d,m) = (15,3,1)$\\
+ \item 'GDP vs Employment' is taken from Wikipedia (2019) and gives the Primary/Secondary/Tertiary sector composition of GDP and Employment for 158 countries. $(n,d,m) = (158,3,1)$ \\
+ \item 'Artificial' was constructed by generating random numbers in $\mathbb{R}^{d-1}$ and applying the inverse ilr transform to obtain compositions in $S^d.$ We then forms a linear combination of these with coefficients that we specified, and added a random Gaussian noise to  produce our targets. $(n,d,m) = (30,10,4).$\\
+\end{itemize}
+
+To evaluate the models we split our data sets in approximately 80/20 ratios for the train/test split and have reported the sums of the errors. The 'geometric' error functions we have used are the Fisher-Rao distance and Symmetric-KL, which can be considered 'geometric' in that they are equal to or approximate the information geometric distance on the Aitchison simplex. We have also used the 'non-geometric' L2, L1 norms from the ambient Euclidean space, which are less good approximations of the Fisher-Rao distance. The results are shown on the following 6 pages.\\
+
+\newpage
+\
+\section{Results}
+\begin{figure}[hbt!]
+ \centering
+ \includegraphics[scale=0.9,keepaspectratio=true]{table1.JPG}
+ % table1.JPG: 0x0 px, -2147483648dpi, 0.00x0.00 cm, bb=
+ \caption{Performance for Economic Data set}
+\end{figure}
+\begin{figure}[hbt!]
+ \centering
+ \includegraphics[scale=0.9,keepaspectratio=true]{table2.JPG}
+ % table1.JPG: 0x0 px, -2147483648dpi, 0.00x0.00 cm, bb=
+ \caption{Performance for D17}
+\end{figure}
+\newpage
+\ \\
+\
+\begin{figure}[hbt!]
+ \centering
+ \includegraphics[scale=0.9,keepaspectratio=true]{table3.JPG}
+ % table1.JPG: 0x0 px, -2147483648dpi, 0.00x0.00 cm, bb=
+ \caption{Performance for GDP vs Employment Data set}
+\end{figure}
+\begin{figure}[hbt!]
+ \centering
+ \includegraphics[scale=0.9,keepaspectratio=true]{table4.JPG}
+ % table1.JPG: 0x0 px, -2147483648dpi, 0.00x0.00 cm, bb=
+ \caption{Performance for Artificial Data set}
+\end{figure}
+
+\newpage
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-Eco1.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against geometric measures (Economic data)}
+\end{figure}
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-Eco2.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against non-geometric measures (Economic data)}
+\end{figure}
+
+\newpage
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-D17-1.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against geometric measures (D17)}
+\end{figure}
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-D17-2.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against non-geometric measures (D17)}
+\end{figure}
+
+\newpage
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-GDP1.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against geometric measures (GDP vs Employment)}
+\end{figure}
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-GDP2.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against non-geometric measures (GDP vs Employment)}
+\end{figure}
+\newpage
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-Arti1.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against geometric measures (Artificial)}
+\end{figure}
+
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.6,keepaspectratio=true]{graphs/G-Arti2.JPG}
+ % G-Eco1.JPG: 0x0 px, 0dpi, 0.00x0.00 cm, bb=
+ \caption{Performance against non-geometric measures (Artificial)}
+\end{figure}
+
+\newpage
+\ \\
+\section{Discussion}
+\
+First we note some broad observations.\\
+\\
+
+\begin{itemize}
+ \item Although many of our models are generally competitive against Wang et al's (2013), they are usually slightly worse. The best models appear to be L2/unbiased/centred and L2/biased/non-centred. The only data set for which we can say some of our new models are significantly better is the artificial data set.\\
+ \item We expected that the ranks of the models may shuffle as we move from geometric error measures to non-geometric ones, however the ranks tend to remain consistent.\\
+ \item On the real data sets, not centralising consistently degrades the performance by a factor of 2. This is dramatically reversed on the artificial data set.\\
+ \item On the real data sets, adding a bias term to non centralising models consistently improves performance by a factor of 2. \\
+ \item If we centre the data, the biased and unbiased models with L2 loss give identical results.\\
+ \item If we centre the data and use the KL loss, adding a bias term generally degrades the performance of the model (only the Economic data has counterexamples to this).\\ 
+\end{itemize}
+
+The fact that biased and unbiased L2 models give identical results when we centre the data is most likely not an accident. Printing the coefficients in the notebook shows that the biased model learns bias terms on the order of  $10^{-17}$ and non-bias terms very similar to the unbiased model. It could possibly be proven that the exact value of the bias term in this case is always zero. This would be interesting, as the corresponding theorem in the standard multivariate linear regression (that normalising the data so each variable has zero mean will produce an exactly zero bias term) is notably not true.\\
+\\
+The trends we observed that including a bias term somewhat balanced not centralising (and vice versa) were not surprising. We thought however that the L2/biased/not-centred model would slightly but noticeably outperform the L2/unbiased/centred model, but they tend to show very similar performance.\\
+\\
+We expected the KL loss models to perform well, at least in the geometric measures, but it was only slightly better in the Economic data set and slightly worse for the other 2 real data sets. Our reason for including the artificial data set was to show a case where the KL-loss models did indeed outperform the L2 loss models. Knowing that such data sets exist, it would be interesting to find a characterisation of such data sets, as understanding those characteristics would potentially allow us to predetermine whether the KL-loss will outperform L2-loss models for a particular problem. Investigating what makes our artificial data set so different to the real data sets would likely help us in finding such a characterisation.\\
+
+
+
 
 \chapter{Conclusion}
-
+In this project we have investigated the problem of performing regression with compositional data, with particular focus on Aitchison Simplex Regression. Motivated by arguments from information geometry, we considered a new gauged-KL loss for this problem, as well as including or excluding bias terms and centralisation of the data. In total we implemented efficient algorithms for 8 models, 7 of them being new models for Aitchison Simplex Regression. Experimenting with a range of data sets, we found our model with L2 loss, a bias term and no centralisation to be fairly competitive with the model introduced by Wang et al. (2013). We have also presented an artificial data set which demonstrates a situation where the KL loss models perform substantially better than L2 loss models and noted the vanishing of the bias term for L2 loss models on centred data on our data sets. \\
+\\
+Further work can be done towards giving proofs of the properties the bias term of these L2 loss models appears to satisfy. Additional, by further investigation of our artificial data set or otherwise, it may be possible to characterise for which types of data sets our KL loss models would outperform the L2 loss models. More study is also required of the Matrix Coefficient models discussed in Section 3.4. Such models would most likely be effective in the case of large $d$ data sets (such as those arising in genomics) as the currently investigated models (which can only have up to $d-1+m$ parameters) can not capture complicated relationships between many independent variables with many components. Sourcing high quality data sets with a large number of samples would be of great benefit in experimenting with the matrix coefficient models.
 
 %% Bibliography %%
 \begin{thebibliography}{0}
@@ -384,7 +517,7 @@ TO DO:
 {\sc Aitchison, J 1986}, 'The Statistical Analysis of Compositional Data', Chapman and Hall, New York.
 
 \bibitem{AitchisionEgozcue}
-{\sc Aitchision, J \& Egozcue, J.J 2005}, 'Compositional data analysis: where are we and where should we be heading?', Mathematical Geology, Volume 37(7), pp. 829-850.
+{\sc Aitchison, J \& Egozcue, J.J 2005}, 'Compositional data analysis: where are we and where should we be heading?', Mathematical Geology, Volume 37(7), pp. 829-850.
 
 \bibitem{AitchisionShen}
 {\sc Aitchison, J \& Shen, S.M 1980}, 'Logistic-normal distributions: some properties and uses', Biometrika, Volume 67(2), pp. 261-272.
@@ -395,6 +528,11 @@ TO DO:
 \bibitem{Avalos16}
 {\sc Avalos-Fernandez, M, Nock, R, Ong, C.S, Rouar, J, \& Sun, K 2016}, 'Representation Learning of Compositional data', NIPS'18 Proceedings of the 32nd International Conference on Neural Information Processing Systems. 
 
+\bibitem{Boyd}
+{\sc Boyd, S \& Vandenberghe, L 2004}, 'Convex Optimization', Cambridge University Press, Cambridge.
+
+\bibitem{Dowty}
+{\sc Dowty, J.G 2018}, 'Chentsov's theorem for exponential families', Information Geometry, Volume 1(1), pp. 117-135.
 
 \bibitem{Egozcue03}
 {\sc Egozcue, J.J, Pawlowsky-Glahn, V, Mateu-Figueras, G \& Barcelo-Vidal, C 2003}, 'Isometric logratio transformations for compositional data analysis', Mathematical Geology Journal, Volume 35, pp. 279-300.
@@ -403,17 +541,104 @@ TO DO:
 {\sc Nock, R, Menon, A \& Ong, C.S 2018}, 'A scaled Bregman theorem with applications', NIPS'16 Proceedings of the 30th International Conference on Neural Information Processing Systems. 
 
 \bibitem{Wang13}
-{\sc Wang, H, Shangguan, L, Wu, J, \& Guan, R, 2013}, 'Multiple linear regression modeling for compositional data', J. Neurocomputing, Volume 122, pp. 490-500.
+{\sc Wang, H, Shangguan, L, Wu, J, \& Guan, R, 2013}, 'Multiple linear regression modelling for compositional data', J. Neurocomputing, Volume 122, pp. 490-500.
 
-
-
+\bibitem{Wiki}
+{\sc Wikipedia 2019}, 'List of countries by GDP sector composition', Wikipedia, viewed 31 May 2019, \text{<https://en.wikipedia.org/wiki/List\_of\_countries\_by\_GDP\_sector\_composition>}.
 
 
 
 \end{thebibliography}
 
 \chapter*{Appendix}
-.
+\section*{Project Description}
+Compositional data is a type of data which conveys information about relative proportions rather than absolute measures. Applying classical machine learning methods to compositional data directly often performs very poorly or fails completely as it fails to take into account the special nature of the data. In this project we will investigate a regression problem involving compositional data and find applications of Bregman divergences to them. The results of this will be contained in the research report. We will also create a Jupyter notebook showcasing our techniques for machine learning on compositional data.\\
+
+\subsection*{Learning Objective}
+\ \\
+\begin{itemize}
+ \item Gain a solid understanding of the theoretical foundations behind a modern ML algorithm.\\
+ \item Develop ability to find practical research questions extending the current literature and to do research.\\
+ \item Gain competence in the Machine Learning coding workflow (data collection/cleaning, implementing algorithms, training, evaluation).\\
+ \item Gain skills in writing an academic report.\\
+ \item Gain experience in giving an academic presentation.\\
+ 
+\end{itemize}
+
+
+
+\subsection*{Assessed Components}
+\ \\
+\begin{itemize}
+ \item Research Report : \ 75 \% of total mark \\
+ \item Jupyter Notebook: 15 \% of total mark \\
+ \item Presentation: \ \ \ \ \ \ \  \ \ 10\% of total mark \\
+\end{itemize}
+
+\newpage
+\
+\section*{Description of Project Artefacts}
+To supplement this report we have submitted 4 files:\\
+\begin{itemize}
+ \item COMP8755\_Notebook.ipynb \\
+ \item compositional\_data sets.py \\
+ \item error\_metrics.py \\
+ \item gdp\_wiki.csv \\
+\end{itemize}
+
+All of the code in these files were implemented by me. The data sets in these files were sourced from several sources (cited in the files) and entered and/or processed by me.\\
+
+All experiments were run on a Intel Core i7 4930MX CPU and Ubuntu 16.04 operating system. The following software was used:\\
+
+\begin{itemize}
+ \item Anaconda Python Distribution 2019.03\\
+ \item Python 3.6\\
+ \item scipy 1.2.1\\
+ \item numpy 1.16.2\\
+ \item pandas 0.22.0\\
+ \item scikit-bio 0.5.4\\
+ 
+\end{itemize}
+
+
+\newpage
+\
+
+\section*{README.txt}
+
+
+\begin{verbatim}
+This folder contains a Jupyter notebook which contains implementations
+for the models discussed in the report and produces evaluations of
+those models on 4 compositional data sets. 
+
+The notebook relies on 3 other files:
+error_metrics.py contains the metrics with which we evaluate our models
+compositional_data sets.py and gdp_wiki.csv allow us to retrieve our
+data sets from within the notebook in a convenient manner.
+
+To be able to run the code:
+1) Install the Anaconda Python Distribution
+
+2) Create a new environment with the following terminal commands:
+>>> conda create -n coda_env python=3.6 scipy numpy pandas scikit-bio
+
+If any issues running the notebook, specify the following versions:
+python=3.6 scipy=1.2.1 numpy=1.16.2 pandas=0.22.0 scikit-bio=0.5.4
+
+3) Activate that environment with the command:
+>>> activate coda_env
+
+4) Root a terminal session inside the folder and launch Jupyter:
+>>> jupyter notebook
+
+5) Open COMP8755_Notebook.ipynb and run all cells. 
+
+
+All code submitted is completely my own work. 
+
+\end{verbatim}
+
 
 \end{document}
 
