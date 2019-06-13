@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage[mathscr]{eucal}
+\newcommand{\numpy}{{\tt numpy}}    % tt font for numpy
+
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\begin{document}
+
+% ========== Edit your name here
+\author{Mengyan Zhang}
+\title{How to design loss functions}
+\maketitle
+
+\medskip
+
+In machine learning, we usually utilize minimizing a loss function to solve the regression or classification problem. For example, for regression problem, by minimizing mean square error we estimate the expected value, by minimizing the mean absolute error we estimate the median value. It is interesting to know how to design a loss function for a different estimation properties (e.g. mean, median, quantile, etc.). In this article, we are going to explore how to design a loss function from the four optimization values respectively, and how different losses can help with solving regression problems.
+
+\begin{enumerate}
+    \item Mean: Mean Square Error (L2 Loss)\\
+    The most commonly used statistic description of data is mean. We define the mean of data $(y_i)_{i=1}^{n}$ as
+    \begin{align}
+        \label{equ: mean}
+        a = \frac{1}{n} \sum_{i = 1}^{n} y_i
+    \end{align}
+     The equation \ref{equ: mean} can be written as
+    \begin{align}
+        & \sum_{i=1}^n a = \sum_{i = 1}^{n} y_i\\
+        & \sum_{i = 1}^{n} (y_i - a) = 0
+    \end{align}
+    Usually, we can take the integration of the optimization value to get the possible loss function L(a).
+    \begin{align}
+        & \int \sum_{i = 1}^{n} (y_i - a) da\\
+        =& \sum_{i = 1}^{n} ay_i - \frac{1}{2}n a^2 + C\\
+        =& -\frac{1}{2}\sum_{i = 1}^{n} \{-2ay_i + a^2\} + C\\
+        =& -\frac{1}{2}\sum_{i = 1}^{n} \{y_i^2 -2ay_i + a^2\} + \frac{1}{2}\sum_{i=1}^n y_i^2 + C\\
+        =& -\frac{1}{2}\sum_{i = 1}^{n} (y_i - a)^2 + \frac{1}{2}\sum_{i=1}^n y_i^2 + C
+    \end{align}
+    Then we only take the item related to a and take average value (why?), we can get the mean square error loss,
+    \begin{align}
+        L_{MSE}(a) = \frac{1}{n} \sum_{i=1}^{n} (y_i - a)^2
+    \end{align}
+    Since the loss makes use of the L2 norm metrics, the loss function is also called L2 loss. 
+    \item Median: Mean Absolute Error (L1 Loss)\\
+    Assume $a$ is the median of the data $(y_i)_{i=1}^n$, then when the data points are sorted, there should be same number of data points on the left hand side and on the right hand side of $a$ respectively (when n is odd, we take the average value of $\frac{n}{2}$th and ($\frac{n}{2}$ + 1)th sorted data points). We can expect the cumulative absolute difference between $y_i$ and $a$ to be minimized,
+    \begin{align}
+        L_{MAE}(a) = \frac{1}{n} \sum_{i = 1}^n |y_i - a|
+    \end{align}
+    (Formal proof need to be filled in)\\
+    Since the loss makes use of the L1 norm metrics, the loss function is also called L1 loss. 
+    The median estimation can provide a more useful estimation of data when there are outliers and we don't want to be disturbed by them.
+    \item Quantile: Pinball Loss\\
+    The quantile can be defined as 
+    \begin{align}
+        q(\alpha) = inf \{y| F_Y (y) <= \alpha \}
+    \end{align}
+    where $F_Y$ is the probability mass/density function. Median can be regarded as a special case for quantile when $\alpha = 0.5$. So the design of quantile loss can be inspired by the mean absolute error loss function. The intuition is to give more penalty to the points with $F_Y(y) > \alpha$ and less penalty to those with $F_Y(y) <= \alpha$. The penalty level is determined by $\alpha$. That leads to the pinball loss function
+    \begin{align}
+        \label{equ: pinball}
+        L_{pinball}(b, \alpha) = \sum_{i= 1}^n \begin{cases}
+            \alpha |y_i - b| & y_i > b\\
+            (1-\alpha) |y_i - b| & \text{otherwise}
+            \end{cases}
+    \end{align}
+    
+    \item Superquantile (CVaR): Combined Pinball and Mean Squared Error Loss\\
+    The superquantile is defined as 
+    \begin{align}
+        \Bar{q}(\alpha) = \mathbb{E}[Y|Y >= q(\alpha)]
+    \end{align}
+    where $q(\alpha)$ is the $\alpha$-quantile defined above. The superquantile is well known as Conditional Value-at-Risk (CVaR) in finance and risk management. The superquantile focus on the expectation of the right tail of a distribution, with the boundary value specified by the $\alpha$ quantile. 
+    
+    This is natural to consider a two step process to get a superquantile estimation. First, use the Pinball loss (Equation \ref{equ: pinball}) to estimate the $\alpha$-quantile, which returns $b$ as the $\alpha$-quantile of the given distribution. Second, for all $y_i >= b$, use the Equation \ref{equ: mean} to estimate the expected value. However, whether an elegant one-step loss function can be designed based on that still needs to be further explored.
+    
+    
+\end{enumerate}
+
+
+\end{document}
+\grid
+\grid

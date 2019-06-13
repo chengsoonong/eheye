@@ -1,0 +1,331 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[mathscr]{eucal}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\title{QuantUCB Construction}
+\author{u6015325 }
+\date{March 2019}
+\bibliography{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}
+\item Introduction
+
+    \begin{enumerate}
+    \item Notations\\
+    For a stochastic K-armed bandit problem, there is a set of distributions $v = (P_i: i \in \mathcal{K})$, where $\mathcal{K}$ is the set of available actions with size K. In each round $t \in \{1, ..., n\}$, a learner chooses an action $A_t = i \in \mathcal{K}$ according to a policy $\pi$, and gets a reward which is sampled from $P_i$. Let $T_i(t)$ be the number of times machine i has been played during first t plays. 
+    \begin{align}
+        %T_i(t) = \sum_{s = 1}^t \mathbb{I} \{A_s = i\},
+        T_i(t) = \sum_{s = 1}^t \mathbb{I}_{\{i\}} (A_s),
+    \end{align}
+    where $\mathbb{I}_A: \Omega\rightarrow \{0,1\}$ is the indicator function of $A \subseteq \Omega$, which is defined as, 
+    \begin{align}
+        \mathbb{I}_A(w) = \begin{cases}
+                            1 & w \in A;\\
+                            0 & \text{otherwise}.
+                            \end{cases}
+    \end{align}
+    Then $X_{i,T_i(t)}$ is defined as the reward i.i.d. sampled from $P_i$ in round $t$ (when arm i has been played $T_i(n)$ times). The mean of each arm is
+    \begin{align}
+        \mu_i = \int_{-\infty}^{\infty} x dP_i(x).
+    \end{align}
+    The largest mean of all actions is then 
+    \begin{align}
+        \mu^\ast = \max_{i\in \mathcal{K}} \mu_i.
+    \end{align}
+    The empirical expectation of rewards sampled from $P_i$ during first t rounds is
+    \begin{align}
+        \hat{\mu}_{i,T_i(t)} = \frac{1}{T_i(t)} \sum_{s = 1}^{T_i(t)} X_{i, T_i(t)}.
+    \end{align}
+    The expected regret for total n rounds is the loss due to the policy $\pi$ does not always play the best arm, which is defined as 
+    \begin{align}
+        \label{regret}
+        \mathbb{E}[R_n] = \mu^\ast n -  \sum_{i=1}^K \mu_i \mathbb{E}[T_i(n)],
+    \end{align}
+    where the expectation is taken with respect to the measure on outcomes induced by the interaction of $\pi$ and $v$.
+    
+    Assume the cumulative distribution function $F_{X_i}: \mathbb{R} \rightarrow [0,1]$ of  is continuous, strictly monotonic and differential. Then the quantile function $Q_{i}:  [0,1]\rightarrow \mathbb{R}$ is defined as,
+\begin{align}
+    Q_{i}(\alpha) &= F_{X_i}^{-1}(\alpha)\\
+    &= \inf \{x \in \mathbb{R}| F_{X_i}(x) \geq \alpha\},
+\end{align}
+The empirical quantile function relies on the the sorted samples of arm i up to round t, assume $Y_{i,1} \leq Y_{i,2} ... \leq Y_{i,T_i(t)}$, where $(Y_{i,1} \leq Y_{i,2} ... \leq Y_{i,T_i(t)})$ is the permutation of the samples $X_{i,1} \leq X_{i,2} ... \leq X_{i,T_i(t)}$, then the empirical quantile function is defined as,
+\begin{align}
+    \hat{Q}_{i, T_i(t)}(\alpha) = Y_{i,\lceil \alpha T_i(t) \rceil}
+\end{align}
+
+\item Estimation Method
+
+The empirical quantile function is discrete and can be a estimation of the true quantiles with low precision, especially when the size of samples is small. Here, we use a simple linear interpolation to make quantile function a better estimation.
+    
+The idea is that for $s < \alpha T_i(t) \leq s + 1$, where s is a integer between 0 and $T_i(t)$, instead of letting  $\hat{Q}_{i, T_i(t)}(\alpha) = Y_{i, s+1}$, we linearly interpolate the estimated quantile function as,
+\begin{align}
+    \tilde{Q}_{i, T_i(t)}(\alpha) = \theta \alpha + \gamma,
+\end{align}
+where $\theta = \frac{Y_{i,s+1} - Y_{i,s}}{\frac{s+1}{T_i(t)} - \frac{s}{T_i(t)}} = (Y_{i,s+1} - Y_{i,s})T_i(t)$, $\gamma = Y_{i,s}(1-s) - Y_{i,s+1}$.
+
+To measure how close the interpolated quantile estimation to the true quantile, we can make use of Kullback-Leibler divergence (KL-divergence) between the two distribution:
+\begin{align}
+    D_{KL} (\tilde{Q}_{i,T_i(t)}, Q_{i}) = \int_{0}^{1} \tilde{Q}_{i,T_i(t)}(\alpha) \log (\frac{\tilde{Q}_{i,T_i(t)}(\alpha)}{Q_{i}(\alpha)}) d \alpha
+\end{align}
+For now, we assume $D_{KL} (\tilde{Q}_{i,T_i(t)}, Q_{i}) \propto \frac{1}{\log t}$ and is bounded by a small constant (to be proved).
+   \item Inspirations\\
+    \begin{itemize}
+        \item UCB1\\
+            \begin{enumerate}
+                \item Policy\\
+                In the t round, play the arm with index
+                    \begin{align}
+                    \argmax_{i \in \mathcal{K}} \hat{\mu}_{i,T_i(t-1)} + \sqrt{2 \log t/ T_i(t-1)}.
+                    \end{align}
+                
+                \item Proof structure\\
+                    \begin{itemize}
+                        \item From (\ref{regret}) we know, to give bound of $\mathbb{E}[R_n]$, we just need to give bound of $\sum_{i=1}^K \mathbb{E}[T_i(n)]$. Intuitively, we care about how many times we choose sub-optimal arms under the policy.
+                        \item An arm i is selected iff it satisfies the policy and provide the maximum upper confidence bound, i.e. in the round t, arm i is selected if
+                            \begin{align}
+                                \hat{\mu}_{\ast,T_i(t-1)} + \sqrt{2 \log t/ T_\ast(t-1)}
+                                 \leq  \hat{\mu}_{i,T_i(t-1)} + \sqrt{2 \log t/ T_i(t-1)}
+                            \end{align}
+                        The above inequality is used to calculate $T_i(n)$. 
+                        \item Use Chernoff-Hoeffding bound to calculate the bound of 
+                        \begin{align}
+                            P(\hat{\mu}_{\ast,T_i(t-1)} + \sqrt{2 \log t/ T_\ast(t-1)} \leq \mu^\ast)\\
+                            P(\hat{\mu}_{i,T_i(t-1)} + \sqrt{2 \log t/ T_i(t-1)} \geq \mu_i)
+                        \end{align}
+                    \end{itemize}
+                    
+            \end{enumerate}
+        \item KL-UCB
+        \item GP-UCB
+    \end{itemize}
+\end{enumerate}
+
+\item Policy choices and Regret Bound for Quantile UCB (Proof included)\\
+In the t round, play the arm with index i such that:
+    \begin{enumerate}
+    \item Expectation + Quantile (EQ)
+    \begin{align}
+    \argmax_{i \in \mathcal{K}} \hat{\mu}_{i,T_i(t-1)} + \tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)})
+    \end{align}
+   
+    \iffalse
+    But how to define $\alpha$?\\
+    1. $\alpha_{t, T_j(t)} = \sqrt{\log(t)/T_j(t)}$. Not constrained between 0 and 1.\\
+    2. $\alpha_{t, T_j(t)} = sigmoid (\sqrt{\log(t)/T_j(t)}) \in [0.5, 1)$. But $\alpha_{t, T_j(t)}$ is not proportional to $\sqrt{\log(t)/T_j(t)}$ anymore.\\
+    \fi
+    
+    From the inspiration of UCB1 algorithm, we design $\alpha_{i, t, T_i(t-1)}$ satisfying:\\
+    1. Make $\tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)}) \varpropto \sqrt{2\log(t)/T_i(t-1)}$.\\
+    2. $\alpha_{i, t, T_i(t-1)} \in [0.5, 1]$\\
+    Since $\tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)})$ is not proportional to $\alpha_{i, t, T_i(t-1)}$, we might need to make assumption to the distributions of bandits to find the relationship between the two items. \\
+    
+    Assume $P_i = \mathcal{N}(\mu_i, \sigma_i)$, where $\mathcal{N}(\mu_i, \sigma_i)$ is the normal distribution with mean $\mu_i$ and variance $\sigma_i$. Then the quantile function of arm i is
+    \begin{align}
+        Q_i(\alpha) = \mu_i + \sigma_i \sqrt{2} \text{erf}^{-1} (2\alpha - 1),
+    \end{align}
+    where $\text{erf}(x) = \frac{1}{\sqrt{x}} \int_{-x}^{x} e^{-t^2}dt$ is the error function.
+    According to the inspiration from UCB1, we make the following equality hold for quantile function,
+    
+    \begin{align}
+        \mu_i + \sigma_i \sqrt{2} \text{erf}^{-1} (2\alpha - 1) &= C \sqrt{8\sigma_i^2 \log(t)/T_i(t-1)}\\
+        \text{erf}^{-1} (2\alpha - 1) &= \frac{C \sqrt{8\sigma_i^2\log(t)/T_i(t-1)} - \mu_i}{\sqrt{2}\sigma_i}\\
+        \label{step: ineuqaltiy 20}
+         2\alpha - 1 \geq \text{erf} (\text{erf}^{-1} (2\alpha - 1)) &= \text{erf}(2C \sqrt{\log(t)/T_i(t-1)} - \frac{\mu_i}{\sqrt{2}\sigma_i})\\
+         \label{step: ineuqaltiy 21}
+         \alpha &\geq \frac{1}{2}(\text{erf}(2C \sqrt{\log(t)/T_i(t-1)} - \frac{\mu_i}{\sqrt{2}\sigma_i}) + 1)
+    \end{align}
+   
+    C is a constant. The equality holds in step (\ref{step: ineuqaltiy 20}) and (\ref{step: ineuqaltiy 21}) if and only if the cumulative distribution function $F_{X_i}$ is strictly increasing and continuous. \\
+    Here we make assumption that $F_{X_i}$ is strictly increasing and continuous, $P_i$ is standard normal distribution, i.e. $\mu_i = 0, \sigma_i = 1$, and C = 1. Then we have, 
+    \begin{align}
+        \label{equality: alpha}
+        \alpha_{i, t, T_i(t-1)} =  \frac{1}{2}(\text{erf}(2C \sqrt{\log(t)/T_i(t-1)} - \frac{\mu_i}{\sqrt{2}\sigma_i}) + 1) = \frac{1}{2}(\text{erf}(2\sqrt{\log(t)/T_i(t-1)}) + 1)
+    \end{align}
+    For numerical computation, the error function can be approximated, for example, 
+    \begin{align}
+        \text{erf}(x) \approx 1 - \frac{1}{(1 + a_1 x + a_2 x^2 + ... + a_6 x^6)^{16}}, 
+    \end{align}
+    where $x \geq 0, a_1 = 0.0705230784, a_2 = 0.0422820123, a_3 = 0.0092705272, a_4 = 0.0001520143, a_5 = 0.0002765672, a_6 = 0.0000430638$. And the above approximation has maximum error as $1.5 \times 10^{-7}$. \\
+    
+    \iffalse
+    \textbf{Theorem 1.} Let $\Theta_{X_i} (a, b) = F_{X_i}(a+b) - F_{X_i}(a)$, then for $0 \leq \delta \leq 1$:
+    \begin{align}
+        Pr(||)
+    \end{align}
+    \fi
+    Since we have the assumption that $D_{KL} (\tilde{Q}_{i,T_i(t-1)}, Q_{i}) \propto \frac{1}{\log t}$ and is bounded by a small constant. Then if we define $\alpha_{i, t, T_i(t-1)}$ as (\ref{equality: alpha}), we have
+    \begin{align}
+        \tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)}) = \sqrt{8\sigma_i^2 \log(t)/T_i(t-1)}
+    \end{align}
+    
+    \textbf{Fact 1: Subgaussian:} A random variable $X \in \mathbb{R}$ is $\sigma-$subgaussian if its expectation $\mathbb{E}[X] = 0$ and its moments generating function satisfies  
+    \begin{align}
+        \mathbb{E}[\exp (s X)] \leq \exp (s^2\sigma^2/2) \quad  s \in \mathbb{R}
+    \end{align}
+    
+    \textbf{Fact 2: Chernoff-Hoeffding bound}: Assume that $X_i - \mu$ are independent, $\sigma-$ subgaussian random variables. Then for any $\varepsilon \geq 0$ 
+    \begin{align}
+        Pr(\hat{\mu} \geq \mu + \varepsilon) \leq \exp(-\frac{n\varepsilon^2}{2\sigma^2})\\
+        Pr(\hat{\mu} \leq \mu - \varepsilon) \leq \exp(-\frac{n\varepsilon^2}{2\sigma^2}),
+    \end{align}
+    where $\hat{\mu} = \frac{1}{n}\sum_{t=1}^n X_t$.\\
+    
+    \textbf{Theorem 1.} For all K $>$ 1, if policy EQ is run on K machines having Guassain reward distribution $v = (P_i: i \in \mathcal{K})$ with $P_i = \mathcal{N}(\mu_i, \sigma_i)$ (which can be easily expanded to subgaussian rewards), then its expected regret after any number of n plays is at most 
+    \begin{align}
+        32 \sum_{i: \mu_i < \mu^\ast} \sigma_i^2 \log n /\triangle_i + (1 + \frac{\pi^2}{3})(\sum_{j=1}^K \triangle_j),
+    \end{align}
+    where $\triangle_i = \mu^\ast - \mu_i$.\\
+    
+    \textbf{Proof of Theorem 1}:\\
+    Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary positive integer. For $t \geq 1$,
+    \begin{align}
+        T_i(n) =& 1 + \sum_{t = k + 1}^n \{I_t = i\}\\
+               \leq & l + \sum_{t = k + 1}^n (\{I_t = i\} \cup \{T_i(t-1) \geq l\})\\
+               \leq  & l + \sum_{t = k + 1}^n (\{\hat{\mu}_{\ast, T_i(t-1)} + \tilde{Q}_{\ast,T_i(t-1)}(\alpha_{*,t-1, T_i(t-1)}) \leq \hat{\mu}_{i, T_i(t-1)} + \tilde{Q}_{i,T_i(t-1)}(\alpha_{i,t-1, T_i(t-1)})\} \\
+               & \cup \{ T_i(t-1) \geq l\})\\
+               \label{proof: minmax}
+               \leq & l + \sum_{t = k + 1}^n \{ \mathop{min}\limits_{0 < s < t}\hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t-1, s}) \leq \mathop{max}\limits_{l < s_i < t}\hat{\mu}_{i, s_i} + \tilde{Q}_{i, s_i}(\alpha_{i,t-1, s_i})\}\}\\
+               \label{proof: union bound}
+               \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s})  \leq \hat{\mu}_{i, s_i} + \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i})\}
+    \end{align}
+    where $\hat{\mu}_{\ast, s}, \tilde{Q}_{\ast, s}, \alpha_{\ast, t, s}$ represents the empirical mean, quantile function, quantile level of the best arm (i.e. the arm with maximum expected mean $\mu^\ast$) when it has been played s times. From step (\ref{proof: minmax}) to (\ref{proof: union bound}), we use the union bound. And in the step (\ref{proof: union bound}), t is summed from 1 to infinity to make sure the arm i can be played for s times.\\
+    
+    \textbf{Lemma 1} $\hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s})  \leq \hat{\mu}_{i, s_i} + \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i})$ implies that at least one of the following must hold\\
+    \begin{align}
+        \label{lemma 1.1}
+        \hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}) \leq \mu^\ast\\
+        \label{lemma 1.2}
+        \hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) \geq \mu_i\\
+        \label{lemma 1.3}
+        \mu^\ast < \mu_i + 2 \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i})
+    \end{align}
+    \textbf{Proof of Lemma 1}: Assume all of the three inequalities are not true, then we have
+    \begin{align}
+        \label{proof lemma 1.1}
+        \hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}) > \mu^\ast\\
+        \label{proof lemma 1.2}
+        \hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) < \mu_i\\
+         \label{proof lemma 1.3}
+        \mu^\ast \geq \mu_i + 2 \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i})
+    \end{align}
+    (\ref{proof lemma 1.1}) - (\ref{proof lemma 1.2}) we get, 
+    \begin{align}
+        \mu^\ast - \mu_i &< \hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}) - (\hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i})) \\
+        & \leq \hat{\mu}_{i, s_i} + \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) - (\hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}))\\
+        &= 2 \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}),
+    \end{align}
+    which is contradicted to (\ref{proof lemma 1.3}), the assumption that all of the three inequalities are not true doesn't hold. Lemma 1 is proved to be true.\\
+    
+    According to Chernoff-Hoeffding bound, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1.2}) as
+    \begin{align}
+        Pr(\hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}) \leq \mu^\ast) \leq e^{-2s(\tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}))^2} = e^{-4lnt} = t^{-4}\\
+        Pr(\hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) \geq \mu_i)  \leq e^{-2s(\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}))^2} = e^{-4lnt} = t^{-4}
+    \end{align}
+    
+    For $l = \lceil(32 \sigma_i^2 \log n /\triangle_i^2)\rceil$, (\ref{lemma 1.3}) is false.
+    \begin{align}
+        \mu^\ast - \mu_i - 2 \tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) = \mu^\ast - \mu_i - 2 \sqrt{8 \sigma_i^2\log t/ s_i} \geq \mu^\ast - \mu_i - \triangle_i = 0
+    \end{align}
+    
+    For $s_i \geq \lceil(32 \sigma_i^2 \log n /\triangle_i^2)\rceil$, so we get
+    
+    \begin{align}
+        \mathbb{E}[T_i(n)] &\leq \lceil(32 \sigma_i^2 \log n /\triangle_i^2)\rceil +  \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = \lceil(32 \sigma_i^2 \log n /\triangle_i^2)\rceil}^{t-1} (Pr(\hat{\mu}_{\ast, s} + \tilde{Q}_{\ast, s}(\alpha_{\ast, t, s}) + Pr(\hat{\mu}_{i, s_i} -\tilde{Q}_{i, s_i}(\alpha_{i,t, s_i}) \geq \mu_i) )\\
+        &\leq \lceil(32 \sigma_i^2 \log n /\triangle_i^2)\rceil +  \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = 1}^{t-1} 2t^{-4}\\
+        & \leq 32 \sigma_i^2 \log n /\triangle_i^2 + 1 + \frac{\pi^2}{3}
+    \end{align}
+    where the last equality uses the classic solution to Basel’s problem. 
+    
+    Then the expected regret is according to the definition (\ref{regret}),
+    \begin{align}
+        \mathbb{E}[R_n] &= \mu^\ast n -  \sum_{i=1}^K \mu_i\mathbb{E}[T_i(n)]\\
+        \label{regret representation}
+        &= \sum_{i=1}^K \triangle_i \mathbb{E}[T_i(n)]\\
+        &\leq 32 \sum_{i: \mu_i < \mu^\ast} \sigma_i^2 \log n /\triangle_i + (1 + \frac{\pi^2}{3})(\sum_{j=1}^K \triangle_j)
+    \end{align}
+    The step (\ref{regret representation}) is because $\sum_{i=1}^K \mathbb{E}[T_i(n)] =\mathbb{E}[ \sum_{i=1}^K T_i(n)]$ = n. The first item of the last line excludes the best arm, \underline{why?}\\
+    
+    \textbf{Assumption has been made:}\\
+    
+    \begin{enumerate}
+        \item The cumulative distribution function $F_{X_i}: \mathbb{R} \rightarrow [0,1]$ of  is continuous, strictly monotonic and differential.
+        \item $D_{KL} (\tilde{Q}_{i,T_i(t)}, Q_{i}) \propto \frac{1}{\log t}$ and is bounded by a small constant.
+        \item Assume $P_i = \mathcal{N}(\mu_i, \sigma_i)$, where $\mathcal{N}(\mu_i, \sigma_i)$ is the normal distribution with unknown mean $\mu_i$ and known variance $\sigma_i$.
+        \item $\tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)}) = C \sqrt{8\sigma_i^2 \log(t)/T_i(t-1)}$, where C = 1.
+    \end{enumerate}
+       
+
+    \item Expectation + $\beta_t$ * Quantile\\
+        \begin{align}
+        \argmax_{i \in [1,k]} \hat{\mu}_{i,T_i(t-1)} + \beta_{t-1} \tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)})
+        \end{align}
+       
+    \item Expectation + Quantile Difference
+    \begin{align}
+    \argmax_{i \in [1,k]} \hat{\mu}_{i,T_i(t-1)} +  \tilde{Q}^U_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)}) - \tilde{Q}^L_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)})
+    \end{align}
+    where $\tilde{Q}^U, \tilde{Q}^L$ represent the upper and lower quantile (to be defined).
+    \item Quantile 
+        \begin{align}
+        \argmax_{i \in [1,k]} \tilde{Q}_{i,T_i(t-1)}(\alpha_{i, t, T_i(t-1)})
+        \end{align}
+        
+    \end{enumerate}
+    
+\item Issues
+
+    \begin{enumerate}
+    \item Should we include median as one term of the policy?\\
+    No. Policy should serve the goal/evaluation. The goal of the multi-armed bandits problem is to minimize the expected regret, which can be achieved by finding the arm returning the maximum expected rewards in each round. Maximizing the median rewards is not corresponding to the goal.
+    
+    \item Can quantiles (variance) represent uncertainty?\\
+    No, quantiles or variance will approach the true quantile/variance with the size of the sample set growing. So the quantiles/variance will not decrease when the number of sample size grows i.e. not proportional with $1/T_j(n)$.\\
+    The reason that the variance term of GPUCB represents uncertainty is that priors are included. Thus the variance term is corresponding with the information gain. \\ 
+    Maybe we can consider Bayes approaches for quantiles. Otherwise, we can also try to use quantiles to supply tighter confidence bound, which may lead to a tighter regret bound.
+    
+    \item How to use quantiles as estimation method?\\
+    Empirical quantile estimation method: \\
+    For discrete set of size n, we define the empirical quantile as
+    $$\hat{q}_\alpha(Y) = \inf \{y \in \mathbb{R}| F_{Y_n} (y) \geq \alpha\} = Y_n(i)$$
+    where $i$ is chosen such that
+    $$\frac{i-1}{n} < p \leq \frac{i}{n}$$
+    and $Y_n(1), ...., Y_n(n)$ are the order statistics of the sample,
+    $$Y_n(1)\leq ...\leq Y_n(n)$$ 
+    where $(Y_n(1), ...., Y_n(n))$ is a permutation of the sample $Y_1, ..., Y_n$\\
+        
+    Empirical quantile estimation method we used before is discrete. 0.8 quantile and 0.85 quantiles may correspond with the same number when the sample size is small. Thus the precision of this method is pretty low, which makes the UCB algorithm easily stuck on a sub-optimal arm. 
+    We need the quantile regression to give a continuous prediction. But how to use quantile regression for discrete arm (independent, not identically distributed), i.e. for each arm, we only get one independent random variable (the arms index).\\
+    Possible idea: for arm j, uniformly sample $Z_{j,t}$ for each reward $X_{j, t}$, use $Z_{j,t}$ as independent random variable  and $X_{j, t}$ as dependent random variable for quantile regression. Then we take the integral of the predictions as the $\alpha$-quantile (whether we have closed form for predictions?). \\
+    BTW, CVaR regression doesn't have elegant loss function, might be hard to convert to CVaR.
+    
+    \item UCB algorithms shouldn't stick on one arm (in principle), having lower bound as log rate. So if the regret stays at a scalar after a few rounds, then the policy is not good.
+    
+    \item Computational issues for quantile regression. \\
+    For each round, we estimate quantiles for all samples of all arms, which can be time-consuming. 
+    
+    \end{enumerate}
+    
+\textbf{Fact 3: DKW inequality:}
+\begin{align}
+    Pr(\text{sup}_{x \in \mathbb{R}}(F_n(x) - F(x)) > \delta) \leq e ^ {-2n\delta^2}, 
+\end{align}
+where $F_n(x)$ is the estimated cdf with n samples. When $\delta = 0.05, n =5$, $e ^ {-2n\delta^2}$ = 0.975. When $\delta = 0.05, n =500$, $e ^ {-2n\delta^2}$ = 0.082. That means if we want to use this bound to guarantee a estimation with low difference, then the number of samples should be at least 500.
+If we assume the quantile estimation has similar proprieties, then the required number of samples could also be big, which is not possible for bandit algorithms. 
+\end{enumerate}
+
+\printbibliography
+\end{document}
