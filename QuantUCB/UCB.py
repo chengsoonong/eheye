@@ -96,9 +96,10 @@ class GPUCB(object):
         num_test = len(test_range)
         #test_range.shape = (num_test, 1)
 
-        (preds, pred_var) = self.gp.predict(test_range.reshape(num_test,1), return_std= True)
-        ax.plot(test_range, preds, alpha=0.5, color='g', label = 'predict')
-        ax.fill_between(test_range, preds - pred_var, preds + pred_var, facecolor='k', alpha=0.2)
+        (self.preds, self.pred_var) = self.gp.predict(test_range.reshape(num_test,1), return_std= True)
+        ax.plot(test_range, self.preds, alpha=0.5, color='g', label = 'predict')
+        ax.fill_between(test_range, self.preds - self.pred_var, 
+                        self.preds + self.pred_var, facecolor='k', alpha=0.2)
 
         #ax.plot(self.x, self.mu, alpha=0.5, color='g', label = 'predict')
         #ax.fill_between(self.x, self.mu + self.sigma, self.mu - self.sigma, facecolor='k', alpha=0.2)
@@ -215,10 +216,10 @@ class QuantUCB(object):
 
         #test_range = self.x
         #preds, ub, lb = self.QuantReg.predict(test_range)
-        pred = self.reg.predict(test_range)
+        self.pred = self.reg.predict(test_range)
 
-        ax.plot(test_range, pred[1], alpha=0.5, color='g', label = 'predict')
-        ax.fill_between(test_range, pred[0], pred[2], facecolor='k', alpha=0.2)
+        ax.plot(test_range, self.pred[1], alpha=0.5, color='g', label = 'predict')
+        ax.fill_between(test_range, self.pred[0], self.pred[2], facecolor='k', alpha=0.2)
         ax.scatter(self.X, self.T, c='r', marker='o', alpha=1.0, label = 'sample')
         #plt.savefig('fig_%02d.png' % len(self.X))
         plt.legend()
