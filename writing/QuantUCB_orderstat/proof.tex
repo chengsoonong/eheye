@@ -391,9 +391,9 @@ Thus, the policy in (\ref{policy normal}) can be written as,
 For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$, where $P_i$ is Gaussian distribution with zero mean, then its expected regret after any number of n plays is at most 
 
 \begin{align}
-    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
-where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{i, 1/2} = m_\ast - m_i$, $\beta = (64 + 32 \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$. 
+where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{i, 1/2} = m_\ast - m_i$, $\beta = (64 + 32\sigma  \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$. 
 \end{theo}
 
 \begin{proof}
@@ -713,33 +713,19 @@ According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1
 %---------------------------------------------------------------------------------
 \section{Considerations}
 
-\subsection{Why absolute?}
+\subsection{Why absolute Gaussian?}
 
-In \cite{boucheron2012} Proposition 4.6,  they use
-\begin{align}
-    \Delta_{n / 2} \leq \frac{\sqrt{2} \lambda E_{n / 2}}{(n / 2) \sqrt{\log 2+Y_{(n / 2+1)}}} \leq \frac{\sqrt{2} E_{n / 2}}{(n / 2) \sqrt{\log 2}}=\sqrt{\frac{v_{n}}{n}} E_{n / 2}
-\end{align}
-to get rid of $\Delta_{n/2}$. 
-The inequality is derived from \cite{boucheron2012} Proposition 4.1: 
-\begin{align}
-    y>0, \phi(\tilde{U}(\exp (y))) / \bar{\Phi}(\tilde{U}(\exp (y))) \geq \sqrt{\kappa_{1}(y+\log 2)} \text { where } \kappa_{1} \geq 1 / 2
-\end{align} 
-
-As the hazard rate $\phi(x) / \bar{\Phi}(x)$ of the Gaussian distribution tends to 0 as x tends to $- \infty$ , the approach in  \cite{boucheron2012} Proposition 4.6 does not work when dealing with order statistics of Gaussian samples (If the hazard rate tends to 0, then Prop 4.1 cannot hold anymore).
+The hazard rate $\phi(x) / \bar{\Phi}(x)$ of the Gaussian distribution tends to 0 as x tends to $- \infty$ , the approach in  \cite{boucheron2012} Proposition 4.6 does not work when dealing with order statistics of Gaussian samples (If the hazard rate tends to 0, then Prop 4.1 cannot hold anymore).
 
 Another possible reason might be, hazard rate is defined on positive values.
 
 Not sure whether we can extend the proof into non-absolute values.
 
 \subsection{How about non-standard Gaussian?}
-The absolute values of Gaussian setting makes the extension to non-standard Gaussian non-trivial. 
-
-However, if we consider the Gaussian distribution with non-zero mean (which is a necessary assumption of bandit settings), we cannot get rid of the term $\text{erf}(\frac{x + \mu}{\sigma \sqrt{2}})$ easily, which means it's hard to represent the quantile of the absolute non-standard Gaussian with $\Phi$, and thus cannot direct make use of the fact of $p \sqrt{\kappa_{1} \log 1 / p} \leq \phi \circ \Phi^{-1}(p)$.
+We've shown the proof works for centered Gaussian with arbitrary variance. However, if we consider the Gaussian distribution with non-zero mean, we cannot get rid of the term $\text{erf}(\frac{x + \mu}{\sigma \sqrt{2}})$ easily, which means it's hard to represent the quantile of the absolute non-standard Gaussian with $\Phi$, and thus cannot direct make use of the fact of $p \sqrt{\kappa_{1} \log 1 / p} \leq \phi \circ \Phi^{-1}(p)$.
 
 \subsection{Other distributions?}
-To figure out how to proof for other distributions, we first show the detailed proof of \cite{boucheron2012} Proposition 4.6. 
-
-The above proof shows that the key point of change the absolute value of Gaussian random variable with other random variables is we can have some bound (positive) for the hazard rate (in terms of the U transformation). 
+The key point of change the absolute value of Gaussian random variable with other random variables is we can have some lower bound (positive) for the hazard rate (in terms of the U transformation). 
 
 This also explains why Gaussian random variables cannot work for such kind of proof, when x tends to negative infinity, the hazard rate of the Gaussian distribution tends to 0, which makes $\Delta_{n/2}$ bounded by positive infinity. So only with the assumption of non-decreasing hazard rate, the above proof works bad. 
 
