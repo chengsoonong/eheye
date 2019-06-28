@@ -93,7 +93,9 @@ The UCB algorithms based on the concentration inequalities for order statistics,
 %--------------------------------------------------------
 % definitions/theos from paper
 
-\begin{defi} (U-transform.) The U-transform of a cumulative density distribution F is defined as a non-decreasing function on $(1, \infty)$ by $U = (1/(1-F))^{-1}$, $U(t) = \inf\{x: F(x) \geq 1 - 1/t\} = F^{-1}(1-t)$.
+\begin{defi} (U-transform.) 
+\label{defi: U-transform}
+The U-transform of a cumulative density distribution F is defined as a non-decreasing function on $(1, \infty)$ by $U = (1/(1-F))^{-1}$, $U(t) = \inf\{x: F(x) \geq 1 - 1/t\} = F^{-1}(1-t)$.
 \end{defi}
 
 \begin{theo} (Renyi's representation.) Let $X_{(1)} \geq \ldots \geq X_{(n)}$ be the order statistics of a sample from P with cumulative density distribution F, $Y_{(1)} \geq Y_{(2)} \geq \ldots \geq Y_{(n)}$ be the
@@ -155,7 +157,7 @@ However, if we consider the Gaussian distribution with non-zero mean, we cannot 
 \end{proof}
 
 \begin{lemma}
-    $\phi \circ \Phi^{-1}(p) \geq \frac{p}{\sigma} \sqrt{\kappa_1 \log 1/p}$,  where $\kappa_{1} \geq 1 / 2, \phi, \Phi$ are respectively pdf and cdf for centered Gaussian distribution with variance $\sigma^2$.
+    $\phi \circ \Phi^{-1}(p) \geq \frac{p}{\sigma} \sqrt{\kappa_1 \log 1/p}$,  where $\kappa_{1} = 1 / 2, \phi, \Phi$ are respectively pdf and cdf for centered Gaussian distribution with variance $\sigma^2$.
 \end{lemma}
 \begin{proof}
 Let's look the special case when $\sigma = 1$, which is proved in \cite{boucheron2012}. The fact that $\phi \circ \Phi^{-1}(p) \geq p \sqrt{\kappa_1 \log 1/p}$ follows from $\phi(x) - x \bar{\Phi(x)} \geq 0$. We can derive $\Phi^{-1}(p) \geq \sigma p/(1-p) \sqrt{\kappa_1 \log 1/p}$ for any $\sigma$. \\
@@ -172,21 +174,21 @@ From Lemma \ref{lemma mills' ratio}, we know $ \phi(x) \geq \frac{1}{\sigma^2}x 
 Absolute values of centered Gaussian random variables have a non-decreasing
 hazard rate, for $y>0$,
 \begin{align}
-    \phi(\tilde{U}(\exp (y))) / \overline{\Phi}(\tilde{U}(\exp (y))) \geq \sigma \sqrt{\kappa_{1}(y+\log 2)}
+    \phi(\tilde{U}(\exp (y))) / \overline{\Phi}(\tilde{U}(\exp (y))) \geq \frac{1}{\sigma} \sqrt{\kappa_{1}(y+\log 2)}
 \end{align}
- where $\kappa_{1} \geq 1 / 2, \phi, \Phi$ are respectively pdf and cdf for centered Gaussian distribution with variance $\sigma^2$. 
+ where $\kappa_{1} = 1 / 2, \phi, \Phi$ are respectively pdf and cdf for centered Gaussian distribution with variance $\sigma^2$. 
 \end{prop}
 
 \begin{proof}
 \begin{align}
-    \frac{\phi\left(\Phi^{-1}\left(1-e^{-y} / 2\right)\right)}{\overline{\Phi}\left(\Phi^{-1}\left(1-e^{-y} / 2\right)\right)}=\frac{\phi\left(\Phi^{-1}\left(e^{-y / 2}\right)\right)}{e^{-y} / 2} \geq \sigma \sqrt{\kappa_{1}(\log 2+y)}
+    \frac{\phi\left(\Phi^{-1}\left(1-e^{-y} / 2\right)\right)}{\overline{\Phi}\left(\Phi^{-1}\left(1-e^{-y} / 2\right)\right)}=\frac{\phi\left(\Phi^{-1}\left(e^{-y} / 2\right)\right)}{e^{-y} / 2} \geq \frac{1}{\sigma} \sqrt{\kappa_{1}(\log 2+y)}
 \end{align}
 \end{proof}
 
 
 \begin{prop}
 \label{prop 4.6}
-Let $v_{n}=8 /(n \sigma^2 \log 2)$. $X_1, ..., X_n$ are independent random variables, distributed according to absolute value of Gaussian distribution with zero mean, and $X_{(1)} \geq X_{(2)} \geq ... \geq X_{(n)}$ denote the corresponding order statistics. $X_{n/2}$ is the median (we assume n is even). For all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$, 
+Let $v_{n}=8 \sigma^2 /(n \log 2)$. $X_1, ..., X_n$ are independent random variables, distributed according to absolute value of Gaussian distribution with zero mean, and $X_{(1)} \geq X_{(2)} \geq ... \geq X_{(n)}$ denote the corresponding order statistics. $X_{n/2}$ is the median (we assume n is even). For all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$, 
 \begin{align}
     \label{inequality Bernstein with log for normal}
     \log \mathbb{E}e^{\lambda\left(X_{(n / 2)}-\mathbb{E} X_{(n / 2)}\right)} \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}.
@@ -207,26 +209,26 @@ By \cite{boucheron2012} Theorem 2.9,
 \end{align}
 where $d_{n / 2}=X_{(n / 2)}-X_{(n / 2+1)} \sim \tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)- \tilde{U}\left(e^{Y_{(n / 2+1)}}\right),$ where $E_{n/2}$ is standard exponentially distributed and independent of $Y_{(n/2 + 1)}$. $Y_{(1)} \geq Y_{(2)} \geq ... \geq Y_{(n)}$ is the order statistics of an independent sample of the standard exponential distribution. 
 
-From Proposition \ref{prop non-increasing hazard rate} we know, if hazard rate h is non-decreasing, then for all $t > 0$ and $x > 0$, $U(\exp (t+x))-U(\exp (t)) \leq x / h(U(\exp (t)))$. Thus, 
+From Proposition \ref{prop non-increasing hazard rate} we know, if hazard rate h is non-decreasing, then for all $t > 0$ and $x > 0$, $U(\exp (t+x))-U(\exp (t)) \leq x / h(U(\exp (t)))$, which is also held for $\tilde{U}$. Thus, 
 \begin{align}
     \tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)- \tilde{U}\left(e^{Y_{(n / 2+1)}}\right) \leq \frac{E_{n / 2} /(n / 2)}{h(\tilde{U}(\exp{(Y_{(n/2+1)})}))}
 \end{align}
 
 From Proposition \ref{prop: hazard bound for normal}, 
 \begin{align}
-    h(U(\exp{(Y_{(n/2+1)})})) &= \frac{\phi(\widetilde{U}(\exp (Y_{(n/2+1)})))}{\overline{\Phi}(\widetilde{U}(\exp (Y_{(n/2+1)})))}\\
-    &\geq \sigma \sqrt{k_1 (Y_{(n/2+1)} + \log 2)} \quad \text{where} \quad k_1 \geq 1/2,
+    h(\tilde{U}(\exp{(Y_{(n/2+1)})})) &= \frac{\phi(\widetilde{U}(\exp (Y_{(n/2+1)})))}{\overline{\Phi}(\widetilde{U}(\exp (Y_{(n/2+1)})))}\\
+    &\geq \frac{1}{\sigma} \sqrt{\kappa_1 (Y_{(n/2+1)} + \log 2)} \quad \text{where} \quad \kappa_1 = 1/2,
 \end{align}
 so we get 
 \begin{align}
-    \triangle_{n/2} = \tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-\tilde{U}\left(e^{Y_{(n / 2+1)}}\right) 
-    &\leq \frac{E_{n / 2} /(n / 2)}{\sigma \sqrt{k_1 (Y_{(n/2+1)} + \log 2)}}\\
-    &\leq \frac{ \sqrt{2} E_{n / 2} }{(n\sigma / 2)\sqrt{(Y_{(n/2+1)} + \log 2)}}\\
-    &\leq \frac{ \sqrt{2} E_{n / 2} }{(n \sigma / 2)\sqrt{ \log 2}}\\
+    d_{n/2} = \tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-\tilde{U}\left(e^{Y_{(n / 2+1)}}\right) 
+    &\leq \frac{E_{n / 2} /(n / 2)}{\frac{1}{\sigma} \sqrt{\kappa_1 (Y_{(n/2+1)} + \log 2)}}\\
+    &\leq \frac{ \sqrt{2} E_{n / 2} }{(n/2\sigma)\sqrt{(Y_{(n/2+1)} + \log 2)}}\\
+    &\leq \frac{ \sqrt{2} E_{n / 2} }{(n/2\sigma)\sqrt{ \log 2}}\\
     &= \sqrt{\frac{v_{n}}{n}} E_{n / 2},
 \end{align}
-where $v_{n}=8 /(n \sigma^2 \log 2)$.
-Then our goal is to show that $\frac{n}{4} \lambda \mathbb{E}\left[\Delta_{n / 2}\left(e^{\lambda \Delta_{n / 2}}-1\right)\right] \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}$, which can be shown in the following,
+where $v_{n}=8 \sigma^2 /(n \log 2)$.
+Then our goal is to show that $\frac{n}{4} \lambda \mathbb{E}\left[d_{n / 2}\left(e^{\lambda d_{n / 2}}-1\right)\right] \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}$, which can be shown in the following,
 
 \begin{align}
     & \lambda \mathbb{E}[\left(\tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-\tilde{U}\left(e^{Y_{(n / 2+1)}}\right) \right) \left(e^{\lambda \left (\tilde{U}\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-\tilde{U}\left(e^{Y_{(n / 2+1)}}\right) \right)} - 1\right)]\\
@@ -242,9 +244,9 @@ where the last step is because for $0 \leq \mu \leq 1/2$, $\int_{0}^{\infty} \mu
     \mathbb{P}\left\{X_{(n / 2)}-\mathbb{E} X_{(n / 2)}>\sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{v_{n} / n}\right\} \leq e^{-\varepsilon}
 \end{align}
 
-If the $X_{n/2} \in \mathbb{R}$, the lower tail (\ref{inequality Bernstein lower bound for normal}) holds because of the symmetry (central limit theory). If the $X_{n/2} \in \mathbb{R^+}$ is positive, then we still have 
+If the $X_{(n/2)} \in \mathbb{R}$, the lower tail (\ref{inequality Bernstein lower bound for normal}) holds because of the symmetry (central limit theory). If the $X_{(n/2)} \in \mathbb{R^+}$ is positive, then we still have 
 \begin{align}
-    P\left( \mathbb{E}[ X_{n/2}] - X_{n/2} \geq \sqrt{2v_n \varepsilon} + 2 \varepsilon \sqrt{v_n/n} \right) \leq P\left( X_{n/2}-\mathbb{E}[ X_{n/2}] \geq \sqrt{2v_n \varepsilon} + 2 \varepsilon \sqrt{v_n/n} \right) \leq e^{-\varepsilon}
+    P\left( \mathbb{E}[ X_{(n/2)}] - X_{(n/2)} \geq \sqrt{2v_n \varepsilon} + 2 \varepsilon \sqrt{v_n/n} \right) \leq P\left( X_{(n/2)}-\mathbb{E}[ X_{(n/2)}] \geq \sqrt{2v_n \varepsilon} + 2 \varepsilon \sqrt{v_n/n} \right) \leq e^{-\varepsilon}
 \end{align}
 In this case, the bound for the lower tail is loose.\\ 
 
@@ -279,7 +281,7 @@ hazard rate of exponential distribution:
 \label{prop for expon hazard rate}
 Exponential distribution has constant hazard rate, for it's CDF F and PDF f defined as (\ref{expon CDF})(\ref{Expon PDF}), for $y > 0$,
 \begin{align}
-    \frac{f(U(\exp{y}))}{\bar{F}(U(\exp{y}))} = \frac{y}{\theta}
+    \frac{f(U(\exp{y}))}{\bar{F}(U(\exp{y}))} = \theta
 \end{align}
 \end{prop}
 
@@ -287,12 +289,12 @@ Exponential distribution has constant hazard rate, for it's CDF F and PDF f defi
 \begin{align}
     \frac{f(U(e^{y}))}{\bar{F}(U(e^{y}))} &=
     \frac{f(F^{-1}(1 - e^{-y}))}{1-F\left({F}^{-1}\left(1 - e^{-y})\right)\right)}\\
-    &= \frac{f(F^{-1}(1 - e^{-1}{y}))}{e^{-y}}
+    &= \frac{f(F^{-1}(1 - e^{-y}))}{e^{-y}}
 \end{align}
-Note that $F^{-1}(y) = - \log (1 - y)/ \theta$, thus $F^{-1}(1 - e^{-1}{y}) = y/ \theta$. And $f(y/\theta) = \frac{y}{\theta} e^{-y}$,
+Note that $F^{-1}(y) = - \log (1 - y)/ \theta$, thus $F^{-1}(1 - e^{-y}) = y/ \theta$. And $f(y/\theta) = \theta e^{-y}$,
 so 
 \begin{align}
-    \frac{f(U(e^{y}))}{\bar{F}(U(e^{y}))} = \frac{\frac{y}{\alpha} e^{-y}}{e^{-y}} = \frac{y}{\theta}.
+    \frac{f(U(e^{y}))}{\bar{F}(U(e^{y}))} = \frac{\theta e^{-y}}{e^{-y}} = \theta.
 \end{align}
  
 \end{proof}
@@ -300,7 +302,7 @@ so
 \begin{prop}
 \label{prop 4.6}
 
-$X_1, ..., X_n$ are independent random variables, distributed according to exponential distribution's CDF F, and $X_{(1)} \geq X_{(2)} \geq ... \geq X_{(n)}$ denote the corresponding order statistics. $X_{n/2}$ is the median (we assume n is even). For all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$, 
+$X_1, ..., X_n$ are independent random variables, distributed according to exponential distribution's CDF F, and $X_{(1)} \geq X_{(2)} \geq ... \geq X_{(n)}$ denote the corresponding order statistics. $X_{(n/2)}$ is the median (we assume n is even). For all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$, $v_n = \frac{4}{n \theta^2}$ 
 \begin{align}
     \log \mathbb{E}e^{\lambda\left(X_{(n / 2)}-\mathrm{E} X_{(n / 2)}\right)} \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}
 \end{align}
@@ -320,35 +322,55 @@ By \cite{boucheron2012} Theorem 2.9,
 \end{align}
 where $d_{n / 2}=X_{(n / 2)}-X_{(n / 2+1)} \sim U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right).$ where $E_{n/2}$ is standard exponentially distributed and independent of $Y_{(n/2 + 1)}$. $Y_{(1)} \geq Y_{(2)} \geq ... \geq Y_{(n)}$ is the order statistics of an independent sample of the standard exponential distribution. 
 
-From Proposition \ref{prop non-increasing hazard rate}, if hazard rate h is non-decreasing, then for all $t > 0$ and $x > 0$, $U(\exp (t+x))-U(\exp (t)) \leq x / h(U(\exp (t)))$. Thus, 
-\begin{align}
-    U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right) \leq \frac{E_{n / 2} /(n / 2)}{h(U(\exp{(Y_{(n/2+1)})}))}
-\end{align}
+From Proposition \ref{prop non-increasing hazard rate}, if hazard rate h is non-decreasing, then for all $t > 0$ and $x > 0$, $U(\exp (t+x))-U(\exp (t)) \leq x / h(U(\exp (t)))$. Thus, for $v_n = \frac{4}{n \theta^2}$,
 
-From Proposition \ref{prop for expon hazard rate}, 
-\begin{align}
-    h(U(\exp{(Y_{(n/2+1)})})) &= \frac{f(U(\exp (Y_{(n/2+1)})))}{\overline{F}({U}(\exp (Y_{(n/2+1)})))} = \frac{Y_{(n/2+1)}}{\theta} 
-\end{align}
-so we get 
 \begin{align}
     d_{n/2} = U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right) 
-    &\leq \frac{E_{n / 2} /(n / 2)}{\frac{Y_{(n/2+1)}}{\theta} }\\
-    &\leq \frac{ 2\theta E_{n / 2} }{n Y_{(n/2+1)}}\\
-    & \approx \frac{ 2\theta E_{n / 2} }{ n\log 2 }
+    & \leq \frac{E_{n / 2} /(n / 2)}{h(U(\exp{(Y_{(n/2+1)})}))}\\
+    &\leq \frac{E_{n / 2} /(n / 2)}{\theta}\\
+    & \leq \sqrt{\frac{v_n}{n}} E_{n/2}
 \end{align}
-where the last line holds with the assumption $Y_{(n/2+1)} \approx Y_{(n/2)} \approx \log2$. Let $v_n = \frac{4 \theta^2}{n (\log 2)^2}$, we have $d_{n/2} \leq \sqrt{\frac{v_n}{n}} E_{n/2}$. 
 
-Then our goal is to show that $\frac{n}{4} \lambda \mathbb{E}\left[d_{n / 2}\left(e^{\lambda d_{n / 2}}-1\right)\right] \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}$, which can be shown in the following (same as the Gaussian case),
+Same reasoning as the normal distribution case, we can show that $\frac{n}{4} \lambda \mathbb{E}\left[d_{n / 2}\left(e^{\lambda d_{n / 2}}-1\right)\right] \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}$.
+\end{proof}
+
+\subsection{Concentration inequalities for arbitrary distribution}
+
+\begin{prop}
+\label{prop: Concentration inequalities for arbitrary distribution}
+
+$X_1, ..., X_n$ are independent random variables, distributed according to arbitrary distribution with PDF f and CDF F, and $X_{(1)} \geq X_{(2)} \geq ... \geq X_{(n)}$ denote the corresponding order statistics. $X_{(n/2)}$ is the median (we assume n is even). Assume the hazard rate is non-decreasing and with U-transform
+$$h\left(U(exp(y))\right) = \frac{f\left(U(exp(y))\right)}{\bar{F}\left(U(exp(y))\right) } \geq L$$
+where $\bar{F} = 1 - F$, U-transform is defined in Definition \ref{defi: U-transform}, $y > 0$, (L can include parameters of the distribution, $L > 0 ?)$. For all $0 \leq \lambda<n /\left(2 \sqrt{v_{n}}\right)$, $v_n = \frac{4}{n L^2}$,
+\begin{align}
+    \log \mathbb{E}e^{\lambda\left(X_{(n / 2)}-\mathrm{E} X_{(n / 2)}\right)} \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}
+\end{align}
+where the expectation is in terms of the randomness of the environment. For all $\varepsilon > 0$,
+\begin{align} 
+    \label{inequality Bernstein upper bound for abr}
+    \mathbb{P}\left\{X_{(n / 2)}-\mathbb{E} X_{(n / 2)}>\sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{v_{n} / n}\right\} \leq e^{-\varepsilon}\\
+    \label{inequality Bernstein lower bound for abr}
+    \mathbb{P}\left\{\mathbb{E} X_{(n / 2)} - X_{(n / 2)}>\sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{v_{n} / n}\right\} \leq e^{-\varepsilon}
+\end{align}
+\end{prop}
+
+\begin{proof}
+By \cite{boucheron2012} Theorem 2.9, 
+\begin{align}
+    \log \operatorname{E} e^{\lambda\left(X_{(n / 2)}-\mathbb{E} X_{(n / 2)}\right)} \leq \frac{n}{4} \lambda \mathbb{E}\left[d_{n / 2}\left(e^{\lambda d_{n / 2}}-1\right)\right]
+\end{align}
+where $d_{n / 2}=X_{(n / 2)}-X_{(n / 2+1)} \sim U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right).$ where $E_{n/2}$ is standard exponentially distributed and independent of $Y_{(n/2 + 1)}$. $Y_{(1)} \geq Y_{(2)} \geq ... \geq Y_{(n)}$ is the order statistics of an independent sample of the standard exponential distribution. 
+
+From Proposition \ref{prop non-increasing hazard rate}, if hazard rate h is non-decreasing, then for all $t > 0$ and $x > 0$, $U(\exp (t+x))-U(\exp (t)) \leq x / h(U(\exp (t)))$. Thus, for $v_n = \frac{4}{n L^2}$,
 
 \begin{align}
-    & \lambda \mathbb{E}[\left(U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right) \right) \left(e^{\lambda \left (U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right) \right)} - 1\right)]\\
-    & \leq \lambda \mathbb{E}[\sqrt{\frac{v_{n}}{n}} E_{n / 2} \left(e^{\lambda \sqrt{\frac{v_{n}}{n}} E_{n / 2}} -1\right)]\\
-    & = \int_0^\infty \lambda  \sqrt{\frac{v_{n}}{n}} \{ E_{n / 2}  = x \} \left(e^{\lambda \sqrt{\frac{v_{n}}{n}} \{E_{n / 2} = x\}} -1\right) f_{E_{n/2}}(x) d x\\
-    & = \int_0^\infty \lambda  \sqrt{\frac{v_{n}}{n}} x \left(e^{\lambda \sqrt{\frac{v_{n}}{n}} x } -1\right) e^{-x} d x\\
-    & \leq \frac{2\lambda^2 v_n}{n (1 - 2 \lambda \sqrt{\frac{v_n}{n}})}
+    d_{n/2} = U\left(e^{E_{n / 2} /(n / 2)+Y_{(n / 2+1)}} \right)-U\left(e^{Y_{(n / 2+1)}}\right) 
+    & \leq \frac{E_{n / 2} /(n / 2)}{h(U(\exp{(Y_{(n/2+1)})}))}\\
+    &\leq \frac{E_{n / 2} /(n / 2)}{L}\\
+    & \leq \sqrt{\frac{v_n}{n}} E_{n/2}
 \end{align}
-where the last step is because for $0 \leq \mu \leq 1/2$, $\int_{0}^{\infty} \mu x\left(e^{\mu x}-1\right) e^{-x} \mathrm{d} x=\frac{\mu^{2}(2-\mu)}{(1-\mu)^{2}} \leq \frac{2 \mu^{2}}{1-2 \mu}$.
 
+Same reasoning as the normal distribution case, we can show that $\frac{n}{4} \lambda \mathbb{E}\left[d_{n / 2}\left(e^{\lambda d_{n / 2}}-1\right)\right] \leq \frac{v_{n} \lambda^{2}}{2\left(1-2 \lambda \sqrt{v_{n} / n}\right)}$.
 \end{proof}
 
 
@@ -366,23 +388,22 @@ In the (t+1) round, pick an arm with index
     \label{policy normal}
    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}
 \end{align}
-where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8}{T_i(t) \sigma^2 log2}$. $T_i(t)$ is the number of times arm i has been played until round t.  
+where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{8 \sigma^2}{T_i(t) log2}$. $T_i(t)$ is the number of times arm i has been played until round t.  
 
 The policy includes two parts, where the first part is the empirical median of the rewards, the second part is the confidence bound and we denote it as,
 
 \begin{align}
 \label{B_i(i, T_i(t)) definition}
 B_i(t, T_i(t)) &= \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}\\
-&= \sqrt{2 \times \frac{8}{T_i(t) \sigma^2 \log 2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{8}{T_i(t) \sigma^2 \log 2} \times \frac{1}{T_i(t)}}\\
-&= \sqrt{\frac{64 \log t}{T_i(t) \sigma^2 \log 2}} + \sqrt{\frac{64 \log^2 t \times 8}{T_i^2(t)\sigma^2 \log 2}}\\
-&= \frac{\sqrt{64 \log t T__i(t)} + 64 \log^2 t \times 8}{\sqrt{T_i^2(t) \sigma^2 \log 2}}\\
+&= \sqrt{2 \times \frac{8\sigma^2}{T_i(t)  \log 2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{8\sigma^2}{T_i(t)  \log 2} \times \frac{1}{T_i(t)}}\\
+&= \sqrt{\frac{64 \sigma^2 \log t  }{T_i(t) \log 2}} + \sqrt{\frac{64 \log^2 t \times 8 \sigma^2}{T_i^2(t) \log 2}}\\
 \label{B_i(i, T_i(t)) definition 2}
-&= \frac{8 \sqrt{\log t} (\sqrt{ T_i(t)} + \sqrt{8\log t})}{\sigma T_i(t)  \sqrt{\log 2}}
+&= \frac{8 \sigma \sqrt{\log t} (\sqrt{ T_i(t)} + \sqrt{8\log t})}{ T_i(t)  \sqrt{\log 2}}
 \end{align}
 
 Thus, the policy in (\ref{policy normal}) can be written as,
 \begin{align}
-    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \frac{8 \sqrt{\log t} (\sqrt{ T_i(t)} + \sqrt{8\log t})}{\sigma T_i(t)  \sqrt{\log 2}}
+    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \frac{8 \sigma \sqrt{\log t} (\sqrt{ T_i(t)} + \sqrt{8\log t})}{ T_i(t)  \sqrt{\log 2}}
 \end{align}
 
 \begin{theo}
@@ -391,9 +412,9 @@ Thus, the policy in (\ref{policy normal}) can be written as,
 For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$, where $P_i$ is Gaussian distribution with zero mean, then its expected regret after any number of n plays is at most 
 
 \begin{align}
-    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sigma \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2}  + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
-where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{i, 1/2} = m_\ast - m_i$, $\beta = (64 + 32\sigma  \sqrt{2 \log 2} \triangle_{i,1/2} )\log n$. 
+where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{i, 1/2} = m_\ast - m_i$, $\beta = 32 \sigma \log n (2 \sigma + \triangle_{i,1/2} \sqrt{2 \log 2} )$. 
 \end{theo}
 
 \begin{proof}
@@ -486,31 +507,31 @@ According to Lemma 1, we bound the probability of (\ref{lemma 3.1})(\ref{lemma 3
     \end{align}
     Remind that $\triangle_{i, 1/2} = m_* - m_i = \mathbb{E}[\hat{m}_{*, s}] - \mathbb{E}[\hat{m}_{i, s_i}]$, then (\ref{goal to find l}) can be written as $B_i(t, s_i) \leq  \frac{1}{2} \triangle_{i, 1/2}$. According to (\ref{B_i(i, T_i(t)) definition 2}) and with $t \leq n, s_i \geq l \geq 1$, 
     \begin{align}
-        B_i(t, s_i) &= \frac{8 \sqrt{\log t} (\sqrt{ s_i} + \sqrt{8\log t})}{\sigma s_i  \sqrt{\log 2}}\\
-        & \leq \frac{8 \sqrt{\log n}}{ \sigma \sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i}\\
-        & \leq \frac{8 \sqrt{\log n}}{\sigma \sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i}
+        B_i(t, s_i) &= \frac{8 \sigma \sqrt{\log t} (\sqrt{ s_i} + \sqrt{8\log t})}{ s_i  \sqrt{\log 2}}\\
+        & \leq \frac{8\sigma \sqrt{\log n}}{  \sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i}\\
+        & \leq \frac{8\sigma \sqrt{\log n}}{  \sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i}
     \end{align}
-    By solving $\frac{8 \sqrt{\log n}}{\sigma \sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, when $\sigma \triangle_{i, 1/2} \sqrt{\log 2} \geq 16 \sqrt{\log n}$ , 
+    By solving $\frac{8\sigma \sqrt{\log n}}{  \sqrt{\log 2}} \times \frac{s_i + \sqrt{8\log n}}{s_i} \leq \frac{1}{2} \triangle_{i, 1/2}$, when $ \triangle_{i, 1/2} \sqrt{\log 2} \geq 16 \sigma \sqrt{\log n}$ , 
     
     \begin{align}
-        s_i \geq \frac{32 \sqrt{2} \log n}{\sigma \sqrt{\log 2} \triangle_{i, 1/2} - 16 \sqrt{\log n}} 
+        s_i \geq \frac{32 \sqrt{2} \sigma \log n}{\sqrt{\log 2} \triangle_{i, 1/2} - 16 \sigma \sqrt{\log n}} 
     \end{align}
     
-    However this assumption doesn't hold in most of the cases, so we need to solve the inequality by directly solving $\frac{8 \sqrt{\log n}}{\sigma \sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i} \leq 1/2 \triangle_{i, 1/2}$, let $\beta = (64 + 32 \sqrt{2 \log 2}\sigma \triangle_{i,1/2} )\log n$,
+    However this assumption doesn't hold in most of the cases, so we need to solve the inequality by directly solving $\frac{8\sigma \sqrt{\log n}}{  \sqrt{\log 2}} \times \frac{\sqrt{s_i} + \sqrt{8\log n}}{s_i} \leq 1/2 \triangle_{i, 1/2}$, let $\beta = 32 \sigma \log n (2 \sigma + \triangle_{i,1/2} \sqrt{2 \log 2} )$,
     \begin{align}
-        s_i \geq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}^2} 
+        s_i \geq \frac{(\sqrt{\beta} + 8 \sigma \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2} 
     \end{align}
     
     Then we have $l'$ which makes (\ref{lemma 3.3}) false,
    \begin{align}
-       l' = \lceil \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}^2} \rceil = \lceil \frac{(128 + 32 \sqrt{2 \log 2} \sigma \triangle_{i, 1/2} + 64 \sqrt{4 + 2 \sqrt{2 \log 2}\sigma \triangle_{i, 1/2}}) \log n}{\log 2 \triangle_{i, 1/2}^2} \rceil
+       l' = \lceil \frac{(\sqrt{\beta} + 8 \sigma \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2}  \rceil %= \lceil \frac{(128 + 32 \sqrt{2 \log 2} \sigma \triangle_{i, 1/2} + 64 \sqrt{4 + 2 \sqrt{2 \log 2}\sigma \triangle_{i, 1/2}}) \log n}{\log 2 \triangle_{i, 1/2}^2} \rceil
    \end{align} 
    
     So we get the bound of $\mathbb{E}[T_i(n)]$ as,
     \begin{align}
         \mathbb{E}[T_i(n)] &\leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l'}^{t-1} P(\hat{m}_{*, s} + B_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]) + P(\hat{m}_{i, s_i} - B_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}])\\
         & \leq l' + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = 1}^{t-1} 2 t^{-4}\\
-        & \leq \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}^2} + 1 + \frac{\pi^2}{3}
+        & \leq \frac{(\sqrt{\beta} + 8 \sigma \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2}  + 1 + \frac{\pi^2}{3}
     \end{align}
    
 \end{proof}
@@ -518,7 +539,7 @@ According to Lemma 1, we bound the probability of (\ref{lemma 3.1})(\ref{lemma 3
 According to Lemma \ref{Lemma 4: bound for E[T_i(n)]}, we derive the upper bound for expected regret,
 \begin{align}
     \mathbb{E}[R_n] \leq 
-          \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sqrt{\log n})^2}{\sigma^2 \log 2 \times \triangle_{i, 1/2}} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+          \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 8 \sigma \sqrt{\log n})^2}{\log 2 \times \triangle_{i, 1/2}^2}  + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
    
 \end{proof}
@@ -532,20 +553,20 @@ In the (t+1) round, pick an arm with index
    \label{policy expon}
    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}
 \end{align}
-where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{4 \theta^2}{T_i(t) (\log 2)^2}$, where $\theta$ is the parameter of exponential distribution, $T_i(t)$ is the number of times arm i has been played until round t.  
+where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{4 }{T_i(t) \theta^2}$, where $\theta$ is the parameter of exponential distribution, $T_i(t)$ is the number of times arm i has been played until round t.  
 
 The policy includes two parts, where the first part is the empirical median of the rewards, the second part is the confidence bound and we denote it as,
 
 \begin{align}
 %\label{B_i(i, T_i(t)) definition}
 B_i(t, T_i(t)) &= \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}\\
-&= \sqrt{2 \times \frac{4 \theta^2}{T_i(t) (\log 2)^2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{4 \theta^2}{T_i(t) (\log 2)^2} \times \frac{1}{T_i(t)}}\\
-&= \frac{4 \theta \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t) \log 2}
+&= \sqrt{2 \times \frac{4 }{T_i(t) \theta^2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{4 }{T_i(t) \theta^2} \times \frac{1}{T_i(t)}}\\
+&= \frac{4 \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t) \theta}
 \end{align}
 
 Thus, the policy in (\ref{policy expon}) can be written as,
 \begin{align}
-    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} +  \frac{4 \theta \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t)\log 2}
+    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} +  \frac{4 \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t) \theta}
 \end{align}
 
 \begin{theo}
@@ -554,162 +575,60 @@ Thus, the policy in (\ref{policy expon}) can be written as,
 For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most 
 
 \begin{align}
-    \sum_{i: m_i < m_\ast} \frac{32 \theta \log t (\sqrt{2 \theta + \triangle_{i, 1/2} (\log 2)^2} + \sqrt{\theta})^2}{ \triangle_{i, 1/2} (\log 2)^2} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 4\sqrt{2\log n})^2}{ (\triangle_{i, 1/2} \theta)^2} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
 \end{align}
-where $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$. $\theta > 0$ is the parameter of exponential distribution. 
+where $\beta = 32 \log n (1 + \triangle_{i, 1/2} \theta)$ $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$. $\theta > 0$ is the parameter of exponential distribution. 
 \end{theo}
 
-Some considerations:
-
-\begin{itemize}
-
-\item Is $Y_{(n/2 + 1)}$ a random variable or a scalar?\\
-$Y_{(n/2 + 1)}$ is the order statistic of samples of standard exponential distribution, so scalar. However, it is just a sample, which means $Y_{(n/2)}$ is only the median of the samples, but not the median of standard exponential distribution. 
-
-\item Can $Y_{(n/2 + 1)}$ be replaced by $Y_{(n/2)}$?\\
-Technically, no. On the one hand, $Y_{(n/2 + 1)} \leq Y_{(n/2 )}$, which means  $d_{n/2} \leq \frac{ 2\theta E_{n / 2} }{n Y_{(n/2+1)}} \geq  \frac{ 2\theta E_{n / 2} }{n Y_{(n/2)}} $. 
-On the other hand, $d_{n/2 - 1} \leq \frac{ 2\theta E_{n / 2 - 1} }{n Y_{(n/2)}} $, which eventually leads to the tail bound for $X_{(n/2 + 1)}$, not median anymore. 
-
-\item Can we still make assumption for $Y_{n/2 + 1}$?\\
-yes? we have $\lim_{n \rightarrow \infty} Y_{n/2} = \log 2$
-then $\lim_{n \rightarrow \infty} Y_{n/2 + 1} \simeq \log 2$. 
-So we can assume $Y_{n/2+1} = \log2$?
-However, the assumption may not be true when n is small, which means at the first few rounds of bandit algorithm, the assumption may not hold.
-\end{itemize}
+\begin{proof}
+Same reasoning as Gaussian case. 
+\end{proof}
 
 %----------------------------------------------------------------------------------------
 \subsection{Arbitrary Distribution}
 
+In this section, we propose policy and proves the regret bound for any distribution. Assume the hazard rate is non-decreasing and with U-transform
+$$h\left(U(exp(y))\right) = \frac{f\left(U(exp(y))\right)}{\bar{F}\left(U(exp(y))\right) } \geq L$$
+where $\bar{F} = 1 - F$, U-transform is defined in Definition \ref{defi: U-transform}, $y > 0$, (L can include parameters of the distribution, $L > 0 ?)$. \\
+
 \textbf{Proposed policy for arbitrary distribution}\\
+
 In the (t+1) round, pick an arm with index 
 \begin{align}
-   \argmax_{i \in \mathcal{K}} \hat{Q}_{i, T_i(t)}(\alpha) + \frac{p}{\lambda} - \frac{q}{2} \mathbb{E}[d_{q} (\exp\{\lambda d_{q}\} - 1)]
+   \label{policy abr}
+   \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}
 \end{align}
-where $p = 4 \log t$, $q = T_i(t) - \lceil \alpha T_i(t) \rceil$, $\lambda = \sup \{ \lambda \geq 0 | \lambda p - \log \mathbb{E}[\exp\{\lambda (\hat{Q}_{i, T_i(t)}(\alpha) - \mathbb{E}\hat{Q}_{i, T_i(t)}(\alpha))\}]\}$ And $d_q$ is the difference between the $\{T_i(t) - q\}^{th}$ and $\{T_i(t) - (q + 1)\}^{th}$ order statistics,
-\begin{align}
-    d_q = Y_{i,T_i(t) - q} - Y_{i,T_i(t) - (q + 1)} = Y_{i, \lceil \alpha T_i(t) \rceil} - Y_{i, \lceil \alpha T_i(t) \rceil - 1}
-\end{align}
-For simplicity, we denote $B_i(t, T_i(t), \alpha) = \frac{p}{\lambda} - \frac{q}{2} \mathbb{E}[d_{q} (\exp\{\lambda d_{q}\} - 1)]$\\
+where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, $\varepsilon = 4 \log t$, $v_t = \frac{4 }{T_i(t) L^2}$, where $L$ can include the parameters of distribution, $T_i(t)$ is the number of times arm i has been played until round t.  
 
-\begin{defi}
-(Hazard Rate)\cite{boucheron2012}. The hazard rate of an absolutely continuous probability
-distribution with distribution function F is: $h = f /\bar{F}$ where f and $\bar{F} = 1 - F$ are respectively the density and the survival function associated with F.\\
-\end{defi}
+The policy includes two parts, where the first part is the empirical median of the rewards, the second part is the confidence bound and we denote it as,
+
+\begin{align}
+%\label{B_i(i, T_i(t)) definition}
+B_i(t, T_i(t)) &= \sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}\\
+&= \sqrt{2 \times \frac{4 }{T_i(t) L^2} \times 4 \log t} + 2 \times 4 \log t \times \sqrt{\frac{4 }{T_i(t) L^2} \times \frac{1}{T_i(t)}}\\
+&= \frac{4 \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t) L}
+\end{align}
+
+Thus, the policy in (\ref{policy abr}) can be written as,
+\begin{align}
+    \argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} +  \frac{4 \sqrt{\log t} ( \sqrt{ 2T_i(t)} + 4\sqrt{\log t})}{T_i(t) L}
+\end{align}
 
 \begin{theo}
-(Regret bound). \\
+(Regret bound for policy of exponential distribution). \\
 
-For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate, then its expected regret after any number of n plays is at most ... \\
+For all K $>$ 1, if the proposed policy is run on K machines with absolute reward distribution $v = (P_i: i \in \mathcal{K})$ having non-decreasing hazard rate $$h\left(U(exp(y))\right) = \frac{f\left(U(exp(y))\right)}{\bar{F}\left(U(exp(y))\right) } \geq L$$
+where $\bar{F} = 1 - F$, U-transform is defined in Definition \ref{defi: U-transform}, $y > 0$, (L can include parameters of the distribution, $L > 0 ?)$.  then its expected regret after any number of n plays is at most 
+
+\begin{align}
+    \sum_{i: m_i < m_\ast} \frac{(\sqrt{\beta} + 4\sqrt{2\log n})^2}{ (\triangle_{i, 1/2} L)^2} + (1 + \frac{\pi^2}{3}) (\sum_{j=1}^K \triangle_{j, 1/2}) 
+\end{align}
+where $\beta = 32 \log n (1 + \triangle_{i, 1/2} L)$, $m_i$ is the median of $P_i$, $m_\ast$ is the median of the best arm (i.e. the arm with maximum median). $\triangle_{j, 1/2} = m_\ast - m_j$. 
 \end{theo}
 
 \begin{proof}
-
-\begin{lemma}
-Let $X_1,..., X_n$ be independently distributed according to cumulative density distribution F, $Y_{1} \leq \ldots \leq Y_{n}$ be the order statistics and let $d_q = Y_{n-q} - Y_{n-q-1}$ be the $q^{th}$ spacing. Then with $q = n - \lceil \alpha n \rceil (i.e. 1 - \frac{q+1}{n} \leq \alpha \leq 1 - \frac{q}{n})$, if F has a non-decreasing hazard rate h, then for $\lambda \geq 0$, and $1\leq k \leq n/2$,
-\begin{align}
-    \label{Boucheron theorem 9-2}
-    \log \mathbb{E}e^{\lambda\left(\Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]\right)} \leq \lambda \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]
-\end{align}
-And tail bound is 
-\begin{align}
-    \label{Lemma 1-2}
-   P\{\Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)] \geq \frac{\varepsilon}{\lambda} - \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]\} \leq e^{-\varepsilon}\\
-   \label{Lemma 1-3}
-   P\{\mathbb{E}[ \Hat{Q}(\alpha)] - \Hat{Q}(\alpha) \geq \frac{\varepsilon}{\lambda} - \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right]\} \leq e^{-\varepsilon}
-\end{align}
-\end{lemma}
-
-\begin{proof}
-(\ref{Boucheron theorem 9-2}) can be derived from \cite{boucheron2012}(Theorem 2.9).  Let $S = \Hat{Q}(\alpha)-\mathbb{E}[ \Hat{Q}(\alpha)]$, then according to Markov's inequality,
-\begin{align}
-    P \{S \geq t\} \leq \frac{\mathbb{E}[e^{\lambda S}]}{e^{\lambda t}} \leq \exp\{\lambda \frac{q}{2} \mathbb{E}\left[d_q\left(e^{\lambda d_q}-1\right)\right] - \lambda t\},
-\end{align}
-from which we can derive (\ref{Lemma 1-2}). The lower tail (\ref{Lemma 1-3}) can be similarly proved (\textcolor{red}{how??}).
+Same reasoning as Gaussian case. 
 \end{proof}
-
-\begin{lemma}
-Let $I_t$ represent the arm we chose in the round t and $l$ as an arbitrary positive integer. For $t \geq 1$, the number of arm r is chosen is bounded by
-\begin{align}
-    T_i(n) \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}
-\end{align}
-\end{lemma}
- 
-\begin{proof}
-    \begin{align}
-        T_i(n) =& 1 + \sum_{t = k + 1}^n \{I_t = i\}\\
-               \leq & l + \sum_{t = k + 1}^n (\{I_t = i\} \cup \{T_i(t-1) \geq l\})\\
-               \leq & l + \sum_{t = k + 1}^n (\{ \hat{Q}_{*, T_*(t-1)}(\alpha) + B_*(t, T_i(t-1), \alpha) \leq \hat{Q}_{i, T_i(t-1)}(\alpha) + B_i(t, T_i(t-1), \alpha)\} \cup \{ T_i(t-1) \geq l\})\\
-               \label{proof: minmax for arb}
-               \leq & l + \sum_{t = k + 1}^n \{ \mathop{min}\limits_{0 < s < t}\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq \mathop{max}\limits_{l < s_i < t}\hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}\}\\
-               \label{proof: union bound for arb}
-               \leq & l + \sum_{t = 1}^\infty \sum_{s = 1}^{t-1} \sum_{s_i = l}^{t-1} \{\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)\}
-    \end{align}
-    where the symbols with $*$ representing the properties of the best arm (i.e. the arm with maximum $\alpha-$quantiles $Q_i(\alpha)$).From step  From step (\ref{proof: minmax}) to (\ref{proof: union bound}), we use the union bound. And in the step (\ref{proof: union bound}), t is summed from 1 to infinity to make sure the arm i can be played for s times.\\
-\end{proof}
-
-\begin{lemma}
-\label{lemma 3}
-    $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$ implies that at least one of the following must hold\\
-    \begin{align}
-        \label{lemma 1.1}
-        \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]\\
-        \label{lemma 1.2}
-        \hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)]\\
-        \label{lemma 1.3}
-        \mathbb{E}[\hat{Q}_{*, s}(\alpha)] < \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] + 2 B_i(t, s_i, \alpha)
-    \end{align}
-\end{lemma}
-
-\begin{proof}
-Assume all of the three inequalities are not true, then we have
-    \begin{align}
-        \label{proof lemma 1.1}
-         \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) >  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]\\
-        \label{proof lemma 1.2}
-        \hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) < \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)]\\
-        \label{proof lemma 1.3}
-        \mathbb{E}[\hat{Q}_{*, s}(\alpha)] \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] + 2 B_i(t, s_i, \alpha)
-    \end{align}
-    (\ref{proof lemma 1.1}) - (\ref{proof lemma 1.2}) we get, 
-    \begin{align}
-         \mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] &< 
-         \hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) - (\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha)) \\
-        & \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha) - (\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha)) \\
-        &= 2 B_i(t, s_i, \alpha),
-    \end{align}
-    which is contradicted to (\ref{proof lemma 1.3}), the assumption that all of the three inequalities are not true doesn't hold. Lemma 1 is proved to be true.\\
-\end{proof}
-
-\begin{lemma}
-    The expected number of arm i is chosen is bounded by 
-    \begin{align}
-        \mathbb{E}[T_i(n)] \leq ?
-    \end{align}
-\end{lemma}
-
-\begin{proof}
-To give a bound for $\mathbb{E}[T_i(n)]$, we only need to manage give a bound of $\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)$. From Lemma \ref{lemma 3} we know, if we make (\ref{lemma 1.3}) false, then 
-\begin{align}
-    & P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha)  \leq \hat{Q}_{i, s_i}(\alpha) + B_i(t, s_i, \alpha)) \\
-    \leq &  P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) + P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])
-\end{align}
-According to Lemma 1, we bound the probability of (\ref{lemma 1.1})(\ref{lemma 1.2}) as
-    \begin{align}
-        P(\hat{Q}_{*, s}(\alpha) + B_*(t, s, \alpha) \leq  \mathbb{E}[\hat{Q}_{*, s}(\alpha)]) \leq  e^{-4lnt} = t^{-4}\\
-        P(\hat{Q}_{i, s_i}(\alpha) - B_i(t, s_i, \alpha) \geq \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)])  \leq  e^{-4lnt} = t^{-4}
-    \end{align}
-    
-    For $l = ...$, (\ref{lemma 1.3}) is false.
-    \begin{align}
-        & \mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] - 2 B_i(t, s_i, \alpha) \\
-        = &\mathbb{E}[\hat{Q}_{*, s}(\alpha)] - \mathbb{E}[\hat{Q}_{i, s_i}(\alpha)] - 2 ... \\
-        \geq & \mu^\ast - \mu_i - \triangle_i = 0
-    \end{align}
-    %(\textcolor{red}{Cannot derive a value of l to satisfy that?})
-\end{proof}
-   
-\end{proof}
-
 %---------------------------------------------------------------------------------
 \section{Considerations}
 
@@ -734,7 +653,7 @@ This also explains why Gaussian random variables cannot work for such kind of pr
 
 \section*{Appendix}
 
-\textbf{Logic of Proposition 4.5}\\
+\textbf{Logic of \cite{boucheron2012} Proposition 4.5}\\
 
 Known
 \begin{align}
