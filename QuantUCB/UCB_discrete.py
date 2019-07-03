@@ -6,7 +6,7 @@ from qreg import QRegressor
 class UCB_discrete(ABC):
     """Base class for UCB algorithms of finite number of arms.
     """
-    def __init__(self, env, num_rounds, bestarm, est_var):
+    def __init__(self, env, num_rounds, bestarm, est_var = True):
         """
         Arguments
         ------------------------------------
@@ -153,13 +153,53 @@ class UCB_discrete(ABC):
         self.cumulativeReward += reward
         return reward
 
+class test_policy(UCB_discrete):
+    """class for test policy: 
+    choose one arm A with probility p, choose other arms uniformly with probability (1-p)
+    """
+    def __init__(self, env, num_rounds, medians, p, A):
+        self.p = p 
+        self.A = A
+        self.medians = medians
+        bestarm = np.argmax(self.medians)
+        super().__init__(env, num_rounds, bestarm)
+
+    def argmax_ucb(self, t):
+        if np.random.uniform() <= self.p:
+            return self.A
+        else:
+            other_arms = set(np.arange(len(self.env))) - set([self.A])
+            return np.random.choice(list(other_arms))
+
+    def regret(self):
+        """Calculate cumulative regret and record it
+
+        Parameters
+        -----------------------------
+        idx: int
+            the idx of arm with maximum ucb in the current round
+        reward: float
+            sample reward for the current round
+
+        Return
+        -----------------------------
+        None
+        """
+        my_regret = 0
+        for key, value in self.sample_rewards.items():
+            mu_diff = self.medians[self.bestarm] - self.medians[key]
+            my_regret += mu_diff * len(value)
+        self.cumulativeRegrets.append(my_regret)
+
 class UCB_os_exp(UCB_discrete):
     """class for UCB of order statistics 
     (in terms of exponential distribution)
     regret is evaluted in terms of median rather than mean. 
     """
-    def __init__(self, env, num_rounds, medians, est_var):
+    def __init__(self, env, num_rounds, medians, est_var, alpha, beta):
         self.medians = medians
+        self.alpha = alpha
+        self.beta = beta
         bestarm = np.argmax(self.medians)
         super().__init__(env, num_rounds, bestarm, est_var)
 
@@ -175,6 +215,12 @@ class UCB_os_exp(UCB_discrete):
         --------------------------------
         the index of arm with the maximum ucb
         """
+        if t % 1000 ==0:
+            print('In round ', t)
+            print_flag = True
+        else:
+            print_flag = False
+
         policy = []
         for arm in sorted(self.sample_rewards.keys()):  
             reward = self.sample_rewards[arm]
@@ -184,11 +230,14 @@ class UCB_os_exp(UCB_discrete):
                 theta = np.sqrt(1.0/self.var_estimate(arm))
             else:
                 theta = 1.0/self.env[arm].scale
-            v_t = 4.0 * theta**2/( t_i * (np.log(2)**2))
-            eps = 4 * np.log(t)
+            v_t = 4.0 /( t_i * theta**2)
+            eps = self.alpha * np.log(t)
             b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
-            policy.append(emp_median + b)
+            policy.append(emp_median + self.beta * b)
+            if print_flag:
+                print('For arm ', arm, ' Meidan: ', emp_median, ' b: ', b)
             #print(policy)
+        #print('Choose policy: ', np.argmax(policy))
         return np.argmax(policy)
 
     def regret(self):
@@ -244,14 +293,71 @@ class UCB_os_gau(UCB_discrete):
             emp_median = np.median(reward)
             t_i = len(reward)
             if self.est_var:
-                v_t = 8.0/(self.var_estimate(arm) * t_i * np.log(2))
+                v_t = 8.0 * self.var_estimate(arm)/( t_i * np.log(2))
             else:
-                v_t = 8.0/(self.env[arm].scale**2 * t_i * np.log(2))
+                v_t = 8.0 * self.env[arm].scale**2 /(t_i * np.log(2))
             eps = 4 * np.log(t)
             b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
             policy.append(emp_median + b)
             #print(policy)
         return np.argmax(policy)
+
+    def regret(self):
+        """Calculate cumulative regret and record it
+
+        Parameters
+        -----------------------------
+        idx: int
+            the idx of arm with maximum ucb in the current round
+        reward: float
+            sample reward for the current round
+
+        Return
+        -----------------------------
+        None
+        """
+        my_regret = 0
+        for key, value in self.sample_rewards.items():
+            mu_diff = self.medians[self.bestarm] - self.medians[key]
+            my_regret += mu_diff * len(value)
+        self.cumulativeRegrets.append(my_regret)
+
+class UCB1_os(UCB_discrete):
+    """Implement for UCB1 algorithm
+    """
+    def __init__(self, env, num_rounds, medians):
+        self.medians = medians
+        bestarm = np.argmax(self.medians)
+        super().__init__(env, num_rounds, bestarm)
+
+    def argmax_ucb(self, t):
+        """
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        if t % 1000 ==0:
+            print('In round ', t)
+            print_flag = True
+        else:
+            print_flag = False
+
+        ucbs = []
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            emp_mean = np.mean(reward)
+            b = np.sqrt(2*np.log(t)/len(reward))
+            ucbs.append( emp_mean + b)
+            if print_flag:
+                print('For arm ', arm, ' Mean: ', emp_mean, ' b: ', b)
+        assert len(ucbs) == len(self.env)
+        #print('Choose policy: ', np.argmax(ucbs))
+        return np.argmax(ucbs)
 
     def regret(self):
         """Calculate cumulative regret and record it
@@ -663,7 +769,6 @@ class CVaRUCB(UCB_discrete):
             ucbs.append(np.mean(reward) + CVaR)
         assert len(ucbs) == len(self.env)
         return np.argmax(ucbs)
-
 
 class UCB1(UCB_discrete):
     """Implement for UCB1 algorithm
