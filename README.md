@@ -12,7 +12,7 @@ One of the key chanlleges for machine learning is to obtain high quality labels 
 
 Multi-Armed Bandit (MAB) problems are well-studied sequential experiment design problems where an agent adaptively choose one option among several actions with the goal of maximizing the profit (i.e. minimizing the regret). 
 
-[Upper confidence bounds](https://github.com/chengsoonong/eheye/tree/master/QuantUCB): Among all polices have been proposed for stochastic bandits with finitely many arms, a particular family called "upper confidence bound" algorithm has raised a strong interest. The upper confidence bound algorithm is based on the principle of optimism in face of uncertainty.
+[Upper confidence bounds](https://github.com/chengsoonong/eheye/tree/master/UCB): Among all polices have been proposed for stochastic bandits with finitely many arms, a particular family called "upper confidence bound" algorithm has raised a strong interest. The upper confidence bound algorithm is based on the principle of optimism in face of uncertainty.
 
 [Thompson sampling experiment](https://github.com/chengsoonong/eheye/tree/master/Thompson_sampling): Gaussian reward with 5-arm bandit simulator.
 
