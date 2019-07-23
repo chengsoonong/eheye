@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from matplotlib import pylab as plt
 from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import DotProduct
 import sklearn.kernel_approximation
 import scipy.optimize as opt
 from quantregression import QuantReg
@@ -83,7 +84,7 @@ class GPUCB(UCB):
     regret_list: list for regret for each epoch 
     """
 
-    def __init__(self, env, x, alpha, beta=1.):
+    def __init__(self, env, x, alpha = 1., beta=1.):
         """
         Arguments
         ---------------------------------
@@ -103,7 +104,8 @@ class GPUCB(UCB):
         self.beta = beta
         self.mu = np.zeros_like(x)
         self.sigma = 0.5 * np.ones_like(x)
-        self.gp = GaussianProcessRegressor(alpha = self.alpha)
+        # self.gp = GaussianProcessRegressor(alpha = self.alpha)
+        self.gp = GaussianProcessRegressor(kernel=DotProduct())
 
     def argmax_ucb(self):
         """compute upper bound.

@@ -195,9 +195,17 @@ class UCB_os_exp(UCB_discrete):
     """class for UCB of order statistics 
     (in terms of exponential distribution)
     regret is evaluted in terms of median rather than mean. 
+
+    Based on the policy:
+    argmax_{i \in \mathcal{K}} \hat{m}_{i, T_i(t)} + \beta(\sqrt{2v_t \varepsilon} + 2 \varepsilon \sqrt{v_t/T_i(t)}),
+    where $\hat{m}_{i, T_i(t)}$ is the empirical median for arm i at the round t, 
+    $\varepsilon = \alpha \log t$, $v_t = \frac{8 \sigma^2}{T_i(t) log2}$. 
+    $T_i(t)$ is the number of times arm i has been played until round t. 
+    
     """
-    def __init__(self, env, num_rounds, medians, est_var, alpha, beta):
+    def __init__(self, env, num_rounds, medians, means, est_var, alpha = 1, beta =1):
         self.medians = medians
+        self.means = means
         self.alpha = alpha
         self.beta = beta
         bestarm = np.argmax(self.medians)
@@ -215,7 +223,7 @@ class UCB_os_exp(UCB_discrete):
         --------------------------------
         the index of arm with the maximum ucb
         """
-        if t % 1000 ==0:
+        if t % 10000 ==0:
             print('In round ', t)
             print_flag = True
         else:
@@ -231,6 +239,103 @@ class UCB_os_exp(UCB_discrete):
             else:
                 theta = 1.0/self.env[arm].scale
             v_t = 4.0 /( t_i * theta**2)
+            eps = self.alpha * np.log(t)
+            b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
+            policy.append(emp_median + self.beta * b)
+            if print_flag:
+                print('For arm ', arm, ' Meidan: ', emp_median, ' b: ', b, 'policy: ', emp_median + self.beta * b)
+            #print(policy)
+        #print('Choose policy: ', np.argmax(policy))
+        return np.argmax(policy)
+
+    def regret(self):
+        """Calculate cumulative regret and record it
+
+        Parameters
+        -----------------------------
+        idx: int
+            the idx of arm with maximum ucb in the current round
+        reward: float
+            sample reward for the current round
+
+        Return
+        -----------------------------
+        None
+        """
+        my_regret = 0
+        for key, value in self.sample_rewards.items():
+            #mu_diff = self.medians[self.bestarm] - self.medians[key]
+            mu_diff = self.means[self.bestarm] - self.means[key]
+            my_regret += mu_diff * len(value)
+        self.cumulativeRegrets.append(my_regret)
+
+class UCB_os_gau(UCB_discrete):
+    """class for UCB of order statistics 
+    (in terms of absolute value of standard gaussian distribution)
+    regret is evaluted in terms of median rather than mean. 
+
+    Arguments
+    -------------------------------------------------------------
+    medians: list
+        sequence of medians of arms 
+    """
+    def __init__(self, env, num_rounds, medians, est_var, alpha = 1, beta = 1):
+        self.medians = medians
+        self.alpha = alpha
+        self.beta = beta
+        bestarm = np.argmax(self.medians)
+        super().__init__(env, num_rounds, bestarm, est_var)
+
+    def var_estimate(self, arm_idx):
+        """estimate variance for exponential distribution of arm_idx)
+        var + mean ** 2
+        
+        Parameter
+        ---------------------------------------
+        arm_idx: int
+            the index of arm needed to be estimate
+        
+        Return
+        ----------------------------------------
+        var: positive float
+            the estimated variance for exponential distribution of arm_idx
+        """
+        rewards = self.sample_rewards[arm_idx]
+        var = np.var(rewards)
+        mean = np.mean(rewards)
+
+        if var == 0:
+            return 1.0
+        else:
+            return var + mean ** 2
+
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        if t % 10000 ==0:
+            print('In round ', t)
+            print_flag = True
+        else:
+            print_flag = False
+
+        policy = []
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            emp_median = np.median(reward)
+            t_i = len(reward)
+            if self.est_var:
+                v_t = 8.0 * self.var_estimate(arm)/( t_i * np.log(2))
+            else:
+                v_t = 8.0 * self.env[arm].scale**2 /(t_i * np.log(2))
             eps = self.alpha * np.log(t)
             b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
             policy.append(emp_median + self.beta * b)
@@ -260,73 +365,13 @@ class UCB_os_exp(UCB_discrete):
             my_regret += mu_diff * len(value)
         self.cumulativeRegrets.append(my_regret)
 
-class UCB_os_gau(UCB_discrete):
-    """class for UCB of order statistics 
-    (in terms of absolute value of standard gaussian distribution)
-    regret is evaluted in terms of median rather than mean. 
-
-    Arguments
-    -------------------------------------------------------------
-    medians: list
-        sequence of medians of arms 
-    """
-    def __init__(self, env, num_rounds, medians, est_var):
-        self.medians = medians
-        bestarm = np.argmax(self.medians)
-        super().__init__(env, num_rounds, bestarm, est_var)
-
-    def argmax_ucb(self, t):
-        """Compute upper confidence bound 
-
-        Parameters
-        --------------------------------
-        t: int
-            the number of current round
-
-        Return
-        --------------------------------
-        the index of arm with the maximum ucb
-        """
-        policy = []
-        for arm in sorted(self.sample_rewards.keys()):  
-            reward = self.sample_rewards[arm]
-            emp_median = np.median(reward)
-            t_i = len(reward)
-            if self.est_var:
-                v_t = 8.0 * self.var_estimate(arm)/( t_i * np.log(2))
-            else:
-                v_t = 8.0 * self.env[arm].scale**2 /(t_i * np.log(2))
-            eps = 4 * np.log(t)
-            b = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
-            policy.append(emp_median + b)
-            #print(policy)
-        return np.argmax(policy)
-
-    def regret(self):
-        """Calculate cumulative regret and record it
-
-        Parameters
-        -----------------------------
-        idx: int
-            the idx of arm with maximum ucb in the current round
-        reward: float
-            sample reward for the current round
-
-        Return
-        -----------------------------
-        None
-        """
-        my_regret = 0
-        for key, value in self.sample_rewards.items():
-            mu_diff = self.medians[self.bestarm] - self.medians[key]
-            my_regret += mu_diff * len(value)
-        self.cumulativeRegrets.append(my_regret)
-
 class UCB1_os(UCB_discrete):
     """Implement for UCB1 algorithm
     """
-    def __init__(self, env, num_rounds, medians):
+    def __init__(self, env, num_rounds, medians, means, alpha):
         self.medians = medians
+        self.means = means
+        self.alpha = alpha 
         bestarm = np.argmax(self.medians)
         super().__init__(env, num_rounds, bestarm)
 
@@ -341,7 +386,7 @@ class UCB1_os(UCB_discrete):
         --------------------------------
         the index of arm with the maximum ucb
         """
-        if t % 1000 ==0:
+        if t % 10000 ==0:
             print('In round ', t)
             print_flag = True
         else:
@@ -351,7 +396,7 @@ class UCB1_os(UCB_discrete):
         for arm in sorted(self.sample_rewards.keys()):
             reward = self.sample_rewards[arm]
             emp_mean = np.mean(reward)
-            b = np.sqrt(2*np.log(t)/len(reward))
+            b = np.sqrt(2* self.alpha * np.log(t)/len(reward))
             ucbs.append( emp_mean + b)
             if print_flag:
                 print('For arm ', arm, ' Mean: ', emp_mean, ' b: ', b)
@@ -375,7 +420,8 @@ class UCB1_os(UCB_discrete):
         """
         my_regret = 0
         for key, value in self.sample_rewards.items():
-            mu_diff = self.medians[self.bestarm] - self.medians[key]
+            #mu_diff = self.medians[self.bestarm] - self.medians[key]
+            mu_diff = self.means[self.bestarm] - self.medians[key]
             my_regret += mu_diff * len(value)
         self.cumulativeRegrets.append(my_regret)
 
@@ -797,10 +843,11 @@ class UCB1(UCB_discrete):
 class Environment():
     """Environment for distribution reward of arms.
     """
-    def __init__(self, loc=0.0, scale=1.0, skewness = 0.0):
+    def __init__(self, loc=0.0, scale=1.0, skewness = 0.0, size = None):
         self.loc = loc
         self.scale = scale
         self.skewness = skewness
+        self.size = size
 
     """
     def sample(self):
@@ -816,5 +863,5 @@ class Environment():
     """
 
     def sample(self):
-        return np.abs(np.random.normal(self.loc, self.scale))
+        return np.abs(np.random.normal(self.loc, self.scale, self.size))
 
