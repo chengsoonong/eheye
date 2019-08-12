@@ -43,6 +43,7 @@ def simulate(env, medians, policy, num_exper, num_rounds, est_var,
     eva_dict = evaluate(sds, rs, bds, num_exper, num_rounds)
     bound['sd'] = agent.sd_bound()
     bound['r'] = agent.r_bound()
+    #return eva_dict, bound, agent.estimated_para
     return eva_dict, bound
 
 

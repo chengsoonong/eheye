@@ -6,7 +6,8 @@ ylabel_dict = {'sd': 'suboptimal draws',
                 'r': 'cumulative regrets',
                 'bd': '% best arm drawn'
             }
-
+label_dict = {'False[0.5, 0.2]': 'HazardUCB',
+              'UCB1_[1]': 'UCB1'}
 def plot_eva(results, eva_method, scale):
     """
     results: dict
@@ -21,20 +22,22 @@ def plot_eva(results, eva_method, scale):
     scale: str
         'raw', 'log10'
     """
-    plt.figure(figsize=(5, 4* len(results.keys())))
+    plt.figure(figsize=(5 * 3, 5* len(results.keys())))
     for i, name in enumerate(results.keys()):
-        plt.subplot(len(results.keys()),1, i+1)
+        plt.subplot(len(results.keys()),3, i+1)
         plt.title(name)
         plt.xlabel('iteration')
         plt.ylabel(scale + ' ' + ylabel_dict[eva_method])
         for subname in results[name].keys():  
             if scale == 'raw':
-                #if subname != 'bound':
-                plt.plot(results[name][subname][eva_method], label = subname)
+                if subname != 'bound':
+                    plt.plot(results[name][subname][eva_method], label = label_dict[subname])
             elif scale == 'log10':
-                plt.plot(np.log10(np.asarray(results[name][subname][eva_method])), label = subname)
+                if subname != 'bound':
+                    plt.plot(np.log10(np.asarray(results[name][subname][eva_method])), label = subname)
         plt.legend()
-    #plt.savefig('tuning_beta.png')
+    file_name = 'Exper_' + str(eva_method) + '.eps'
+    #plt.savefig(file_name, bbox_inches='tight')
 
 def plot_log_curve_fit(list_to_be_fit, name):
     xdata = range(1, len(list_to_be_fit)+1)
