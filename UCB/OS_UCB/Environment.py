@@ -9,7 +9,26 @@ class Base_env():
 
     def sample(self, size = None):
         pass
-  
+
+class Clinical_env():
+    def __init__(self, data):
+        """
+        Parameters:
+        ------------------------------------------
+        num_arms: int
+        data: sequence of samples 
+        """
+
+        self.data = data
+    
+    def sample(self):
+        return np.random.choice(self.data)
+
+    def L_estimate(self):
+        sorted_data = np.asarray(sorted(self.data))
+        L = len(sorted_data[sorted_data <= 100])/len(sorted_data)
+        return L
+        
 class AbsGau(Base_env):
     def __init__(self, para):
         super().__init__(para) 

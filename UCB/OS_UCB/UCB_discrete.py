@@ -241,6 +241,26 @@ class UCB_discrete(ABC):
             bounds.append(bound)
         return bounds
 
+class UCB_clinical(UCB_discrete):
+    def __init__(self, env, medians, num_rounds, 
+                 est_flag, hyperpara, evaluation):
+        """
+        est_flag: whether estimate lower bound of hazard rate
+        """
+        super().__init__(env, medians, num_rounds, 
+                 est_flag, hyperpara, evaluation)
+
+    def init_L(self):
+        """Initialise the true_L_list for the use of true L,
+        where L is the lower bound of hazard rate.
+        L = f(0)/ (1 - F(0))
+        """
+        for i in range(len(self.env)):
+            my_env = self.env[i]
+            L = my_env.L_estimate()
+            assert L > 0
+            self.true_L_list.append(L)
+
 class UCB_os_comb(UCB_discrete):
     """ucb os policy for comb of AbsGau and Exp
     """
@@ -530,6 +550,24 @@ class UCB1_os(UCB_discrete):
     def r_bound(self):
         bounds = []
         return bounds
+
+class UCB1_os_clinical(UCB1_os):
+    def __init__(self, env, medians, num_rounds, 
+                 est_flag, hyperpara, evaluation):
+        super().__init__(env, medians, num_rounds, 
+                 est_flag, hyperpara, evaluation)
+    # FOR clinical data, need to be deleted for simulated data
+    def init_L(self):
+        """Initialise the true_L_list for the use of true L,
+        where L is the lower bound of hazard rate.
+        L = f(0)/ (1 - F(0))
+        """
+        for i in range(len(self.env)):
+            my_env = self.env[i]
+            L = my_env.L_estimate()
+            assert L > 0
+            self.true_L_list.append(L)
+
 
 class test_policy(UCB_discrete):
     """class for test policy: 

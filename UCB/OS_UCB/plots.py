@@ -6,9 +6,11 @@ ylabel_dict = {'sd': 'suboptimal draws',
                 'r': 'cumulative regrets',
                 'bd': '% best arm drawn'
             }
-label_dict = {'False[0.5, 0.2]': 'HazardUCB',
+
+# need to be modified
+label_dict = {'False[4, 1]': 'HazardUCB',
               'UCB1_[1]': 'UCB1'}
-def plot_eva(results, eva_method, scale):
+def plot_eva(results, eva_method, scale, compare_flag):
     """
     results: dict
         keys: 'env name + num_exper + num_rounds'
@@ -21,17 +23,24 @@ def plot_eva(results, eva_method, scale):
         options ('sd', 'r', 'bd')
     scale: str
         'raw', 'log10'
+    compare_flag: bool
+        true: compare
+        False: not compare
     """
-    plt.figure(figsize=(5 * 3, 5* len(results.keys())))
+    #plt.figure(figsize=(5 * 3, 5* len(results.keys())))
     for i, name in enumerate(results.keys()):
-        plt.subplot(len(results.keys()),3, i+1)
+        #plt.subplot(len(results.keys()),3, i+1)
         plt.title(name)
         plt.xlabel('iteration')
         plt.ylabel(scale + ' ' + ylabel_dict[eva_method])
         for subname in results[name].keys():  
             if scale == 'raw':
                 if subname != 'bound':
-                    plt.plot(results[name][subname][eva_method], label = label_dict[subname])
+                    if not compare_flag:
+                        if not subname.startswith('UCB'): 
+                            plt.plot(results[name][subname][eva_method], label = subname)
+                    else:
+                        plt.plot(results[name][subname][eva_method], label = subname)
             elif scale == 'log10':
                 if subname != 'bound':
                     plt.plot(np.log10(np.asarray(results[name][subname][eva_method])), label = subname)
