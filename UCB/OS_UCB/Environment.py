@@ -151,6 +151,7 @@ def setup_env(num_arms, envs_setting):
     
     rewards_env = defaultdict(list)
     medians = defaultdict(list)
+    samples = defaultdict(list)
     num_samples = 10000
 
     '''
@@ -173,8 +174,10 @@ def setup_env(num_arms, envs_setting):
             for para in para_list:
                 current_env = env(para)
                 rewards_env[name].append(current_env)
-                medians[name].append(np.median(current_env.sample(num_samples)))
-    return rewards_env, medians
+                sample = current_env.sample(num_samples)
+                samples[name].append(sample)
+                medians[name].append(np.median(sample))
+    return rewards_env, medians, samples
 
 
 

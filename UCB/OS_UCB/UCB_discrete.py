@@ -80,6 +80,7 @@ class UCB_discrete(ABC):
             L = my_env.pdf(x)/ (1- my_env.cdf(0))
             assert L > 0
             self.true_L_list.append(L)
+        #print(self.true_L_list)
     
     def Calcu_L(self, arm_idx):
         """estimate the lower bound L of hazard rate for 
@@ -100,7 +101,11 @@ class UCB_discrete(ABC):
         if self.est_flag:
             # estimate L
             # To be finished
-            return 1.0
+            sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
+            L = len(sorted_data[sorted_data <= 1])/len(sorted_data)
+            if L  == 0:
+                L = 0.1
+            return L
         else:
             # true L = f(0)/ (1 - F(0))
             return self.true_L_list[arm_idx]
@@ -260,6 +265,34 @@ class UCB_clinical(UCB_discrete):
             L = my_env.L_estimate()
             assert L > 0
             self.true_L_list.append(L)
+
+    def Calcu_L(self, arm_idx):
+        """estimate the lower bound L of hazard rate for 
+           a reward distribution specified by arm_idx
+           (with the assumption of non-decreasing hazard rate)
+        
+        Parameter
+        ---------------------------------------
+        arm_idx: int
+            the index of arm needed to be estimate
+        
+        Return
+        ----------------------------------------
+        L: positive float
+            the lower bound of hazard rate for arm idx
+        """
+
+        if self.est_flag:
+            # estimate L
+            # To be finished
+            sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
+            L = len(sorted_data[sorted_data <= 100])/len(sorted_data)
+            if L  == 0:
+                L = 0.1
+            return L
+        else:
+            # true L = f(0)/ (1 - F(0))
+            return self.true_L_list[arm_idx]
 
 class UCB_os_comb(UCB_discrete):
     """ucb os policy for comb of AbsGau and Exp
