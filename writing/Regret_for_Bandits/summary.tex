@@ -111,24 +111,39 @@ It is not obvious why the expected value is a good summary of the reward distrib
     \begin{enumerate}
          \item \textcite{cassel2018general} showed a general approach for bandits under risk criteria, under the class of \textit{Empirical Distribution Performance Measures(EDPM)}. An EDPM evaluates performance by means of a function $U$ , which maps $\hat{F} \text { to } \mathbb{R}, \text { i.e., } U(\hat{F})=\tilde{U}\left(X_{1}, \ldots, X_{t}\right)$ The expected regret and expected pseudo-regret is 
         \begin{align}
-            & R_{\pi}(N) :=\mathbb{E}\left[U\left(\hat{F}_{N}^{\pi^{*}(N)}\right)-U\left(\hat{F}_{N}^{\pi}\right)\right]\\
-            & \overline{R}_{\pi}(N) :=\mathbb{E}\left[U\left(F_{p^{*}}\right)-U\left(F_{N}^{\pi}\right)\right]
+            & \mathbb{E}[R_N^{\pi}] :=\mathbb{E}\left[U\left(\hat{F}_{N}^{\pi^{*}(N)}\right)-U\left(\hat{F}_{N}^{\pi}\right)\right]\\
+            & \mathbb{E}[\overline{R}_N^{\pi}] :=\mathbb{E}\left[U\left(F_{p^{*}}\right)-U\left(F_{N}^{\pi}\right)\right]
         \end{align}
-        where $F_{N}^{\pi}=\frac{1}{N} \sum_{t=1}^{N} F^{\left(\pi_{t}\right)}=\frac{1}{N} \sum_{i=1}^{K} T_{i}(N) F^{(i)},\hat{F}_{t}\left(x_{1}, \ldots, x_{t} ; \cdot\right)=\frac{1}{t} \sum_{s=1}^{t} \mathbb{I}_{\left[x_{s}, \infty\right]}(\cdot) , \hat{F}_{t}^{\pi}(\cdot) :=\hat{F}_{t}\left(X_{1}^{\pi}, \ldots, X_{t}^{\pi} ;\right)$
+        where $F_{N}^{\pi}=\frac{1}{N} \sum_{t=1}^{N} F^{\left(\pi_{t}\right)}=\frac{1}{N} \sum_{i=1}^{K} T_{i}(N) F^{(i)}, \hat{F}_{N}^{\pi}= \frac{1}{N} \sum_{t=1}^{N} \sum_{i = 1}^{K} \hat{F}_{T_i(t)}^{(i)} \mathbb{I}\{A_t = i\}$.
         \begin{itemize}
             \item When $U$ is linear
             \begin{itemize}
                 \item the expected regret and expected pseudo-regret are same. 
+                \begin{align}
+                &\mathbb{E}[R_N^{\pi}] =\mathbb{E}\left[U\left(\hat{F}_{N}^{\pi^{*}(N)}\right)-U\left(\hat{F}_{N}^{\pi}\right)\right]\\
+                 &=U\left(\mathbb{E}\left[\hat{F}_{N}^{\pi^{*}(N)}-\hat{F}_{N}^{\pi}\right]\right) & \text{By Jensen's inequality, when U is affine (linear)} \\
+                 &= U\left(\mathbb{E}\left[\frac{1}{N} \sum_{t=1}^{N} \sum_{i = 1}^{K} \left(\hat{F}_{T_i(t)}^{(i^\ast)} - \hat{F}_{T_i(t)}^{(i)} \right) \mathbb{I}\{A_t = i\}\right]\right)\\
+                 &= U\left(\frac{1}{N} \sum_{i = 1}^{K} \mathbb{E}\left[\hat{F}_{T_i(t)}^{(i^\ast)} - \hat{F}_{T_i(t)}^{(i)} \right] \mathbb{E}\left[T_i(t)\right]\right) & \text{By Wald's Theorem}\\
+                 &= U\left(\frac{1}{N} \sum_{i = 1}^{K} \left(F_{p^\ast} - F^{(i)}\right) \mathbb{E}\left[T_i(t)\right]\right)\\
+                 &=\frac{1}{N} \sum_{i = 1}^{K}  U\left(F_{p^\ast} - F^{(i)}\right) \mathbb{E}\left[T_i(t)\right] & \text{Linearity of U}\\
+                 & \mathbb{E}[\overline{R}_N^{\pi}]
+                 = \mathbb{E}\left[U\left(F_{p^{*}}\right)-U\left(F_{N}^{\pi}\right)\right]\\
+                 &=U\left(\mathbb{E}\left[F_{p^{*}}-F_{N}^{\pi}\right]\right) & \text{By Jensen's inequality, when U is affine (linear)}\\
+                  &= U\left(\mathbb{E}\left[\frac{1}{N} \sum_{t=1}^{N} \sum_{i = 1}^{K} \left(F_{p^{*}}-F_{N}^{\pi}\right) \mathbb{I}\{A_t = i\}\right]\right)\\
+                 &= U\left(\frac{1}{N} \sum_{i = 1}^{K} \left(F_{p^\ast} - F^{(i)}\right) \mathbb{E}\left[T_i(t)\right]\right) & \text{By expectation linearity}\\
+                 &=\frac{1}{N} \sum_{i = 1}^{K}  U\left(F_{p^\ast} - F^{(i)}\right) \mathbb{E}\left[T_i(t)\right] & \text{Linearity of U}
+                \end{align}
+                
                 \item proxy regret can be decomposed into
                 \begin{align}
-                    R_{\pi}(T)=\frac{1}{T} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(T)\right] \Delta_{i},
+                    \overline{R}_{\pi}(N)=\frac{1}{N} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(N)\right] \Delta_{i},
                 \end{align}
                 where $\Delta_{i}=U\left(F_{p^{*}}\right)-U\left(F^{(i)}\right)$.\\
-                Note: when U is linear $U(F_T^\pi) = U(\frac{1}{T} \sum_{i=1}^K F_{(i)} T_i(T)) = \frac{1}{T} \sum_{i=1}^K U(F_{(i)}) T_i(T)$.
+                Note: when U is linear $U(F_T^\pi) = U(\frac{1}{N} \sum_{i=1}^K F_{(i)} T_i(N)) = \frac{1}{N} \sum_{i=1}^K U(F_{(i)}) T_i(N)$.
                 \end{itemize}
             \item When $U$ is quasiconvex and is strongly stable EDPM (Definition 3 in \cite{cassel2018general}), proxy regret can be bounded by,
                 \begin{align}
-                    \overline{R}_{\pi}(T) \leq \frac{L}{T} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(T)\right]\left\|F^{\left(i^{*}\right)}-F^{(i)}\right\|
+                    \overline{R}_{\pi}(N) \leq \frac{L}{N} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(N)\right]\left\|F^{\left(i^{*}\right)}-F^{(i)}\right\|
                 \end{align}
         \end{itemize}
         \item \textcite{maillard2013robust} introduce the coherent risk measure for robust risk-averse stochastic bandit problems, where the empirical regret and risk-averse regret are
