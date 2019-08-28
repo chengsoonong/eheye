@@ -1,0 +1,144 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[mathscr]{eucal}
+\usepackage[dvipsnames]{xcolor}
+\DeclareMathOperator*{\argmax}{argmax}
+\usepackage{amsthm}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{textcomp}
+
+%----------------------------------------------------------------------
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\newtheorem{theo}{Theorem}
+
+\title{Regret for Bandits}
+\author{u6015325 }
+\date{August 2019}
+\bibliography{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+There are several different definitions about the evaluation metrics for multi-armed bandits problems. In this article, we will go through the types of bandits problems and the different goal settings of literature. There are two families of bandit algorithms:
+
+\begin{enumerate}
+    \item Exploration-exploitation balance. The usual goal is to maximize the cumulative rewards.
+    \item Explore then commit i.e. Best arm identification problem or pure exploration problem \cite{audibert2010best}. Assume that after a given number of pulls, the forecaster is asked to output a recommended arm. He is then only evaluated by the average payoff of his recommended arm. The goal is to minimize the probability that the recommendation is not the optimal one. 
+\end{enumerate}
+
+In the rest of the article, we will focus on the UCB-type algorithms for the first group. 
+
+\section{Regret based on expected value}
+
+There common choices of the metrics are \footnote{In this article, we use the same notation as https://github.com/Mengyanz/paper/tree/master/writing/HazardUCB}:
+
+\begin{enumerate}
+    \item cumulative regret, which is defined as s the loss in the cumulative rewards resulting from choosing sub-optimal leaves instead of an optimal one:
+    \begin{align}
+        \label{equ: regret}
+        R_{N} \stackrel{\operatorname{def}}{=} \sum_{t=1}^{N} X_{\ast, t}-\sum_{t=1}^{N} \sum_{i = 1}^{K} X_{i, T_i(t)} \mathbb{I}\{A_t = i\},
+    \end{align}
+    where $X_{i,T_i(t)}$ as the reward i.i.d. sampled from $P_i$ in round $t$ (when arm $i$ has been played $T_i(t)$ times),  $\mathbb{I}\{A_t = i\}$ is the indicator function which returns 1 is $A_t = i$ is true, otherwise returns 0, i.e.  $\sum_{i = 1}^{K} X_{i, T_i(t)} \mathbb{I}\{A_t = i\}$ is the reward sampled at the $t$ round.  
+    \item cumulative pseudo-regret, which is defined on the true mean of arm distributions, 
+    \begin{align}
+        \label{equ: pseudo regret}
+        \overline{R}_{N} & \stackrel{\text { def }}{=}
+        N \mu^{*}-\sum_{t=1}^{N} \sum_{i = 1}^{K} \mu_i \mathbb{I}\{A_t = i\}\\
+        &= N \mu^{*}-\sum_{i = 1}^{K} \mu_i \sum_{t=1}^{N}   \mathbb{I}\{A_t = i\}\\
+        \label{equ: pseudo regret simplified}
+        &= N \mu^{*}-\sum_{i = 1}^{K} \mu_i T_i(N)
+    \end{align}
+    The difference between the regret and the pseudo-regret comes from the randomness of the rewards.
+\end{enumerate}
+
+\subsection{Prove $\mathbb{E}[R_N] = \mathbb{E}[\overline{R}_{N}]$}
+
+\begin{theo} (Wald’s Identity). If $Y_1, Y_2, Y_3, ...$ be i.i.d. with finite mean, and $N$ is a stopping time with $\mathbb{E}[N] < \infty$, then $\mathbb{E}\left[Y_{1}+\cdots+Y_{N}\right]=\mathbb{E}\left[Y_{1}\right] \mathbb{E}[N]$.
+\end{theo}
+
+Thanks to Wald's theorem, the regret and pseudo-regret have the same expectation, 
+
+\begin{align}
+    \mathbb{E}[R_N] &= \mathbb{E}\left[\sum_{t=1}^{N} X_{\ast, t}-\sum_{t=1}^{N} \sum_{i = 1}^{K} X_{i, T_i(t)} \mathbb{I}\{A_t = i\}\right]\\
+    &= \mathbb{E}\left[\sum_{t=1}^{N} X_{\ast, t}\right]- \mathbb{E}\left[\sum_{t=1}^{N} \sum_{i = 1}^{K} X_{i, T_i(t)} \mathbb{I}\{A_t = i\}\right] & \text{By expectation linearity}\\
+    &= \mu_\ast N - \sum_{i = 1}^{K} \mu_i \mathbb{E}[T_i(N)] 
+    & \text{By Wald's Theorem}\\
+    \mathbb{E}[\overline{R}_N] &= \mathbb{E}\left[N \mu^{*}-\sum_{i = 1}^{K} \mu_i T_i(N)\right]\\
+    &= \mu_\ast N - \mathbb{E}\left[\sum_{i = 1}^{K} \mu_i T_i(N)\right] & \text{By expectation linearity}\\
+    &= \mu_\ast N - \sum_{i = 1}^{K} \mu_i \mathbb{E}\left[T_i(N)\right] & \text{By expectation linearity}
+\end{align}
+
+\subsection{Decomposition of pseudo-regret}
+
+The pseudo-regret can be decomposed into the weighted sum of sub-optimal draws, where the weighted is the gap $\Delta_i = \mu_\ast - \mu_i$, 
+
+\begin{align}
+    \overline{R}_N &= \sum_{i=1}^K \mu_\ast T_i(N) - \sum_{i = 1}^{K} \mu_i T_i(N) & \text{By } (\ref{equ: pseudo regret simplified}) \text{ and } \sum_{i = 1}^K T_i(N) = N\\
+    &= \sum_{i=1}^K (\mu_\ast - \mu_i) T_i(N)\\
+    &= \sum_{i=1}^K \Delta_i T_i(N)
+\end{align}
+
+Then from last section, we can also get the decomposed version of expected regret and pseudo-regret, 
+
+\begin{align}
+\mathbb{E}[R_N] = \mathbb{E}[\overline{R}_N] = \mathbb{E}\left[\sum_{i=1}^K \Delta_i T_i(N)\right] = \sum_{i=1}^K \Delta_i \mathbb{E}[T_i(N)]
+\end{align}
+
+
+\subsection{Gap between regret and pseudo-regret}
+
+\textcite{coquelin2007bandit} stated the bound of gap between regret and pseudo-regret $|R_N - \overline{R}_N|$, using Azuma’s inequality for martingale difference sequences, with probability
+at least $1 - \beta$, we have at time $N$,
+\begin{align}
+    \left|R_{n}-\overline{R}_{n}\right| \leq \sqrt{|\operatorname{Sub}(n)| \log (2 / \beta) / 2}
+\end{align}
+where $|\operatorname{Sub}(n)|$ is the cardinal of $\operatorname{Sub}(n) \stackrel{\text { def }}{=}\{t \in \left.\{1, \ldots, n\}, I_{t} \neq i^{*}\right\}$.
+
+\section{Risk-averse Regret}
+
+It is not obvious why the expected value is a good summary of the reward distribution. Decision makers who base their decisions on expected values are risk-neutral. A decision maker may would like to avoid risky decisions with unexpected low or negative reward. Those decision makers are called risk-averse. There is no universal definition for risk-averse regret, we show two general form to illustrate the idea of design. 
+    \begin{enumerate}
+         \item \textcite{cassel2018general} showed a general approach for bandits under risk criteria, under the class of \textit{Empirical Distribution Performance Measures(EDPM)}. An EDPM evaluates performance by means of a function $U$ , which maps $\hat{F} \text { to } \mathbb{R}, \text { i.e., } U(\hat{F})=\tilde{U}\left(X_{1}, \ldots, X_{t}\right)$ The expected regret and expected pseudo-regret is 
+        \begin{align}
+            & R_{\pi}(N) :=\mathbb{E}\left[U\left(\hat{F}_{N}^{\pi^{*}(N)}\right)-U\left(\hat{F}_{N}^{\pi}\right)\right]\\
+            & \overline{R}_{\pi}(N) :=\mathbb{E}\left[U\left(F_{p^{*}}\right)-U\left(F_{N}^{\pi}\right)\right]
+        \end{align}
+        where $F_{N}^{\pi}=\frac{1}{N} \sum_{t=1}^{N} F^{\left(\pi_{t}\right)}=\frac{1}{N} \sum_{i=1}^{K} T_{i}(N) F^{(i)},\hat{F}_{t}\left(x_{1}, \ldots, x_{t} ; \cdot\right)=\frac{1}{t} \sum_{s=1}^{t} \mathbb{I}_{\left[x_{s}, \infty\right]}(\cdot) , \hat{F}_{t}^{\pi}(\cdot) :=\hat{F}_{t}\left(X_{1}^{\pi}, \ldots, X_{t}^{\pi} ;\right)$
+        \begin{itemize}
+            \item When $U$ is linear
+            \begin{itemize}
+                \item the expected regret and expected pseudo-regret are same. 
+                \item proxy regret can be decomposed into
+                \begin{align}
+                    R_{\pi}(T)=\frac{1}{T} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(T)\right] \Delta_{i},
+                \end{align}
+                where $\Delta_{i}=U\left(F_{p^{*}}\right)-U\left(F^{(i)}\right)$.\\
+                Note: when U is linear $U(F_T^\pi) = U(\frac{1}{T} \sum_{i=1}^K F_{(i)} T_i(T)) = \frac{1}{T} \sum_{i=1}^K U(F_{(i)}) T_i(T)$.
+                \end{itemize}
+            \item When $U$ is quasiconvex and is strongly stable EDPM (Definition 3 in \cite{cassel2018general}), proxy regret can be bounded by,
+                \begin{align}
+                    \overline{R}_{\pi}(T) \leq \frac{L}{T} \sum_{i \neq i^{*}} \mathbb{E}\left[T_{i}(T)\right]\left\|F^{\left(i^{*}\right)}-F^{(i)}\right\|
+                \end{align}
+        \end{itemize}
+        \item \textcite{maillard2013robust} introduce the coherent risk measure for robust risk-averse stochastic bandit problems, where the empirical regret and risk-averse regret are
+        \begin{align}
+            & \mathfrak{R}_{T}(\lambda) \stackrel{\text { def }}{=} \sum_{i=1}^{T} X_{i, a^{\star}}-\sum_{a=1}^{A} \sum_{i=1}^{N_{T, a}^{\mathbb{Z}}} X_{i, a}=\sum_{i=N_{T, a}^{\infty}, a^{\star}+1}^{T} X_{i, a^{\star}}-\sum_{a \neq a^{\star}} \sum_{i=1}^{N_{T, a}^{\mathbb{2}}} X_{i, a}.\\
+            & \overline{\mathfrak{R}}_{T}(\lambda)=\sum_{a \in \mathcal{A}}\left(\kappa_{-\lambda, \nu_{a^{*}}}-\kappa_{-\lambda, \nu_{a}}\right) \mathbb{E}\left[N_{T, a}\right].
+        \end{align}
+        where $\kappa_{\lambda, \nu}=\frac{1}{\lambda} \log \mathbb{E}_{\nu} \exp (\lambda X)$.
+    \end{enumerate}
+       
+
+\printbibliography
+\end{document}
