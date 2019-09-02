@@ -21,7 +21,7 @@ For example, the $2$-quantile has only one quantile point, which is the middle p
 and it divides the distribution into two even parts. This $2$-quantile point is called the median.
 
 
-\subsubsection{Quantile for a Statistical Population}
+\subsubsection{Definition}
 Generally, the $q$-quantiles have $q-1$ quantile points, and the $k$th $q$-quantile for a 
 distribution $X$ is the data value such that
 $$
@@ -39,28 +39,70 @@ In this paper, the estimation for $\tau$-quantile
 is applied.
 Pinball loss function is one of the approaches for the estimation for a statistical population.
 \\\\
-For a one-dimentional data set $X$ $(X \in \R)$, 
-now consider the loss function for a single data point $x$ $(x \in X)$.
-Let $t := x - q$ be the difference of the real value $x$ and the estimate of quantile $q$.
-$L_{\tau}(\cdot): \R \to \R_{\geq 0}$ is the loss function on $t$ such that
+For a one-dimentional data set $X = \{x_1, x_2, \cdots, x_N\}$, 
+now consider the loss function for a single data point $x$ $(i \in {1, \cdots, N})$.
+Let $t := x - q$ be the difference between the real value $x$ and the estimate of quantile $q$.
+$l_{\tau}(\cdot): \R \to \R_{\geq 0}$ is the loss function on $t$ such that
 $$
-L_\tau(t)= 
+l_\tau(t)= 
     \begin{cases}
         \tau t & t > 0\\
         -(1-\tau) t & otherwise
     \end{cases}
 $$
-The overall loss function
+And the $\tau$-quantile loss has the {\color{red} subgradient}:
+$$
+\frac {\partial l_\tau(t)}{\partial t}= 
+    \begin{cases}
+        \tau                & t > 0\\
+        -(1-\tau)           & t < 0\\
+        [\tau, -(1 - \tau)] & t = 0
+    \end{cases}
+$$
 
+The overall loss for distribution $X$ with quantile estimation $q$ is
+$$
+L_{\tau}(q) = \sum_{x \in X} l_{\tau}(x - q)
+$$
+The best estimate of the $\tau$-quantile $q$ is the $q$ with minimal overall loss. 
+Let $q^\ast$ be the best estimate, then we have
+$$
+q^\ast = \argmin_{q} L_{\tau}(q)
+$$
 
 
 % --------------------------------------------------------------------------------
-%                                Quantile Estimation
+%                                SGD for Quantile Estimation
 % --------------------------------------------------------------------------------
-\section{The Idea of the Algorithm: Applying SGD to Quantile Estimation}
+\section{Quantile Estimation Using SGD}
 
-\subsection{SGD}
+\subsection{SGD for Loss function}
 
-The pinball loss for one 
+Let $q_0$ be the initial guess of quantile estimate. 
+By SGD, the estimate is updated each step with a data point from the distribution.
+$$
+q_{k+1} = q_k - \alpha_k g_k
+$$
+where $ \alpha_k $ is a suitable stepsize and 
+$$
+g_k = \partial L_{\tau}^{(k)}(q_k) \in \frac{\partial l_\tau(x_k - q_k)}{\partial q_k}
+$$ 
+\textbf{Notice: partial is taken because the gradient of a single variable function
+euqals the partial of it}
+\\\\
+Then we have
+$$
+q_{k+1} = 
+    \begin{cases}
+        q_k + \alpha_k \tau               & x_k - q_k > 0\\
+        q_k - \alpha_k (1-\tau)           & x_k - q_k \leq 0\\
+        % [\tau, -(1 - \tau)] & t = 0
+    \end{cases}
+$$
+
+\subsection{Pseudo Code for the Algorithm}
+
+
+
     
 \end{document}
