@@ -1,0 +1,7 @@
+/.idea
+/report/*.aux
+/report/*.aux
+/report/*.fdb_latexmk
+/report/*.fls
+/report/*.log
+/report/*.synctex.gz
