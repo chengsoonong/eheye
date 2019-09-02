@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+
+\input{nams.tex}
+
+\title{Proof of Algorithm Equality}
+
+\begin{document}
+\maketitle
+% --------------------------------------------------------------------------------
+%                                Quantile Estimation
+% --------------------------------------------------------------------------------
+            
+\section{Quantile Estimation}
+
+\subsection{Quantile}
+
+In statistics, quantiles are the points that divide a probability distribution into even intervals.
+The $q$-quantiles devide the distribution into $q$ intervals each with the same amount of data points.
+And there are $q$ quantile points of the $q-$quantiles.
+For example, the $2$-quantile has only one quantile point, which is the middle point of the distribution
+and it divides the distribution into two even parts. This $2$-quantile point is called the median.
+
+
+\subsubsection{Quantile for a Statistical Population}
+Generally, the $q$-quantiles have $q-1$ quantile points, and the $k$th $q$-quantile for a 
+distribution $X$ is the data value such that
+$$
+Pr(X \leq x) \geq \frac{k}{q}
+$$
+and
+$$
+Pr(X \geq x) \geq 1 - \frac{k}{q}
+$$
+where $x \in X$
+
+\subsection{Quantile Estimation and Pinball Loss}
+In this paper, the estimation for $\tau$-quantile 
+($\tau =  \frac{1}{q}, \frac{2}{q}, \cdots, \frac{q-1}{q}$)
+is applied.
+Pinball loss function is one of the approaches for the estimation for a statistical population.
+\\\\
+For a one-dimentional data set $X$ $(X \in \R)$, 
+now consider the loss function for a single data point $x$ $(x \in X)$.
+Let $t := x - q$ be the difference of the real value $x$ and the estimate of quantile $q$.
+$L_{\tau}(\cdot): \R \to \R_{\geq 0}$ is the loss function on $t$ such that
+$$
+L_\tau(t)= 
+    \begin{cases}
+        \tau t & t > 0\\
+        -(1-\tau) t & otherwise
+    \end{cases}
+$$
+The overall loss function
+
+
+
+% --------------------------------------------------------------------------------
+%                                Quantile Estimation
+% --------------------------------------------------------------------------------
+\section{The Idea of the Algorithm: Applying SGD to Quantile Estimation}
+
+\subsection{SGD}
+
+The pinball loss for one 
+    
+\end{document}
