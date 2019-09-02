@@ -1,9 +1,15 @@
 \documentclass[11pt]{article}
 
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+% \usepackage{algpseudocode}
+% \usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
 \input{nams.tex}
 
 \title{Proof of Algorithm Equality}
-
+\author{Yiping Su}
 \begin{document}
 \maketitle
 % --------------------------------------------------------------------------------
@@ -102,7 +108,31 @@ $$
 
 \subsection{Pseudo Code for the Algorithm}
 
+Algorithms can be included using the commands as shown in algorithm \ref{alg:frugal}.
+
+\begin{algorithm}
+\caption{Frugal algorithm}\label{alg:frugal}
+    \begin{algorithmic}[1]
+        \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+        \State {Initialize} $q$               \Comment{Default $q_0$ = 0}
+            \For{$x_k$ in $X$}                  \Comment{Parameter update for each input data point}
+                \State \textbf{set} $\alpha_k$  \Comment{set stepsize}
+                \If{$x_k > q$}                \Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
+                    \State{$q = q + \alpha_k \tau$}
+                \Else                           \Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
+                    \State{$q = q - \alpha_k (1-\tau)$}
+                \EndIf
+            \EndFor\label{frugal_for}
+        \State \textbf{return} $q$  \Comment{The gcd is b}
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+% --------------------------------------------------------------------------------
+%                              Equality of two algorithms 
+% --------------------------------------------------------------------------------
+\section{Equality of Algorithms}
+In this section we'll show that two algorithms are equal as they both are algorithm \ref{alg:frugal}.
 
 
-    
 \end{document}
+
