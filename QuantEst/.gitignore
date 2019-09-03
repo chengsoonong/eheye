@@ -1,0 +1,10 @@
+/.idea
+*.aux
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.pdf
+*.zip
+*.DS_Store
