@@ -105,7 +105,7 @@ introduced the following algorithm \ref{alg:frugal_1U} which
     \end{algorithmic}
 \end{algorithm}
 The output $\tilde{m}$ is the estimate of the $h$th $k$-quantile for a given data stream $S$. 
-By rephrasing of some steps of \textit{Frugal-1U}, 
+By rephrasing of some steps of Frugal-1U, 
 its equilalence to an SGD algorithm for quantile estimation will be shown in the follwing part.
 \\\\
 \textbf{Rephrasing of the Algorithm} \label{replacements}
@@ -143,7 +143,7 @@ its equilalence to an SGD algorithm for quantile estimation will be shown in the
     $\tilde{m}$ in both methods are the same. 
     For example when $s_i > \tilde{m}$, 
     the expected change of $\tilde{m}$ is
-    $E_1[\nabla \tilde{m}] = E[\tilde{m} \times p]$ in the \textit{Frugal-1U} with 
+    $E_1[\nabla \tilde{m}] = E[\tilde{m} \times p]$ in the Frugal-1U with 
     random number generation,
     while 
     $E_2[\nabla \tilde{m}] = \tilde{m} \times p$ in the replacement method.
@@ -200,21 +200,21 @@ $$
 %                              Equality of two algorithms 
 % --------------------------------------------------------------------------------
 \section{Equivalence of Algorithms}
-In this section we'll show the equilalence of algorithm \textit{Frugal-1U} 
-and \textit{SGD}.
+In this section we'll show the equilalence of algorithm Frugal-1U 
+and SGD.
 \\\\
 Besides the replacements mentioned in section \ref{replacements},
 the notations have changed: 
 $X$ is applied for the data stream, and $q$ instead of $\tilde{m}$
 to represent quantile estimate.
-
-The introduction of stepsize $\alpha_k$ for each data point $x_k$
-is the highlight of the \textit{SGD} algorithm.
-Specifically, the setpsize is not mentioned in \textit{Frugal-1U} 
-because it is fixed as $1$. In \textit{SGD} the stepsize might change for every step.
+The introduction of changable stepsize $\alpha_k$ for each data point $x_k$
+is the highlight of the SGD algorithm. The flexibility of stepsize can help
+with achieving a better convergence rate when stepsizes are chosen wisely.
+Specifically, the setpsize is not mentioned in Frugal-1U 
+because it is fixed as $1$. In SGD the stepsize might change for every step.
 
 {\color{red} \textbf{Problem}}
-In \textit{Frugal-1U} the quantile estimate $q$ does not change when $x_k > q$, but in \textit{SGD} 
+In Frugal-1U the quantile estimate $q$ does not change when $x_k > q$, but in SGD 
 the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as different 
 \textbf{subgradient} values for $l_\tau(x_k - q_k)$ 
 {\color{red} \textbf{but then I need to explain subgradient descent}} 
