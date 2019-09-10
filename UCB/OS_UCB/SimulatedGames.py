@@ -1,4 +1,3 @@
-from UCB_discrete import UCB_os_gau, UCB_os_exp, UCB1_os
 import numpy as np
 
 # Options

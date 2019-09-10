@@ -2,6 +2,8 @@ import numpy as np
 from collections import defaultdict
 from scipy.special import erf
 
+OUTLIER_CENTER = 20
+
 
 class Base_env():
     def __init__(self, para):
@@ -24,9 +26,9 @@ class Clinical_env():
     def sample(self):
         return np.random.choice(self.data)
 
-    def L_estimate(self):
+    def L_estimate(self, thr):
         sorted_data = np.asarray(sorted(self.data))
-        L = len(sorted_data[sorted_data <= 100])/len(sorted_data)
+        L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
         return L
         
 class AbsGau(Base_env):
@@ -57,14 +59,14 @@ class AbsGau_Outlier(Base_env):
             if np.random.uniform() <= 0.95:
                 return np.abs(np.random.normal(0, self.para, size)) 
             else:
-                return np.abs(np.random.normal(50,0.1)) 
+                return np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
         else:
             samples = []
             for i in range(size):
                 if np.random.uniform() <= 0.95:
                     s = np.abs(np.random.normal(0, self.para)) 
                 else:
-                    s = np.abs(np.random.normal(50,0.1)) 
+                    s = np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
                 samples.append(s)
             return np.asarray(samples)
                 
@@ -97,14 +99,14 @@ class Exp_Outlier(Base_env):
             if np.random.uniform() <= 0.95:
                 return np.random.exponential(1.0/self.para, size)
             else:
-                return np.abs(np.random.normal(50,0.1)) 
+                return np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
         else:
             samples = []
             for i in range(size):
                 if np.random.uniform() <= 0.95:
                     s = np.random.exponential(1.0/self.para) 
                 else:
-                    s = np.abs(np.random.normal(50,0.1)) 
+                    s = np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
                 samples.append(s)
             return np.asarray(samples)
 
@@ -122,7 +124,7 @@ class Comb(Base_env):
         else:
             return np.random.exponential(self.para, size)
 
-def setup_env(num_arms, envs_setting):
+def setup_env(num_arms, envs_setting, paras):
     """
     Parameter:
     --------------------------------------------------
@@ -135,6 +137,8 @@ def setup_env(num_arms, envs_setting):
                 {Exp:    [2.0, 1.0, 1.5]},
                 {AbsGau: [0.5], Exp: [1.0, 1.5]}
                ]
+    paras: list of paramete
+        rho for MV-LCB: MV = emp_var - rho * emp_meanMV
 
     Return:
     --------------------------------------------------
@@ -152,6 +156,9 @@ def setup_env(num_arms, envs_setting):
     rewards_env = defaultdict(list)
     medians = defaultdict(list)
     samples = defaultdict(list)
+    means = defaultdict(list)
+    mvs = defaultdict(list)
+    cvars = defaultdict(list)
     num_samples = 10000
 
     '''
@@ -177,7 +184,14 @@ def setup_env(num_arms, envs_setting):
                 sample = current_env.sample(num_samples)
                 samples[name].append(sample)
                 medians[name].append(np.median(sample))
-    return rewards_env, medians, samples
+                means[name].append(np.mean(sample))
+                mvs[name].append(np.var(sample) - paras[0] * np.mean(sample))
+                cvars[name].append(CVaR(sample, paras[1]))
+    return rewards_env, medians, means, mvs, cvars, samples
+
+def CVaR(data, alpha):
+    n = int(alpha * len(data) + 1)
+    return np.mean(sorted(data, reverse=True)[:n])
 
 
 
