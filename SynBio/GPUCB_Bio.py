@@ -156,7 +156,7 @@ class GPUCB():
 
     def plot(self):
         
-        fig = plt.figure()
+        #fig = plt.figure()
         ax = plt.axes()
         init_len = len(self.init_arms)
 
