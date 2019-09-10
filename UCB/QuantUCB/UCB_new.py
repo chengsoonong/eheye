@@ -265,3 +265,336 @@ class DummyEnvironment(object):
         
     def sample_withoutnoise(self, x):
         return 10 * np.sin(x)
+
+
+#-------------------------------------------------------------------------------------------
+# copy from UCB_discrete.py 
+# base class can be found in that file
+
+class QuantUCB(UCB_discrete):
+    """Base class for Quantile UCB
+    """
+    def __init__(self, env, num_rounds, bestarm):
+        super().__init__(env, num_rounds, bestarm)
+
+    def quantile(self, data, alpha):
+        """calculate empirical alpha-quantile for given data samples.
+
+        Parameters
+        -----------------------------------
+        data: list
+            sequence of sample rewards
+        alpha: 
+            level of quantile
+
+        Return
+        ------------------------------------
+        quantile: float
+            alpha level quantile of given data
+        """
+        
+        data = np.sort(data)
+        idx = int(len(data) * alpha)
+        return data[idx]
+
+    def sigmoid(self, x):
+        return 1/ (1+ np.exp(-x))
+
+    def alpha_level(self, t, n_selected):
+        """calculate the alpha level for quantile.
+        
+        Parameters
+        -----------------------------------
+        t: int
+            the current round
+
+        n_selected: int
+            the number of times arm j was selected up to the current round
+
+        Return
+        -----------------------------------
+        alpha: float 
+            between 0 and 1, alpha level for quantile
+        """
+        #alpha = np.sqrt(np.log(t)/n_selected)
+        alpha = self.sigmoid(np.log(np.sqrt(10.0/n_selected)))
+        #print('alpha: ', alpha)
+        return alpha
+
+        # ugly control here, need to be fixed
+        #if alpha >= 1:
+        #    return 0.8
+        #else: 
+        #    return alpha
+
+class QuantUCB_Gau(UCB_discrete):
+    """Quantile UCB with Gaussian rewards. 
+       For now, we assume the env is exposed to calculate alpha but not exposed to player.
+       For now, instead of using estimated quantile, we first plug alpha into true quantile function.
+    """
+    def __init__(self, env, num_rounds, bestarm):
+        super().__init__(env, num_rounds, bestarm)
+
+    def emp_quantile(self, data, alpha):
+        """calculate empirical alpha-quantile for given data samples.
+
+        Parameters
+        -----------------------------------
+        data: list
+            sequence of sample rewards
+        alpha: 
+            level of quantile
+
+        Return
+        ------------------------------------
+        quantile: float
+            alpha level quantile of given data
+        """
+        
+        data = np.sort(data)
+        idx = int(len(data) * alpha)
+        return data[idx]
+
+    def linear_inter_quant(self, alpha, data):
+        """implement linear interpolation for quantile estimation.
+        
+        Parameters
+        -----------------------------------
+        data: list
+            sequence of sample rewards
+        alpha: 
+            level of quantile
+
+        Return
+        ------------------------------------
+        quantile: float
+            alpha level quantile of given data
+        """
+        size = len(data) 
+        data = list(data)
+        data.append(-2)
+        data = np.sort(data)
+        s = int(alpha * size) 
+        rate = (data[s + 1] - data[s]) * size
+        #b = data[s] * (1-s) - data[s+1]
+        #return rate * alpha + b
+        return rate * (alpha - float(s)/size) + data[s]
+
+    def quantile(self, i, alpha):
+        """Calculate true quantile for distribution of given alpha
+        """
+        #return self.env[i].loc + self.env[i].scale * np.sqrt(2) * self.inv_erf(2 * alpha - 1)
+        return np.mean(self.sample_rewards[i]) + self.env[i].scale * np.sqrt(2) * self.inv_erf(2 * alpha - 1)
+    
+    def erf(self,x):
+        """Approximate erf with maximum error 1.5 * 10^(-7)
+        """
+        a1=  0.0705230784
+        a2=  0.0422820123
+        a3=  0.0092705272
+        a4=  0.0001520143
+        a5=  0.0002765672
+        a6=  0.0000430638
+
+        return 1.0 - 1.0/(1+ a1 * x + a2 * x**2 + a3 * x**3 + a4 * x**4 + a5 * x**5 + a6 * x**6)**16
+
+    def inv_erf(self,x):
+        "Approximate inverse erf"
+        a = 0.140012
+        temp = 2.0/(np.pi * a) + np.log(1-x**2)/2.0
+        return np.sign(x) * np.sqrt((np.sqrt(temp**2 - np.log(1-x**2)/a) - temp))
+
+    def alpha_level(self, t, n_selected):
+        """calculate the alpha level for quantile.
+        
+        Parameters
+        -----------------------------------
+        t: int
+            the current round
+
+        n_selected: int
+            the number of times arm j was selected up to the current round
+
+        Return
+        -----------------------------------
+        alpha: float 
+            between 0 and 1, alpha level for quantile
+        """
+        return 0.5 * (self.erf(2 * np.sqrt(np.log(t)/n_selected)) + 1)
+
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        ucbs = []
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            mean_reward = np.mean(reward)
+            
+            # choice 1: compute ucb using true quantiles
+            # quant = self.quantile(arm, self.alpha_level(t, len(reward)))
+            
+            # choice 2: compute ucb using estimated quantiles with linear interpolation
+            # quant = self.linear_inter_quant(self.alpha_level(t, len(reward)), reward) 
+
+            # choice 3: empirical quantiles + sqrt(2lnt/s)
+            # quant = self.linear_inter_quant(self.alpha_level(t, len(reward)), reward) + np.sqrt(2 * np.log(t)/len(reward))
+
+            # choice 4: empirical quantile difference with fixed alpha (0.9, 0.1) + sqrt(2 lnt/s)
+            # quant = self.linear_inter_quant(0.9, reward) - self.linear_inter_quant(0.5, reward) + np.sqrt(2 * np.log(t)/len(reward))
+
+            # choice 5: ucb1 tuned
+            quant = np.var(reward) + np.sqrt(2 * np.log(t)/len(reward))
+
+            #print('arm ', arm, 'mean reward: ', mean_reward, ' quant:', quant)
+            #print('mean + quant: ', mean_reward + quant)
+            
+            # mean + beta * quantile
+            beta = np.sqrt(np.log(self.num_rounds)/len(reward))
+
+            # mean + quantile 
+            #beta = 1
+
+            ucbs.append(mean_reward + beta * quant)
+            
+        assert len(ucbs) == len(self.env)
+        return np.argmax(ucbs)
+
+class QuantUCB_MUQ(QuantUCB):
+    """QuantUCB by maximizing upper quantiles
+    """
+    def __init__(self, env, num_rounds, bestarm):
+        super().__init__(env, num_rounds, bestarm)
+
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        ucbs = []
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            quant = self.quantile(reward, self.alpha_level(t, len(reward)))
+            #print('arm ', arm, 'mean reward: ', np.mean(reward), ' quant:', quant)
+            #print('np.sqrt(np.log(t)) * quant: ', np.sqrt(np.log(t)/len(reward)) * quant)
+            ucbs.append(np.mean(reward) + np.sqrt(np.log(t)/len(reward)) * quant)
+            
+        assert len(ucbs) == len(self.env)
+        return np.argmax(ucbs)
+
+class QuantUCB_MMQD(QuantUCB):
+    """QuantUCB by maximizing the sum of mean and quantile differences
+    """
+    def __init__(self, env, num_rounds, bestarm):
+        super().__init__(env, num_rounds, bestarm)
+
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        ucbs = []
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            quant = self.quantile(reward, self.alpha_level(t, len(reward)))
+            median = self.quantile(reward, 0.5)
+            #print('arm ', arm, 'mean reward: ', np.mean(reward), ' quant:', quant, ' median: ', median)
+            ucbs.append(np.mean(reward) + quant - median)
+            
+        assert len(ucbs) == len(self.env)
+        return np.argmax(ucbs)
+
+class CVaRUCB(UCB_discrete):
+    """Base class for CVaR UCB
+    """
+    def CVaR(self, data, alpha):
+        """calculate alpha-CVaR for given data samples.
+
+            Parameters
+            -----------------------------------
+            data: list
+                sequence of sample rewards
+            alpha: 
+                level of quantile
+
+            Return
+            ------------------------------------
+            quantile: float
+                alpha level quantile of given data
+        """
+        data = np.sort(data)
+        idx = int(len(data) * alpha)
+        CVaR = np.mean(data[idx:])
+        return CVaR
+
+    def sigmoid(self, x):
+        return 1/ (1+ np.exp(-x))
+
+    def alpha_level(self, t, n_selected):
+        """calculate the alpha level for quantile.
+        
+        Parameters
+        -----------------------------------
+        t: int
+            the current round
+
+        n_selected: int
+            the number of times arm j was selected up to the current round
+
+        Return
+        -----------------------------------
+        alpha: float 
+            between 0 and 1, alpha level for quantile
+        """
+        alpha = np.sqrt(np.log(t)/n_selected)
+        return self.sigmoid(alpha)
+        ##print(alpha)
+
+        # ugly control here, need to be fixed
+        #if alpha >= 1:
+        #    return 0.8
+        #else: 
+        #    return alpha
+    
+    def argmax_ucb(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        ucbs = []
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            CVaR = self.CVaR(reward, self.alpha_level(t, len(reward)))
+            ucbs.append(np.mean(reward) + CVaR)
+        assert len(ucbs) == len(self.env)
+        return np.argmax(ucbs)
+
