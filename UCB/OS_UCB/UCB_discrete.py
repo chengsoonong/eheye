@@ -187,7 +187,9 @@ class H_UCB(UCB_discrete):
         for i in range(len(self.env)):
             
             my_env = self.env[i]
-            if 'pdf' in dir(my_env):
+            #if 'pdf' in dir(my_env):
+            #print(hasattr(my_env, 'pdf'))
+            if hasattr(my_env, 'pdf'):
                 # if pdf and cdf is defined
                 x = 0
                 L = my_env.pdf(x)/ (1- my_env.cdf(0))  
@@ -308,54 +310,6 @@ class H_UCB(UCB_discrete):
                 bound+= (1+ np.pi**2/3) * delta
             bounds.append(bound)
         return bounds
-
-
-    def __init__(self, env, medians, num_rounds, 
-                 est_flag, hyperpara, evaluation):
-        """
-        est_flag: whether estimate lower bound of hazard rate
-        """
-        super().__init__(env, medians, num_rounds, 
-                 est_flag, hyperpara, evaluation)
-
-    def init_L(self):
-        """Initialise the true_L_list for the use of true L,
-        where L is the lower bound of hazard rate.
-        L = f(0)/ (1 - F(0))
-        """
-        for i in range(len(self.env)):
-            my_env = self.env[i]
-            L = my_env.L_estimate()
-            assert L > 0
-            self.true_L_list.append(L)
-
-    def Calcu_L(self, arm_idx):
-        """estimate the lower bound L of hazard rate for 
-           a reward distribution specified by arm_idx
-           (with the assumption of non-decreasing hazard rate)
-        
-        Parameter
-        ---------------------------------------
-        arm_idx: int
-            the index of arm needed to be estimate
-        
-        Return
-        ----------------------------------------
-        L: positive float
-            the lower bound of hazard rate for arm idx
-        """
-
-        if self.est_flag:
-            # estimate L
-            # To be finished
-            sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
-            L = len(sorted_data[sorted_data <= 100])/len(sorted_data)
-            if L  == 0:
-                L = 0.1
-            return L
-        else:
-            # true L = f(0)/ (1 - F(0))
-            return self.true_L_list[arm_idx]
 
 class UCB1(UCB_discrete):
     """Implement for UCB1 algorithm
@@ -561,6 +515,133 @@ class MARAB(UCB_discrete):
         bounds = []
         return bounds
 
+class Exp3():
+    # implementation based on https://github.com/j2kun/exp3
+    def __init__(self, env, medians, num_rounds, 
+                 est_flag, hyperpara, evaluation, 
+                 rewardMin = 0, rewardMax = 20):
+        """
+        Arguments
+        ------------------------------------
+        hyperpara: gamma, an egalitarianism factor
+
+        weights: list
+            sequence of each actions' weight
+        n_arm: number of arms
+        """
+        self.env = env
+        self.num_rounds = num_rounds
+        self.medians = medians
+        self.gamma, self.rewardMin, self.rewardMax = hyperpara
+        self.evaluation = evaluation
+
+        self.bestarm = np.argmax(medians)
+        self.sample_rewards = defaultdict(list)
+        self.n_arms = len(self.env)
+        self.weights = [1.0] * self.n_arms
+
+        self.cumulativeRegrets = []
+        self.suboptimalDraws = []
+        self.bestDraws = []
+
+    def draw(self, t):
+        """Compute upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+        choice = np.random.uniform(0, sum(self.weights))
+        #print(sum(self.weights))
+
+        choiceIndex = 0
+
+        for weight in self.weights:
+            choice -= weight
+            if choice <= 0:
+                return choiceIndex
+
+            choiceIndex += 1
+
+    def distr(self):
+        theSum = float(sum(self.weights))
+        return tuple((1.0 - self.gamma) * (w / theSum) + (self.gamma / self.n_arms) for w in self.weights)
+
+    def sample(self, idx):
+        """sample for arm specified by idx
+
+        Parameters
+        -----------------------------
+        idx: int
+            the idx of arm with maximum ucb in the current round
+        
+        Return
+        ------------------------------
+        reward: float
+            sampled reward from idx arm
+        """
+        reward = self.env[idx].sample()
+        self.sample_rewards[idx].append(reward)
+        return reward
+
+    def play(self):
+        """Simulate Exp3 algorithms for specified rounds.
+        """ 
+        
+        for i in range(self.num_rounds):
+            probabilityDistribution = self.distr()
+            choice = self.draw(probabilityDistribution)
+            theReward = self.sample(choice)
+            scaledReward = (theReward - self.rewardMin) / (self.rewardMax - self.rewardMin) # rewards scaled to 0,1
+
+            estimatedReward = 1.0 * scaledReward / probabilityDistribution[choice]
+            self.weights[choice] *= np.exp(estimatedReward * self.gamma / self.n_arms) # important that we use estimated reward here!
+            self.evaluate(i)
+        #return choice, theReward, estimatedReward
+
+    def evaluate(self, t):
+        """Evaluate the policy
+            sd: sub-optimal draws
+            r: regret
+            bd: percent of best draws
+ 
+        Parameters
+        -----------------------------
+        t: current time 
+
+        Return
+        -----------------------------
+        None
+        """
+        for i in self.evaluation:
+            if i == 'sd': 
+                sd = 0
+                for key, value in self.sample_rewards.items():
+                    if key != self.bestarm:
+                        sd += len(value)
+                self.suboptimalDraws.append(sd)
+            if i == 'r':
+                regret = 0
+                for key, value in self.sample_rewards.items():
+                    median_diff = self.medians[self.bestarm] - self.medians[key]
+                    regret += median_diff * len(value)
+                self.cumulativeRegrets.append(regret)
+            if i == 'bd':
+                bd = float(len(self.sample_rewards[self.bestarm]))/t
+                self.bestDraws.append(bd)
+
+    def sd_bound(self):
+        """return sub-optimal draws bound list"""
+        return self.suboptimalDraws
+        
+    def r_bound(self):
+        """return regret bound list"""
+        return self.cumulativeRegrets
 
 class test_policy(UCB_discrete):
     """class for test policy: 

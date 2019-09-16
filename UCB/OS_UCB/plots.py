@@ -105,11 +105,15 @@ def plot_eva_for_paper(results, eva_method):
     for i, name in enumerate(results.keys()):
         plt.subplot(len(results.keys()),3, i+1)
         #plt.subplots(1,1, sharey = 'row')
-        plt.title('Group ' + Plot_number_dict[i+1])
+        if 'Outlier' in name:
+            plt.title('With Outliers')
+        else:
+            plt.title('Without Outliers')
         plt.xlabel('Iterations')
         plt.ylabel('Expected ' + ylabel_dict[eva_method])
         for j, subname in enumerate(results[name].keys()): 
             label = subname.split('-')[0] 
+            label = label.replace('_', '-')
             if subname != 'bound': 
                 plt.plot(range(len(results[name][subname][eva_method])), 
                         results[name][subname][eva_method], 
@@ -140,12 +144,14 @@ def plot_eva_for_clinical(results, eva_method):
     for i, name in enumerate(results.keys()):
         plt.subplot(len(results.keys()),3, i+1)
         #plt.subplots(1,1, sharey = 'row')
-        plt.title('STES Treatment Experiment')
+        data_name = name.split('_')[0]
+        plt.title(data_name + ' Treatment Experiment')
         plt.xlabel('Iterations')
         plt.ylabel('Expected ' + ylabel_dict[eva_method])
         for j, subname in enumerate(results[name].keys()): 
             label = subname.split('-')[0] 
-            if label == 'MV_LCB':
+            label = label.replace('_', '-')
+            if label == 'MV-LCB':
                 if subname[10] == ',':
                     label+= '(50)'
                 else:
@@ -159,7 +165,7 @@ def plot_eva_for_clinical(results, eva_method):
                         markevery = 100,
                         markersize = 5)
         plt.legend(loc="upper left")
-    file_name = 'STES_treatmet.pdf'
+    file_name = data_name +'_treatmet.pdf'
     plt.savefig(file_name, bbox_inches='tight')
 
 def plot_log_curve_fit(list_to_be_fit, name):
@@ -215,7 +221,12 @@ def plot_hist_for_paper(sample_dict):
     for key, value in sample_dict.items():
         j += 1
         f = plt.subplot(len(sample_dict.keys()),3, j)
-        plt.title('Group ' + Plot_number_dict[j])
+        print(key)
+        if 'Outlier' in key:
+            plt.title('With Outliers')
+        else:
+            plt.title('Without Outliers')
+        #plt.title('Group ' + Plot_number_dict[j])
         plt.xlabel('Reward')
         plt.ylabel('Frequency')
 
