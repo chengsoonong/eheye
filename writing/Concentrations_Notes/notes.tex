@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[mathscr]{eucal}
+\usepackage[dvipsnames]{xcolor}
+\DeclareMathOperator*{\argmax}{argmax}
+\usepackage{amsthm}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{textcomp}
+\usepackage{thmtools}
+\usepackage{thm-restate}
+
+%----------------------------------------------------------------------
+\topmargin -.5in
+\textheight 9in
+\oddsidemargin -.25in
+\evensidemargin -.25in
+\textwidth 7in
+
+\newtheorem{theo}{Theorem}
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+
+\title{Concentration Notes}
+\author{u6015325 }
+\date{\today}
+\bibliography{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+\section{Our Work}
+
+This note shows the concentration analysis for our recent paper \textit{Median-based Bandits for Unbounded Rewards}. In this paper, we propose a Bernstein like inequality for quantiles.
+\begin{restatable}[Bernstein Inequality for Quantiles]{theo}{BernQuant}
+\label{theo: Bernstein Inequality for Quantiles.}
+Let $X_{\left(1\right)} \geq X_{\left(2\right)} \geq ... \geq X_{\left(n\right)}$ denote the order statistics of $X_1, ..., X_n$, and $X_{(qn)}$ is the empirical $q$-quantile (assume $qn$ is an integer, $q \in (0, \frac{1}{2}]$).
+Define $v_n = \frac{1}{q^2 n L^2}$, with non-decreasing hazard rate Assumption and $L$ as the lower bound of the hazard rate.
+For all $\lambda$ such that $0 \leq \lambda< \frac{1}{2} \sqrt{\frac{n}{v_n}}$,
+\begin{align}
+    \label{equ: log mgf for quantile}
+    \log \mathbb{E}\left[e^{\lambda\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \right)}\right] \leq  \frac{\lambda^{2}  v_{n}}{2 \left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}.
+\end{align}
+For all $\varepsilon > 0$, we obtain the concentration inequality
+\begin{align}
+    \label{equ: bernstein ineq for quantile}
+    \mathbb{P}\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right) \leq e^{-\varepsilon},
+    %\label{inequality Bernstein lower bound for abr}
+    %\mathbb{P}\left\{\mathbb{E}[X_{\left(qn\right)}] - X_{\left(qn\right)}\geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right\} \leq e^{-\varepsilon}.
+\end{align}
+\end{restatable}
+
+Plugging $v_n$ into the confidence width term, we have 
+\begin{align}
+& \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\\
+=& \frac{\sqrt{2n\varepsilon} + 2 \varepsilon}{qnL}
+\end{align}
+
+Using this concentration inequality to design the bandit policy, the topical choice of $\varepsilon$ is $\alpha log t$, where $t$ is the current round, $\alpha$ is the hyper-parameter. Since the policy is designed for empirical medians, we let $q = \frac{1}{2}$, then confidence width term can be shown as 
+\begin{align}
+    \sqrt{\alpha \log t} \left( \frac{2\sqrt{2}}{\sqrt{n}L} + \sqrt{\alpha \log t} \frac{4}{nL}\right)
+\end{align}.
+
+The concentration inequality allows the tradeoff between the 'fast rate' ($O(\frac{1}{n})$) and 'slow rate' ($O(\frac{1}{\sqrt{n}})$) of convergence by choosing the value of $\alpha$. [Not sure whether the conclusion is correct]. See \cite{van2015fast}.
+
+\section{Related Work}
+
+\textcite{cassel_general_2018} proposed the general framework for bandit under risk criteria. For $\varepsilon > 0$, the concentration inequaltiy for median is 
+\begin{align}
+    \mathbb{P}\left(\hat{m} - \mathbb{E}[\hat{m}] \geq 2b \sqrt{\frac{\log 4n + \varepsilon}{n}}\right) \leq  e^{- \varepsilon},
+\end{align}
+which is derived based on Hoeffding inequality and requires bounded reward support.
+
+\textcite{kolla_concentration_2019} proved the concentration inequality for quantiles based on the Dvoretzky–Kiefer–Wolfowitz (DKW) inequality. Especially, for any $\varepsilon >0$,  the tail probability bound for empirical medians is 
+\begin{align}
+\label{equ: Concentration inequality for quantiles based on DKW}
+    P \left(\hat{m} - \mathbb{E}[\hat{m}] \geq \sqrt{\frac{\varepsilon}{2nc}}\right) \leq e^{- \varepsilon},
+\end{align}
+where $c$ is a constant that depends on the value of the density $f$ of $X$ in a neighbourhood of $\hat{m}$.
+Note that this bound depends on the value of $c$. When $c$ approaches 0, the bound is useless.
+
+
+
+
+\end{document}
