@@ -127,9 +127,9 @@ def plot_eva_for_clinical(results, eva_method):
                         markersize = 5)
             
             if eva_method == 'sd':
-                plt.ylim([-20, 360])
+                plt.ylim([-20, 400])
             elif eva_method == 'r':
-                plt.ylim([-1000, 18000])
+                plt.ylim([-1000, 20000])
                 plt.ticklabel_format(style='sci', axis='y',  scilimits=(0,0))
         plt.legend(loc="upper left")
     file_name = data_name +'_treatmet_' + eva_method + '.pdf'

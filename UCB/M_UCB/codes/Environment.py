@@ -76,7 +76,7 @@ class Exp(Base_env):
         return np.random.exponential(1.0/self.para, size)
 
 class Exp_Outlier(Base_env):
-     """Env for Exponential Distribution with outliers.
+    """Env for Exponential Distribution with outliers.
     """
     def __init__(self, para):
         super().__init__(para) 
