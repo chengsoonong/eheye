@@ -1,67 +1,74 @@
 import numpy as np
 
-# Options
-# est_var (True, False), 
-# evaluation (sub-optimal draws (sd), regret (r), % best arm draws (bd))
-# hyperparameters: alpha, beta
+# Version: 25/Oct/2019
+# This file implements the simulated games for bandits algorithm. 
 
-def simulate(env, medians, policy, num_exper, num_rounds, est_var, 
-            hyperpara, evaluation, p):
-    """
-    simulate multi-armed bandit games. 
+# Mengyan Zhang, Australian National University; Data61, CSIRO.
+
+def simulate(env, summary_stat, policy, num_expers, num_rounds,
+             est_var, hyperpara, p):
+    """Simulate bandit games. 
 
     Paramters
     --------------------------------------------------------
-    env: Environment object
-    medians: list of medians of arms 
-    policy: one of UCB_os_gau, UCB_os_exp, UCB1_os
-    num_exper: int, number of independent experiments 
-    num_rounds: int, number of total round for one game
-    est_var: boolean, True indicates estimate variance
-    hyperpara: list, [alpha, beta]
-    evaluation: list of evaluation methods
-                ['sd', 'r', 'bd']
+    env: list
+        sequence of instances of Environment (reward distribution of arms).
+    summary_stat: list
+        sequence of summary statistics of arms, e.g. median, mean, etc. 
+    policy: instance of UCB_discrete 
+        one of M_UCB, UCB1, UCB-V, MV-LCB, Exp3
+    num_expers: int
+        total number of experiments
+    num_rounds: int
+        total number of rounds. 
+    
+    est_var: boolean, True indicates estimate parameters 
+        e.g. lower bound of hazard rate L
+    hyperpara: list of parameters
+        parameters depending on different algorithms
+
     p: object of ipywidgets.IntProgress
         show process bar when running experiments
     """
     sds = []
     rs = []
-    bds = []
-    bound = {}
 
-    for i in range(num_exper):
+    for i in range(num_expers):
         p.value += 1
-        agent = policy(env, medians, num_rounds, est_var, hyperpara, evaluation)
+        agent = policy(env, summary_stat, num_rounds, hyperpara = hyperpara, est_flag = est_var)
         agent.play()
-        if 'sd' in evaluation:
-            sds.append(agent.suboptimalDraws)
-        if 'r' in evaluation:
-            rs.append(agent.cumulativeRegrets)
-        if 'bd' in evaluation:
-            bds.append(agent.bestDraws)
-    eva_dict = evaluate(sds, rs, bds, num_exper, num_rounds)
-    bound['sd'] = agent.sd_bound()
-    bound['r'] = agent.r_bound()
-    #return eva_dict, bound, agent.estimated_para
-    return eva_dict, bound
+        sds.append(agent.suboptimalDraws)
+        rs.append(agent.cumulativeRegrets)
+
+    eva_dict = evaluate(sds, rs)
+    return eva_dict
 
 
-def evaluate(sds, rs, bds, num_exper, num_rounds):
+def evaluate(sds, rs):
+    """Calculated expected evaluation metrics (suboptimal draws, regret)
+
+    Parameters
+    ----------------------------------------------------
+    sds: list 
+        len: num_exper; list of sub-optimal draws for each experiment
+    rs: list
+        len: num_exper; list of cumulative regrets for each experiment
+
+    Returns
+    ----------------------------------------------------
+    eva_dict: dict
+        key: name of evaluation metrics
+            one of 'sd' and 'r'
+        value: array with shape 1 * num_rounds
+    """
     eva_dict =  {}
     if len(sds) > 0:
-        #sd = np.asarray(sds).reshape((num_exper, num_rounds-3))
         sds = np.asarray(sds)
         eva_sd = np.mean(sds, axis = 0)
         eva_dict['sd'] = eva_sd
     if len(rs) > 0:
-        #r = np.asarray(agent.cumulativeRegrets).reshape((num_exper, num_rounds-3))
         rs = np.asarray(rs)
         eva_r = np.mean(rs, axis = 0)
         eva_dict['r'] = eva_r
-    if len(bds) > 0:
-        #bd = np.asarray(agent.bestDraws).reshape((num_exper, num_rounds-3))
-        bds = np.asarray(bds)
-        eva_bd = np.mean(bds, axis = 0)
-        eva_dict['bd']  = eva_bd
     return eva_dict
     

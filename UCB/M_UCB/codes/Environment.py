@@ -2,8 +2,12 @@ import numpy as np
 from collections import defaultdict
 from scipy.special import erf
 
-OUTLIER_CENTER = 20
+# Version: 25/Oct/2019
+# This file implements the environment construction for bandits algorithm. 
 
+# Mengyan Zhang, Australian National University; Data61, CSIRO.
+
+OUTLIER_CENTER = 20
 
 class Base_env():
     def __init__(self, para):
@@ -12,26 +16,9 @@ class Base_env():
     def sample(self, size = None):
         pass
 
-class Clinical_env():
-    def __init__(self, data):
-        """
-        Parameters:
-        ------------------------------------------
-        num_arms: int
-        data: sequence of samples 
-        """
-
-        self.data = data
-    
-    def sample(self):
-        return np.random.choice(self.data)
-
-    def L_estimate(self, thr):
-        sorted_data = np.asarray(sorted(self.data))
-        L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
-        return L
-        
 class AbsGau(Base_env):
+    """Env for Absolute Gaussian Distribution.
+    """
     def __init__(self, para):
         super().__init__(para) 
 
@@ -45,6 +32,8 @@ class AbsGau(Base_env):
         return np.abs(np.random.normal(0, self.para, size))
 
 class AbsGau_Outlier(Base_env):
+    """Env for Absolute Gaussian Distribution with outliers.
+    """
     def __init__(self, para):
         super().__init__(para) 
 
@@ -72,6 +61,8 @@ class AbsGau_Outlier(Base_env):
                 
 
 class Exp(Base_env):
+    """Env for Exponential Distribution.
+    """
     def __init__(self,para):
         super().__init__(para)
 
@@ -85,6 +76,8 @@ class Exp(Base_env):
         return np.random.exponential(1.0/self.para, size)
 
 class Exp_Outlier(Base_env):
+     """Env for Exponential Distribution with outliers.
+    """
     def __init__(self, para):
         super().__init__(para) 
 
@@ -110,24 +103,41 @@ class Exp_Outlier(Base_env):
                 samples.append(s)
             return np.asarray(samples)
 
+class Clinical_env():
+    """Environment class for clinical data.
+    """
+    def __init__(self, data):
+        """
+        Parameters:
+        ------------------------------------------
+        data: sequence of samples 
+        """
+        self.data = data
+    
+    def sample(self):
+        return np.random.choice(self.data)
 
-class Comb(Base_env):
-    def __init__(self,para):
-        super().__init__(para)
-   
-    def sample(self, arm, size = None):
+    def L_estimate(self, thr):
+        """Estimation of lower bound of hazard rate (L).
+
+        Parameters
+        ------------------------------------------------
+        thr: float
+            threshold of estimation.
         """
-        assum the first arm is AbsGau, the other two are Exp
-        """
-        if arm == 0:
-            return np.abs(np.random.normal(0, self.para, size))
-        else:
-            return np.random.exponential(self.para, size)
+        sorted_data = np.asarray(sorted(self.data))
+        L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
+        return L
+
+
 
 def setup_env(num_arms, envs_setting, paras):
-    """
+    """Setup environment for simulations.
+
     Parameter:
     --------------------------------------------------
+    num_arms: int
+        number of arms
     envs_setting: list of env dict
         keys: instance of environment class 
             (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
@@ -146,11 +156,13 @@ def setup_env(num_arms, envs_setting, paras):
         keys: name of environment 
             e.g. AbsGau_Outlier_[0.5, 1, 1.5]
         values: list of env instances
-    medians: dict of list
+    medians: dict of list for medians
         keys: name of environment 
             e.g. AbsGau_Outlier_[0.5, 1, 1.5]
         values: list of medians
-    
+    means: dict of list for means
+    mvs: dict of list for mean-variance
+    samples: dict of list for samples
     """
     
     rewards_env = defaultdict(list)
@@ -158,20 +170,9 @@ def setup_env(num_arms, envs_setting, paras):
     samples = defaultdict(list)
     means = defaultdict(list)
     mvs = defaultdict(list)
-    cvars = defaultdict(list)
     num_samples = 10000
 
-    '''
-    for env, para in envs_setting.items():
-        
-        for i in range(num_arms):
-            current_env = env(para[i])
-            rewards_env[env_name].append(current_env)
-            medians[env_name].append(np.median(current_env.sample(i, num_samples)))
-    '''
-
     for envs_dict in envs_setting:
-        
         name = ''
         for env, para_list in envs_dict.items():
             env_name = str(env).split('.')[-1][:-2]
@@ -186,12 +187,8 @@ def setup_env(num_arms, envs_setting, paras):
                 medians[name].append(np.median(sample))
                 means[name].append(np.mean(sample))
                 mvs[name].append(np.var(sample) - paras[0] * np.mean(sample))
-                cvars[name].append(CVaR(sample, paras[1]))
-    return rewards_env, medians, means, mvs, cvars, samples
+    return rewards_env, medians, means, mvs, samples
 
-def CVaR(data, alpha):
-    n = int(alpha * len(data) + 1)
-    return np.mean(sorted(data, reverse=True)[:n])
 
 
 
