@@ -339,13 +339,14 @@ class MV_LCB(UCB_discrete):
     ---------------------------------------------------------------
     hyperpara: list of 
         rho: risk tolerance
+        beta: balance the mean-variance (mv) and confidence width (cw)
     theta: term in the confidence width
     bestarm: int
         arm with minimum lower confidence width
     """
     def __init__(self, env, summary_stats, num_rounds, **kwargs):
         super().__init__(env, summary_stats, num_rounds)
-        self.rho = kwargs.get('hyperpara', None)[0]
+        self.rho, self.beta = kwargs.get('hyperpara', None)
         self.theta = 1/(num_rounds ** 2)
         self.bestarm = np.argmin(self.summary_stats)
 
@@ -367,16 +368,12 @@ class MV_LCB(UCB_discrete):
             emp_mean = np.mean(reward)
             emp_var = np.var(reward)
             MV = emp_var - self.rho * emp_mean
-            # ! last version is  
-            # ! cw = (5 + self.rho) * np.sqrt(np.log(1/self.theta)/ len(reward))
-            # ! see whether it influence the results a lot
-            cw = (5 + self.rho) * np.sqrt(np.log(1/self.theta)/ len(reward))
-            ucbs.append( MV - cw)
+            cw = (5 + self.rho) * np.sqrt(np.log(1/self.theta)/len(reward))
+            ucbs.append( MV - self.beta * cw)
         return np.argmin(ucbs)   
     
 class Exp3(Bandits_discrete):
     """implementation Exp3 based on https://github.com/j2kun/exp3
-    # ! Confirm whether need to rewrite
 
     Arguments
     ------------------------------------
