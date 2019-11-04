@@ -1,4 +1,4 @@
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+import numpy as np
 
 # 2nd Nov 2019
 # Mengyan Zhang
@@ -6,21 +6,25 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 class Embedding():
     """Embedding for biological sequences.
     """
-    def __init__(data):
+    def __init__(self, data):
         """
         Parameters
         --------------------------------------
         data: ndarray 
-            {A, G, C, T} ^ {num_seq x num_bases}
+            (num_seq, ) (each element is a biological sequence)
         """
         self.data = data
-        self.num_seq, self.num_bases = data.shape
+        # self.num_seq, self.num_bases = data.shape
+        self.num_seq,  = data.shape
+        self.num_bases = len(data[0])
 
-        self.alphabet = ['A','C','G','T']
-        self.label_encoder.fit(np.array(self.alphabet))
-
-    def onehot_encoder():
+    def onehot(self):
         """One-hot embedding.
+
+        Returns
+        --------------------------------------------
+        embedded_data: ndarray
+            {0, 1}^{num_seq x num_bases * 4}
         """
         bases = ['A','C','G','T']
         base_dict = dict(zip(bases,range(4))) # {'A' : 0, 'C' : 1, 'G' : 2, 'T' : 3}
@@ -35,20 +39,18 @@ class Embedding():
                 embedded_data[i, b * 4 + base_dict[seq[b]]] = 1
         return embedded_data
 
-    def kmer():
+    def kmer(self):
         """k-merization embedding.
            See https://en.wikipedia.org/wiki/K-mer.
            Tutorial (https://www.kaggle.com/thomasnelson/working-with-dna-sequence-data-for-ml#Machine-learning-with-DNA-sequence-data
         """
 
 
-    def PMF():
+    def PMF(self):
         """Position weight matrix.
             See https://davetang.org/muse/2013/10/01/position-weight-matrix/
         """
 
-    def spectrum_kernel():
-
-
-
-
+    def spectrum_kernel(self):
+        """Spectrum kernel
+        """
