@@ -69,7 +69,3 @@ def plot_eva(results, eva_method, paper_flag = True):
     plt.legend(loc="upper left")
     #file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
     #plt.savefig(file_name, bbox_inches='tight')
-
-'''
- 
-'''

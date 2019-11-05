@@ -15,13 +15,15 @@ class Bandits_discrete(ABC):
     Arguments
     -----------------------------------------------------------------------------
     env: instance of Rewards_env
-        Attributes: rewards_dict, labels_dict
+        Attributes: rewards_dict, labels_dict, embedded, arm_features
     num_rounds: int
         total number of rounds. 
     num_arms: int
         number of arms
     num_init: int 
         number of initialization set 
+    init_list: list
+        list of idx of init arms
 
     rewards_dict: dict of list
         rewards environment
@@ -33,8 +35,12 @@ class Bandits_discrete(ABC):
         keys: string of embedded sequence 
             e.g. '001000100010001000100010'
         values: label (expectation of rewards list)
-    arm_features: ndarray
+        sorted according to the values 
+    embedded: ndarray
         num_arms x num_features
+    arm_features: list
+        list of arm features (string, e.g. '001000100010001000100010')
+        same order as the labels dict
 
     bestarm_idx: int
         the arm with maximum label (assume only one arm is the best)
@@ -44,6 +50,8 @@ class Bandits_discrete(ABC):
         list of embedding features for selected arms
     sample_labels: list
         list of labels for selected arms
+    sample_idx: list
+        list of idx for selected arms
 
     ---------------For Evaluation-----------------------------------------  
     sd: int
@@ -248,44 +256,55 @@ class GPUCB(UCB_discrete):
 
         self.gp.fit(np.asarray(self.sample_features), self.sample_labels)
         self.mu, self.sigma = self.gp.predict(np.asarray(self.to_list(self.arm_features)), return_std=True)
+        
 
         idx = np.argmax(self.mu + self.sigma * self.beta)
         return idx
     
-    def play(self, plot_flag = False):
+    def play(self, plot_flag = False, plot_per = 10):
         """Simulate n round games.
+
+        Paramters
+        ----------------------------------------------
+        plot_flag: bool
+             True: plot selected points during the game
+        plot_per: int
+            plot every plot_per rounds
         """
         self.init_reward()
         for t in range(self.num_init, self.num_rounds):
             idx = self.argmax_ucb(t) 
             
-            if t % 10 == 0:
-                 self.plot(t)
+            if plot_flag:
+                if t % plot_per == 0:
+                    self.plot(t, plot_per)
             self.sample(idx)
             self.evaluate(idx)
 
-    def plot(self, t):
+    def plot(self, t, plot_per):
+        """Plot for selected points during the game. 
+        """
         
         #fig = plt.figure()
         ax = plt.axes()
         init_len = len(self.init_list)
 
-        #ax.scatter(self.mu, self.label, alpha=0.5, color='g', label = 'predict')
-        #ax.fill_between(test_range, preds - pred_var, preds + pred_var, facecolor='k', alpha=0.2)
-
         ax.plot(range(len(self.mu)), self.mu, alpha=0.5, color='g', label = 'predict')
+        ax.plot(range(len(self.mu)), list(self.labels_dict.values()), alpha=0.5, color='b', label = 'true')
         ax.fill_between(range(len(self.mu)), self.mu + self.sigma, self.mu - self.sigma, facecolor='k', alpha=0.2)
-        #init_len = len(self.x)
+        
         ax.scatter(self.sample_idxs[:init_len], self.sample_labels[:init_len], c='b', marker='o', alpha=1.0, label = 'init sample')
         # ax.scatter(self.sample_idxs[init_len:], self.sample_labels[init_len:], c='r', marker='o', alpha=1.0, label = 'selected sample')
-        if init_len < t - 10:
-            ax.scatter(self.sample_idxs[t-10:t-1], self.sample_labels[t-10:t-1], c='r', marker='o', alpha=1.0, label = 'selected sample')
-        else: 
-            ax.scatter(self.sample_idxs[init_len:t-1], self.sample_labels[init_len:t-1], c='r', marker='o', alpha=1.0, label = 'selected sample')
+        if init_len < t - plot_per:
+            start_round = t - plot_per
+        else:
+            start_round = init_len
+        ax.scatter(self.sample_idxs[start_round:t-1], self.sample_labels[start_round:t-1], c='r', marker='o', alpha=1.0, label = 'selected sample')
+        
         plt.legend()
-        plt.xlabel('pred')
-        plt.ylabel('true')
-        plt.title('GPUCB ' + str(t-9) + '~' + str(t) + ' rounds')
+        plt.xlabel('Arm Index')
+        plt.ylabel('Label')
+        plt.title('GPUCB ' + str(t-plot_per) + '~' + str(t) + ' rounds')
         plt.show()
 
    

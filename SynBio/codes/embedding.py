@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
 
 # 2nd Nov 2019
 # Mengyan Zhang
@@ -39,12 +40,30 @@ class Embedding():
                 embedded_data[i, b * 4 + base_dict[seq[b]]] = 1
         return embedded_data
 
-    def kmer(self):
+    def kmer(self, size = 3):
         """k-merization embedding.
            See https://en.wikipedia.org/wiki/K-mer.
            Tutorial (https://www.kaggle.com/thomasnelson/working-with-dna-sequence-data-for-ml#Machine-learning-with-DNA-sequence-data
+
+        Parameters
+        --------------------------------------------------------------------
+        size: int 
+            len of unit of words
         """
 
+        sentences = []
+
+        for i in range(self.num_seq):
+            sequence = self.data[i][:8]
+            words = [sequence[x:x+size].lower() for x in range(len(sequence) - size + 1)]
+            words.append(self.data[i][-1])
+            sentence = ' '.join(words)
+            sentences.append(sentence)
+
+        cv = CountVectorizer()
+        embedded = cv.fit_transform(sentences).toarray()
+
+        return embedded
 
     def PMF(self):
         """Position weight matrix.
@@ -54,3 +73,4 @@ class Embedding():
     def spectrum_kernel(self):
         """Spectrum kernel
         """
+        

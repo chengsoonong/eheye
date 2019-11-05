@@ -51,6 +51,8 @@ class Rewards_env():
         encoder = Embedding(self.data[:, 0])
         if self.embedding_method == 'onehot':
             embedded = encoder.onehot()
+        elif self.embedding_method == 'kmer':
+            embedded = encoder.kmer()
         else:
             print('To be added.')
             embedded = self.data[:, 0]
