@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import check_pairwise_arrays
 
-def Phi(X, Y, l, j, d):
+def Phi(X, Y, l, j_X, j_Y, d):
     """Calculate spectrum features for spectrum kernel.
 
     Phi is a mapping of the matrix X into a |alphabet|^l
@@ -19,8 +19,10 @@ def Phi(X, Y, l, j, d):
         each row is a sequence (string)
     l : int, default 3
         number of l-mers (length of 'word') 
-    j : int
-        start position of sequence
+    j_X : int
+        start position of sequence in X
+    j_Y : int
+        start position of sequence in Y
     d : int
         the length of analysed sequence
         j + d is end position of sequence 
@@ -38,13 +40,13 @@ def Phi(X, Y, l, j, d):
     sentences = []
 
     for i in range(num_X):
-        sequence= X[i][j:j + d]
+        sequence= X[i][j_X:j_X + d]
         words = [sequence[a:a+l] for a in range(len(sequence) - l + 1)]
         sentence = ' '.join(words)
         sentences.append(sentence)
 
     for i in range(num_Y):
-        sequence= Y[i][j:j + d]
+        sequence= Y[i][j_Y:j_Y + d]
         words = [sequence[a:a+l] for a in range(len(sequence) - l + 1)]
         sentence = ' '.join(words)
         sentences.append(sentence)
@@ -56,7 +58,7 @@ def Phi(X, Y, l, j, d):
     return embedded[: num_X, :], embedded[-num_Y: , :]
 
 
-def spectrum_kernel(X, Y=None, l = 3, j = 0, d = None):
+def spectrum_kernel(X, Y=None, l = 3, j_X = 0, j_Y = 0, d = None):
     """
     Compute the spectrum kernel between X and Y:
         k_{l}^{spectrum}(x, y) = <phi(x), phi(y)>
@@ -71,8 +73,10 @@ def spectrum_kernel(X, Y=None, l = 3, j = 0, d = None):
         each row is a sequence (string)
     l : int, default 3
         number of l-mers (length of 'word')
-    j : int, default 0
-        start position of sequence
+    j_X : int
+        start position of sequence in X
+    j_Y : int
+        start position of sequence in Y
     d : int, default None
         if None, set to the length of sequence
         d is the length of analysed sequence
@@ -87,7 +91,7 @@ def spectrum_kernel(X, Y=None, l = 3, j = 0, d = None):
         d = len(X[0]) - 1
     # sequence cannot pass the check 
     # X, Y = check_pairwise_arrays(X, Y)
-    phi_X, phi_Y = Phi(X, Y, l, j, d)
+    phi_X, phi_Y = Phi(X, Y, l, j_X, j_Y, d)
     return phi_X.dot(phi_Y.T)
 
 def mixed_spectrum_kernel(X, Y=None, l = 3):
@@ -152,14 +156,53 @@ def WD_kernel(X, Y=None, l = 3):
         #print(d)
         for j in range(1, L - d + 1):
             beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
-            K += beta * spectrum_kernel(X, Y, d, j, d)
+            K += beta * spectrum_kernel(X, Y, d, j, j, d)
     return K
 
-def WD_shift_kernel(X, Y=None, l = 3):
+def WD_shift_kernel(X, Y=None, l = 3, shift_range = 1):
     """Weighted degree kernel with shifts.
-    TODO: write this func.
+    Compute the mixed spectrum kernel between X and Y:
+        K(x, y) = \sum_{d = 1}^{l} \sum_j^{L-d} \sum_{s=0 and s+j <= L}
+            beta_d * gamma_j * delta_s *
+            (k_d^{spectrum}(x[j+s:j+s+d],y[j:j+d]) + k_d^{spectrum}(x[j:j+d],y[j+s:j+s+d]))
+    for each pair of rows x in X and y in Y.
+    when Y is None, Y is set to be equal to X.
+
+    beta_d = 2 frac{l - d + 1}{l^2 + 1}
+    gamma_j = 1
+    delta_s = 1/(2(s+1))
+
+    TODO: to confirm why shift useful?
+    
+    Parameters
+    ----------
+    X : array of shape (n_samples_X, )
+        each row is a sequence (string)
+    Y : array of shape (n_samples_Y, )
+        each row is a sequence (string)
+    l : int, default 3
+        number of l-mers (length of 'word')
+    shift_range: int, default 1
+        number of shifting allowed
+    Returns
+    -------
+    kernel_matrix : array of shape (n_samples_X, n_samples_Y)
     """
-    pass
+    if Y is None:
+        Y = X
+    K = np.zeros((X.shape[0], Y.shape[0]))
+    
+    L = len(X[0]) # assume all seq has the same total length
+
+    for d in range(1, l+1):
+        #print(d)
+        for j in range(1, L - d + 1):
+            for s in range(shift_range+1): # range is right open
+                if s + j <= L:
+                    beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
+                    delta = 1.0/(2 * (s + 1))
+                    K += beta * delta * (spectrum_kernel(X, Y, d, j+s, j, d) + spectrum_kernel(X, Y, d, j, j+s, d))
+    return K
 
 
 

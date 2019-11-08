@@ -12,11 +12,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
 from codes.environment import Rewards_env
-from codes.kernels import spectrum_kernel, mixed_spectrum_kernel, WD_kernel
+from codes.kernels import spectrum_kernel, mixed_spectrum_kernel, WD_kernel, WD_shift_kernel
 
 KERNEL_TYPE = {'spectrum': spectrum_kernel,
                'mixed_spectrum': mixed_spectrum_kernel,
-               'WD': WD_kernel
+               'WD': WD_kernel,
+               'WD_shift': WD_shift_kernel
             }
 
 class Regression():
@@ -61,16 +62,24 @@ class Regression():
         self.split_data()
 
         if self.model.kernel == 'precomputed':
-            # compute kernel matrix 
-            # K_train n_train_samples * n_train_samples
-            assert precomputed_kernel in KERNEL_TYPE
-            kernel = KERNEL_TYPE[precomputed_kernel]
-            K_train = kernel(self.X_train)
-            # K_test n_test_samples * n_train_samples
-            K_test = kernel(self.X_test, self.X_train)
+            self.precompute_kernel(precomputed_kernel)
 
-            self.X_train = K_train
-            self.X_test = K_test
+        if hasattr(self.model.kernel, 'metric'):
+            if self.model.kernel.metric == 'precomputed':
+                self.precompute_kernel(precomputed_kernel)
+            
+
+    def precompute_kernel(self, precomputed_kernel):
+        # compute kernel matrix 
+        # K_train n_train_samples * n_train_samples
+        assert precomputed_kernel in KERNEL_TYPE
+        kernel = KERNEL_TYPE[precomputed_kernel]
+        K_train = kernel(self.X_train)
+        # K_test n_test_samples * n_train_samples
+        K_test = kernel(self.X_test, self.X_train)
+
+        self.X_train = K_train
+        self.X_test = K_test
 
     def split_data(self):
         """Split data into training and testing datasets. 
