@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage{xcolor}
+\usepackage[nointegrals]{wasysym}
+
+\input{nams.tex}
+
+\title{SGD Quantile Estimation Experiement}
+\date{\vspace{-5ex}}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+% \subsection{Aims}
+This experiment has two purposes. The first is to show quantile estimation with SGD works \textcolor{blue}{ under some circimstances (?)}.
+The second aim is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile value and sgd step size.
+In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
+% \\\\
+% To test the SGD quantile estimation as a valid alternative for quantile estimation, this experiment computes both estimated and calculated values for quantiles, and evaluates whether the difference between the results is acceptable.
+% \\\\
+% Do I explain the second goal...?
+
+
+\section{Methodology}
+The process by which we experiment on SGD quantile estimation can be briefly outlined as followes:
+
+\begin{enumerate}
+    \item Select a set of data streams (ordered datasets) derived from some statistical distributions.
+    \item For each $\tau$-quantile, determine a ground truth value from the distribution and calculate a empirical value from the data stream.
+    \item For each $\tau$-quantile, calculate the SGD estimate value from the data stream, record both the process and the result of estimation.
+    \item Compute normalized error value for quantile estimates as a measurement of similarity between empirical and estimate value. The error value is computed from both values.
+\end{enumerate}
+
+\subsection{Data Stream Set Generation}
+A total of 4 distributions are used in this experiment.
+Eah data stream is a set of 1 dimensional data points randomly sampled from one of the distributions. In order to show how the amount of data points might affect the performance, there are 3 different settings for the data size $N$. 
+\\\\
+Each data stream set is composed of a number of data streams. For a statistically more accurate results on the experiment, a group of data streams of the same settings are generated. When investigating the impact of data sequence has on quantile estimation, one data stream will be shuffled to for the generation to differently ordered data steams. To sum up, a data stream set is either a combination of data streams generated from same distribution and data size setting, or the permutations of one same data stream. We generate the data stream set under this settings:
+
+\begin{itemize}
+    \item Distribution: 4 statistical distributions. The 4 distributions are:
+        \begin{itemize}
+            \item Gaussian distribution 1: mean = 2, standard deviation = 18
+            \item Gaussian distribution 2: mean = 0, standard deviation = 0.001
+            \item Exponetial distribution: rate = 1
+            \item Mixed Gaussian distribution: a mix of five different gaussian distributions
+        \end{itemize}
+    \item Data size: 100, 1000, 10000, 100000(?)
+    \item Multiple generations: True or false. Generate 10 data streams for the set if true.
+    \item Multiple shuffles:  True or false. Shuffle the data stream 10 times for the set if true.
+\end{itemize}
+
+\subsection{True and Empirical Quantile Calculation}
+The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the empirical quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, the size of sampling is 1000,000. For a certain $\tau$, there is only one true quantile value for one distribution.
+\\\\
+The empirical quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering is, there is only one empirical quantile value for one data stream, but there can be multiple quantile values for one distribution.
+
+\subsection{SGD Quantile Estimation}
+
+\subsection{Error Computation}
+
+
+\section{Observations}
+
+
+\section{Discussion? Accuracy of study?}
+% \begin{equation}
+%     E = | \frac{q_{batch} - q_{sgd}}{{q_{batch}}^{(1)} - {q_{batch}}^{(2)}} |
+% \end{equation}
+\section{Conclusion}
+
+\end{document}
+\end(documentclass)
