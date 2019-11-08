@@ -55,7 +55,7 @@ class Embedding():
 
         for i in range(self.num_seq):
             sequence = self.data[i][:8]
-            words = [sequence[x:x+size].lower() for x in range(len(sequence) - size + 1)]
+            words = [sequence[x:x+size] for x in range(len(sequence) - size + 1)]
             words.append(self.data[i][-1])
             sentence = ' '.join(words)
             sentences.append(sentence)
