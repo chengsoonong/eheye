@@ -49,7 +49,9 @@ class Rewards_env():
         """
         # encoder = Embedding(self.data[:, 0].reshape(self.num_seq, 1))
         encoder = Embedding(self.data[:, 0])
-        if self.embedding_method == 'onehot':
+        if self.embedding_method == 'label':
+            embedded= encoder.label()
+        elif self.embedding_method == 'onehot':
             embedded = encoder.onehot()
         elif self.embedding_method == 'kmer':
             embedded = encoder.kmer()

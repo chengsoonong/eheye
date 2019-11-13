@@ -8,7 +8,7 @@ from sklearn.kernel_ridge import KernelRidge
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct
 from sklearn.gaussian_process.kernels import RBF
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSplit
 from sklearn.metrics import r2_score
 
 from codes.environment import Rewards_env
@@ -94,17 +94,24 @@ class Regression():
         self.train_predict = self.model.predict(self.X_train)
         self.test_predict = self.model.predict(self.X_test)
 
-    def evaluate(self, print_flag = True, plot_flag = True):
+    def evaluate(self, cross_val_flag = True, print_flag = True, plot_flag = True, k = 10):
         """Evaluate.
         Calculate R2 score for both training and testing datasets.
         """
+        if cross_val_flag:
+            cv = ShuffleSplit(n_splits=k, test_size=0.2, random_state=42)
+            scores = cross_val_score(self.model, self.X, self.Y, cv = cv, scoring='r2')
         train_score = self.model.score(self.X_train, self.Y_train)
         test_score = self.model.score(self.X_test, self.Y_test)
 
         if print_flag:
             print('Model: ', str(self.model))
-            print('Train score: ', train_score)
-            print('Test score: ', test_score)
+            if cross_val_flag:
+                print(scores)
+                print("R2 score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+            else:
+                print('Train score: ', train_score)
+                print('Test score: ', test_score)
         if plot_flag:
             self.plot()
 
@@ -113,14 +120,21 @@ class Regression():
         """    
         plt.plot(self.test_predict, self.Y_test, 'r.', label = 'test')
         plt.plot(self.train_predict, self.Y_train, 'b.', label = 'train')
-        plt.plot([0,2], [0,2], '--')
-        plt.plot([0,2], [1,1], 'k--')
-        plt.plot([1,1], [0,2], 'k--')
+        max_label = max(self.Y)
+        min_label = min(self.Y)
+        plt.plot([min_label,max_label], [min_label,max_label], '--')
+        plt.plot([min_label,max_label], [max_label/2.0,max_label/2.0], 'k--')
+        plt.plot([max_label/2.0,max_label/2.0], [min_label,max_label], 'k--')
+        
+        # plt.plot([0,1], [0,1], '--')
+        # plt.plot([0,1], [0.5,0.5], 'k--')
+        # plt.plot([0.5,0.5], [0,1], 'k--')
+
         plt.xlabel('Prediction')
         plt.ylabel('True Label')
         plt.title(str(self.model))
-        plt.xlim(0,2)
-        plt.ylim(0,2)
+        plt.xlim(min_label,max_label)
+        plt.ylim(min_label,max_label)
         plt.legend()
     
 

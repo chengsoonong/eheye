@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import LabelEncoder
 
 # 2nd Nov 2019
 # Mengyan Zhang
@@ -18,6 +19,28 @@ class Embedding():
         # self.num_seq, self.num_bases = data.shape
         self.num_seq,  = data.shape
         self.num_bases = len(data[0])
+        self.bases = ['A','C','G','T']
+
+    def label(self):
+        """Label encoder from sklearn.
+        Encode each row from string into numeric label.
+        For example, from 'GACAAA' to [0 1 2 0 0 0]
+
+        Note when use inverse_transform (in kernel), the order
+        of bases (fitting) should be the same.
+
+        Returns
+        ----------------------------------------------------
+        embedded_data: array
+            num_seq * num_bases
+        """
+        le = LabelEncoder()
+        le.fit(self.bases)
+        embedded_data = np.array([le.transform(list(self.data[i]))\
+                                     for i in range(self.num_seq)])
+        return embedded_data
+
+
 
     def onehot(self):
         """One-hot embedding.
@@ -27,8 +50,8 @@ class Embedding():
         embedded_data: ndarray
             {0, 1}^{num_seq x num_bases * 4}
         """
-        bases = ['A','C','G','T']
-        base_dict = dict(zip(bases,range(4))) # {'A' : 0, 'C' : 1, 'G' : 2, 'T' : 3}
+        
+        base_dict = dict(zip(self.bases,range(4))) # {'A' : 0, 'C' : 1, 'G' : 2, 'T' : 3}
 
         embedded_data = np.zeros((self.num_seq, self.num_bases * 4))
 
@@ -73,4 +96,3 @@ class Embedding():
     def spectrum_kernel(self):
         """Spectrum kernel
         """
-        
