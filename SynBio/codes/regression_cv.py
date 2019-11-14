@@ -9,7 +9,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 
 from codes.environment import Rewards_env
 from codes.kernels import spectrum_kernel, mixed_spectrum_kernel, WD_kernel, WD_shift_kernel
@@ -67,18 +67,39 @@ class Regression_cv():
             X_train, X_test = self.X[train_idx], self.X[test_idx]
             Y_train, Y_test = self.Y[train_idx], self.Y[test_idx]
             my_model.fit(X_train, Y_train)
-            train_score = my_model.score(X_train, Y_train)
-            test_score = my_model.score(X_test, Y_test)
-            train_scores.append(train_score)
-            test_scores.append(test_score)
 
+            train_predict = my_model.predict(X_train)
+            test_predict = my_model.predict(X_test)
+
+            train_rmse = np.sqrt(mean_squared_error(Y_train, train_predict))
+            test_rmse = np.sqrt(mean_squared_error(Y_test, test_predict))
+            train_scores.append(train_rmse)
+            test_scores.append(test_rmse)
+
+            # train_score = my_model.score(X_train, Y_train)
+            # test_score = my_model.score(X_test, Y_test)
+            # train_scores.append(train_score)
+            # test_scores.append(test_score)
+
+            # if test_score < 0.4:
+                
+            plt.figure() 
+            plt.scatter(np.abs(train_predict - Y_train), Y_train, color = 'r', label = 'train')
+            plt.scatter(np.abs(test_predict - Y_test), Y_test, color = 'b', label = 'test')
+            
+            plt.title('Test RMSE: ' + str(test_rmse))
+            plt.xlabel('|Predicted FC - FC|')
+            plt.ylabel('FC')
+            plt.legend()
+
+        print('Model: ', str(self.model))
         train_scores = np.asarray(train_scores)
         test_scores = np.asarray(test_scores)
-        print('train scores: ', train_scores)
-        print('test scores: ', test_scores)
+        print('train RMSE: ', train_scores)
+        print('test RMSE: ', test_scores)
 
-        print("Train scores: %0.2f (+/- %0.2f)" % (train_scores.mean(), train_scores.std() * 2))
-        print("Test scores: %0.2f (+/- %0.2f)" % (test_scores.mean(), test_scores.std() * 2))
+        print("Train RMSE: %0.2f (+/- %0.2f)" % (train_scores.mean(), train_scores.std() * 2))
+        print("Test RMSE: %0.2f (+/- %0.2f)" % (test_scores.mean(), test_scores.std() * 2))
         
 
     

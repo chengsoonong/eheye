@@ -46,8 +46,8 @@ def phi(x, y, l, j_x, j_y, d):
     words_y = [sequence_y[a:a+l] for a in range(len(sequence_y) - l + 1)]
     sentence_y = ' '.join(words_y)
     sentences.append(sentence_y)
-    #cv = CountVectorizer(analyzer='word',token_pattern=u"(?u)\\b\\w+\\b")
-    cv = CountVectorizer()
+    cv = CountVectorizer(analyzer='word',token_pattern=u"(?u)\\b\\w+\\b")
+    #cv = CountVectorizer()
     embedded = cv.fit_transform(sentences).toarray()
     #print(embedded)
 
@@ -144,7 +144,7 @@ def mixed_spectrum_kernel_pw(x, y=None, gamma = 1.0, l = 3):
     for d in range(1, l+1):
         #print(d)
         beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
-        k += beta * spectrum_kernel_pw(x, y, d)
+        k += beta * spectrum_kernel_pw(x, y, l = d)
     return k
 
 def WD_kernel_pw(x, y=None, gamma = 1.0, l = 3):
@@ -181,9 +181,9 @@ def WD_kernel_pw(x, y=None, gamma = 1.0, l = 3):
 
     for d in range(1, l+1):
         #print(d)
-        for j in range(1, L - d + 1):
+        for j in range(0, L - d + 1):
             beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
-            k+= beta * spectrum_kernel_pw(x, y, d, j, j, d)
+            k+= beta * spectrum_kernel_pw(x, y, l = d, j_x = j, j_y = j, d = d)
     return k
 
 def WD_shift_kernel_pw(x, y=None, gamma = 1.0, l = 3, shift_range = 1):
@@ -226,10 +226,12 @@ def WD_shift_kernel_pw(x, y=None, gamma = 1.0, l = 3, shift_range = 1):
 
     for d in range(1, l+1):
         #print(d)
-        for j in range(1, L - d + 1):
+        for j in range(0, L - d + 1):
             for s in range(shift_range+1): # range is right open
                 if s + j <= L:
                     beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
                     delta = 1.0/(2 * (s + 1))
-                    k += beta * delta * (spectrum_kernel_pw(x, y, d, j+s, j, d) + spectrum_kernel(X, Y, d, j, j+s, d))
+                    k += beta * delta * (spectrum_kernel_pw(x, y, l = d, \
+                        j_x = j+s, j_y = j,d = d) + \
+                        spectrum_kernel_pw(x, y, l = d, j_x = j, j_y = j+s, d= d))
     return k

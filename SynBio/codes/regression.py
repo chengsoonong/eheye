@@ -9,7 +9,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSplit
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 
 from codes.environment import Rewards_env
 from codes.kernels import spectrum_kernel, mixed_spectrum_kernel, WD_kernel, WD_shift_kernel
@@ -33,8 +33,6 @@ class Regression():
     Y: array
         labels array (num_samples, )
         second column of data, each element is a float/int
-
-    TODO: add cross validation 
     """
     def __init__(self, model, data, embedding_method = None, 
                  precomputed_kernel = None):
@@ -94,24 +92,26 @@ class Regression():
         self.train_predict = self.model.predict(self.X_train)
         self.test_predict = self.model.predict(self.X_test)
 
-    def evaluate(self, cross_val_flag = True, print_flag = True, plot_flag = True, k = 10):
+    def evaluate(self, cross_val_flag = True, print_flag = True, plot_flag = True, k = 10, metric = 'neg_mean_squared_error'):
         """Evaluate.
-        Calculate R2 score for both training and testing datasets.
+        Calculate RMSE score for both training and testing datasets.
         """
         if cross_val_flag:
             cv = ShuffleSplit(n_splits=k, test_size=0.2, random_state=42)
-            scores = cross_val_score(self.model, self.X, self.Y, cv = cv, scoring='r2')
-        train_score = self.model.score(self.X_train, self.Y_train)
-        test_score = self.model.score(self.X_test, self.Y_test)
+            scores = cross_val_score(self.model, self.X, self.Y, cv = cv, scoring= metric)
+            scores = np.sqrt(-scores)
+ 
+        train_score = np.sqrt(mean_squared_error(self.Y_train, self.train_predict))
+        test_score = np.sqrt(mean_squared_error(self.Y_test, self.test_predict))
 
         if print_flag:
             print('Model: ', str(self.model))
             if cross_val_flag:
                 print(scores)
-                print("R2 score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+                print("RMSE : %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
             else:
-                print('Train score: ', train_score)
-                print('Test score: ', test_score)
+                print('Train RMSE: ', train_score)
+                print('Test RMSE: ', test_score)
         if plot_flag:
             self.plot()
 

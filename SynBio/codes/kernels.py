@@ -44,6 +44,7 @@ def Phi(X, Y, l, j_X, j_Y, d):
         words = [sequence[a:a+l] for a in range(len(sequence) - l + 1)]
         sentence = ' '.join(words)
         sentences.append(sentence)
+    print(sentences)
 
     for i in range(num_Y):
         sequence= Y[i][j_Y:j_Y + d]
@@ -88,7 +89,7 @@ def spectrum_kernel(X, Y=None, l = 3, j_X = 0, j_Y = 0, d = None):
     if Y is None:
         Y = X
     if d is None:
-        d = len(X[0]) - 1
+        d = len(X[0]) 
     # sequence cannot pass the check 
     # X, Y = check_pairwise_arrays(X, Y)
     phi_X, phi_Y = Phi(X, Y, l, j_X, j_Y, d)
@@ -121,7 +122,7 @@ def mixed_spectrum_kernel(X, Y=None, l = 3):
     for d in range(1, l+1):
         #print(d)
         beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
-        K += beta * spectrum_kernel(X, Y, d)
+        K += beta * spectrum_kernel(X, Y, l = d)
     return K
 
 def WD_kernel(X, Y=None, l = 3):
@@ -154,7 +155,7 @@ def WD_kernel(X, Y=None, l = 3):
 
     for d in range(1, l+1):
         #print(d)
-        for j in range(1, L - d + 1):
+        for j in range(0, L - d + 1):
             beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
             K += beta * spectrum_kernel(X, Y, d, j, j, d)
     return K
@@ -196,7 +197,7 @@ def WD_shift_kernel(X, Y=None, l = 3, shift_range = 1):
 
     for d in range(1, l+1):
         #print(d)
-        for j in range(1, L - d + 1):
+        for j in range(0, L - d + 1):
             for s in range(shift_range+1): # range is right open
                 if s + j <= L:
                     beta = 2 * float(l - d + 1)/float(l ** 2 + 1)
