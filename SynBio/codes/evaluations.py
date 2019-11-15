@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from collections import defaultdict
 
 ylabel_dict = {'sd': 'suboptimal draws',
                 'r': 'cumulative regrets',
@@ -22,15 +23,13 @@ def evaluate(sds, rs):
             one of 'sd' and 'r'
         value: array with shape 1 * num_rounds
     """
-    eva_dict =  {}
-    if len(sds) > 0:
-        sds = np.asarray(sds)
-        eva_sd = np.mean(sds, axis = 0)
-        eva_dict['sd'] = eva_sd
-    if len(rs) > 0:
-        rs = np.asarray(rs)
-        eva_r = np.mean(rs, axis = 0)
-        eva_dict['r'] = eva_r
+    eva_dict =  defaultdict(dict)
+    for key, values in sds.items():
+        eva_dict[key]['sd'] = defaultdict(list)
+        eva_dict[key]['sd'] = np.mean(np.asarray(values), axis = 0)
+    for key, values in rs.items():
+        eva_dict[key]['r'] = defaultdict(list)
+        eva_dict[key]['r'] = np.mean(np.asarray(values), axis = 0)
     return eva_dict
 
 def plot_eva(results, eva_method, paper_flag = True):
@@ -54,17 +53,19 @@ def plot_eva(results, eva_method, paper_flag = True):
     plt.figure(figsize=(5, 5))
        
     # setup title
-    title_name = 'GPUCB with One-hot encoding'
+    title_name = 'Cumulative Regret vs. Round'
     plt.title(title_name)
 
     plt.xlabel('Iteration')
     plt.ylabel('Expected ' + ylabel_dict[eva_method])
     
-    plt.plot(range(len(results[eva_method])), 
-            results[eva_method],  
-            marker = 'o', 
-            markevery = 10,
-            markersize = 5)
+    for key, value in results.items():
+        plt.plot(range(len(value[eva_method])), 
+                value[eva_method],  
+                marker = 'o', 
+                markevery = 10,
+                markersize = 5,
+                label = key)
 
     plt.legend(loc="upper left")
     #file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'

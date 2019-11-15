@@ -114,10 +114,13 @@ class Regression():
                 print('Test RMSE: ', test_score)
         if plot_flag:
             self.plot()
+        
+        return train_score, test_score
 
     def plot(self):    
         """Plot for predict vs. true label. 
-        """    
+        """   
+        plt.figure() 
         plt.plot(self.test_predict, self.Y_test, 'r.', label = 'test')
         plt.plot(self.train_predict, self.Y_train, 'b.', label = 'train')
         max_label = max(self.Y)

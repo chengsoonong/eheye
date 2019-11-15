@@ -66,7 +66,7 @@ class Bandits_discrete(ABC):
         all the time and drawing arms based on the designed policy.  
 
     """
-    def __init__(self, env, num_rounds, init_per):
+    def __init__(self, env, num_rounds, init_per, model = None):
         """
         Parameters
         ----------------------------------------------------------------------
@@ -76,12 +76,14 @@ class Bandits_discrete(ABC):
             total number of rounds. 
         init_per: float
             (0,1) initiation percent of arms
+        model: model to fit, default is None
         """
 
         self.env = env
         self.num_rounds = num_rounds
         self.num_arms = len(self.env.rewards_dict)
         self.num_init = int(init_per * self.num_arms)
+        self.model = model
 
         self.rewards_dict = self.env.rewards_dict
         self.labels_dict = self.env.labels_dict
@@ -193,7 +195,7 @@ class UCB_discrete(Bandits_discrete):
         the index of arm with the maximum ucb
         """
 
-    def play(self):
+    def play(self, plot_flag = False):
         """Simulate n round games.
         """
         self.init_reward()
@@ -221,7 +223,7 @@ class GPUCB(UCB_discrete):
         TODO: other kernel methods
     """
 
-    def __init__(self, env, num_rounds, init_per, delta = 0.5):
+    def __init__(self, env, num_rounds, init_per, delta = 0.5, model = None):
         """
         Parameters
         ----------------------------------------------------------------
@@ -235,12 +237,12 @@ class GPUCB(UCB_discrete):
             hyperparameters for ucb.
         """
 
-        super().__init__(env, num_rounds, init_per)
+        super().__init__(env, num_rounds, init_per, model)
 
         self.delta = delta
         self.mu = np.zeros_like(self.num_arms)
         self.sigma = 0.5 * np.ones_like(self.num_arms)
-        self.gp = GaussianProcessRegressor(kernel= DotProduct())
+        self.gp = self.model
 
     def argmax_ucb(self, t):
         """sample index with maximum upper bound and update gaussian process parameters.
@@ -261,7 +263,7 @@ class GPUCB(UCB_discrete):
         idx = np.argmax(self.mu + self.sigma * self.beta)
         return idx
     
-    def play(self, plot_flag = False, plot_per = 10):
+    def play(self, plot_flag = False, plot_per = 20):
         """Simulate n round games.
 
         Paramters
@@ -307,4 +309,11 @@ class GPUCB(UCB_discrete):
         plt.title('GPUCB ' + str(t-plot_per) + '~' + str(t) + ' rounds')
         plt.show()
 
-   
+class Random(UCB_discrete):
+    """Randomly select sequences."""
+
+    def argmax_ucb(self, t):
+        """Randomly select the sequence. 
+        """
+        return np.random.choice(self.num_arms)
+    
