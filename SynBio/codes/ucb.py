@@ -306,7 +306,7 @@ class GPUCB(UCB_discrete):
         plt.legend()
         plt.xlabel('Arm Index')
         plt.ylabel('Label')
-        plt.title('GPUCB ' + str(t-plot_per) + '~' + str(t) + ' rounds')
+        plt.title(str(self.model) + ' ' + str(t-plot_per) + '~' + str(t) + ' rounds')
         plt.show()
 
 class Random(UCB_discrete):
