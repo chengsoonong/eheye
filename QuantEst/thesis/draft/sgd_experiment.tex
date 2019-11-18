@@ -12,11 +12,14 @@
 
 \section{Introduction}
 
-% \subsection{Aims}
+% \subsection你说“我就不该这么想”{Aims}
 This experiment has two purposes. The first is to show quantile estimation with SGD works \textcolor{blue}{ under some circimstances (?)}.
 The second aim is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile value and sgd step size.
 In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
-% \\\\
+\\\\
+\textcolor{blue}{This experiment also aims at the comparison between Frugal algorithm and SGD algorithm, by which we want to show that those two algorithms are ``equivalent". 
+\\
+(Does it mean SGD estimation works?)}
 % To test the SGD quantile estimation as a valid alternative for quantile estimation, this experiment computes both estimated and calculated values for quantiles, and evaluates whether the difference between the results is acceptable.
 % \\\\
 % Do I explain the second goal...?
@@ -29,6 +32,9 @@ The process by which we experiment on SGD quantile estimation can be briefly out
     \item Select a set of data streams (ordered datasets) derived from some statistical distributions.
     \item For each $\tau$-quantile, determine a ground truth value from the distribution and calculate a empirical value from the data stream.
     \item For each $\tau$-quantile, calculate the SGD estimate value from the data stream, record both the process and the result of estimation.
+    \item \textcolor{blue}{
+        Compare Frugal algorithm and SGD algorithm on data streams of the same setting.
+    }
     \item Compute normalized error value for quantile estimates as a measurement of similarity between empirical and estimate value. The error value is computed from both values.
 \end{enumerate}
 
@@ -52,14 +58,26 @@ Each data stream set is composed of a number of data streams. For a statisticall
 \end{itemize}
 
 \subsection{True and Empirical Quantile Calculation}
-The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the empirical quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, the size of sampling is 1000,000. For a certain $\tau$, there is only one true quantile value for one distribution.
+The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the empirical quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
 \\\\
 The empirical quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering is, there is only one empirical quantile value for one data stream, but there can be multiple quantile values for one distribution.
 
 \subsection{SGD Quantile Estimation}
 
+The parameter of SGD quantile estimation is important. The current step sizes are:
+\begin{itemize}
+    \item Constant number: 1
+    \item Decrease when k increases: 
+    \item Decrease when k increases (smaller size):
+\end{itemize}
+
+\subsection{Frugal and SGD algorithm}
+
+Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
+
 \subsection{Error Computation}
 
+In order to measure the performance of quantile estimation, the error measurement is proposed. At first, the error $E = | q_{batch} - q_{sgd} |$ is to show 
 
 \section{Observations}
 
