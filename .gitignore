@@ -1,3 +1,9 @@
+# Generate_files
+/QuantEst/sgd_est_experiment/trail
+/QuantEst/sgd_est_experiment/Experiment_results
+/writing
+.DS_Store
+
 # LaTeX
 *.aux
 *.bbl
