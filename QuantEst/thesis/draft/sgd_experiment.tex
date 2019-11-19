@@ -12,7 +12,7 @@
 
 \section{Introduction}
 
-% \subsection你说“我就不该这么想”{Aims}
+% \subsection{Aims}
 This experiment has two purposes. The first is to show quantile estimation with SGD works \textcolor{blue}{ under some circimstances (?)}.
 The second aim is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile value and sgd step size.
 In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
@@ -102,9 +102,24 @@ So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{
 
 
 \section{Discussion? Accuracy of study?}
-% \begin{equation}
-%     E = | \frac{q_{batch} - q_{sgd}}{{q_{batch}}^{(1)} - {q_{batch}}^{(2)}} |
-% \end{equation}
+\subsection{Failure on Newton's Method}
+Newton's method is an interative method to find the stationary points of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
+$$
+l_\tau(t)= 
+    \begin{cases}
+        \tau t & t > 0\\
+        -(1-\tau) t & otherwise
+    \end{cases}
+$$
+is a linear function of $t$, which doesn't have any second derivative. 
+\\\\
+Though the method cannot be applied, it is easy to reach the goal of Newton's method: to find the stationary points of a function. For any $\tau \in (0,1)$, when $t=0$, the loss function reaches it's stationary points at $l_\tau(0) = 0$. Taking the stationary point for every step, however, does not contribute to any improvement in quantile estimation. To be at a stationary point, the quantile estimate is set to have the equal value of input data $x$, and only in this way we could have $t = x-q = x-x = 0$. Regardless of $\tau$, the quantile estimate is always equal to the value of the latest data point. So far this method has totally failed its goal to estimate a quantile value based on $\tau$ and the entire data stream.
+\\\\
+From another perspective, the failure of Newton's method is the result of applying large step size for the last input data for a SGD method. In this way, the minimal of current loss function $l_\tau(t)$ is reached, while the total loss function for the input data stream $X$
+$$
+L_{\tau}(t) = \sum_{x \in X} l_{\tau}(t)
+$$
+is entirely ignored.
 \section{Conclusion}
 
 \end{document}
