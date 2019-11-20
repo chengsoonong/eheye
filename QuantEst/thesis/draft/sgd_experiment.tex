@@ -17,7 +17,10 @@ This experiment has two purposes. The first is to show quantile estimation with 
 The second aim is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile value and sgd step size.
 In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
 \\\\
-\textcolor{blue}{This experiment also aims at the comparison between Frugal algorithm and SGD algorithm, by which we want to show that those two algorithms are ``equivalent". 
+\textcolor{blue}{
+\textbf{I think this is another experiment?}
+\\    
+This experiment also aims at the comparison between Frugal algorithm and SGD algorithm, by which we want to show that those two algorithms are ``equivalent". 
 \\
 (Does it mean SGD estimation works?)}
 % To test the SGD quantile estimation as a valid alternative for quantile estimation, this experiment computes both estimated and calculated values for quantiles, and evaluates whether the difference between the results is acceptable.
@@ -26,19 +29,51 @@ In the experiment, multiple ordered datasets are generated as input data streams
 
 
 \section{Methodology}
-The process by which we experiment on SGD quantile estimation can be briefly outlined as followes:
-
+The process by which we experiment on SGD quantile estimation can be briefly outlined as follows:
 \begin{enumerate}
+    \item Generate an SGD quantile estimate of benchmarking setting.
+    \item For each setting category, generate the other quantile estimate with accordingly changed settings.
+    \item Compare the performances of both groups of estimate value.
+\end{enumerate}
+For step 2, the detailed generation steps for a quantile estimate are:
+\begin{enumerate}[label=(\roman*)]
     \item Select a set of data streams (ordered datasets) derived from some statistical distributions.
     \item For each $\tau$-quantile, determine a ground truth value from the distribution and calculate a empirical value from the data stream.
     \item For each $\tau$-quantile, calculate the SGD estimate value from the data stream, record both the process and the result of estimation.
-    \item \textcolor{blue}{
-        Compare Frugal algorithm and SGD algorithm on data streams of the same setting.
-    }
+    % \item \textcolor{blue}{
+    %     Compare Frugal algorithm and SGD algorithm on data streams of the same setting.
+    % }
     \item Compute normalized error value for quantile estimates as a measurement of similarity between empirical and estimate value. The error value is computed from both values.
 \end{enumerate}
 
-\subsection{Data Stream Set Generation}
+\subsection{Benchmarking Estimate Setting}
+The benchmarking setting of the SGD quantile estimate is:
+    \begin{enumerate}
+        \item Data stream:
+            \begin{itemize}
+                \item Distribution: Gaussian distribution: mean = 2, standard deviation = 18
+                \item Data size: 1000 i.i.d. (independent and individual distributed) random samples
+                \item Multiple generations: true. 10 data streams of the same setting are generated
+                \item Multiple shuffles: false. No data streams are generated as a shuffled version of another
+            \end{itemize}
+        \item Step size: constant value 1
+    \end{enumerate}
+\textcolor{blue}{
+Reason to choose it as a benchmark: not quite sure about this
+\\    
+distribution: easy to compare with different "shaped" distribution (e.g. gau 2), 
+\\
+multiple generations: to compare with the same generation but different sequence of data stream. 
+\\
+step size: the most trivial one, derived from Frugal method}
+\\
+A detailed description of the benchmarking estimate generation is shown in the subsection 2.2.
+
+\subsection{SGD Quantile Estimate Generation}
+To ensure the consistency of quantile estimate construction, the generation methods for a specific setting are restricted.
+In this section, we will introduce the rules and steps for generation in details.
+
+\subsubsection{Data Stream Set Generation}
 A total of 4 distributions are used in this experiment.
 Eah data stream is a set of 1 dimensional data points randomly sampled from one of the distributions. In order to show how the amount of data points might affect the performance, there are 3 different settings for the data size $N$. 
 \\\\
@@ -52,17 +87,18 @@ Each data stream set is composed of a number of data streams. For a statisticall
             \item Exponetial distribution: rate = 1
             \item Mixed Gaussian distribution: a mix of five different gaussian distributions
         \end{itemize}
-    \item Data size: 100, 1000, 10000, 100000(?)
+    \item Data size: 100, 1000, 100000
     \item Multiple generations: True or false. Generate 10 data streams for the set if true.
     \item Multiple shuffles:  True or false. Shuffle the data stream 10 times for the set if true.
 \end{itemize}
 
-\subsection{True and Empirical Quantile Calculation}
+
+\subsubsection{True and Empirical Quantile Calculation}
 The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the empirical quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
 \\\\
 The empirical quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering is, there is only one empirical quantile value for one data stream, but there can be multiple quantile values for one distribution.
 
-\subsection{SGD Quantile Estimation}
+\subsubsection{SGD Quantile Estimation}
 
 The parameter of SGD quantile estimation is important. The current settings for step size $\alpha_k$ are:
 \begin{itemize}
@@ -71,11 +107,12 @@ The parameter of SGD quantile estimation is important. The current settings for 
     \item Decrease when k increases (smaller size): $\alpha_k = \frac{0.002}{\sqrt{k}}$
 \end{itemize}
 where $k$ is the index of step count.
-\subsection{Frugal and SGD algorithm}
 
-Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
+% \section{Frugal and SGD algorithm}
 
-\subsection{Error Computation}
+% Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
+
+\subsubsection{Error Computation}
 
 An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between empirical and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for empirical quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of same size and distribution, we take the mean of the error value $\overline{E^{(\tau)}}$, where 
     $$
@@ -96,7 +133,26 @@ $$
     E^{(\tau)} = \frac{|q_{batch}^{(\tau)} - q_{sgd}^{(\tau)}|}
                       {|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|}
 $$
-So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{batch}^{(\tau)}$. The above problem is solved because \textcolor{orange}{to be continued}
+So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{batch}^{(\tau)}$. The above problem is solved because 
+\textcolor{blue}{(I am not sure about this part)\\
+    $
+    q_{batch} - q_{true}
+    $
+    is the normalizer which reduces the effect of unevensly distributed density among different distributions and different quantile values.
+}
+
+\subsection{Performance Comparison}
+Plots that shows the performance of quantile estimate results, processes and its error values.
+
+Result plot: shows the estimate results of $q_{batch}$ and $q_{sgd}$. The clustering of both values are obvious
+
+Process plot: shows the processes.
+
+Error plot: shows the normalized error value for every data stream of this setting.
+
+All of them show the summarized visualization of multiple generation of estimate values.
+
+
 
 \section{Observations}
 
@@ -113,7 +169,7 @@ l_\tau(t)=
 $$
 is a linear function of $t$, which doesn't have any second derivative. 
 \\\\
-Though the method cannot be applied, it is easy to reach the goal of Newton's method: to find the critical points of a function. Instead of stationary point, the loss function has a critical point where it is not differentiable and the derivative changes sign. For any $\tau \in (0,1)$, when $t=0$, the loss function reaches it's critical points at $l_\tau(0) = 0$. Taking the critcal point for every step, however, does not contribute to any improvement in quantile estimation. To be at a critcal point, the quantile estimate is set to have the equal value of input data $x$, and only in this way we could have $t = x-q = x-x = 0$. Regardless of $\tau$, the quantile estimate is always equal to the value of the latest data point. So far this method has totally failed its goal to estimate a quantile value based on $\tau$ and the entire data stream.
+Though the method cannot be applied, it is easy to reach the goal of Newton's method: to find the critical points of a function. Instead of stationary point, the loss function has a critical point where it is not differentiable and the derivative changes sign. For any $\tau \in (0,1)$, when $t=0$, the loss function reaches it's critical points at $l_\tau(0) = 0$. Taking the critical point for every step, however, does not contribute to any improvement in quantile estimation. To be at a critical point, the quantile estimate is set to have the equal value of input data $x$, and only in this way we could have $t = x-q = x-x = 0$. Regardless of $\tau$, the quantile estimate is always equal to the value of the latest data point. So far this method has totally failed its goal to estimate a quantile value based on $\tau$ and the entire data stream.
 \\\\
 From another perspective, the failure of Newton's method is the result of applying large step size for the last input data for a SGD method. In this way, the minimal of current loss function $l_\tau(t)$ is reached, while the total loss function for the input data stream $X$
 $$
