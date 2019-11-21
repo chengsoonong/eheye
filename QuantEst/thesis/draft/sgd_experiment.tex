@@ -351,6 +351,133 @@ Except for default setting of gaussian 1 distribution, two other distributions a
 	}
 \end{figure}
 
+\subsection{SGD Step Size}
+
+\subsubsection{Estimate Results on Different SGD Step sizes}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/const_res.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $\alpha_k =1 $
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/2_div_sqrt_k_res.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $ \alpha_k = \frac{2}{\sqrt{k}}$
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/{0.002_div_sqrt_k_res}.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
+	}
+\end{figure}
+
+\subsubsection{Estimate Processes on Different SGD Step sizes}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/const_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from step size $\alpha_k =1 $
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/2_div_sqrt_k_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from step size $ \alpha_k = \frac{2}{\sqrt{k}}$
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/{0.002_div_sqrt_k_proc}.png} % Example image
+	\caption{
+		SGD Estimate Process from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
+	}
+\end{figure}
+
+\subsubsection{Estimate Error Values on Different SGD Step sizes}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/const_err.png} % Example image
+	\caption{
+		SGD Estimate Error from step size $\alpha_k =1 $
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/2_div_sqrt_k_err.png} % Example image
+	\caption{
+		SGD Estimate Error from step size $ \alpha_k = \frac{2}{\sqrt{k}}$
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/{0.002_div_sqrt_k_err}.png} % Example image
+	\caption{
+		SGD Estimate Error from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
+	}
+\end{figure}
+
+\subsection{Ordering of Data Stream}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/True_res.png} % Example image
+	\caption{
+		SGD Estimate Result from Shuffled Data Stream
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/True_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from Shuffled Data Stream
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/True_err.png} % Example image
+	\caption{
+		SGD Estimate Error from Shuffled Data Stream
+	}
+\end{figure}
+
 \section{Discussion}
 \subsection{Failure on Newton's Method}
 Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
