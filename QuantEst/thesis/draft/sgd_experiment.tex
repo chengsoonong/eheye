@@ -3,8 +3,11 @@
 \usepackage[nointegrals]{wasysym}
 
 \input{nams.tex}
+\graphicspath{{Figures/Experiment_results/SGD/}{./}} 
+\captionsetup[figure]{font=scriptsize,labelfont=bf}
 
-\title{SGD Quantile Estimation Experiement}
+
+\title{SGD Quantile Estimation Experiment}
 \date{\vspace{-5ex}}
 
 \begin{document}
@@ -84,7 +87,7 @@ Each data stream set is composed of a number of data streams. For a statisticall
         \begin{itemize}
             \item Gaussian distribution 1: mean = 2, standard deviation = 18
             \item Gaussian distribution 2: mean = 0, standard deviation = 0.001
-            \item Exponetial distribution: rate = 1
+            \item Exponential distribution: rate = 1
             \item Mixed Gaussian distribution: a mix of five different gaussian distributions
         \end{itemize}
     \item Data size: 100, 1000, 100000
@@ -138,7 +141,7 @@ So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{
     $
     q_{batch} - q_{true}
     $
-    is the normalizer which reduces the effect of unevensly distributed density among different distributions and different quantile values.
+    is the normalizer which reduces the effect of unevenly distributed density among different distributions and different quantile values.
 }
 
 \subsection{Performance Comparison}
@@ -153,13 +156,204 @@ Error plot: shows the normalized error value for every data stream of this setti
 All of them show the summarized visualization of multiple generation of estimate values.
 
 
-
+\pagebreak
 \section{Observations}
 
+\subsection{Distribution}
+Except for default setting of gaussian 1 distribution, two other distributions are included: the mix gaussian distribution and the exponential distribution.
 
-\section{Discussion? Accuracy of study?}
+\subsubsection{Estimate results on different distributions}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_1_res.png} % Example image
+	\caption{
+		SGD Estimate Results from Gaussian 1 Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/mix_res.png} % Example image
+	\caption{
+		SGD Estimate Results from Mix Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/exp_res.png} % Example image
+	\caption{
+		SGD Estimate Results from Exponential Distribution
+	}
+\end{figure}
+
+
+
+\subsubsection{Estimate processes on different distributions}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_1_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from Gaussian 1 Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/mix_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from Mix Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/exp_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from Exponential Distribution
+	}
+\end{figure}
+
+\subsubsection{Estimate Error Value on different distributions}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_1_err.png} % Example image
+	\caption{
+		SGD Estimate Error from Gaussian 1 Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/mix_err.png} % Example image
+	\caption{
+		SGD Estimate Error from Mix Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/exp_err.png} % Example image
+	\caption{
+		SGD Estimate Error from Exponential Distribution
+	}
+\end{figure}
+
+\subsection{Data Size}
+
+\subsubsection{Estimate Results on Different Data Size}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 100 Samples
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/1000_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 1000 Samples
+	}
+\end{figure}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100000_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 100000 Samples
+	}
+\end{figure}
+
+
+\subsubsection{Estimate Processes on Different Data Size}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from 100 Samples
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/1000_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from 1000 Samples
+	}
+\end{figure}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100000_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from 100000 Samples
+	}
+\end{figure}
+
+\subsubsection{Estimate Error Values on Different Data Size}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100_err.png} % Example image
+	\caption{
+		SGD Estimate Error from 100 Samples
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/1000_err.png} % Example image
+	\caption{
+		SGD Estimate Error from 1000 Samples
+	}
+\end{figure}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100000_err.png} % Example image
+	\caption{
+		SGD Estimate Error from 100000 Samples
+	}
+\end{figure}
+
+\section{Discussion}
 \subsection{Failure on Newton's Method}
-Newton's method is an interative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
+Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
 $$
 l_\tau(t)= 
     \begin{cases}
