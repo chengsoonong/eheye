@@ -58,6 +58,35 @@ class AbsGau_Outlier(Base_env):
                     s = np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
                 samples.append(s)
             return np.asarray(samples)
+
+class AbsGau_Arb_Outlier(Base_env):
+    """Env for Absolute Gaussian Distribution with outliers.
+    """
+    def __init__(self, para, random_set):
+        super().__init__(para) 
+        self.random_set = random_set
+
+    def pdf(self, x):
+        return 2.0/(self.para * np.sqrt(2 * np.pi)) * np.exp(- x ** 2/ (2 * self.para)) 
+
+    def cdf(self, x):
+        return erf(x/ (self.para * np.sqrt(2)))
+
+    def sample(self, size = None):
+        if size == None:
+            if np.random.uniform() <= 0.95:
+                return np.abs(np.random.normal(0, self.para, size)) 
+            else:
+                return np.random.choice(self.random_set)
+        else:
+            samples = []
+            for i in range(size):
+                if np.random.uniform() <= 0.95:
+                    s = np.abs(np.random.normal(0, self.para)) 
+                else:
+                    s = np.random.choice(self.random_set)
+                samples.append(s)
+            return np.asarray(samples)
                 
 
 class Exp(Base_env):
@@ -103,6 +132,35 @@ class Exp_Outlier(Base_env):
                 samples.append(s)
             return np.asarray(samples)
 
+class Exp_Arb_Outlier(Base_env):
+    """Env for Exponential Distribution with outliers.
+    """
+    def __init__(self, para, random_set):
+        super().__init__(para)
+        self.random_set = random_set 
+
+    def pdf(self, x):
+        return self.para * np.exp(- self.para * x)
+
+    def cdf(self,x):
+        return 1 - np.exp(- self.para * x)
+
+    def sample(self, size = None):
+        if size == None:
+            if np.random.uniform() <= 0.95:
+                return np.random.exponential(1.0/self.para, size)
+            else:
+                return np.random.choice(self.random_set)
+        else:
+            samples = []
+            for i in range(size):
+                if np.random.uniform() <= 0.95:
+                    s = np.random.exponential(1.0/self.para) 
+                else:
+                    s = np.random.choice(self.random_set)
+                samples.append(s)
+            return np.asarray(samples)
+
 class Clinical_env():
     """Environment class for clinical data.
     """
@@ -131,7 +189,7 @@ class Clinical_env():
 
 
 
-def setup_env(num_arms, envs_setting, paras):
+def setup_env(num_arms, envs_setting, paras, random_set = None):
     """Setup environment for simulations.
 
     Parameter:
@@ -180,7 +238,10 @@ def setup_env(num_arms, envs_setting, paras):
 
         for env, para_list in envs_dict.items():
             for para in para_list:
-                current_env = env(para)
+                if random_set == None:
+                    current_env = env(para)
+                else:
+                    current_env = env(para, random_set)
                 rewards_env[name].append(current_env)
                 sample = current_env.sample(num_samples)
                 samples[name].append(sample)

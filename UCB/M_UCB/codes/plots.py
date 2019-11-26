@@ -68,17 +68,19 @@ def plot_eva(results, eva_method, paper_flag = True):
             else: 
                 label = subname
 
-            plt.plot(range(len(results[name][subname][eva_method])), 
-                    results[name][subname][eva_method], 
-                    label = label, 
-                    color = line_color_list[j],  
-                    marker = marker_list[j], 
-                    markevery = 100,
-                    markersize = 5)
+            if (eva_method == 'r' and 'MV' not in label) or eva_method == 'sd':
+
+                plt.plot(range(len(results[name][subname][eva_method])), 
+                        results[name][subname][eva_method], 
+                        label = label, 
+                        color = line_color_list[j],  
+                        marker = marker_list[j], 
+                        markevery = 100,
+                        markersize = 5)
 
             # control ylim, may need to adjust
             if eva_method == 'sd':
-                plt.ylim([-10, 310])
+                plt.ylim([-10, 330])
             elif eva_method == 'r':
                 plt.ylim([-10, 200])
 
