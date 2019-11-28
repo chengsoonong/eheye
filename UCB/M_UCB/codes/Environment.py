@@ -16,6 +16,25 @@ class Base_env():
     def sample(self, size = None):
         pass
 
+class Log_normal(Base_env):
+    """Env for log normal. mu =0.
+       Example for heavy tailed distribution.
+    """
+    def __init__(self, para):
+        super().__init__(para)
+        self.mu = self.para[0]
+        self.sigma = self.para[1]
+    
+    def pdf(self, x):
+        return 1.0/(x * self.sigma * np.sqrt(2 * np.pi)) * np.exp(- (np.log(x) - self.mu) ** 2/(2 * self.sigma ** 2))
+    
+    def cdf(self, x):
+        return 0.5 + 0.5 * erf((np.log(x) - self.mu)/(np.sqrt(2) * self.sigma))
+
+    def sample(self, size = None):
+        return np.random.lognormal(self.mu, self.sigma, size)
+
+
 class AbsGau(Base_env):
     """Env for Absolute Gaussian Distribution.
     """

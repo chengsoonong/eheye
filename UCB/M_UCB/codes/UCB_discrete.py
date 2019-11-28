@@ -138,6 +138,75 @@ class UCB_discrete(Bandits_discrete):
             self.selectedActions.append(idx)
             self.sample(idx)
             self.evaluate(i)
+
+class Median_of_Means_UCB(UCB_discrete):
+    """Heavy tailed bandits. Replace the empirical mean with the median of means 
+       estimator. 
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        """
+        Parameters
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        summary_stat: list
+            sequence of summary statistics of arms, e.g. median, mean, etc. 
+        num_rounds: int
+            total number of rounds. 
+        """
+        super().__init__(env, summary_stats, num_rounds)
+        self.num_blocks, self.v, self.epsilon = kwargs.get('hyperpara', None)
+        
+    def median_of_means_estimator(self, reward):
+        self.num_blocks = int(min(np.log(np.exp(1.0/8)/0.1) * 8, len(reward)/2.0))
+        if self.num_blocks == 0 or self.num_blocks >= len(reward):
+            return np.mean(reward)
+        else:
+            len_block = int(len(reward)/self.num_blocks)
+            block_means = []
+            for i in range(self.num_blocks):
+                start = i * len_block
+                if i < self.num_blocks - 1:
+                    end = start + len_block
+                else:
+                    end = len(reward)
+                block_means.append(np.mean(reward[start: end]))
+            # print(block_means)
+            return np.median(block_means)
+
+    def argmax_ucb(self, t):
+        policy = []
+        # print('round: ', t)
+        # print('rewards: ', self.sample_rewards)
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            t_i = len(reward)
+
+            emp_mean = self.median_of_means_estimator(reward)
+            cw = (12 * self.v) ** (1/(1+self.epsilon)) * (16 * np.log(np.exp(1/t_i) * t ** 2) / t_i) ** (self.epsilon/ (1 + self.epsilon))
+            # print('arm ', arm)
+            # print('emp mean ', emp_mean)
+            # print('cw ', cw)
+            
+            if t_i > 32 * np.log(t) + 2:
+                policy.append(emp_mean + cw)
+                
+            else:
+                policy.append(float(np.inf))
+
+        # infs = []
+        # for i, p in enumerate(policy):
+        #     if p == float(np.inf):
+        #         infs.append(i)
+        # if len(infs) > 1:
+        #     return np.random.choice(infs)
+        # else:
+        return np.argmax(policy)
+        # print('policy: ', policy)
+        # print('select arm ', np.argmax(policy))
+        # print()
+        
+
     
 class M_UCB(UCB_discrete): 
     """M-UCB class for UCB algorithms of finite number of arms.
@@ -170,8 +239,11 @@ class M_UCB(UCB_discrete):
         super().__init__(env, summary_stats, num_rounds)
         self.hyperpara = kwargs.get('hyperpara', None)
         self.est_flag = kwargs.get('est_flag', None)
+        self.fixed_L = kwargs.get('fixed_L', None)
         self.true_L_list = []
         self.init_L()
+        # for test of sensitivity
+        self.estimated_L_dict = {}
 
     def init_L(self):
         """Initialise the true_L_list for the use of true L,
@@ -187,7 +259,7 @@ class M_UCB(UCB_discrete):
                 L = my_env.pdf(x)/ (1- my_env.cdf(0))  
             else:
                 L = my_env.L_estimate(self.hyperpara[-1])
-            assert L > 0
+            #assert L > 0
             self.true_L_list.append(L)
     
     def calcu_L(self, arm_idx):
@@ -207,11 +279,21 @@ class M_UCB(UCB_discrete):
         """
 
         if self.est_flag:
-            # estimate L
-            sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
-            L = len(sorted_data[sorted_data <= self.hyperpara[-1]])/len(sorted_data)
-            if L  == 0:
-                L = 0.1
+            if self.fixed_L == None:
+                # estimate L
+                sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
+                L = len(sorted_data[sorted_data <= self.hyperpara[-1]])/len(sorted_data)
+                if L  == 0:
+                    L = 0.1
+            else:
+                # use fixed L, for test of sensitivity
+                L = self.fixed_L[arm_idx]
+
+            if arm_idx in self.estimated_L_dict.keys():
+                self.estimated_L_dict[arm_idx].append(L)
+            else: 
+                self.estimated_L_dict[arm_idx] = []
+                self.estimated_L_dict[arm_idx].append(L)
             return L
         else:
             # true L = f(0)/ (1 - F(0))

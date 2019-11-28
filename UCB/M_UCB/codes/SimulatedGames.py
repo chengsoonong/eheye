@@ -6,7 +6,7 @@ import numpy as np
 # Mengyan Zhang, Australian National University; Data61, CSIRO.
 
 def simulate(env, summary_stat, policy, num_expers, num_rounds,
-             est_var, hyperpara, p):
+             est_var, hyperpara, fixed_L, p):
     """Simulate bandit games. 
 
     Paramters
@@ -35,7 +35,7 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
 
     for i in range(num_expers):
         p.value += 1
-        agent = policy(env, summary_stat, num_rounds, hyperpara = hyperpara, est_flag = est_var)
+        agent = policy(env, summary_stat, num_rounds, hyperpara = hyperpara, est_flag = est_var, fixed_L = fixed_L)
         agent.play()
         sds.append(agent.suboptimalDraws)
         rs.append(agent.cumulativeRegrets)

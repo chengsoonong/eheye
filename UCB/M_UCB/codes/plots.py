@@ -51,7 +51,7 @@ def plot_eva(results, eva_method, paper_flag = True):
             if 'Outlier' in name:
                 title_name = 'With Outliers'
             else:
-                title_name = 'No Outliers'
+                title_name = 'Log normal rewards'
         else:
             title_name = name
         plt.title(title_name)
@@ -80,13 +80,13 @@ def plot_eva(results, eva_method, paper_flag = True):
 
             # control ylim, may need to adjust
             if eva_method == 'sd':
-                plt.ylim([-10, 330])
+                plt.ylim([-10, 500])
             elif eva_method == 'r':
                 plt.ylim([-10, 200])
 
         plt.legend(loc="upper left")
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
-    #plt.savefig(file_name, bbox_inches='tight')
+    plt.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_for_clinical(results, eva_method):
     """Plot method for clinical datasets.
