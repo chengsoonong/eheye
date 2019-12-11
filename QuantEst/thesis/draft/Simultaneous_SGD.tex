@@ -8,6 +8,19 @@
 
 \begin{document}
 \maketitle
-hello
+
+Regression aims to find the relationship between dependent variables and independent variables. The parameters of the model is chosen by the methods for the regression (e.g. least squares).
+
+In quantile regressions specifically wants to find the relation between quantile of $Y$ and the input $X$. The loss function chosen to tune the parameters is the pinball loss function: $\ell_{\tau}(r) = max(\tau r, (\tau - 1)r)$. It has the loss function 
+$$
+R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
+$$
+where $h(\cdot)$ is the function for quantile estimator.
+
+In quantile estimation, the dataset $X$ contains only one dimensional data points, and $Y$ is fully dependent on $X$. So the loss function to tune the estimation model is
+$$
+R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
+= \frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(x_{i}-h\left({x}_{i}\right)\right)
+$$
 \end{document}
 \end{documentclass}
