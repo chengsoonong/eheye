@@ -17,8 +17,10 @@
     - `Figures/`: All images inserted in latex
     - `SGD.tex`: Explain how SGD works for quantile estimation
     - `algorithm_equivalence.tex`: Explain why SGD and Frugal are 'equivalent' (they actually aren't)
-    - `sgd_experiment`: The experiment on SGD estimation. Filled with plots
-    - `nams.tex`: The file that includes most of the latex structual settings
+    - `sgd_experiment.tex`: The experiment on SGD estimation. Filled with plots
+    - `nams.tex`: The file that includes most of the latex structural settings
+    - `literature_review.tex`: literature review draft
+    - `simultaneous_SGD`: simultaneous estimation on multiple quantiles in SGD
 
 
 5. `weekly_notes/`: The notes about weekly meeting notes or the records of my work. Basically nothing inside QAQ
