@@ -32,7 +32,7 @@
         the 99\% level to measure the adequacy of bank capital
         (Duffie and Pan 1997). In the service industry, quantiles
         are often used as measures of service quality. For example, the service quality of an out-of-hospital system is frequently measured by the 90th percentile of the times taken
-        to respond to emergency requests and to transport patients
+        to respond to emergency req`uests and to transport patients
         to a hospital (Austin and Schull 2003). Quantiles have
         also been used as billing measures in some circumstances.
         For example, some Internet service providers (ISPs) charge
@@ -47,12 +47,24 @@
     \item Quantile Streaming: \\
         \cite{greenwaldQuantilesEquidepthHistograms2016}\\
         \cite{maFrugalStreamingEstimating2014}\\
+    \pagebreak    
     \item Parallel estimation \textbf{on other things} from Streaming Data: \\
         % \cite{jainP2AlgorithmDynamic1985}\\
-        Related work on parallel quantile estimation on streaming data.\\
+        Related work on parallel quantile estimation on streaming data.
+
+
+
+        Multiple quantile estimation from streaming data requires the estimation of several different quantile values being calculated simultaneously from streaming data. It has been an issue targeted by different algorithms.\\\\
+
         \cite{ben-haimStreamingParallelDecision} 
-        \textbf{A Streaming Parallel Decision Tree Algorithm}\\
-        Parallel quantile estimation from streaming data has been an issue targeted by different algorithms. \citeauthor{ben-haimStreamingParallelDecision}  propose the Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision}, {an on-line histogram building method from streaming data at parallel processors}.
+        \textbf{A Streaming Parallel Decision Tree Algorithm}
+
+        The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
+        in which histogram boundaries are estimated quantile values.
+        In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
+
+        Advantages: works for distributed system where big data stream is processed by different processors. 
+        % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
         \\\\
         \cite{pebayFormulasRobustOnepass2008}\\
 
