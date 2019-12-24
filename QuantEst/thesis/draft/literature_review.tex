@@ -32,7 +32,7 @@
         the 99\% level to measure the adequacy of bank capital
         (Duffie and Pan 1997). In the service industry, quantiles
         are often used as measures of service quality. For example, the service quality of an out-of-hospital system is frequently measured by the 90th percentile of the times taken
-        to respond to emergency req`uests and to transport patients
+        to respond to emergency requests and to transport patients
         to a hospital (Austin and Schull 2003). Quantiles have
         also been used as billing measures in some circumstances.
         For example, some Internet service providers (ISPs) charge
@@ -46,6 +46,12 @@
     %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
     \item Quantile Streaming: \\
         \cite{greenwaldQuantilesEquidepthHistograms2016}\\
+        They propose a property on quantile estimation which guarantees accuracy within a pre-specified precision. 
+        \textbf{$\epsilon$-approximate $\phi$-quantile}
+        It is good(????) for algorithms with equidepth histogram method.
+        A new algorithm for $\epsilon$-approximate quantiles with space complexity $O(log(\epsilon n)/\epsilon)$ is proposed. It is inspired by \textbf{Manku, Rajagopalan}'s work. 
+         The problem is, the memory passes into the device(???) is affected by data size.
+        \\\\
         \cite{maFrugalStreamingEstimating2014}\\
     \pagebreak    
     \item Parallel estimation \textbf{on other things} from Streaming Data: \\
@@ -63,13 +69,12 @@
         in which histogram boundaries are estimated quantile values.
         In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
 
-        Advantages: works for distributed system where big data stream is processed by different processors. 
+        This method works for distributed system where big data stream is processed by different processors. It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
         % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
         \\\\
         \cite{pebayFormulasRobustOnepass2008}\\
 
 \end{enumerate}
-
 
 \section{Anomaly Detection and Outlier}
 
