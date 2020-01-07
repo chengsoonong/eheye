@@ -26,7 +26,9 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
         e.g. lower bound of hazard rate L
     hyperpara: list of parameters
         parameters depending on different algorithms
-
+    fixed_L: list (length: number of arms)
+        if None, estimate L from samples; 
+        otherwise, use fixed L (to test the sensitivity of the value of L)
     p: object of ipywidgets.IntProgress
         show process bar when running experiments
     """

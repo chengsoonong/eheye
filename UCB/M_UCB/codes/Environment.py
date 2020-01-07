@@ -2,8 +2,16 @@ import numpy as np
 from collections import defaultdict
 from scipy.special import erf
 
-# Version: 25/Oct/2019
+# Version: 6/Jan/2020
 # This file implements the environment construction for bandits algorithm. 
+# The environments include: 
+#   Simulated environments:
+#       Light tailed distributions: absolute Gaussian, Exponential
+#       Heavy tailed distributions: log normal 
+#       Outliers include two types: 
+#           distributional outlier (centered absolute Gaussian); 
+#           arbitrary outlier (uniformly sampled from random set).
+#   Clinical environment: sample from data
 
 # Mengyan Zhang, Australian National University; Data61, CSIRO.
 
@@ -15,24 +23,6 @@ class Base_env():
 
     def sample(self, size = None):
         pass
-
-class Log_normal(Base_env):
-    """Env for log normal. mu =0.
-       Example for heavy tailed distribution.
-    """
-    def __init__(self, para):
-        super().__init__(para)
-        self.mu = self.para[0]
-        self.sigma = self.para[1]
-    
-    def pdf(self, x):
-        return 1.0/(x * self.sigma * np.sqrt(2 * np.pi)) * np.exp(- (np.log(x) - self.mu) ** 2/(2 * self.sigma ** 2))
-    
-    def cdf(self, x):
-        return 0.5 + 0.5 * erf((np.log(x) - self.mu)/(np.sqrt(2) * self.sigma))
-
-    def sample(self, size = None):
-        return np.random.lognormal(self.mu, self.sigma, size)
 
 
 class AbsGau(Base_env):
@@ -79,7 +69,7 @@ class AbsGau_Outlier(Base_env):
             return np.asarray(samples)
 
 class AbsGau_Arb_Outlier(Base_env):
-    """Env for Absolute Gaussian Distribution with outliers.
+    """Env for Absolute Gaussian Distribution with arbitrary outliers.
     """
     def __init__(self, para, random_set):
         super().__init__(para) 
@@ -152,7 +142,7 @@ class Exp_Outlier(Base_env):
             return np.asarray(samples)
 
 class Exp_Arb_Outlier(Base_env):
-    """Env for Exponential Distribution with outliers.
+    """Env for Exponential Distribution with arbitrary outliers.
     """
     def __init__(self, para, random_set):
         super().__init__(para)
@@ -180,6 +170,30 @@ class Exp_Arb_Outlier(Base_env):
                 samples.append(s)
             return np.asarray(samples)
 
+# ---------------------------------------------------------------------------
+# Heavy tail environments (For comparison)
+
+class Log_normal(Base_env):
+    """Env for log normal. 
+       Example for heavy tailed distribution.
+    """
+    def __init__(self, para):
+        super().__init__(para)
+        self.mu = self.para[0]
+        self.sigma = self.para[1]
+    
+    def pdf(self, x):
+        return 1.0/(x * self.sigma * np.sqrt(2 * np.pi)) * np.exp(- (np.log(x) - self.mu) ** 2/(2 * self.sigma ** 2))
+    
+    def cdf(self, x):
+        return 0.5 + 0.5 * erf((np.log(x) - self.mu)/(np.sqrt(2) * self.sigma))
+
+    def sample(self, size = None):
+        return np.random.lognormal(self.mu, self.sigma, size)
+
+# -----------------------------------------------------------------------------------
+# Clinical environment
+
 class Clinical_env():
     """Environment class for clinical data.
     """
@@ -206,7 +220,7 @@ class Clinical_env():
         L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
         return L
 
-
+# ---------------------------------------------------------------------------------
 
 def setup_env(num_arms, envs_setting, paras, random_set = None):
     """Setup environment for simulations.
@@ -268,7 +282,3 @@ def setup_env(num_arms, envs_setting, paras, random_set = None):
                 means[name].append(np.mean(sample))
                 mvs[name].append(np.var(sample) - paras[0] * np.mean(sample))
     return rewards_env, medians, means, mvs, samples
-
-
-
-
