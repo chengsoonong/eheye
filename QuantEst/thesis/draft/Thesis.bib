@@ -1,3 +1,4 @@
+
 @article{blassWhenAreTwo2008,
   archivePrefix = {arXiv},
   eprinttype = {arxiv},
@@ -134,21 +135,6 @@
   year = {2008},
   pages = {SAND2008-6212, 1028931},
   file = {/Users/sue/Zotero/storage/EKFQZ5WM/Pebay - 2008 - Formulas for robust, one-pass parallel computation.pdf}
-}
-
-@incollection{greenwaldQuantilesEquidepthHistograms2016,
-  address = {{Berlin, Heidelberg}},
-  title = {Quantiles and {{Equi}}-Depth {{Histograms}} over {{Streams}}},
-  isbn = {978-3-540-28607-3 978-3-540-28608-0},
-  language = {en},
-  booktitle = {Data {{Stream Management}}},
-  publisher = {{Springer Berlin Heidelberg}},
-  doi = {10.1007/978-3-540-28608-0_3},
-  author = {Greenwald, Michael B. and Khanna, Sanjeev},
-  editor = {Garofalakis, Minos and Gehrke, Johannes and Rastogi, Rajeev},
-  year = {2016},
-  pages = {45-86},
-  file = {/Users/sue/Zotero/storage/6XH46ADB/Greenwald and Khanna - 2016 - Quantiles and Equi-depth Histograms over Streams.pdf}
 }
 
 @incollection{huangOnlineAnomalousTime2013,
@@ -326,5 +312,187 @@
   pages = {8},
   file = {/Users/sue/ANU_study/2019_sem2/Honors/Readings/The Art of Approximating Distributions_ Histograms and Quantiles at Scale.pdf}
 }
+
+@article{liuSimultaneousMultipleNoncrossing2011,
+  title = {Simultaneous Multiple Non-Crossing Quantile Regression Estimation Using Kernel Constraints},
+  volume = {23},
+  issn = {1048-5252, 1029-0311},
+  language = {en},
+  number = {2},
+  journal = {Journal of Nonparametric Statistics},
+  doi = {10.1080/10485252.2010.537336},
+  author = {Liu, Yufeng and Wu, Yichao},
+  month = jun,
+  year = {2011},
+  pages = {415-437},
+  file = {/Users/sue/Zotero/storage/XQZ4IUSD/Liu and Wu - 2011 - Simultaneous multiple non-crossing quantile regres.pdf}
+}
+
+@article{hammerSmoothEstimatesMultiple2019,
+  title = {Smooth Estimates of Multiple Quantiles in Dynamically Varying Data Streams},
+  issn = {1433-7541, 1433-755X},
+  abstract = {In this paper, we investigate the problem of estimating multiple quantiles when samples are received online (data stream). We assume a dynamical system, i.e., the distribution of the samples from the data stream changes with time. A major challenge of using incremental quantile estimators to track multiple quantiles is that we are not guaranteed that the monotone property of quantiles will be satisfied, i.e, an estimate of a lower quantile might erroneously overpass that of a higher quantile estimate. Surprisingly, we have only found two papers in the literature that attempt to counter these challenges, namely the works of Cao et al. (Proceedings of the first ACM workshop on mobile internet through cellular networks, ACM, 2009) and Hammer and Yazidi (Proceedings of the 30th international conference on industrial engineering and other applications of applied intelligent systems (IEA/AIE), France, Springer, 2017) where the latter is a preliminary version of the work in this paper. Furthermore, the state-of-the-art incremental quantile estimator called deterministic update-based multiplicative incremental quantile estimator (DUMIQE), due to Yazidi and Hammer (IEEE Trans Cybernet, 2017), fails to guarantee the monotone property when estimating multiple quantiles. A challenge with the solutions, in Cao et al.(2009) and Hammer and Yazidi(2017), is that even though the estimates satisfy the monotone property of quantiles, the estimates can be highly irregular relative to each other which usually is unrealistic from a practical point of view. In this paper, we suggest to generate the quantile estimates by inserting the quantile probabilities (e.g., 0.1, 0.2, \ldots{} , 0.9{$\mkern1mu$}) into a monotonically increasing and infinitely smooth function (can be differentiated infinitely many times). The function is incrementally updated from the data stream. The monotonicity and smoothness of the function ensure that both the monotone property and regularity requirement of the quantile estimates are satisfied. The experimental results show that the method performs very well and estimates multiple quantiles more precisely than the original DUMIQE (Yazidi and Hammer 2017), and the approaches reported in Hammer and Yazidi(2017) and Cao et al.(2009).},
+  language = {en},
+  journal = {Pattern Analysis and Applications},
+  doi = {10.1007/s10044-019-00794-3},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis},
+  month = apr,
+  year = {2019},
+  file = {/Users/sue/Zotero/storage/CJYJCJIL/Hammer and Yazidi - 2019 - Smooth estimates of multiple quantiles in dynamica.pdf}
+}
+
+@article{mcdermottDataSkeletonsSimultaneous2007,
+  title = {Data Skeletons: Simultaneous Estimation of Multiple Quantiles for Massive Streaming Datasets with Applications to Density Estimation},
+  volume = {17},
+  issn = {0960-3174, 1573-1375},
+  shorttitle = {Data Skeletons},
+  abstract = {We consider the problem of density estimation when the data is in the form of a continuous stream with no fixed length. In this setting, implementations of the usual methods of density estimation such as kernel density estimation are problematic. We propose a method of density estimation for massive datasets that is based upon taking the derivative of a smooth curve that has been fit through a set of quantile estimates. To achieve this, a low-storage, singlepass, sequential method is proposed for simultaneous estimation of multiple quantiles for massive datasets that form the basis of this method of density estimation. For comparison, we also consider a sequential kernel density estimator. The proposed methods are shown through simulation study to perform well and to have several distinct advantages over existing methods.},
+  language = {en},
+  number = {4},
+  journal = {Statistics and Computing},
+  doi = {10.1007/s11222-007-9021-3},
+  author = {McDermott, James P. and Babu, G. Jogesh and Liechty, John C. and Lin, Dennis K. J.},
+  month = sep,
+  year = {2007},
+  pages = {311-321},
+  file = {/Users/sue/Zotero/storage/85H4KMAW/McDermott et al. - 2007 - Data skeletons simultaneous estimation of multipl.pdf}
+}
+
+@misc{farmerCarsonfarmerStreamhist2019,
+  title = {Carsonfarmer/Streamhist},
+  abstract = {Streaming approximate histograms with Python. Contribute to carsonfarmer/streamhist development by creating an account on GitHub.},
+  author = {Farmer, Carson},
+  month = oct,
+  year = {2019}
+}
+
+@article{yazidiMultiplicativeUpdateMethods2019,
+  title = {Multiplicative {{Update Methods}} for {{Incremental Quantile Estimation}}},
+  volume = {49},
+  issn = {2168-2275},
+  abstract = {We present a novel lightweight incremental quantile estimator which possesses far less complexity than the Tierney's estimator and its extensions. Notably, our algorithm relies only on tuning one single parameter which is a plausible property which we could only find in the discretized quantile estimator Frugal. This makes our algorithm easy to tune for better performance. Furthermore, our algorithm is multiplicative which makes it highly suitable to handle quantile estimation in systems in which the underlying distribution varies with time. Unlike Frugal and our legacy work which are randomized algorithms, we suggest deterministic updates where the step size is adjusted in a subtle manner to ensure the convergence. The deterministic algorithm is more efficient since the estimate is updated at every iteration. The convergence of the proposed estimator is proven using the theory of stochastic learning. Extensive experimental results show that our estimator clearly outperforms legacy works.},
+  number = {3},
+  journal = {IEEE Transactions on Cybernetics},
+  doi = {10.1109/TCYB.2017.2779140},
+  author = {Yazidi, Anis and Hammer, Hugo},
+  month = mar,
+  year = {2019},
+  keywords = {Approximation algorithms,Distribution functions,Estimation,estimation theory,incremental quantile estimation,approximation theory,Complexity theory,computational complexity,Convergence,deterministic algorithm,deterministic algorithms,deterministic updates,Frugal discretized quantile estimator,learning (artificial intelligence),legacy work,lightweight incremental quantile estimator,Memory management,Monitoring,multiplicative update methods,Multiplicative updates,quantiles estimation,randomised algorithms,randomized algorithms,statistical analysis,stochastic learning theory,stochastic processes,Tierney estimator,time varying distributions},
+  pages = {746-756},
+  file = {/Users/sue/Zotero/storage/NCEGYA26/Yazidi and Hammer - 2019 - Multiplicative Update Methods for Incremental Quan.pdf;/Users/sue/Zotero/storage/IAGQL8F4/8237199.html}
+}
+
+@article{yazidiQuantileEstimationDynamic2016,
+  title = {Quantile Estimation in Dynamic and Stationary Environments Using the Theory of Stochastic Learning},
+  volume = {16},
+  issn = {15596915},
+  abstract = {The goal of our research is to estimate the quantiles of a distribution from a large set of samples that arrive sequentially. Since the data set is large, the model we choose is that the data cannot be stored, but rather that estimates of the quantiles are computed in a real-time setting. In such settings, classical estimators that require storing the whole history of the data (or stream) cannot be deployed. In this paper, we present an incremental quantile estimator of a distribution, i.e., one that utilizes the previously-computed estimates and only resorts to the last sample for updating these estimates. The state-of-the-art work on obtaining incremental quantile estimators is due to Tierney [12], and is based on the theory of stochastic approximation. However, a primary shortcoming of the latter work is the requirement to incrementally build local approximations of the distribution function in the neighborhood of the quantiles. This requirement, unfortunately, increases the complexity of the algorithm.},
+  language = {en},
+  number = {1},
+  journal = {ACM SIGAPP Applied Computing Review},
+  doi = {10.1145/2924715.2924717},
+  author = {Yazidi, Anis and Hammer, Hugo},
+  month = apr,
+  year = {2016},
+  pages = {15-24},
+  file = {/Users/sue/Zotero/storage/VLU7G4KT/Yazidi and Hammer - 2016 - Quantile estimation in dynamic and stationary envi.pdf}
+}
+
+@article{tierneySpaceEfficientRecursiveProcedure1983,
+  title = {A {{Space}}-{{Efficient Recursive Procedure}} for {{Estimating}} a {{Quantile}} of an {{Unknown Distribution}}},
+  volume = {4},
+  issn = {0196-5204, 2168-3417},
+  abstract = {Consider the problem of computing an estimate of a percentile or quantile of an unknown population based on a random sample of n observations. By viewing this problem as a problem in stochastic approximation, we obtain an estimator that requires only a small amount of direct access storage space that does not increase with the sample size. We show that a modified version of the simple stochastic approximation estimator has the same large-sample behavior as the sample quantile, which has the smallest asymptotic variance among all reasonable estimators. The modified procedure also yields an estimate of the asymptotic variance of the estimator. Some simulation results are presented to show that the proposed estimator performs well in samples of moderate size.},
+  language = {en},
+  number = {4},
+  journal = {SIAM Journal on Scientific and Statistical Computing},
+  doi = {10.1137/0904048},
+  author = {Tierney, Luke},
+  month = dec,
+  year = {1983},
+  pages = {706-711},
+  file = {/Users/sue/Zotero/storage/27GGS95A/Tierney - 1983 - A Space-Efficient Recursive Procedure for Estimati.pdf}
+}
+
+@article{mankuApproximateMediansOther,
+  title = {Approximate {{Medians}} and Other {{Quantiles}} in {{One Pass}} and with {{Limited Memory}}},
+  abstract = {We present new algorithms for computing approximate quantiles of large datasets in a single pass. The approximation guarantees are explicit, and apply without regard to the value distribution or the arrival distributions of the dataset. The main memory requirements are smaller than those reported earlier by an order of magnitude.},
+  language = {en},
+  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G},
+  pages = {10},
+  file = {/Users/sue/Zotero/storage/F7EN3ZZQ/Manku et al. - Approximate Medians and other Quantiles in One Pas.pdf}
+}
+
+@incollection{greenwaldQuantilesEquidepthHistograms2016a,
+  address = {{Berlin, Heidelberg}},
+  title = {Quantiles and {{Equi}}-Depth {{Histograms}} over {{Streams}}},
+  isbn = {978-3-540-28607-3 978-3-540-28608-0},
+  language = {en},
+  booktitle = {Data {{Stream Management}}},
+  publisher = {{Springer Berlin Heidelberg}},
+  doi = {10.1007/978-3-540-28608-0_3},
+  author = {Greenwald, Michael B. and Khanna, Sanjeev},
+  editor = {Garofalakis, Minos and Gehrke, Johannes and Rastogi, Rajeev},
+  year = {2016},
+  pages = {45-86},
+  file = {/Users/sue/Zotero/storage/T8TKWAV4/Greenwald and Khanna - 2016 - Quantiles and Equi-depth Histograms over Streams.pdf}
+}
+
+@article{gilbertAnalysisDataStreams2007,
+  title = {Analysis of {{Data Streams}}: {{Computational}} and {{Algorithmic Challenges}}},
+  volume = {49},
+  language = {en},
+  number = {3},
+  author = {Gilbert, A C and Strauss, M J},
+  year = {2007},
+  pages = {12},
+  file = {/Users/sue/Zotero/storage/2F5D9UIX/Gilbert and Strauss - 2007 - Analysis of Data Streams Computational and Algori.pdf}
+}
+
+@article{zotero-121,
+  file = {/Users/sue/Zotero/storage/6LHSP7FL/_.pdf}
+}
+
+@article{liechtyjohnc.SinglepassLowstorageArbitrary2003,
+  title = {Single-Pass Low-Storage Arbitrary Quantile Estimation for Massive Datasets},
+  volume = {13},
+  abstract = {We present a single-pass, low-storage, sequential method for estimating an arbitrary quantile of an unknown distribution. The proposed method performs very well when compared to existing methods for estimating the median as well as arbitrary quantiles for a wide range of densities. In addition to explaining the method and presenting the results of the simulation study, we discuss intuition behind the method and demonstrate empirically, for certain densities, that the proposed estimator converges to the sample quantile.},
+  journal = {Statistics and Computing},
+  author = {{Liechty, John C.} and {Lin, Dennis K.J.} and {McDermott, James P.}},
+  year = {2003},
+  pages = {91-100},
+  file = {/Users/sue/Zotero/storage/MXZD3B7P/_.pdf}
+}
+
+@article{arandjelovicTwoMaximumEntropy2014,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1411.2250},
+  primaryClass = {cs},
+  title = {Two Maximum Entropy Based Algorithms for Running Quantile Estimation in Non-Stationary Data Streams},
+  abstract = {The need to estimate a particular quantile of a distribution is an important problem which frequently arises in many computer vision and signal processing applications. For example, our work was motivated by the requirements of many semi-automatic surveillance analytics systems which detect abnormalities in close-circuit television (CCTV) footage using statistical models of low-level motion features. In this paper we specifically address the problem of estimating the running quantile of a data stream when the memory for storing observations is limited. We make several major contributions: (i) we highlight the limitations of approaches previously described in the literature which make them unsuitable for non-stationary streams, (ii) we describe a novel principle for the utilization of the available storage space, (iii) we introduce two novel algorithms which exploit the proposed principle in different ways, and (iv) we present a comprehensive evaluation and analysis of the proposed algorithms and the existing methods in the literature on both synthetic data sets and three large real-world streams acquired in the course of operation of an existing commercial surveillance system. Our findings convincingly demonstrate that both of the proposed methods are highly successful and vastly outperform the existing alternatives. We show that the better of the two algorithms (data-aligned histogram) exhibits far superior performance in comparison with the previously described methods, achieving more than 10 times lower estimate errors on real-world data, even when its available working memory is an order of magnitude smaller.},
+  journal = {arXiv:1411.2250 [cs]},
+  author = {Arandjelovic, Ognjen and Pham, Duc-Son and Venkatesh, Svetha},
+  month = nov,
+  year = {2014},
+  keywords = {Computer Science - Data Structures and Algorithms},
+  file = {/Users/sue/Zotero/storage/X8UX35AV/Arandjelovic et al. - 2014 - Two maximum entropy based algorithms for running q.pdf;/Users/sue/Zotero/storage/2QK64RI4/1411.html}
+}
+
+@inproceedings{cormodeSpaceTimeefficientDeterministic2006,
+  address = {{Chicago, IL, USA}},
+  title = {Space- and Time-Efficient Deterministic Algorithms for Biased Quantiles over Data Streams},
+  isbn = {978-1-59593-318-8},
+  abstract = {Skew is prevalent in data streams, and should be taken into account by algorithms that analyze the data. The problem of finding ``biased quantiles''\textemdash{} that is, approximate quantiles which must be more accurate for more extreme values \textemdash{} is a framework for summarizing such skewed data on data streams. We present the first deterministic algorithms for answering biased quantiles queries accurately with small\textemdash{}sublinear in the input size\textemdash{} space and time bounds in one pass. The space bound is near-optimal, and the amortized update cost is close to constant, making it practical for handling high speed network data streams. We not only demonstrate theoretical properties of the algorithm, but also show it uses less space than existing methods in many practical settings, and is fast to maintain.},
+  language = {en},
+  booktitle = {Proceedings of the Twenty-Fifth {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems  - {{PODS}} '06},
+  publisher = {{ACM Press}},
+  doi = {10.1145/1142351.1142389},
+  author = {Cormode, Graham and Korn, Flip and Muthukrishnan, S. and Srivastava, Divesh},
+  year = {2006},
+  pages = {263},
+  file = {/Users/sue/Zotero/storage/Q4ZA82QZ/Cormode et al. - 2006 - Space- and time-efficient deterministic algorithms.pdf}
+}
+
 
 

@@ -16,45 +16,60 @@
 
 \section{Quantile Estimation From Streaming Data}
 \begin{enumerate}
-    \item Why useful: \\
-        \cite{rayArtApproximatingDistributions1800}(Industrial use) "
-        Many businesses care about accurately computing quantiles over their key metrics, which can pose several interesting challenges at scale. 
+    % \item Why useful: \\
+    %     \cite{rayArtApproximatingDistributions1800}(Industrial use) "
+    %     Many businesses care about accurately computing quantiles over their key metrics, which can pose several interesting challenges at scale. 
 
-        e.g. Price for advertisement on bidding level: quantile estimation helps price setting
-        "\\\\
-        Other industrial usage mentioned in \cite{hongEstimatingQuantileSensitivities2009}, and its citations for industrial use \\
-        "
-        Quantiles have been adopted by many industries as major
-        measures of random performance. In the financial industry,
-        quantiles, also known as value-at-risks (VaRs), are widely
-        accepted measures of capital adequacy. For example, the
-        Bank for International Settlement uses the 10-day VaR at
-        the 99\% level to measure the adequacy of bank capital
-        (Duffie and Pan 1997). In the service industry, quantiles
-        are often used as measures of service quality. For example, the service quality of an out-of-hospital system is frequently measured by the 90th percentile of the times taken
-        to respond to emergency requests and to transport patients
-        to a hospital (Austin and Schull 2003). Quantiles have
-        also been used as billing measures in some circumstances.
-        For example, some Internet service providers (ISPs) charge
-        their users based on the 95th percentile of the traffic load
-        in a billing cycle (Goldenberg et al. 2004).
-        "
+    %     e.g. Price for advertisement on bidding level: quantile estimation helps price setting
+    %     "\\\\
+    %     Other industrial usage mentioned in \cite{hongEstimatingQuantileSensitivities2009}, and its citations for industrial use \\
+    %     "
+    %     Quantiles have been adopted by many industries as major
+    %     measures of random performance. In the financial industry,
+    %     quantiles, also known as value-at-risks (VaRs), are widely
+    %     accepted measures of capital adequacy. For example, the
+    %     Bank for International Settlement uses the 10-day VaR at
+    %     the 99\% level to measure the adequacy of bank capital
+    %     (Duffie and Pan 1997). In the service industry, quantiles
+    %     are often used as measures of service quality. For example, the service quality of an out-of-hospital system is frequently measured by the 90th percentile of the times taken
+    %     to respond to emergency requests and to transport patients
+    %     to a hospital (Austin and Schull 2003). Quantiles have
+    %     also been used as billing measures in some circumstances.
+    %     For example, some Internet service providers (ISPs) charge
+    %     their users based on the 95th percentile of the traffic load
+    %     in a billing cycle (Goldenberg et al. 2004).
+    %     "
+
+
+
+
     % \item Pinball loss on quantile regression: \\
     %     \cite{steinwartEstimatingConditionalQuantiles2011}\\
     %     \cite{koenkerRegressionQuantiles1978}
     % \item Simultaneously predicting several quantiles: \\
     %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
-    \item Quantile Streaming: \\
-        \cite{greenwaldQuantilesEquidepthHistograms2016}\\
-        They propose a property on quantile estimation which guarantees accuracy within a pre-specified precision. 
-        \textbf{$\epsilon$-approximate $\phi$-quantile}
-        It is good(????) for algorithms with equidepth histogram method.
-        A new algorithm for $\epsilon$-approximate quantiles with space complexity $O(log(\epsilon n)/\epsilon)$ is proposed. It is inspired by \textbf{Manku, Rajagopalan}'s work. 
-         The problem is, the memory passes into the device(???) is affected by data size.
+    \item Streaming data and quantile estimation: \\\\
+    % Quantile estimation intends to make the most of all observations, while the samples from the distribution are not always accessible at once.\\
+    Accuracy and space \cite{greenwaldQuantilesEquidepthHistograms2016a}\\
+    \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. The concept \textit{$\epsilon$-approximate $\phi$-quantile} is proposed to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
+    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(log(\epsilon n)/\epsilon)$ space.
         \\\\
-        \cite{maFrugalStreamingEstimating2014}\\
+    As \cite{cormodeSpaceTimeefficientDeterministic2006} 
+
+    \item \textbf{
+        Single quantile estimation with limited space\\
+    }
+    
+    Limited space and stochastic approximation\cite{tierneySpaceEfficientRecursiveProcedure1983}\\
+
+
+
+
+    One-unit memory and stochastic approximation \cite{yazidiQuantileEstimationDynamic2016}\\
+    One-unit memory and ummm? \cite{maFrugalStreamingEstimating2014}\\
+
     \pagebreak    
-    \item Parallel estimation \textbf{on other things} from Streaming Data: \\
+    \item Parallel quantile estimation from Streaming Data: \\
         % \cite{jainP2AlgorithmDynamic1985}\\
         Related work on parallel quantile estimation on streaming data.
 
@@ -62,8 +77,7 @@
 
         Multiple quantile estimation from streaming data requires the estimation of several different quantile values being calculated simultaneously from streaming data. It has been an issue targeted by different algorithms.\\\\
 
-        \cite{ben-haimStreamingParallelDecision} 
-        \textbf{A Streaming Parallel Decision Tree Algorithm}
+        Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision} 
 
         The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
         in which histogram boundaries are estimated quantile values.
@@ -72,7 +86,23 @@
         This method works for distributed system where big data stream is processed by different processors. It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
         % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
         \\\\
-        \cite{pebayFormulasRobustOnepass2008}\\
+        excluded: \cite{pebayFormulasRobustOnepass2008}: online learning, not quantile\\\\
+
+
+        Ohter Method and Advantages of simultaneous estimation\cite{mcdermottDataSkeletonsSimultaneous2007}
+
+        Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \textbf{cite \textit{Single-pass low-storage arbitrary quantile estimation for massive datasets}}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
+
+        Over the comparison with \textbf{cite \textit{Single-pass low-storage arbitrary quantile estimation for massive datasets}}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
+
+
+        
+        \textbf{
+            Parallel quantile estimation using Stochastic approximation \cite{hammerSmoothEstimatesMultiple2019}
+        }
+        \\
+        \textbf{P2 algorithm and latter algorithms that based on it}
+
 
 \end{enumerate}
 
@@ -85,11 +115,8 @@
         ()
         % \cite{huangOnlineAnomalousTime2013}
 \end{enumerate}
-\newpage
-\textbf{My work} Quantile estimation on streaming data, which would be applied on 
 
 \newpage
-% \citeauthor{blassWhenAreTwo2008}
 \bibliography{Thesis}
 \bibliographystyle{IEEEtranN}
 
