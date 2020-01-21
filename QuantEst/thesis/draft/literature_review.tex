@@ -50,11 +50,16 @@
     %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
     \item Streaming data and quantile estimation: \\\\
     % Quantile estimation intends to make the most of all observations, while the samples from the distribution are not always accessible at once.\\
-    Accuracy and space \cite{greenwaldQuantilesEquidepthHistograms2016a}\\
+    Input data in forms of data streams has been a popular topic, in which the algorithms face the transmission, computation and storage problems \textbf{cite  Data streams: Algorithms and applications}. The frequently used "one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
+
+    Accuracy and space for algorithms with non-constant memory space\cite{greenwaldQuantilesEquidepthHistograms2016a}\\
+    \textbf{RE-WRITE... 1.The GK algo 2.space and time complexity for the analysed algos and the GK algo} \\
     \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. The concept \textit{$\epsilon$-approximate $\phi$-quantile} is proposed to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
-    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(log(\epsilon n)/\epsilon)$ space.
+    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
         \\\\
-    As \cite{cormodeSpaceTimeefficientDeterministic2006} 
+    For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
+
+    The stochastic gradient descent algorithm, however, is proposed under the assumption that the size of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
 
     \item \textbf{
         Single quantile estimation with limited space\\
