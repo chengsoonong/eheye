@@ -3,19 +3,13 @@
 \input{nams.tex}
 \usepackage[numbers]{natbib}
 
-\title{Literature review outline}
+\title{Literature review}
 \date{\vspace{-5ex}}
 
 
 \begin{document}
 \maketitle
 
-\section{SGD 
-            \color{blue}{(should it be in Background instead?)}}
-    
-
-\section{Quantile Estimation From Streaming Data}
-\begin{enumerate}
     % \item Why useful: \\
     %     \cite{rayArtApproximatingDistributions1800}(Industrial use) "
     %     Many businesses care about accurately computing quantiles over their key metrics, which can pose several interesting challenges at scale. 
@@ -48,82 +42,94 @@
     %     \cite{koenkerRegressionQuantiles1978}
     % \item Simultaneously predicting several quantiles: \\
     %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
-    \item Streaming data and quantile estimation: \\\\
+    \section{Streaming data and quantile estimation}
     % Quantile estimation intends to make the most of all observations, while the samples from the distribution are not always accessible at once.\\
     Input data in forms of data streams has been a popular topic, in which the algorithms face the transmission, computation and storage problems \textbf{cite  Data streams: Algorithms and applications}. The frequently used "one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
 
-    Accuracy and space for algorithms with non-constant memory space\cite{greenwaldQuantilesEquidepthHistograms2016a}\\
-    \textbf{RE-WRITE... 1.The GK algo 2.space and time complexity for the analysed algos and the GK algo} \\
+    Accuracy and space for algorithms with non-constant memory space\cite{greenwaldQuantilesEquidepthHistograms2016a}
+
+    \textbf{RE-WRITE... 1.The GK algo 2.space and time complexity for the analysed algos and the GK algo} 
+
     \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. The concept \textit{$\epsilon$-approximate $\phi$-quantile} is proposed to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
     The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
-        \\\\
+
     For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
 
     The stochastic gradient descent algorithm, however, is proposed under the assumption that the size of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
 
     \pagebreak
-    \item \textbf{
-        Single quantile estimation with limited space\\
+    \section{Single quantile estimation with limited space}
+    Memory storage restrictions from data stream can be stronger for some applications, which asks for algorithms with memory space not affected by sample size. 
+    \textbf{examples/explanations}
+    Several algorithms have been proposed to deal with this challenges, and two of them are discussed in detail later in this research.
+    
+    
+    \textbf{
+    \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
+    \\
+    \citeauthor{dunningComputingExtremelyAccurate2019} \cite{dunningComputingExtremelyAccurate2019} can have constant or weakly growing memory.
     }
-    Memory storage restrictions from data stream can be stronger for some applications, which allowing for only very small amount of memory for an algorithm. \citeauthor{maFrugalStreamingEstimating2014} \cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming that requires only a constant amount of memory. In Frugal-1U, the algorithm requires only one unit of memory to record the current quantile estimate. An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
+    
+    \citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming that requires even less memory.
+    In Frugal-1U, the algorithm requires only one unit of memory to record the current quantile estimate. On arrival of each sample, the quantile estimate either stays unchanged or changed by a constant value. 
+    % An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
+    
+    To attack the same problem, \citeauthor{yazidiQuantileEstimationDynamic2016}\cite{yazidiQuantileEstimationDynamic2016} resort to the idea of online learning and achieves a similar method. 
+    One distinction is step size. In this algorithm, each step the new estimate is updated by a variable related with the current estimate rather than a constant.
+    Their work is inspired by \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, who introduce stochastic learning method to quantile estimation problems. 
+    % In The noticeable similarity and difference between \citeauthor{yazidiQuantileEstimationDynamic2016}'s work and the Frugal-1U is analysed in \textbf{section ??}.  
 
+    In \textbf{section ?}, we provide a theoretical analysis and practical\textbf{(?)} experiments on the noticeable similarity between the Frugal-1U and \citeauthor{yazidiQuantileEstimationDynamic2016}'s work . 
 
+    
+    \pagebreak
+    \section{Parallel quantile estimation}
+    When more quantile numbers are required, for example, two quantiles each identifying the upper and lower outlier of a distribution, the single quantile estimation methods become inefficient and less applicable.
+    For only a few quantiles, this problem can be solved by running parallel single quantile estimation processes for each quantile. But the issue remains when the number of processes excesses the computer's parallel capacity.
+    The algorithm which estimates several quantile values in one process, as a general solution to this problem, is then brought forward.
+    Multiple quantile estimation is the simultaneous estimation on different quantile values from streaming data. 
+    In general, it is the estimator that estimates $k$ quantiles (the $\tau_1$-, $\tau_2$-, $...$, $\tau_k$-quantiles) at the same time.
+    Given the relationship between 
+    It has been an issue targeted by different algorithms.\\\\
 
-    Limited space and stochastic approximation\cite{tierneySpaceEfficientRecursiveProcedure1983}\\
+    \subsection{Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision}}
+    The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
+    in which histogram boundaries are estimated quantile values.
+    In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
 
-
-
-    One-unit memory and randomized algorithm? \cite{maFrugalStreamingEstimating2014}\\
-
-    One-unit memory and stochastic approximation \cite{yazidiQuantileEstimationDynamic2016}\\
-
-    \pagebreak    
-    \item Parallel quantile estimation from Streaming Data: \\
-        % \cite{jainP2AlgorithmDynamic1985}\\
-        Related work on parallel quantile estimation on streaming data.
-
-
-
-        Multiple quantile estimation from streaming data requires the estimation of several different quantile values being calculated simultaneously from streaming data. It has been an issue targeted by different algorithms.\\\\
-
-        Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision} 
-
-        The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
-        in which histogram boundaries are estimated quantile values.
-        In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
-
-        This method works for distributed system where big data stream is processed by different processors. It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
+    This method works for distributed system where big data stream is processed by different processors. It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
         % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
-        \\\\
-        excluded: \cite{pebayFormulasRobustOnepass2008}: online learning, not quantile\\\\
+
+        % excluded: \cite{pebayFormulasRobustOnepass2008}: online learning, not quantile\\\\
 
 
-        Ohter Method and Advantages of simultaneous estimation\cite{mcdermottDataSkeletonsSimultaneous2007}
+    \subsection{Other Method and Advantages of simultaneous estimation\cite{mcdermottDataSkeletonsSimultaneous2007}}
 
-        Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \textbf{cite \textit{Single-pass low-storage arbitrary quantile estimation for massive datasets}}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
-
-        Over the comparison with \textbf{cite \textit{Single-pass low-storage arbitrary quantile estimation for massive datasets}}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
+    Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \citeauthor{liechtySinglepassLowstorageArbitrary} \cite{liechtySinglepassLowstorageArbitrary}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
 
 
-        
-        \textbf{
-            Parallel quantile estimation using Stochastic approximation \cite{hammerSmoothEstimatesMultiple2019}
-        }
-        \\
-        \textbf{P2 algorithm and latter algorithms that based on it}
+    Over the comparison with \citeauthor{liechtySinglepassLowstorageArbitrary}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
 
 
-\end{enumerate}
+    
+    \textbf{
+        Parallel quantile estimation using Stochastic approximation \cite{hammerSmoothEstimatesMultiple2019}
+    }
+    
 
-\section{Anomaly Detection and Outlier}
 
-\begin{enumerate}
-    \item Anomaly detection: \\
-        \cite{emmottMetaAnalysisAnomalyDetection2015}
-        (industrial use)
-        ()
-        % \cite{huangOnlineAnomalousTime2013}
-\end{enumerate}
+    \textbf{P2 algorithm and latter algorithms that based on it}
+
+
+% \section{Anomaly Detection and Outlier}
+
+% \begin{enumerate}
+%     \item Anomaly detection: \\
+%         \cite{emmottMetaAnalysisAnomalyDetection2015}
+%         (industrial use)
+%         ()
+%         % \cite{huangOnlineAnomalousTime2013}
+% \end{enumerate}
 
 \newpage
 \bibliography{Thesis}
