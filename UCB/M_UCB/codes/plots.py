@@ -118,14 +118,14 @@ def plot_eva_for_clinical(results, eva_method):
     eva_method: str
         options ('sd', 'r')
     """
-    plt.figure(figsize=(5 * 3, 4* len(results.keys())))
+    fig = plt.figure(figsize=(5 * 3, 4* len(results.keys())))
 
     for i, name in enumerate(results.keys()):
-        plt.subplot(len(results.keys()),3, i+1)
+        ax = plt.subplot(len(results.keys()),3, i+1)
         data_name = name.split('_')[0]
-        plt.title(data_name + ' Treatment Experiment')
-        plt.xlabel('Iterations')
-        plt.ylabel('Expected ' + ylabel_dict[eva_method])
+        ax.set_title(data_name + ' Treatment Experiment')
+        ax.set_xlabel('Iterations')
+        ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
         for j, subname in enumerate(results[name].keys()): 
             label = subname.split('-')[0] 
             label = label.replace('_', '-')
@@ -138,13 +138,13 @@ def plot_eva_for_clinical(results, eva_method):
                 or eva_method == 'sd':
                 mean = np.mean(results[name][subname][eva_method], axis = 0)
                 sigma = np.std(results[name][subname][eva_method], axis = 0)
-                plt.plot(range(results[name][subname][eva_method].shape[1]), 
-                        np.log10(mean), 
+                ax.plot(range(results[name][subname][eva_method].shape[1]), 
+                        mean, 
                         #mean,
                         label = label, 
                         color = line_color_list[j],  
                         marker = marker_list[j], 
-                        markevery = 100,
+                        markevery = 500,
                         markersize = 5)
             '''
             if eva_method == 'sd':
@@ -153,9 +153,10 @@ def plot_eva_for_clinical(results, eva_method):
                 plt.ylim([-1000, 20000])
                 plt.ticklabel_format(style='sci', axis='y',  scilimits=(0,0))
             '''
-        plt.legend(loc="upper left")
+        ax.set_yscale('log')
+        ax.legend(loc="lower right")
     file_name = data_name +'_treatmet_' + eva_method + '.pdf'
-    #plt.savefig(file_name, bbox_inches='tight')
+    plt.savefig(file_name, bbox_inches='tight')
 
 
 def plot_hist(sample_dict):
