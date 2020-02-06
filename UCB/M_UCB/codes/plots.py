@@ -41,10 +41,10 @@ def plot_eva(results, eva_method, paper_flag = True):
         indicates whether plotting for paper.
         True is for paper; False is not.
     """
-    plt.figure(figsize=(5 * 3, 5* len(results.keys())))
+    fig = plt.figure(figsize=(4 * 3, 3* len(results.keys())))
     
     for i, name in enumerate(results.keys()):
-        plt.subplot(len(results.keys()),3, i+1)
+        ax = fig.add_subplot(len(results.keys()),3, i+1)
         
         # setup title
         if paper_flag:
@@ -54,10 +54,10 @@ def plot_eva(results, eva_method, paper_flag = True):
                 title_name = 'No Outliers'
         else:
             title_name = name
-        plt.title(title_name)
+        ax.set_title("Performance on simulated distributions")
 
-        plt.xlabel('Iteration')
-        plt.ylabel('Expected ' + ylabel_dict[eva_method])
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
         
         for j, subname in enumerate(results[name].keys()):  
 
@@ -70,23 +70,38 @@ def plot_eva(results, eva_method, paper_flag = True):
 
             if (eva_method == 'r' and 'MV' not in label) or eva_method == 'sd':
 
-                plt.plot(range(len(results[name][subname][eva_method])), 
-                        results[name][subname][eva_method], 
+                mean = np.mean(results[name][subname][eva_method], axis = 0)
+                sigma = np.std(results[name][subname][eva_method], axis = 0)
+                ax.plot(range(results[name][subname][eva_method].shape[1]), 
+                        mean, 
+                        #np.percentile(results[name][subname][eva_method], q=50, axis = 0),
                         label = label, 
                         color = line_color_list[j],  
                         marker = marker_list[j], 
-                        markevery = 100,
+                        markevery = 500,
                         markersize = 5)
+                '''
+                plt.fill_between(range(results[name][subname][eva_method].shape[1]), 
+                        #np.percentile(results[name][subname][eva_method], q=30, axis = 0),
+                        #np.percentile(results[name][subname][eva_method], q=70, axis = 0),
+                        np.log(mean + sigma), np.log(np.max(mean - sigma, 0)),
+                        color = line_color_list[j],  
+                        alpha = 0.5)
+                '''
+                
 
             # control ylim, may need to adjust
             if eva_method == 'sd':
-                plt.ylim([-10, 330])
+                #plt.ylim([-10, 330])
+                ax.set_yscale('log')
+                pass
             elif eva_method == 'r':
-                plt.ylim([-10, 230])
+                #plt.ylim([-10, 230])
+                pass
 
-        plt.legend(loc="upper left")
+        ax.legend(loc="lower right")
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
-    plt.savefig(file_name, bbox_inches='tight')
+    fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_for_clinical(results, eva_method):
     """Plot method for clinical datasets.
@@ -104,6 +119,7 @@ def plot_eva_for_clinical(results, eva_method):
         options ('sd', 'r')
     """
     plt.figure(figsize=(5 * 3, 4* len(results.keys())))
+
     for i, name in enumerate(results.keys()):
         plt.subplot(len(results.keys()),3, i+1)
         data_name = name.split('_')[0]
@@ -120,19 +136,23 @@ def plot_eva_for_clinical(results, eva_method):
                     label+= '(1e8)'
             if (eva_method == 'r' and 'MV-LCB' not in label)\
                 or eva_method == 'sd':
-                plt.plot(range(len(results[name][subname][eva_method])), 
-                        results[name][subname][eva_method], 
+                mean = np.mean(results[name][subname][eva_method], axis = 0)
+                sigma = np.std(results[name][subname][eva_method], axis = 0)
+                plt.plot(range(results[name][subname][eva_method].shape[1]), 
+                        np.log10(mean), 
+                        #mean,
                         label = label, 
                         color = line_color_list[j],  
                         marker = marker_list[j], 
                         markevery = 100,
                         markersize = 5)
-            
+            '''
             if eva_method == 'sd':
                 plt.ylim([-20, 400])
             elif eva_method == 'r':
                 plt.ylim([-1000, 20000])
                 plt.ticklabel_format(style='sci', axis='y',  scilimits=(0,0))
+            '''
         plt.legend(loc="upper left")
     file_name = data_name +'_treatmet_' + eva_method + '.pdf'
     #plt.savefig(file_name, bbox_inches='tight')
@@ -148,15 +168,18 @@ def plot_hist(sample_dict):
         value: list of list of samples
             len is the number of parameters (arms)
     '''
-    plt.figure(figsize=(5 * 3, 5* len(sample_dict.keys())))
+    plt.figure(figsize=(4 * 3, 3 * len(sample_dict.keys())))
     j = 0
     for key, value in sample_dict.items():
         j += 1
         f = plt.subplot(len(sample_dict.keys()),3, j)
+        '''
         if 'Outlier' in key:
             plt.title('With Outliers')
         else:
             plt.title('No Outliers')
+        '''
+        plt.title('Reward Histogram')
         plt.xlabel('Reward')
         plt.ylabel('Frequency')
 
@@ -169,9 +192,12 @@ def plot_hist(sample_dict):
              
         for i, samples in enumerate(value):
             sns.distplot(samples, ax = f, label = arm_name_dict[i], bins = 100, norm_hist=False) 
+
+        plt.xlim([-1, 20])
+        # plt.ylim([0, 0.4])
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
-    #plt.savefig(file_name, bbox_inches='tight')
+    plt.savefig(file_name, bbox_inches='tight')
 
 #-----------------------------------------------------------------------
 # fit a log curve 

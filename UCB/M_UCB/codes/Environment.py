@@ -24,7 +24,51 @@ class Base_env():
     def sample(self, size = None):
         pass
 
+class Mixture_AbsGau():
+    """Env for Absolute Gaussian Distribution with outliers.
+    f(t) = p AbsGaux|mu1, sigma1) + (1-p) AbsGau(x|mu2, sigma2) with mu1 < mu2
+    To have a IHR distribution, p needs to be small.
+    When p = 1, then it's one AbsGau. 
+    """
+    def __init__(self, mu1, sigma1, mu2, sigma2, p):
+        self.mu1 = mu1
+        self.mu2 = mu2
+        self.sigma1 = sigma1
+        self.sigma2 = sigma2
+        self.p = p
 
+    def pdf(self, x, mu, sigma):
+        return 1.0/np.sqrt(2 * np.pi * sigma ** 2) * (np.exp(- 1.0/(2 * sigma**2) * (x - mu)** 2) + np.exp(- 1.0/(2 * sigma**2) * (x + mu)** 2 ))
+
+    def cdf(self, x, mu, sigma):
+        return 1.0/2 * (erf((x-mu)/ np.sqrt(2 * sigma ** 2)) + erf((x+ mu)/ np.sqrt(2 * sigma ** 2)))
+
+    def mix_pdf(self, x):
+        return (self.p * self.pdf(x, self.mu1, self.sigma1) + (1-self.p)*self.pdf(x, self.mu2,self.sigma2))
+
+    def mix_cdf(self, x):
+        return (self.p * self.cdf(x, self.mu1, self.sigma1) + (1-self.p)*self.cdf(x, self.mu2,self.sigma2))
+
+    def hazard_rate(self, x):
+        return self.mix_pdf(x)/(1 - self.mix_cdf(x))
+
+    def sample(self, size = None):
+        if size == None:
+            if np.random.uniform() <= self.p:
+                return np.abs(np.random.normal(self.mu1, self.sigma1)) 
+            else:
+                return np.abs(np.random.normal(self.mu2, self.sigma2)) 
+        else:
+            samples = []
+            for i in range(size):
+                if np.random.uniform() <= self.p:
+                    s = np.abs(np.random.normal(self.mu1, self.sigma1)) 
+                else:
+                    s = np.abs(np.random.normal(self.mu2, self.sigma2))  
+                samples.append(s)
+            return np.asarray(samples)
+
+'''
 class AbsGau(Base_env):
     """Env for Absolute Gaussian Distribution.
     """
@@ -67,6 +111,7 @@ class AbsGau_Outlier(Base_env):
                     s = np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
                 samples.append(s)
             return np.asarray(samples)
+'''
 
 class AbsGau_Arb_Outlier(Base_env):
     """Env for Absolute Gaussian Distribution with arbitrary outliers.
@@ -221,7 +266,7 @@ class Clinical_env():
         return L
 
 # ---------------------------------------------------------------------------------
-
+'''
 def setup_env(num_arms, envs_setting, paras, random_set = None):
     """Setup environment for simulations.
 
@@ -273,6 +318,72 @@ def setup_env(num_arms, envs_setting, paras, random_set = None):
             for para in para_list:
                 if random_set == None:
                     current_env = env(para)
+                else:
+                    current_env = env(para, random_set)
+                rewards_env[name].append(current_env)
+                sample = current_env.sample(num_samples)
+                samples[name].append(sample)
+                medians[name].append(np.median(sample))
+                means[name].append(np.mean(sample))
+                mvs[name].append(np.var(sample) - paras[0] * np.mean(sample))
+    return rewards_env, medians, means, mvs, samples
+'''
+
+def setup_env(num_arms, envs_setting, paras, random_set = None):
+    """Setup environment for simulations.
+    !!! Only for the Mixture_AbsGau for now. Testing.
+
+    Parameter:
+    --------------------------------------------------
+    num_arms: int
+        number of arms
+    envs_setting: list of env dict
+        keys: instance of environment class 
+            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
+        values: list of parameters
+        e.g.environments = [
+                {AbsGau: [0.5, 1.0, 1.5]}, 
+                {Exp:    [2.0, 1.0, 1.5]},
+                {AbsGau: [0.5], Exp: [1.0, 1.5]}
+               ]
+    paras: list of paramete
+        rho for MV-LCB: MV = emp_var - rho * emp_meanMV
+
+    Return:
+    --------------------------------------------------
+    results_env: dict of list
+        keys: name of environment 
+            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
+        values: list of env instances
+    medians: dict of list for medians
+        keys: name of environment 
+            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
+        values: list of medians
+    means: dict of list for means
+    mvs: dict of list for mean-variance
+    samples: dict of list for samples
+    """
+    
+    rewards_env = defaultdict(list)
+    medians = defaultdict(list)
+    samples = defaultdict(list)
+    means = defaultdict(list)
+    mvs = defaultdict(list)
+    num_samples = 10000
+
+    for envs_dict in envs_setting:
+        name = ''
+        for env, para_list in envs_dict.items():
+            env_name = str(env).split('.')[-1][:-2]
+            name += env_name + '_' + str(para_list)
+
+        for env, para_list in envs_dict.items():
+            for para in para_list:
+                if random_set == None:
+                    if type(para) is list:
+                        current_env = env(*para)
+                    else:
+                        current_env = env(para)
                 else:
                     current_env = env(para, random_set)
                 rewards_env[name].append(current_env)

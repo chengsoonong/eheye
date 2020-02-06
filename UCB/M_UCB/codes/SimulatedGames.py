@@ -66,11 +66,13 @@ def evaluate(sds, rs):
     eva_dict =  {}
     if len(sds) > 0:
         sds = np.asarray(sds)
-        eva_sd = np.mean(sds, axis = 0)
-        eva_dict['sd'] = eva_sd
+        #eva_sd = np.mean(sds, axis = 0)
+        #eva_dict['sd'] = eva_sd
+        eva_dict['sd'] = sds # pass the whole list 
     if len(rs) > 0:
         rs = np.asarray(rs)
-        eva_r = np.mean(rs, axis = 0)
-        eva_dict['r'] = eva_r
+        #eva_r = np.mean(rs, axis = 0)
+        #eva_dict['r'] = eva_r
+        eva_dict['r'] = rs
     return eva_dict
     

@@ -111,6 +111,34 @@ class Bandits_discrete(ABC):
             stats_diff = self.summary_stats[self.bestarm] - self.summary_stats[key]
             regret += stats_diff * len(value)
         self.cumulativeRegrets.append(regret)
+
+class epsilon_greedy(Bandits_discrete):
+    """chooses a random arm with probability \epsilon = 0.1, 
+       and otherwise the arm with highest empirical median
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        super().__init__(env, summary_stats, num_rounds)
+        self.epsilon = kwargs.get('hyperpara_list',0.1)
+
+    def select(self):
+        if np.random.uniform() <= self.epsilon:
+            return np.random.choice(np.arange(len(self.env)))
+        else:
+            policy = []
+            for arm in sorted(self.sample_rewards.keys()):  
+                reward = self.sample_rewards[arm]
+                emp_median = np.median(reward)
+                
+                policy.append(emp_median)
+            return np.argmax(policy)
+
+    def play(self):
+        self.init_reward()
+        for i in range(len(self.env),self.num_rounds):
+            idx = self.select()
+            self.selectedActions.append(idx)
+            self.sample(idx)
+            self.evaluate(i)
         
 class UCB_discrete(Bandits_discrete):
     """Base class of UCB algorithm. 
@@ -138,6 +166,58 @@ class UCB_discrete(Bandits_discrete):
             self.selectedActions.append(idx)
             self.sample(idx)
             self.evaluate(i)
+
+class U_UCB(UCB_discrete):
+    """U-UCB policy from Cassel et al. 2018.
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        """
+        Parameters
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        summary_stat: list
+            sequence of summary statistics of arms, e.g. median, mean, etc. 
+        num_rounds: int
+            total number of rounds. 
+        """
+        super().__init__(env, summary_stats, num_rounds)
+        self.hyperpara = kwargs.get('hyperpara', None)
+        self.alpha = self.hyperpara[0]
+
+    def argmax_ucb(self, t):
+        """Select arm index by maximise upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+
+        policy = []
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            emp_median = np.median(reward)
+            t_i = len(reward)
+
+            # b, q, a are calculated based on VaR case in appendix
+            # need to check whether the value is correct
+            b = 6
+            a = 2 # dkw
+            q = 1
+            
+            cw = self.phi_inverse(self.alpha * np.log(t)/ t_i, b, q, a)
+            
+            policy.append(emp_median + cw)
+        return np.argmax(policy)
+
+    def phi_inverse(self,x, b, q, a):
+        return np.max([2 * b * np.sqrt(x/a), 2 * b * np.sqrt(x/a) ** q])
+  
 
 class Median_of_Means_UCB(UCB_discrete):
     """Heavy tailed bandits. Replace the empirical mean with the median of means 
@@ -253,14 +333,20 @@ class M_UCB(UCB_discrete):
         for i in range(len(self.env)):
             
             my_env = self.env[i]
-            if hasattr(my_env, 'pdf'):
+            
+            if hasattr(my_env, 'hazard_rate'):
+                # for Mixture_AbsGau only, testing
+                L = my_env.hazard_rate(0)
+            elif hasattr(my_env, 'pdf'):
                 # if pdf and cdf is defined
                 x = 0
                 L = my_env.pdf(x)/ (1- my_env.cdf(0))  
             else:
                 L = my_env.L_estimate(self.hyperpara[-1])
             #assert L > 0
+            
             self.true_L_list.append(L)
+        print(self.true_L_list)
     
     def calcu_L(self, arm_idx):
         """estimate the lower bound L of hazard rate for 
@@ -355,7 +441,6 @@ class UCB1(UCB_discrete):
         --------------------------------
         t: int
             the number of current round
-
         Return
         --------------------------------
         the index of arm with the maximum ucb
