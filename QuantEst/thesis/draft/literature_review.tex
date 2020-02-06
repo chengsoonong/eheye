@@ -44,28 +44,33 @@
     %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
     \section{Streaming data and quantile estimation}
     % Quantile estimation intends to make the most of all observations, while the samples from the distribution are not always accessible at once.\\
-    Input data in forms of data streams has been a popular topic, in which the algorithms face the transmission, computation and storage problems \textbf{cite  Data streams: Algorithms and applications}. The frequently used "one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
+    Input data in forms of data streams has been a popular topic, in which the algorithms face the transmission, computation and storage problems \cite{muthukrishnanDataStreamsAlgorithms2005}. The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
+    \\\\
+    Classification based on \cite{buragohainQuantilesStreams2009}
+    \subsection{Randomised algorithms}
+    \subsection{Deterministic algorithms}
+    \textbf{RE-WRITE } 
 
-    Accuracy and space for algorithms with non-constant memory space\cite{greenwaldQuantilesEquidepthHistograms2016a}
+    \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
+    They use the measure \textit{$\epsilon$-approximate $\phi$-quantile} to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. 
+    For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
+    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
 
-    \textbf{RE-WRITE... 1.The GK algo 2.space and time complexity for the analysed algos and the GK algo} 
-
-    \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. The concept \textit{$\epsilon$-approximate $\phi$-quantile} is proposed to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
-    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
+    \subsection{Quantile estimation under other requirements}
 
     For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
 
-    The stochastic gradient descent algorithm, however, is proposed under the assumption that the size of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
+% The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
 
     \pagebreak
-    \section{Single quantile estimation with limited space}
+    \section{Single quantile estimation with non-growing memory}
     Memory storage restrictions from data stream can be stronger for some applications, which asks for algorithms with memory space not affected by sample size. 
     \textbf{examples/explanations}
     Several algorithms have been proposed to deal with this challenges, and two of them are discussed in detail later in this research.
     
     
     \textbf{
-    \citeauthor{mankuApproximateMediansOther} \cite{mankuApproximateMediansOther} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
+    \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
     \\
     \citeauthor{dunningComputingExtremelyAccurate2019} \cite{dunningComputingExtremelyAccurate2019} can have constant or weakly growing memory.
     }
@@ -79,10 +84,10 @@
     Their work is inspired by \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, who introduce stochastic learning method to quantile estimation problems. 
     % In The noticeable similarity and difference between \citeauthor{yazidiQuantileEstimationDynamic2016}'s work and the Frugal-1U is analysed in \textbf{section ??}.  
 
-    In \textbf{section ?}, we provide a theoretical analysis and practical\textbf{(?)} experiments on the noticeable similarity between the Frugal-1U and \citeauthor{yazidiQuantileEstimationDynamic2016}'s work . 
+    In \textbf{section ?}, we provide a theoretical analysis and experiment comparisons on the noticeable similarity between the Frugal-1U and \citeauthor{yazidiQuantileEstimationDynamic2016}'s work . 
 
     
-    \pagebreak
+    \pagebreak 
     \section{Parallel quantile estimation}
     When more quantile numbers are required, for example, two quantiles each identifying the upper and lower outlier of a distribution, the single quantile estimation methods become inefficient and less applicable.
     For only a few quantiles, this problem can be solved by running parallel single quantile estimation processes for each quantile. But the issue remains when the number of processes excesses the computer's parallel capacity.
