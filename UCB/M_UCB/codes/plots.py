@@ -68,6 +68,9 @@ def plot_eva(results, eva_method, paper_flag = True):
             else: 
                 label = subname
 
+            if label == 'epsilon-greedy':
+                label = r'$\epsilon$-greedy'
+
             if (eva_method == 'r' and 'MV' not in label) or eva_method == 'sd':
 
                 mean = np.mean(results[name][subname][eva_method], axis = 0)
@@ -123,17 +126,16 @@ def plot_eva_for_clinical(results, eva_method):
     for i, name in enumerate(results.keys()):
         ax = plt.subplot(len(results.keys()),3, i+1)
         data_name = name.split('_')[0]
+        if data_name == "Glinoma":
+            data_name = "Glioma"
         ax.set_title(data_name + ' Treatment Experiment')
         ax.set_xlabel('Iterations')
         ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
         for j, subname in enumerate(results[name].keys()): 
             label = subname.split('-')[0] 
             label = label.replace('_', '-')
-            if label == 'MV-LCB':
-                if subname[10] == ',':
-                    label+= '(50)'
-                else:
-                    label+= '(1e8)'
+            if label == 'epsilon-greedy':
+                label = r'$\epsilon$-greedy'
             if (eva_method == 'r' and 'MV-LCB' not in label)\
                 or eva_method == 'sd':
                 mean = np.mean(results[name][subname][eva_method], axis = 0)
@@ -146,13 +148,9 @@ def plot_eva_for_clinical(results, eva_method):
                         marker = marker_list[j], 
                         markevery = 500,
                         markersize = 5)
-            '''
-            if eva_method == 'sd':
-                plt.ylim([-20, 400])
-            elif eva_method == 'r':
-                plt.ylim([-1000, 20000])
-                plt.ticklabel_format(style='sci', axis='y',  scilimits=(0,0))
-            '''
+            
+            
+        #ax.set_ylim([10**-0.8, 10**3.5])
         ax.set_yscale('log')
         ax.legend(loc="lower right")
     file_name = data_name +'_treatmet_' + eva_method + '.pdf'
