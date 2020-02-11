@@ -10,45 +10,32 @@
 \begin{document}
 \maketitle
 
-    % \item Why useful: \\
-    %     \cite{rayArtApproximatingDistributions1800}(Industrial use) "
-    %     Many businesses care about accurately computing quantiles over their key metrics, which can pose several interesting challenges at scale. 
+The field of quantile estimation is big, and ??
+This chapter details some of the work that has been done in the quantile estimation on streaming data, organised as follows:
 
-    %     e.g. Price for advertisement on bidding level: quantile estimation helps price setting
-    %     "\\\\
-    %     Other industrial usage mentioned in \cite{hongEstimatingQuantileSensitivities2009}, and its citations for industrial use \\
-    %     "
-    %     Quantiles have been adopted by many industries as major
-    %     measures of random performance. In the financial industry,
-    %     quantiles, also known as value-at-risks (VaRs), are widely
-    %     accepted measures of capital adequacy. For example, the
-    %     Bank for International Settlement uses the 10-day VaR at
-    %     the 99\% level to measure the adequacy of bank capital
-    %     (Duffie and Pan 1997). In the service industry, quantiles
-    %     are often used as measures of service quality. For example, the service quality of an out-of-hospital system is frequently measured by the 90th percentile of the times taken
-    %     to respond to emergency requests and to transport patients
-    %     to a hospital (Austin and Schull 2003). Quantiles have
-    %     also been used as billing measures in some circumstances.
-    %     For example, some Internet service providers (ISPs) charge
-    %     their users based on the 95th percentile of the traffic load
-    %     in a billing cycle (Goldenberg et al. 2004).
-    %     "
+Section~\ref{streamingdata} lists some current quantile estimation methods on the streaming data phenomenon, and classifies them by algorithm types. 
+% while section~\ref{singlequantile} and ~\ref{multiquantile} classify quantile estimation problems by aims
 
+Section~\ref{singlequantile} discusses algorithms on single quantile estimation under restricted memory storage limit.
 
+Section~\ref{multiquantile} presents algorithms on the problem of multi-quantile estimation, which estimate multiple quantiles at the same time, and the methods are 
 
+   \section{Quantile estimation methods on streaming data}
+   \label{streamingdata}
+   Data stream is the phenomenon that input data comes at a high rate instead of being accessible at the same time. Compared with instantly accessible data, three challenges stand out their potentially higher difficulties: transmission, computation and storage\cite{muthukrishnanDataStreamsAlgorithms2005}. 
+   In this research, we focus on programs with low computation complexity and restricted memory storage, under the assumption that the low-dimensional input data is transmitted at a not very high rate.
+   
+   Quantile estimation on streaming data aims at an accurate to the 
+   Model: time series: each input $a_i$ equales $A[i]$ and appears in increasing order.
+   One-pass application: the reading of an input is done in exactly once and all inputs are read in order. Usually, the process for each input takes only one or few passes. 
+%    In contrast to some phenomena-driven data streams, 
 
-    % \item Pinball loss on quantile regression: \\
-    %     \cite{steinwartEstimatingConditionalQuantiles2011}\\
-    %     \cite{koenkerRegressionQuantiles1978}
-    % \item Simultaneously predicting several quantiles: \\
-    %     \cite{sangnierJointQuantileRegression} (non-streaming)(multi-dimensional)(quantile regression)\\
-    \section{Streaming data and quantile estimation}
-    % Quantile estimation intends to make the most of all observations, while the samples from the distribution are not always accessible at once.\\
-    Input data in forms of data streams has been a popular topic, in which the algorithms face the transmission, computation and storage problems \cite{muthukrishnanDataStreamsAlgorithms2005}. The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
+   The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
     \\\\
     Classification based on \cite{buragohainQuantilesStreams2009}
-    \subsection{Randomised algorithms}
+
     \subsection{Deterministic algorithms}
+    \label{deterministic}
     \textbf{RE-WRITE } 
 
     \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
@@ -56,14 +43,27 @@
     For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
     The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
 
-    \subsection{Quantile estimation under other requirements}
+    \textbf{ this is copied from others!\\
+        \citeauthor{shrivastavaMediansNewAggregation2004} \cite{shrivastavaMediansNewAggregation2004}
+         presented another deterministic algorithm for insert-only streams that uses (?? log U) space, where U is the size of the domain from which the input is drawn
+        }
 
+
+    \subsection{Randomised algorithms}
+    \label{randomised}
+    \cite{guhaStreamOrderOrder2009}
+
+
+    \subsection{Quantile estimation under other requirements}
+    \label{other}
     For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
+    Another application aims to attack on the multi-thread data stream problem. \cite{ben-haimStreamingParallelDecision} 
 
 % The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
 
     \pagebreak
     \section{Single quantile estimation with non-growing memory}
+    \label{singlequantile}
     Memory storage restrictions from data stream can be stronger for some applications, which asks for algorithms with memory space not affected by sample size. 
     \textbf{examples/explanations}
     Several algorithms have been proposed to deal with this challenges, and two of them are discussed in detail later in this research.
@@ -88,7 +88,8 @@
 
     
     \pagebreak 
-    \section{Parallel quantile estimation}
+    \section{Multi-quantile estimation}
+    \label{multiquantile}
     When more quantile numbers are required, for example, two quantiles each identifying the upper and lower outlier of a distribution, the single quantile estimation methods become inefficient and less applicable.
     For only a few quantiles, this problem can be solved by running parallel single quantile estimation processes for each quantile. But the issue remains when the number of processes excesses the computer's parallel capacity.
     The algorithm which estimates several quantile values in one process, as a general solution to this problem, is then brought forward.
@@ -121,8 +122,6 @@
         Parallel quantile estimation using Stochastic approximation \cite{hammerSmoothEstimatesMultiple2019}
     }
     
-
-
     \textbf{P2 algorithm and latter algorithms that based on it}
 
 

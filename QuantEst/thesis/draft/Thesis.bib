@@ -187,6 +187,23 @@
   number = {5}
 }
 
+@article{guhaStreamOrderOrder2009a,
+  title = {Stream {{Order}} and {{Order Statistics}}: {{Quantile Estimation}} in {{Random}}-{{Order Streams}}},
+  shorttitle = {Stream {{Order}} and {{Order Statistics}}},
+  author = {Guha, Sudipto and McGregor, Andrew},
+  year = {2009},
+  month = jan,
+  volume = {38},
+  pages = {2044--2059},
+  issn = {0097-5397, 1095-7111},
+  doi = {10.1137/07069328X},
+  abstract = {When trying to process a data stream in small space, how important is the order in which the data arrive? Are there problems that are unsolvable when the ordering is worst case, but that can be solved (with high probability) when the order is chosen uniformly at random? If we consider the stream as if ordered by an adversary, what happens if we restrict the power of the adversary? We study these questions in the context of quantile estimation, one of the most well studied problems in the data-stream model. Our results include an O(polylog n)-space, O(log log n)-pass algorithm for exact selection in a randomly ordered stream of n elements. This resolves an open question of Munro and Paterson [Theoret. Comput. Sci., 23 (1980), pp. 315\textendash{}323]. We then demonstrate an exponential separation between the random-order and adversarial-order models: using O(polylog n) space, exact selection requires {$\Omega$}(log n/ log log n) passes in the adversarial-order model. This lower bound, in contrast to previous results, applies to fully general randomized algorithms and is established via a new bound on the communication complexity of a natural pointer-chasing style problem. We also prove the first fully general lower bounds in the random-order model: finding an element with rank n/2 {$\pm$} n{$\delta$} in the single-pass random-order model with probability at least 9/10 requires {$\Omega$}( n1-3{$\delta$} / log n) space.},
+  file = {/Users/sue/Zotero/storage/6HMF5JL8/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf},
+  journal = {SIAM Journal on Computing},
+  language = {en},
+  number = {5}
+}
+
 @article{hammerSmoothEstimatesMultiple2019,
   title = {Smooth Estimates of Multiple Quantiles in Dynamically Varying Data Streams},
   author = {Hammer, Hugo Lewi and Yazidi, Anis},
@@ -436,6 +453,21 @@
   abstract = {Stochastic Gradient Descent (SGD) is one of the simplest and most popular stochastic optimization methods. While it has already been theoretically studied for decades, the classical analysis usually required nontrivial smoothness assumptions, which do not apply to many modern applications of SGD with non-smooth objective functions such as support vector machines. In this paper, we investigate the performance of SGD without such smoothness assumptions, as well as a running average scheme to convert the SGD iterates to a solution with optimal optimization accuracy. In this framework, we prove that after T rounds, the suboptimalit{$\surd$}y of the last SGD iterate scales as O(log(T )/ T ) for non-smooth convex objective functions, and O(log(T )/T ) in the non-smooth strongly convex case. To the best of our knowledge, these are the first bounds of this kind, and almost match the minimax-optimal rates obtainable by appropriate averaging schemes. We also propose a new and simple averaging scheme, which not only attains optimal rates, but can also be easily computed on-the-fly (in contrast, the suffix averaging scheme proposed in Rakhlin et al. (2011) is not as simple to implement). Finally, we provide some experimental illustrations.},
   file = {/Users/sue/Zotero/storage/VEPFGNVH/Shamir and Zhang - Stochastic Gradient Descent for Non-smooth Optimiz.pdf},
   language = {en}
+}
+
+@article{shrivastavaMediansNewAggregation2004,
+  title = {Medians and {{Beyond}}: {{New Aggregation Techniques}} for {{Sensor Networks}}},
+  shorttitle = {Medians and {{Beyond}}},
+  author = {Shrivastava, Nisheeth and Buragohain, Chiranjeeb and Agrawal, Divyakant and Suri, Subhash},
+  year = {2004},
+  month = aug,
+  abstract = {Wireless sensor networks offer the potential to span and monitor large geographical areas inexpensively. Sensors, however, have significant power constraint (battery life), making communication very expensive. Another important issue in the context of sensor-based information systems is that individual sensor readings are inherently unreliable. In order to address these two aspects, sensor database systems like TinyDB and Cougar enable in-network data aggregation to reduce the communication cost and improve reliability. The existing data aggregation techniques, however, are limited to relatively simple types of queries such as SUM, COUNT, AVG, and MIN/MAX. In this paper we propose a data aggregation scheme that significantly extends the class of queries that can be answered using sensor networks. These queries include (approximate) quantiles, such as the median, the most frequent data values, such as the consensus value, a histogram of the data distribution, as well as range queries. In our scheme, each sensor aggregates the data it has received from other sensors into a fixed (user specified) size message. We provide strict theoretical guarantees on the approximation quality of the queries in terms of the message size. We evaluate the performance of our aggregation scheme by simulation and demonstrate its accuracy, scalability and low resource utilization for highly variable input data sets.},
+  archivePrefix = {arXiv},
+  eprint = {cs/0408039},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/DX9KFSRT/Shrivastava et al. - 2004 - Medians and Beyond New Aggregation Techniques for.pdf;/Users/sue/Zotero/storage/WZHWV3VD/0408039.html},
+  journal = {arXiv:cs/0408039},
+  keywords = {Computer Science - Data Structures and Algorithms,Computer Science - Databases,Computer Science - Distributed; Parallel; and Cluster Computing}
 }
 
 @article{steinwartEstimatingConditionalQuantiles2011,
