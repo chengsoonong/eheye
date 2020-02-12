@@ -1,13 +1,5 @@
-\documentclass[12pt]{article}
-\usepackage{xcolor}
-\input{nams.tex}
-
-\title{Simultaneously compute several quantiles in SGD}
-\date{\vspace{-5ex}}
-
-
-\begin{document}
-\maketitle
+\chapter{Simultaneously compute several quantiles in SGD}
+\label{ch: simultaneous_quant}
 
 Regression aims to find the relationship between dependent variables and independent variables. The parameters of the model is chosen by the methods for the regression (e.g. least squares).
 
@@ -15,33 +7,37 @@ In quantile regressions specifically wants to find the relation between quantile
 
 Quantile regression implements this function with the consideration that $Y$ is dependent on $X$, so the loss function looks like this:
 
-$$
-R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
-$$
+\begin{equation}
+    R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
+\end{equation}
+
+
 where $h(\cdot)$ is the function for quantile estimator.
 
 It is worth noticing that the quantile regression loss functions are generated from quantile estimation loss functions except for the dependence between variables. It means the loss functions applied in quantile regressions can be modified to implement in quantile estimation. Take the pinball loss function for example:
 in quantile estimation, the dataset $X$ contains only one dimensional data points, and $Y$ is fully dependent on $X$. So the loss function to tune the estimation model is
-$$
-R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
-= \frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(x_{i}-h\left({x}_{i}\right)\right) 
-= \frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(x_{i}- q^{est}\right) 
-$$
+\begin{equation}
+    R_{\tau}^{\mathrm{emp}}(h)=\frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(y_{i}-h\left(\mathbf{x}_{i}\right)\right)
+        = \frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(x_{i}-h\left({x}_{i}\right)\right) 
+        = \frac{1}{n} \sum_{i=1}^{n} \ell_{\tau}\left(x_{i}- q^{est}\right) 
+\end{equation}
+
 in which the quantile estimator $h\left(\mathbf{x}_{i}\right)$ is replaced with the constant quantile estimate $q^{est}$.
 
 In the quantile regression method, there is another loss function aims to reduce the crossing between different quantile values:
-$$
-\sum_{j=1}^{p-1}\left[\frac{1}{n} \sum_{i=1}^{n} \max \left(0, h_{j+1}\left(\mathbf{x}_{i}\right)-h_{j}\left(\mathbf{x}_{i}\right)\right)\right]
-$$
+
+\begin{equation}
+    \sum_{j=1}^{p-1}\left[\frac{1}{n} \sum_{i=1}^{n} \max \left(0, h_{j+1}\left(\mathbf{x}_{i}\right)-h_{j}\left(\mathbf{x}_{i}\right)\right)\right]
+\end{equation}
+
+
 Where $p$ is the total amount of $\tau$ values that needs to be estimated simultaneously, and here we assume$(\tau_j > \tau_{j+1})$.
 
 
 To apply it in quantile estimation, the dependence between $Y$ and $X$ should be reduced from the loss function. Luckily the relationship is not included at all in the regression loss function. So for quantile estimation we can use
-$$
-\sum_{j=1}^{p-1}\left[\frac{1}{n} \sum_{i=1}^{n} \max \left(0, h_{j+1}\left({x}_{i}\right)-h_{j}\left({x}_{i}\right)\right)\right]
+\begin{equation}
+    \sum_{j=1}^{p-1}\left[\frac{1}{n} \sum_{i=1}^{n} \max \left(0, h_{j+1}\left({x}_{i}\right)-h_{j}\left({x}_{i}\right)\right)\right]
 = \sum_{j=1}^{p-1}\left[\frac{1}{n} \sum_{i=1}^{n} \max \left(0, q_{j+1}^{est}-q_{j}^{est}\right)\right]
-$$
+\end{equation}
 
 
-\end{document}
-\end{documentclass}
