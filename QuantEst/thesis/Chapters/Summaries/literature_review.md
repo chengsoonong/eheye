@@ -4,16 +4,35 @@
    - The field of quantile estimation is big
    - this chapter details some of the work that has been done in the quantile estimation on streaming data, organised as follows:
    - details some of the current quantile estimation methods on the streaming data phenomenon, which are classified wrt algorithm types(?), while section 3.2 and 3.3 classify quantile estimation problems by aims
-   - discuss algorithms on ?
+   - discuss algorithms on single quantile estimation
    - present the relatively new problem: algorithms on multi-quantile estimation
-2. Streaming data
-   1. definition
-   2. problems
-   3. models & maths?
-   4. data form for quantile estimations
+2. Streaming data and quantile estimation
+   1. data stream
+      - definition
+      - problems
+      - models & maths?
+   2. Quantile estimations
+      1. why quantile/estimation/data stream
+      2. quant est
+        - basic settings
+        - current works
 3. Single Quantile estimation
    1. quantile and quantile estimation
    2. data form: one-dim numeric time series
    3. different algorithms for quantile estimation.
 4. Randomised algorithms
-   1. 
+
+
+our algorithm: 
+    - online learning
+    - one pass
+    - constant memory usage
+    - im tired QAQ
+
+our work:
+    - frugal == online learning
+    - How it works for distributions/data size/ data sequence(?)/step size(?) 
+    - single quantile: step size (based on Yazidi & Hammer's work & Frugal)
+    - multi-quantile: step size & relations
+    - deal with real data?
+    - who to compare with?
