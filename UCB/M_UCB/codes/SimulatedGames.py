@@ -1,6 +1,6 @@
 import numpy as np
 
-# Version: 25/Oct/2019
+# Version: Feb/2020
 # This file implements the simulated games for bandits algorithm. 
 
 # Mengyan Zhang, Australian National University; Data61, CSIRO.

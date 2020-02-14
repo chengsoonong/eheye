@@ -2,12 +2,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 from collections import defaultdict
 
-# Version: 25/Oct/2019
+# Version: Feb/2020
 # This file implements Median-Based UCB (M-UCB) and 
-# the benchmark algorithms: UCB1, UCB-V, MV-LCB, Exp3.
+# the benchmark algorithms: U-UCB, epsilon-greedy, Median_of_means UCB, Exp3
 
 # Mengyan Zhang, Australian National University; Data61, CSIRO.
-
 
 class Bandits_discrete(ABC):
     """Base class for bandit algorithms of a finite number of arms in discrete space.
@@ -112,34 +111,6 @@ class Bandits_discrete(ABC):
             regret += stats_diff * len(value)
         self.cumulativeRegrets.append(regret)
 
-class epsilon_greedy(Bandits_discrete):
-    """chooses a random arm with probability \epsilon = 0.1, 
-       and otherwise the arm with highest empirical median
-    """
-    def __init__(self, env, summary_stats, num_rounds, **kwargs):
-        super().__init__(env, summary_stats, num_rounds)
-        self.epsilon = kwargs.get('hyperpara_list',0.1)
-
-    def select(self):
-        if np.random.uniform() <= self.epsilon:
-            return np.random.choice(np.arange(len(self.env)))
-        else:
-            policy = []
-            for arm in sorted(self.sample_rewards.keys()):  
-                reward = self.sample_rewards[arm]
-                emp_median = np.median(reward)
-                
-                policy.append(emp_median)
-            return np.argmax(policy)
-
-    def play(self):
-        self.init_reward()
-        for i in range(len(self.env),self.num_rounds):
-            idx = self.select()
-            self.selectedActions.append(idx)
-            self.sample(idx)
-            self.evaluate(i)
-        
 class UCB_discrete(Bandits_discrete):
     """Base class of UCB algorithm. 
     """
@@ -167,127 +138,6 @@ class UCB_discrete(Bandits_discrete):
             self.sample(idx)
             self.evaluate(i)
 
-class U_UCB(UCB_discrete):
-    """U-UCB policy from Cassel et al. 2018.
-    """
-    def __init__(self, env, summary_stats, num_rounds, **kwargs):
-        """
-        Parameters
-        ----------------------------------------------------------------------
-        env: list
-            sequence of instances of Environment (reward distribution of arms).
-        summary_stat: list
-            sequence of summary statistics of arms, e.g. median, mean, etc. 
-        num_rounds: int
-            total number of rounds. 
-        """
-        super().__init__(env, summary_stats, num_rounds)
-        self.hyperpara = kwargs.get('hyperpara', None)
-        self.alpha = self.hyperpara[0]
-
-    def argmax_ucb(self, t):
-        """Select arm index by maximise upper confidence bound 
-
-        Parameters
-        --------------------------------
-        t: int
-            the number of current round
-
-        Return
-        --------------------------------
-        the index of arm with the maximum ucb
-        """
-
-        policy = []
-        for arm in sorted(self.sample_rewards.keys()):  
-            reward = self.sample_rewards[arm]
-            emp_median = np.median(reward)
-            t_i = len(reward)
-
-            # b, q, a are calculated based on VaR case in appendix
-            # need to check whether the value is correct
-            b = 6
-            a = 2 # dkw
-            q = 1
-            
-            cw = self.phi_inverse(self.alpha * np.log(t)/ t_i, b, q, a)
-            
-            policy.append(emp_median + cw)
-        return np.argmax(policy)
-
-    def phi_inverse(self,x, b, q, a):
-        return np.max([2 * b * np.sqrt(x/a), 2 * b * np.sqrt(x/a) ** q])
-  
-
-class Median_of_Means_UCB(UCB_discrete):
-    """Heavy tailed bandits. Replace the empirical mean with the median of means 
-       estimator. 
-    """
-    def __init__(self, env, summary_stats, num_rounds, **kwargs):
-        """
-        Parameters
-        ----------------------------------------------------------------------
-        env: list
-            sequence of instances of Environment (reward distribution of arms).
-        summary_stat: list
-            sequence of summary statistics of arms, e.g. median, mean, etc. 
-        num_rounds: int
-            total number of rounds. 
-        """
-        super().__init__(env, summary_stats, num_rounds)
-        self.num_blocks, self.v, self.epsilon = kwargs.get('hyperpara', None)
-        
-    def median_of_means_estimator(self, reward):
-        self.num_blocks = int(min(np.log(np.exp(1.0/8)/0.1) * 8, len(reward)/2.0))
-        if self.num_blocks == 0 or self.num_blocks >= len(reward):
-            return np.mean(reward)
-        else:
-            len_block = int(len(reward)/self.num_blocks)
-            block_means = []
-            for i in range(self.num_blocks):
-                start = i * len_block
-                if i < self.num_blocks - 1:
-                    end = start + len_block
-                else:
-                    end = len(reward)
-                block_means.append(np.mean(reward[start: end]))
-            # print(block_means)
-            return np.median(block_means)
-
-    def argmax_ucb(self, t):
-        policy = []
-        # print('round: ', t)
-        # print('rewards: ', self.sample_rewards)
-        for arm in sorted(self.sample_rewards.keys()):  
-            reward = self.sample_rewards[arm]
-            t_i = len(reward)
-
-            emp_mean = self.median_of_means_estimator(reward)
-            cw = (12 * self.v) ** (1/(1+self.epsilon)) * (16 * np.log(np.exp(1/t_i) * t ** 2) / t_i) ** (self.epsilon/ (1 + self.epsilon))
-            # print('arm ', arm)
-            # print('emp mean ', emp_mean)
-            # print('cw ', cw)
-            
-            if t_i > 32 * np.log(t) + 2:
-                policy.append(emp_mean + cw)
-                
-            else:
-                policy.append(float(np.inf))
-
-        # infs = []
-        # for i, p in enumerate(policy):
-        #     if p == float(np.inf):
-        #         infs.append(i)
-        # if len(infs) > 1:
-        #     return np.random.choice(infs)
-        # else:
-        return np.argmax(policy)
-        # print('policy: ', policy)
-        # print('select arm ', np.argmax(policy))
-        # print()
-        
-
-    
 class M_UCB(UCB_discrete): 
     """M-UCB class for UCB algorithms of finite number of arms.
 
@@ -346,7 +196,7 @@ class M_UCB(UCB_discrete):
             #assert L > 0
             
             self.true_L_list.append(L)
-        print(self.true_L_list)
+        # print(self.true_L_list)
     
     def calcu_L(self, arm_idx):
         """estimate the lower bound L of hazard rate for 
@@ -411,6 +261,221 @@ class M_UCB(UCB_discrete):
             d = np.sqrt(2 * v_t * eps) + 2 * eps * np.sqrt(v_t/t_i)
             policy.append(emp_median + beta * d)
         return np.argmax(policy)
+
+# --------------------------------------------------------------------------
+# Baseline algorithms
+
+class U_UCB(UCB_discrete):
+    """U-UCB policy from Cassel et al. 2018.
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        """
+        Parameters
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        summary_stat: list
+            sequence of summary statistics of arms, e.g. median, mean, etc. 
+        num_rounds: int
+            total number of rounds. 
+        """
+        super().__init__(env, summary_stats, num_rounds)
+        self.hyperpara = kwargs.get('hyperpara', None)
+        self.alpha = self.hyperpara[0]
+
+    def argmax_ucb(self, t):
+        """Select arm index by maximise upper confidence bound 
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm with the maximum ucb
+        """
+
+        policy = []
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            emp_median = np.median(reward)
+            t_i = len(reward)
+
+            # b, q, a are calculated based on VaR case in appendix
+            # need to check whether the value is correct
+            b = 6
+            a = 2 # dkw
+            q = 1
+            
+            cw = self.phi_inverse(self.alpha * np.log(t)/ t_i, b, q, a)
+            
+            policy.append(emp_median + cw)
+        return np.argmax(policy)
+
+    def phi_inverse(self,x, b, q, a):
+        return np.max([2 * b * np.sqrt(x/a), 2 * b * np.sqrt(x/a) ** q])
+
+class epsilon_greedy(Bandits_discrete):
+    """chooses a random arm with probability \epsilon = 0.1, 
+       and otherwise the arm with highest empirical median
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        super().__init__(env, summary_stats, num_rounds)
+        self.epsilon = kwargs.get('hyperpara_list',0.1)
+
+    def select(self):
+        if np.random.uniform() <= self.epsilon:
+            return np.random.choice(np.arange(len(self.env)))
+        else:
+            policy = []
+            for arm in sorted(self.sample_rewards.keys()):  
+                reward = self.sample_rewards[arm]
+                emp_median = np.median(reward)
+                
+                policy.append(emp_median)
+            return np.argmax(policy)
+
+    def play(self):
+        self.init_reward()
+        for i in range(len(self.env),self.num_rounds):
+            idx = self.select()
+            self.selectedActions.append(idx)
+            self.sample(idx)
+            self.evaluate(i)
+         
+class Median_of_Means_UCB(UCB_discrete):
+    """Heavy tailed bandits. Replace the empirical mean with the median of means 
+       estimator. 
+    """
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        """
+        Parameters
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        summary_stat: list
+            sequence of summary statistics of arms, e.g. median, mean, etc. 
+        num_rounds: int
+            total number of rounds. 
+        """
+        super().__init__(env, summary_stats, num_rounds)
+        self.num_blocks, self.v, self.epsilon = kwargs.get('hyperpara', None)
+        
+    def median_of_means_estimator(self, reward):
+        self.num_blocks = int(min(np.log(np.exp(1.0/8)/0.1) * 8, len(reward)/2.0))
+        if self.num_blocks == 0 or self.num_blocks >= len(reward):
+            return np.mean(reward)
+        else:
+            len_block = int(len(reward)/self.num_blocks)
+            block_means = []
+            for i in range(self.num_blocks):
+                start = i * len_block
+                if i < self.num_blocks - 1:
+                    end = start + len_block
+                else:
+                    end = len(reward)
+                block_means.append(np.mean(reward[start: end]))
+            # print(block_means)
+            return np.median(block_means)
+
+    def argmax_ucb(self, t):
+        policy = []
+        # print('round: ', t)
+        # print('rewards: ', self.sample_rewards)
+        for arm in sorted(self.sample_rewards.keys()):  
+            reward = self.sample_rewards[arm]
+            t_i = len(reward)
+
+            emp_mean = self.median_of_means_estimator(reward)
+            cw = (12 * self.v) ** (1/(1+self.epsilon)) * (16 * np.log(np.exp(1/t_i) * t ** 2) / t_i) ** (self.epsilon/ (1 + self.epsilon))
+            # print('arm ', arm)
+            # print('emp mean ', emp_mean)
+            # print('cw ', cw)
+            
+            if t_i > 32 * np.log(t) + 2:
+                policy.append(emp_mean + cw)
+                
+            else:
+                policy.append(float(np.inf))
+
+        return np.argmax(policy)    
+
+class Exp3(Bandits_discrete):
+    """implementation Exp3 based on https://github.com/j2kun/exp3
+
+    Arguments
+    ------------------------------------
+    hyperpara: list of
+        gamma, an egalitarianism factor
+        rewardMin, minimum value of rewards
+        rewardMax, maximum value of rewards
+
+    weights: list
+        sequence of each actions' weight
+    n_arm: number of arms
+    """
+    # 
+    def __init__(self, env, summary_stats, num_rounds, **kwargs):
+        """
+        Parameters
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        summary_stat: list
+            sequence of summary statistics of arms, e.g. median, mean, etc. 
+        num_rounds: int
+            total number of rounds. 
+        
+        """
+        super().__init__(env, summary_stats, num_rounds)
+        self.gamma, self.rewardMin, self.rewardMax = kwargs.get('hyperpara', None)
+
+        self.n_arms = len(self.env)
+        self.weights = [1.0] * self.n_arms
+
+    def draw(self, t):
+        """Pick arm index from the given list of normalized proportionally
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+
+        Return
+        --------------------------------
+        the index of arm 
+        """
+        choice = np.random.uniform(0, sum(self.weights))
+        choiceIndex = 0
+
+        for weight in self.weights:
+            choice -= weight
+            if choice <= 0:
+                return choiceIndex
+
+            choiceIndex += 1
+
+    def distr(self):
+        """Normalize a list of floats to a probability distribution.
+        """
+        theSum = float(sum(self.weights))
+        return tuple((1.0 - self.gamma) * (w / theSum) + (self.gamma / self.n_arms) for w in self.weights)
+
+    def play(self):
+        """Simulate Exp3 algorithms.
+        """ 
+        for i in range(self.num_rounds):
+            probabilityDistribution = self.distr()
+            choice = self.draw(probabilityDistribution)
+            theReward = self.sample(choice)
+            scaledReward = (theReward - self.rewardMin) / (self.rewardMax - self.rewardMin) # rewards scaled to 0,1
+
+            estimatedReward = 1.0 * scaledReward / probabilityDistribution[choice]
+            self.weights[choice] *= np.exp(estimatedReward * self.gamma / self.n_arms) # important that we use estimated reward here!
+            self.evaluate(i)
+# ---------------------------------------------------------------------------
+# other algorithms 
 
 class UCB1(UCB_discrete):
     """Implement for UCB1 algorithm
@@ -538,77 +603,3 @@ class MV_LCB(UCB_discrete):
             cw = (5 + self.rho) * np.sqrt(np.log(1/self.theta)/len(reward))
             ucbs.append( MV - self.beta * cw)
         return np.argmin(ucbs)   
-    
-class Exp3(Bandits_discrete):
-    """implementation Exp3 based on https://github.com/j2kun/exp3
-
-    Arguments
-    ------------------------------------
-    hyperpara: list of
-        gamma, an egalitarianism factor
-        rewardMin, minimum value of rewards
-        rewardMax, maximum value of rewards
-
-    weights: list
-        sequence of each actions' weight
-    n_arm: number of arms
-    """
-    # 
-    def __init__(self, env, summary_stats, num_rounds, **kwargs):
-        """
-        Parameters
-        ----------------------------------------------------------------------
-        env: list
-            sequence of instances of Environment (reward distribution of arms).
-        summary_stat: list
-            sequence of summary statistics of arms, e.g. median, mean, etc. 
-        num_rounds: int
-            total number of rounds. 
-        
-        """
-        super().__init__(env, summary_stats, num_rounds)
-        self.gamma, self.rewardMin, self.rewardMax = kwargs.get('hyperpara', None)
-
-        self.n_arms = len(self.env)
-        self.weights = [1.0] * self.n_arms
-
-    def draw(self, t):
-        """Pick arm index from the given list of normalized proportionally
-
-        Parameters
-        --------------------------------
-        t: int
-            the number of current round
-
-        Return
-        --------------------------------
-        the index of arm 
-        """
-        choice = np.random.uniform(0, sum(self.weights))
-        choiceIndex = 0
-
-        for weight in self.weights:
-            choice -= weight
-            if choice <= 0:
-                return choiceIndex
-
-            choiceIndex += 1
-
-    def distr(self):
-        """Normalize a list of floats to a probability distribution.
-        """
-        theSum = float(sum(self.weights))
-        return tuple((1.0 - self.gamma) * (w / theSum) + (self.gamma / self.n_arms) for w in self.weights)
-
-    def play(self):
-        """Simulate Exp3 algorithms.
-        """ 
-        for i in range(self.num_rounds):
-            probabilityDistribution = self.distr()
-            choice = self.draw(probabilityDistribution)
-            theReward = self.sample(choice)
-            scaledReward = (theReward - self.rewardMin) / (self.rewardMax - self.rewardMin) # rewards scaled to 0,1
-
-            estimatedReward = 1.0 * scaledReward / probabilityDistribution[choice]
-            self.weights[choice] *= np.exp(estimatedReward * self.gamma / self.n_arms) # important that we use estimated reward here!
-            self.evaluate(i)

@@ -4,7 +4,7 @@ from scipy.optimize import curve_fit
 import seaborn as sns
 import pandas as pd
 
-# Version: 25/Oct/2019
+# Version: Feb/2020
 # This file implements the plots methods for bandits algorithm. 
 
 # Mengyan Zhang, Australian National University; Data61, CSIRO.
@@ -21,7 +21,6 @@ arm_name_dict = {
 line_style_list = ['-','--','-.',':']
 marker_list = ['o','s','v','^', '.', '>', '<']
 line_color_list = ['C0', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
-
 
 def plot_eva(results, eva_method, paper_flag = True):
     """Plot method for evaluations
@@ -46,16 +45,7 @@ def plot_eva(results, eva_method, paper_flag = True):
     for i, name in enumerate(results.keys()):
         ax = fig.add_subplot(len(results.keys()),3, i+1)
         
-        # setup title
-        if paper_flag:
-            if 'Outlier' in name:
-                title_name = 'With Outliers'
-            else:
-                title_name = 'No Outliers'
-        else:
-            title_name = name
         ax.set_title("Performance on simulated distributions")
-
         ax.set_xlabel('Iteration')
         ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
         
@@ -92,7 +82,6 @@ def plot_eva(results, eva_method, paper_flag = True):
                         alpha = 0.5)
                 '''
                 
-
             # control ylim, may need to adjust
             if eva_method == 'sd':
                 #plt.ylim([-10, 330])
@@ -104,7 +93,7 @@ def plot_eva(results, eva_method, paper_flag = True):
 
         ax.legend(loc="lower right")
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
-    fig.savefig(file_name, bbox_inches='tight')
+    # fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_for_clinical(results, eva_method):
     """Plot method for clinical datasets.
@@ -126,11 +115,11 @@ def plot_eva_for_clinical(results, eva_method):
     for i, name in enumerate(results.keys()):
         ax = plt.subplot(len(results.keys()),3, i+1)
         data_name = name.split('_')[0]
-        if data_name == "Glinoma":
-            data_name = "Glioma"
+    
         ax.set_title(data_name + ' Treatment Experiment')
         ax.set_xlabel('Iterations')
         ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
+
         for j, subname in enumerate(results[name].keys()): 
             label = subname.split('-')[0] 
             label = label.replace('_', '-')
@@ -154,7 +143,7 @@ def plot_eva_for_clinical(results, eva_method):
         ax.set_yscale('log')
         ax.legend(loc="lower right")
     file_name = data_name +'_treatmet_' + eva_method + '.pdf'
-    plt.savefig(file_name, bbox_inches='tight')
+    # plt.savefig(file_name, bbox_inches='tight')
 
 
 def plot_hist(sample_dict):
@@ -172,12 +161,7 @@ def plot_hist(sample_dict):
     for key, value in sample_dict.items():
         j += 1
         f = plt.subplot(len(sample_dict.keys()),3, j)
-        '''
-        if 'Outlier' in key:
-            plt.title('With Outliers')
-        else:
-            plt.title('No Outliers')
-        '''
+       
         plt.title('Reward Histogram')
         plt.xlabel('Reward')
         plt.ylabel('Frequency')
@@ -196,7 +180,7 @@ def plot_hist(sample_dict):
         # plt.ylim([0, 0.4])
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
-    plt.savefig(file_name, bbox_inches='tight')
+    # plt.savefig(file_name, bbox_inches='tight')
 
 #-----------------------------------------------------------------------
 # fit a log curve 
