@@ -40,48 +40,49 @@ Transmission problem is difficult when there are frequent delays or data in comp
 while challenges in computation comes with high complexity programs. Also, the balance between long-term demanding and capable memory storage can be another tricky problem.
 In this research, we focus only on the latter two problems. The aim range is limited to programs with low computation complexity and restricted memory storage, under the assumption that the low-dimensional input data is transmitted at a not very high rate.
 \\\\
-A common assumption people make about data stream is that the data points are considered as independent individual samples from a certain statistic distribution. Quantiles is an important \textbf{feature (?)} for a distribution, which represent the cutting points which divides a data distribution by its ranking.
+A common assumption people make about data stream is that the data points are considered as independent individual samples from a certain statistic distribution. 
+Although access to the distribution is impossible, studies on the random samples can reveal some useful information. 
+Quantile is an important \textbf{feature (?)} for a distribution, which represents the cutting points which divides a data distribution by its ranking.
 At the first sight, the computation of quantile is relatively as long as the dataset is sorted.
 The data stream, however, is updated at the arrival of each single input, indicating quantile calculation then demands one sorting for every updates.
 For what's worse, the unknown size of data stream can cause a severe memory shortage problem for any system. 
-The conclusion now becomes clear that quantile calculation is not a feasible solution for data stream.
+The conclusion now becomes clear that quantile calculation fail to be a feasible solution for data stream.
 
-% ------------------------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
 % to be finished
-
-Quantile estimation on streaming data aims at an accurate to the 
-Model: time series: each input $a_i$ equals $A[i]$ and appears in increasing order.
-One-pass application: the reading of an input is done in exactly once and all inputs are read in order. Usually, the process for each input takes only one or few passes. 
-%    In contrast to some phenomena-driven data streams, 
-
-The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
-\\\\
-Classification based on \cite{buragohainQuantilesStreams2009}
-
-    \subsection{Deterministic algorithms}
-    \label{deterministic}
-    \textbf{RE-WRITE } 
-
-    \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
-    They use the measure \textit{$\epsilon$-approximate $\phi$-quantile} to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. 
-    For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
-    The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
-
-    \textbf{ this is copied from others!\\
-        \citeauthor{shrivastavaMediansNewAggregation2004} \cite{shrivastavaMediansNewAggregation2004}
-         presented another deterministic algorithm for insert-only streams that uses (?? log U) space, where U is the size of the domain from which the input is drawn
-        }
+Quantile estimation replaces calculation for data streams due to the computation and storage problems.
+The estimation works with limited computational power and memory storage.
+Generally, quantile estimation algorithms trade off accuracy for computation and storage.
+In this chapter, we introduce other people's work on how improvements are made for higher estimation accuracy with lower computational and memory complexity, and on how the trade off is balanced in different situations. Section~\ref{deterministic}, ~\ref{randomised} and ~\ref{other} divide the algorithms by their types, a classification rule based on \citeauthor{buragohainQuantilesStreams2009}\cite{buragohainQuantilesStreams2009}'s work.
+% Model: time series: each input $a_i$ equals $A[i]$ and appears in increasing order.
+% One-pass application: the reading of an input is done in exactly once and all inputs are read in order. Usually, the process for each input takes only one or few passes. 
 
 
-    \subsection{Randomised algorithms}
-    \label{randomised}
-    \cite{guhaStreamOrderOrder2009}
+\subsection{Deterministic algorithms}
+\label{deterministic}
+\textbf{RE-WRITE } 
+
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
+They use the measure \textit{$\epsilon$-approximate $\phi$-quantile} to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. 
+For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
+The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
+
+\textbf{ this is copied from others!\\
+    \citeauthor{shrivastavaMediansNewAggregation2004} \cite{shrivastavaMediansNewAggregation2004}
+        presented another deterministic algorithm for insert-only streams that uses (?? log U) space, where U is the size of the domain from which the input is drawn
+    }
 
 
-    \subsection{Quantile estimation under other requirements}
-    \label{other}
-    For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
-    Another application aims to attack on the multi-thread data stream problem. \cite{ben-haimStreamingParallelDecision} 
+\subsection{Randomised algorithms}
+\label{randomised}
+\cite{guhaStreamOrderOrder2009}
+% The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
+
+
+\subsection{Quantile estimation under other requirements}
+\label{other}
+For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
+Another application aims to attack on the multi-thread data stream problem. \cite{ben-haimStreamingParallelDecision} 
 
 % The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
 
@@ -91,6 +92,8 @@ Classification based on \cite{buragohainQuantilesStreams2009}
 %   Single quantile estimation
 %----------------------------------------------------------------------------------------
 
+
+\iffalse
 \section{Single quantile estimation with non-growing memory}
 \label{singlequantile}
 Memory storage restrictions from data stream can be stronger for some applications, which asks for algorithms with memory space not affected by sample size. 
@@ -160,3 +163,4 @@ It has been an issue targeted by different algorithms.\\\\
 
 
 % \section{Anomaly Detection and Outlier}
+\fi

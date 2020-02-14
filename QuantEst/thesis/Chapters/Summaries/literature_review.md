@@ -10,20 +10,20 @@
    1. data stream
       - definition
       - problems
-      - models & maths?
-   2. Quantile estimations
+      <!-- - models & maths? -->
+   2. quantile estimations
       1. why quantile/estimation/data stream
       2. quant est
-        - basic settings
-        - current works
+        - intro: trade off
+        - our intro to current works
+   3. deterministic algos
 3. Single Quantile estimation
    1. quantile and quantile estimation
    2. data form: one-dim numeric time series
    3. different algorithms for quantile estimation.
 4. Randomised algorithms
 
-
-our algorithm: 
+our algorithm:
     - online learning
     - one pass
     - constant memory usage
