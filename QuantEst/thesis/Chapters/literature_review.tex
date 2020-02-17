@@ -48,45 +48,57 @@ The data stream, however, is updated at the arrival of each single input, indica
 For what's worse, the unknown size of data stream can cause a severe memory shortage problem for any system. 
 The conclusion now becomes clear that quantile calculation fail to be a feasible solution for data stream.
 
-% -----------------------------------------------------------------------------
-% to be finished
 Quantile estimation replaces calculation for data streams due to the computation and storage problems.
 The estimation works with limited computational power and memory storage.
 Generally, quantile estimation algorithms trade off accuracy for computation and storage.
-In this chapter, we introduce other people's work on how improvements are made for higher estimation accuracy with lower computational and memory complexity, and on how the trade off is balanced in different situations. Section~\ref{deterministic}, ~\ref{randomised} and ~\ref{other} divide the algorithms by their types, a classification rule based on \citeauthor{buragohainQuantilesStreams2009}\cite{buragohainQuantilesStreams2009}'s work.
+In this chapter, we introduce other people's work on how improvements are made for higher estimation accuracy with lower computational and memory complexity, and on how the trade off is balanced in different situations. Section~\ref{deterministic}, ~\ref{randomised} and ~\ref{other} divide the algorithms by their types: deterministic, randomised and others. The classification is based on works from \citeauthor{buragohainQuantilesStreams2009}\cite{buragohainQuantilesStreams2009} and \citeauthor{wangQuantilesDataStreams2013}\cite{wangQuantilesDataStreams2013}.
 % Model: time series: each input $a_i$ equals $A[i]$ and appears in increasing order.
 % One-pass application: the reading of an input is done in exactly once and all inputs are read in order. Usually, the process for each input takes only one or few passes. 
 
-
+It is worth noting that since quantiles are related with ranking, a quantile estimation algorithm takes one-dimensional numerical data input by default. The simple data format also partially explains why transmission is not usually considered a problem in most quantile estimation algorithms.
+% -----------------------------------------------------------------------------
+% to be finished
 \subsection{Deterministic algorithms}
 \label{deterministic}
-\textbf{RE-WRITE } 
 
 \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
 They use the measure \textit{$\epsilon$-approximate $\phi$-quantile} to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. 
 For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
-The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{log(\epsilon N)} {\epsilon})$ space.
+The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{1}{\epsilon}log(\epsilon N))$ space.
 
 \textbf{ this is copied from others!\\
     \citeauthor{shrivastavaMediansNewAggregation2004} \cite{shrivastavaMediansNewAggregation2004}
         presented another deterministic algorithm for insert-only streams that uses (?? log U) space, where U is the size of the domain from which the input is drawn
     }
 
+\textbf{ From Manku: Approcimate counts and quantiles over sliding windows
+    Randomized Quantile-Finding Algorithms
+    % For identifying exact quantiles in main memory, a simplelinear time randomized algorithm was presented by Floydand Rivest [12]. For approximate quantiles, randomizationreduces the space requirements signiﬁcantly. The key insightis the well-known fact that the φ-quantile of a random sam-ple of size O(12log (δ)−1) is an -approximate φ-quantileof N elements with probability at least 1 − δ. This observa-tion has been exploited, for example, by DeWitt et al [11]to identify splitters of large datasets in the context of dis-tributed sorting. For data streams, a randomized quantile-ﬁnding algorithm was proposed by Manku et al [20] thatrequires only O(1log2(1log(δ)−1)) space, beating the sam-pling bound. Further improvement in space is possible, asdescribed in Section 6. Recently Cormode and Muthukrish-nan [8] proposed a sketching technique called CM-sketchesthat can be used to maintain -approximate quantiles overstreams and updateable relations. Their approach requiresan advance knowledge of the domain U from which the ele-ments of the stream are drawn. The space requirement fortheir approach is O(1log2|U | log(|U | /(δ))), where |U |denotes the size of the domain U.
+}
+
 
 \subsection{Randomised algorithms}
 \label{randomised}
-\cite{guhaStreamOrderOrder2009}
+% \cite{guhaStreamOrderOrder2009}
 % The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
 
 
 \subsection{Quantile estimation under other requirements}
 \label{other}
 For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
-Another application aims to attack on the multi-thread data stream problem. \cite{ben-haimStreamingParallelDecision} 
+
+Manku: Approcimate counts and quantiles over sliding windows
+
+% \subsection{Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision}}
+Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
+The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
+in which histogram boundaries are estimated quantile values.
+In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
+
+ It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
+    % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
 
 % The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
-
-    \pagebreak
 
 %----------------------------------------------------------------------------------------
 %   Single quantile estimation
@@ -133,19 +145,8 @@ The algorithm which estimates several quantile values in one process, as a gener
 Multiple quantile estimation is the simultaneous estimation on different quantile values from streaming data. 
 In general, it is the estimator that estimates $k$ quantiles (the $\tau_1$-, $\tau_2$-, $...$, $\tau_k$-quantiles) at the same time.
 Given the relationship between 
-It has been an issue targeted by different algorithms.\\\\
-
-    \subsection{Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision}}
-    The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
-    in which histogram boundaries are estimated quantile values.
-    In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
-
-    This method works for distributed system where big data stream is processed by different processors. It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
-        % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
-
+It has been an issue targeted by different algorithms.
         % excluded: \cite{pebayFormulasRobustOnepass2008}: online learning, not quantile\\\\
-
-
     \subsection{Other Method and Advantages of simultaneous estimation\cite{mcdermottDataSkeletonsSimultaneous2007}}
 
     Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \citeauthor{liechtySinglepassLowstorageArbitrary} \cite{liechtySinglepassLowstorageArbitrary}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.

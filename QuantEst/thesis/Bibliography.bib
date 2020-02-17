@@ -187,23 +187,6 @@
   number = {5}
 }
 
-@article{guhaStreamOrderOrder2009a,
-  title = {Stream {{Order}} and {{Order Statistics}}: {{Quantile Estimation}} in {{Random}}-{{Order Streams}}},
-  shorttitle = {Stream {{Order}} and {{Order Statistics}}},
-  author = {Guha, Sudipto and McGregor, Andrew},
-  year = {2009},
-  month = jan,
-  volume = {38},
-  pages = {2044--2059},
-  issn = {0097-5397, 1095-7111},
-  doi = {10.1137/07069328X},
-  abstract = {When trying to process a data stream in small space, how important is the order in which the data arrive? Are there problems that are unsolvable when the ordering is worst case, but that can be solved (with high probability) when the order is chosen uniformly at random? If we consider the stream as if ordered by an adversary, what happens if we restrict the power of the adversary? We study these questions in the context of quantile estimation, one of the most well studied problems in the data-stream model. Our results include an O(polylog n)-space, O(log log n)-pass algorithm for exact selection in a randomly ordered stream of n elements. This resolves an open question of Munro and Paterson [Theoret. Comput. Sci., 23 (1980), pp. 315\textendash{}323]. We then demonstrate an exponential separation between the random-order and adversarial-order models: using O(polylog n) space, exact selection requires {$\Omega$}(log n/ log log n) passes in the adversarial-order model. This lower bound, in contrast to previous results, applies to fully general randomized algorithms and is established via a new bound on the communication complexity of a natural pointer-chasing style problem. We also prove the first fully general lower bounds in the random-order model: finding an element with rank n/2 {$\pm$} n{$\delta$} in the single-pass random-order model with probability at least 9/10 requires {$\Omega$}( n1-3{$\delta$} / log n) space.},
-  file = {/Users/sue/Zotero/storage/6HMF5JL8/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf},
-  journal = {SIAM Journal on Computing},
-  language = {en},
-  number = {5}
-}
-
 @article{hammerSmoothEstimatesMultiple2019,
   title = {Smooth Estimates of Multiple Quantiles in Dynamically Varying Data Streams},
   author = {Hammer, Hugo Lewi and Yazidi, Anis},
@@ -504,6 +487,37 @@
   journal = {SIAM Journal on Scientific and Statistical Computing},
   language = {en},
   number = {4}
+}
+
+@article{vitterRandomSamplingReservoir1985,
+  title = {Random Sampling with a Reservoir},
+  author = {Vitter, Jeffrey S.},
+  year = {1985},
+  month = mar,
+  volume = {11},
+  pages = {37--57},
+  issn = {0098-3500, 1557-7295},
+  doi = {10.1145/3147.3165},
+  file = {/Users/sue/Zotero/storage/MQ97JRE2/Vitter - 1985 - Random sampling with a reservoir.pdf},
+  journal = {ACM Transactions on Mathematical Software (TOMS)},
+  language = {en},
+  number = {1}
+}
+
+@inproceedings{wangQuantilesDataStreams2013,
+  title = {Quantiles over Data Streams: An Experimental Study},
+  shorttitle = {Quantiles over Data Streams},
+  booktitle = {Proceedings of the 2013 International Conference on {{Management}} of Data - {{SIGMOD}} '13},
+  author = {Wang, Lu and Luo, Ge and Yi, Ke and Cormode, Graham},
+  year = {2013},
+  pages = {737},
+  publisher = {{ACM Press}},
+  address = {{New York, New York, USA}},
+  doi = {10.1145/2463676.2465312},
+  abstract = {A fundamental problem in data management and analysis is to generate descriptions of the distribution of data. It is most common to give such descriptions in terms of the cumulative distribution, which is characterized by the quantiles of the data. The design and engineering of efficient methods to find these quantiles has attracted much study, especially in the case where the data is described incrementally, and we must compute the quantiles in an online, streaming fashion. Yet while such algorithms have proved to be tremendously useful in practice, there has been limited formal comparison of the competing methods, and no comprehensive study of their performance. In this paper, we remedy this deficit by providing a taxonomy of different methods, and describe efficient implementations. In doing so, we propose and analyze variations that have not been explicitly studied before, yet which turn out to perform the best. To illustrate this, we provide detailed experimental comparisons demonstrating the tradeoffs between space, time, and accuracy for quantile computation.},
+  file = {/Users/sue/Zotero/storage/2KPRG463/Wang et al. - 2013 - Quantiles over data streams an experimental study.pdf},
+  isbn = {978-1-4503-2037-5},
+  language = {en}
 }
 
 @misc{WhatStreamingData,

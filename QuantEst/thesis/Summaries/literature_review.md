@@ -6,22 +6,34 @@
    - details some of the current quantile estimation methods on the streaming data phenomenon, which are classified wrt algorithm types(?), while section 3.2 and 3.3 classify quantile estimation problems by aims
    - discuss algorithms on single quantile estimation
    - present the relatively new problem: algorithms on multi-quantile estimation
-2. Streaming data and quantile estimation
-   1. data stream
-      - definition
-      - problems
-      <!-- - models & maths? -->
-   2. quantile estimations
-      1. why quantile/estimation/data stream
-      2. quant est
-        - intro: trade off
-        - our intro to current works
-   3. deterministic algos
-3. Single Quantile estimation
-   1. quantile and quantile estimation
-   2. data form: one-dim numeric time series
-   3. different algorithms for quantile estimation.
-4. Randomised algorithms
+
+#### Streaming data and quantile estimation
+ 1. data stream
+    - definition
+    - **problems**
+    <!-- - models & maths? -->
+ 2. quantile estimations
+    1. why quantile/estimation/data stream
+    2. quant est
+      - intro: trade off
+      - our intro to current works
+ 3. deterministic algos
+    - GK
+    - q_digest
+ 4. randomised algos
+    - Vitter: Random Sampling with a Reservoir
+    - Manku: MRL99
+    - Count-min sketch
+ 5. other algos --> next two subsections
+    - Biased estimate
+    - Sliding windows: Manku: Approximate counts and quantiles over sliding windows
+    - Multi-thread data stream: SPDT
+
+#### Single Quantile estimation with memory limitaion
+1. Frugal
+2. Yaz
+
+#### Multi-quantile estimation
 
 our algorithm:
     - online learning
