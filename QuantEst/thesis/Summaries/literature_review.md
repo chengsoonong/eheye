@@ -18,12 +18,15 @@
       - intro: trade off
       - our intro to current works
  3. deterministic algos
+    - MRL
     - GK
     - q_digest
+    - Agarwal: mergeable summaries
  4. randomised algos
-    - Vitter: Random Sampling with a Reservoir
+    <!-- - Vitter: Random Sampling with a Reservoir -->
     - Manku: MRL99
     - Count-min sketch
+    - A Randomized Online Quantile Summary in O((1/ε)log(1/ε)) Words
  5. other algos --> next two subsections
     - Biased estimate
     - Sliding windows: Manku: Approximate counts and quantiles over sliding windows

@@ -60,22 +60,22 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 % to be finished
 \subsection{Deterministic algorithms}
 \label{deterministic}
+% Manku's work
+The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}log^2 (\epsilon N))$ to compute a set of \textit{$\epsilon$-approximate} quantiles. Bulding on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
 
-\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} analyse specific algorithms on streaming data with regards to some quantile estimation properties. 
-They use the measure \textit{$\epsilon$-approximate $\phi$-quantile} to describe the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. 
-For simultaneous estimation on multiple quantiles, a \textit{$\epsilon$-approximate quantile summary} is defined to be the set of multiple ordered $\epsilon$-approximate quantiles.
-The algorithm analysis focuses on deterministic algorithms that satisfies the MRL framework based on the work of \citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera}. To compute an $\epsilon$-approximate quantile summary, it is shown that the currently best known algorithms needs $O(\frac{1}{\epsilon}log(\epsilon N))$ space.
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, who provide a mergeable sketch based on the GK algorithm.
 
-\textbf{ this is copied from others!\\
-    \citeauthor{shrivastavaMediansNewAggregation2004} \cite{shrivastavaMediansNewAggregation2004}
-        presented another deterministic algorithm for insert-only streams that uses (?? log U) space, where U is the size of the domain from which the input is drawn
-    }
+A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
+
+
+
 
 \textbf{ From Manku: Approcimate counts and quantiles over sliding windows
     Randomized Quantile-Finding Algorithms
     % For identifying exact quantiles in main memory, a simplelinear time randomized algorithm was presented by Floydand Rivest [12]. For approximate quantiles, randomizationreduces the space requirements signiﬁcantly. The key insightis the well-known fact that the φ-quantile of a random sam-ple of size O(12log (δ)−1) is an -approximate φ-quantileof N elements with probability at least 1 − δ. This observa-tion has been exploited, for example, by DeWitt et al [11]to identify splitters of large datasets in the context of dis-tributed sorting. For data streams, a randomized quantile-ﬁnding algorithm was proposed by Manku et al [20] thatrequires only O(1log2(1log(δ)−1)) space, beating the sam-pling bound. Further improvement in space is possible, asdescribed in Section 6. Recently Cormode and Muthukrish-nan [8] proposed a sketching technique called CM-sketchesthat can be used to maintain -approximate quantiles overstreams and updateable relations. Their approach requiresan advance knowledge of the domain U from which the ele-ments of the stream are drawn. The space requirement fortheir approach is O(1log2|U | log(|U | /(δ))), where |U |denotes the size of the domain U.
 }
 
+\iffalse
 
 \subsection{Randomised algorithms}
 \label{randomised}
@@ -89,7 +89,6 @@ For specific estimation accuracy requirements, space and time limitations vary. 
 
 Manku: Approcimate counts and quantiles over sliding windows
 
-% \subsection{Online-histogram building method simultaneous estimation\cite{ben-haimStreamingParallelDecision}}
 Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
 The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
 in which histogram boundaries are estimated quantile values.
@@ -103,7 +102,8 @@ In this method, multiple histograms are built from streaming data in parallel, w
 %----------------------------------------------------------------------------------------
 %   Single quantile estimation
 %----------------------------------------------------------------------------------------
-
+\fi
+\pagebreak
 
 \iffalse
 \section{Single quantile estimation with non-growing memory}
