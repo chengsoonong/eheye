@@ -3,8 +3,6 @@ import numpy as np
 # Version: Feb/2020
 # This file implements the simulated games for bandits algorithm. 
 
-# Mengyan Zhang, Australian National University; Data61, CSIRO.
-
 def simulate(env, summary_stat, policy, num_expers, num_rounds,
              est_var, hyperpara, fixed_L, p):
     """Simulate bandit games. 
@@ -34,6 +32,7 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
     """
     sds = []
     rs = []
+    estimated_L = []
 
     for i in range(num_expers):
         p.value += 1
@@ -41,12 +40,14 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
         agent.play()
         sds.append(agent.suboptimalDraws)
         rs.append(agent.cumulativeRegrets)
+        if hasattr(agent, 'estimated_L_dict'):
+            estimated_L.append(agent.estimated_L_dict)
 
-    eva_dict = evaluate(sds, rs)
+    eva_dict = evaluate(sds, rs, estimated_L)
     return eva_dict
 
 
-def evaluate(sds, rs):
+def evaluate(sds, rs, estimated_L_dict):
     """Calculated expected evaluation metrics (suboptimal draws, regret)
 
     Parameters
@@ -74,5 +75,10 @@ def evaluate(sds, rs):
         #eva_r = np.mean(rs, axis = 0)
         #eva_dict['r'] = eva_r
         eva_dict['r'] = rs
+    if len(estimated_L_dict) > 0:
+        L = np.asarray(estimated_L_dict)
+        #eva_r = np.mean(rs, axis = 0)
+        #eva_dict['r'] = eva_r
+        eva_dict['estimated_L'] = L
     return eva_dict
     

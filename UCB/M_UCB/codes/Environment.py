@@ -13,8 +13,6 @@ from scipy.special import erf
 #           arbitrary outlier (uniformly sampled from random set).
 #   Clinical environment: sample from data
 
-# Mengyan Zhang, Australian National University; Data61, CSIRO.
-
 OUTLIER_CENTER = 20
 
 class Base_env():
@@ -172,23 +170,30 @@ class Exp_Arb_Outlier(Base_env):
 # ---------------------------------------------------------------------------
 # Heavy tail environments (For comparison)
 
-class Log_normal(Base_env):
-    """Env for log normal. 
-       Example for heavy tailed distribution.
-    """
-    def __init__(self, para):
-        super().__init__(para)
-        self.mu = self.para[0]
-        self.sigma = self.para[1]
-    
+from scipy.stats import pareto
+
+class Weibull():
+    def __init__(self, shape):
+        """
+        shape: float
+            shape of the distribution. should be greater than zero
+
+        scale is default as 1. 
+        """
+        self.shape = shape
+
     def pdf(self, x):
-        return 1.0/(x * self.sigma * np.sqrt(2 * np.pi)) * np.exp(- (np.log(x) - self.mu) ** 2/(2 * self.sigma ** 2))
-    
-    def cdf(self, x):
-        return 0.5 + 0.5 * erf((np.log(x) - self.mu)/(np.sqrt(2) * self.sigma))
+        if x == 0:
+            return 0
+        return self.shape * (x ** (self.shape - 1)) * np.exp((- x) ** self.shape)
+
+    def cdf(self,x):
+        if x == 0:
+            return 0
+        return 1 - np.exp((- x) ** self.shape)
 
     def sample(self, size = None):
-        return np.random.lognormal(self.mu, self.sigma, size)
+        return np.random.weibull(self.shape, size)
 
 # -----------------------------------------------------------------------------------
 # Clinical environment
@@ -265,7 +270,7 @@ def setup_env(num_arms, envs_setting, random_set = None):
             env_name = str(env).split('.')[-1][:-2]
             name += env_name + '_' + str(para_list)
 
-        for env, para_list in envs_dict.items():
+        for env, para_list in envs_dict.items(): 
             for para in para_list:
                 if random_set == None:
                     if type(para) is list:

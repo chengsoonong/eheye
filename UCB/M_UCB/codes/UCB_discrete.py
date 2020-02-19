@@ -6,8 +6,6 @@ from collections import defaultdict
 # This file implements Median-Based UCB (M-UCB) and 
 # the benchmark algorithms: U-UCB, epsilon-greedy, Median_of_means UCB, Exp3
 
-# Mengyan Zhang, Australian National University; Data61, CSIRO.
-
 class Bandits_discrete(ABC):
     """Base class for bandit algorithms of a finite number of arms in discrete space.
 

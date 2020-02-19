@@ -3,11 +3,10 @@ import numpy as np
 from scipy.optimize import curve_fit
 import seaborn as sns
 import pandas as pd
+from collections import defaultdict
 
 # Version: Feb/2020
 # This file implements the plots methods for bandits algorithm. 
-
-# Mengyan Zhang, Australian National University; Data61, CSIRO.
 
 ylabel_dict = {'sd': 'suboptimal draws',
                 'r': 'cumulative regrets',
@@ -21,8 +20,9 @@ arm_name_dict = {
 line_style_list = ['-','--','-.',':']
 marker_list = ['o','s','v','^', '.', '>', '<']
 line_color_list = ['C0', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
+est_L_labels = ['Estimated L', 'L_at_10', 'L_at_200', 'True L']
 
-def plot_eva(results, eva_method, paper_flag = True):
+def plot_eva(results, eva_method, paper_flag = True, log_scale= True, plot_confi_interval = False, method = 'all', exper = 'all'):
     """Plot method for evaluations
 
     Parameters
@@ -39,6 +39,8 @@ def plot_eva(results, eva_method, paper_flag = True):
     paper_flag: boolean
         indicates whether plotting for paper.
         True is for paper; False is not.
+    plot_confi_interval: boolean
+        if True, plot confidence interval
     """
     fig = plt.figure(figsize=(4 * 3, 3* len(results.keys())))
     
@@ -61,7 +63,13 @@ def plot_eva(results, eva_method, paper_flag = True):
             if label == 'epsilon-greedy':
                 label = r'$\epsilon$-greedy'
 
-            if (eva_method == 'r' and 'MV' not in label) or eva_method == 'sd':
+            if exper == 'est_L':
+                label = est_L_labels[j]
+                ax.set_title("Sensitiveness test for lower bound of hazard rate")
+            elif exper == 'hyperpara':
+                label = label.split(']')[0] + ']'
+
+            if method == 'all' or (method !='all' and subname == method):
 
                 mean = np.mean(results[name][subname][eva_method], axis = 0)
                 sigma = np.std(results[name][subname][eva_method], axis = 0)
@@ -73,18 +81,19 @@ def plot_eva(results, eva_method, paper_flag = True):
                         marker = marker_list[j], 
                         markevery = 500,
                         markersize = 5)
-                '''
-                plt.fill_between(range(results[name][subname][eva_method].shape[1]), 
-                        #np.percentile(results[name][subname][eva_method], q=30, axis = 0),
-                        #np.percentile(results[name][subname][eva_method], q=70, axis = 0),
-                        np.log(mean + sigma), np.log(np.max(mean - sigma, 0)),
-                        color = line_color_list[j],  
-                        alpha = 0.5)
-                '''
+
+                if plot_confi_interval:
+                    ax.fill_between(range(results[name][subname][eva_method].shape[1]), 
+                            mean + sigma, mean - sigma,
+                            #np.log(mean + sigma), np.log(np.max(mean - sigma, 0)),
+                            color = line_color_list[j],  
+                            alpha = 0.5)
+             
                 
             # control ylim, may need to adjust
             if eva_method == 'sd':
                 #plt.ylim([-10, 330])
+                #if not plot_confi_interval:
                 ax.set_yscale('log')
                 pass
             elif eva_method == 'r':
@@ -93,7 +102,7 @@ def plot_eva(results, eva_method, paper_flag = True):
 
         ax.legend(loc="lower right")
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
-    # fig.savefig(file_name, bbox_inches='tight')
+    fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_for_clinical(results, eva_method):
     """Plot method for clinical datasets.
@@ -181,6 +190,72 @@ def plot_hist(sample_dict):
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
     # plt.savefig(file_name, bbox_inches='tight')
+
+def plot_eva_num_arms(results, eva_method, mean_at = 1000, paper_flag = True, log_scale= True, plot_confi_interval = False):
+    """Plot method for evaluation of performance in terms of different number of arms
+
+    Parameters
+    -----------------------------------------------------------
+    results: dict
+        keys: 'env name + num_exper + num_rounds'
+        values: dict
+            keys: 'est_var + hyperpara' or 'bound'
+            values: dict
+                keys: 'sd', 'r'
+                values: list of result  
+    mean_at: int
+        indicate the number of round we plot the mean value 
+    eva_method: str
+        options ('sd', 'r')
+    paper_flag: boolean
+        indicates whether plotting for paper.
+        True is for paper; False is not.
+    plot_confi_interval: boolean
+        if True, plot confidence interval
+    """
+    fig = plt.figure(figsize=(4 * 3, 3* len(results.keys())))
+
+    ax = fig.add_subplot(len(results.keys()),3, 1)
+        
+    ax.set_title("Performance on different number of arms")
+    ax.set_xlabel('Number of arms')
+    ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
+
+    means = defaultdict(list)
+    for i, name in enumerate(results.keys()):
+        for j, subname in enumerate(results[name].keys()):  
+
+            # setup label
+            if paper_flag:
+                label = subname.split('-')[0] 
+                label = label.replace('_', '-')
+            else: 
+                label = subname
+
+            if label == 'epsilon-greedy':
+                label = r'$\epsilon$-greedy'
+
+            if (eva_method == 'r' and 'MV' not in label) or eva_method == 'sd':
+
+                mean = np.mean(results[name][subname][eva_method], axis = 0)
+                means[subname].append(mean[mean_at])
+
+    for i, name in enumerate(means.keys()):
+        ax.plot(range(3, 3 + len(means[name])), 
+                means[name], 
+                #np.percentile(results[name][subname][eva_method], q=50, axis = 0),
+                label = name.split('[')[0], 
+                #color = line_color_list[j],  
+                #marker = marker_list[j], 
+                #markevery = 500,
+                #markersize = 5
+                # 
+                )
+    ax.legend(loc="upper left")
+    ax.set_ylim(-500, 10800)
+
+    file_name = 'Num_arms_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
+    fig.savefig(file_name, bbox_inches='tight')
 
 #-----------------------------------------------------------------------
 # fit a log curve 
