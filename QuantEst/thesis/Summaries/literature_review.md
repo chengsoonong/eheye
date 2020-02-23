@@ -29,7 +29,10 @@
     - A Randomized Online Quantile Summary in O((1/ε)log(1/ε)) Words
  5. other algos --> next two subsections
     - Biased estimate
-    - Sliding windows: Manku: Approximate counts and quantiles over sliding windows
+    - Sliding windows:
+      - Manku: Approximate counts and quantiles over sliding windows
+      - Continuously Maintaining Quantile Summaries of the Most Recent N Elements
+over a Data Stream
     - Multi-thread data stream: SPDT
 
 #### Single Quantile estimation with memory limitaion
@@ -38,11 +41,14 @@
 
 #### Multi-quantile estimation
 
+
 our algorithm:
     - online learning
     - one pass
     - constant memory usage
-    - im tired QAQ
+    - cash/register model (compared with turnstile model)
+    - fixed universe model(compared with comparison)
+    - deterministic (compared with Frugal randomized)
 
 our work:
     - frugal == online learning

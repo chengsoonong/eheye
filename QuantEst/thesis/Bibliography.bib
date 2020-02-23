@@ -22,6 +22,21 @@
   primaryClass = {cs}
 }
 
+@inproceedings{arasuApproximateCountsQuantiles2004,
+  title = {Approximate Counts and Quantiles over Sliding Windows},
+  booktitle = {Proceedings of the Twenty-Third {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems  - {{PODS}} '04},
+  author = {Arasu, Arvind and Manku, Gurmeet Singh},
+  year = {2004},
+  pages = {286},
+  publisher = {{ACM Press}},
+  address = {{Paris, France}},
+  doi = {10.1145/1055558.1055598},
+  abstract = {We consider the problem of maintaining -approximate counts and quantiles over a stream sliding window using limited space. We consider two types of sliding windows depending on whether the number of elements N in the window is fixed (fixed-size sliding window) or variable (variable-size sliding window). In a fixed-size sliding window, both the ends of the window slide synchronously over the stream. In a variable-size sliding window, an adversary slides the window ends independently, and therefore has the ability to vary the number of elements N in the window.},
+  file = {/Users/sue/Zotero/storage/ZB2KHS64/Arasu and Manku - 2004 - Approximate counts and quantiles over sliding wind.pdf},
+  isbn = {978-1-58113-858-0},
+  language = {en}
+}
+
 @article{ben-haimStreamingParallelDecision,
   title = {A {{Streaming Parallel Decision Tree Algorithm}}},
   author = {{Ben-Haim}, Yael and {Tom-Tov}, Elad},
@@ -52,6 +67,23 @@
   year = {2009},
   doi = {10.1007/978-0-387-39940-9_290},
   file = {/Users/sue/Zotero/storage/3XJDLJVX/ency.pdf}
+}
+
+@article{cormodeImprovedDataStream2005,
+  title = {An Improved Data Stream Summary: The Count-Min Sketch and Its Applications},
+  shorttitle = {An Improved Data Stream Summary},
+  author = {Cormode, Graham and Muthukrishnan, S.},
+  year = {2005},
+  month = apr,
+  volume = {55},
+  pages = {58--75},
+  issn = {01966774},
+  doi = {10.1016/j.jalgor.2003.12.001},
+  abstract = {We introduce a new sublinear space data structure\textemdash{}the count-min sketch\textemdash{}for summarizing data streams. Our sketch allows fundamental queries in data stream summarization such as point, range, and inner product queries to be approximately answered very quickly; in addition, it can be applied to solve several important problems in data streams such as finding quantiles, frequent items, etc. The time and space bounds we show for using the CM sketch to solve these problems significantly improve those previously known\textemdash{}typically from 1/{$\epsilon$}2 to 1/{$\epsilon$} in factor.},
+  file = {/Users/sue/Zotero/storage/9YE3GB3W/Cormode and Muthukrishnan - 2005 - An improved data stream summary the count-min ske.pdf},
+  journal = {Journal of Algorithms},
+  language = {en},
+  number = {1}
 }
 
 @inproceedings{cormodeSpaceTimeefficientDeterministic2006,
@@ -151,6 +183,22 @@
   journal = {Theory of Computing},
   language = {en},
   number = {1}
+}
+
+@article{floydExpectedTimeBounds1975,
+  title = {Expected Time Bounds for Selection},
+  author = {Floyd, Robert W. and Rivest, Ronald L.},
+  year = {1975},
+  month = mar,
+  volume = {18},
+  pages = {165--172},
+  issn = {00010782},
+  doi = {10.1145/360680.360691},
+  abstract = {A new selection algorithm is presented which is shown to be very efficient on the average, both theoretically and practically. The number of comparisons used to select the ith smallest of n numbers is n q- min(i,n--i) q- o(n). A lower bound within 9 percent of the above formula is also derived.},
+  file = {/Users/sue/Zotero/storage/JZUHWAN6/Floyd and Rivest - 1975 - Expected time bounds for selection.pdf},
+  journal = {Communications of the ACM},
+  language = {en},
+  number = {3}
 }
 
 @article{freundDecisionTheoreticGeneralizationOnLine1997,
@@ -355,6 +403,15 @@
   pages = {10},
   abstract = {We present new algorithms for computing approximate quantiles of large datasets in a single pass. The approximation guarantees are explicit, and apply without regard to the value distribution or the arrival distributions of the dataset. The main memory requirements are smaller than those reported earlier by an order of magnitude.},
   file = {/Users/sue/Zotero/storage/KKAD4EX4/Manku et al. - Approximate Medians and other Quantiles in One Pas.pdf},
+  language = {en}
+}
+
+@article{mankuRandomSamplingTechniques,
+  title = {Random Sampling Techniques for Space Efficient Online Computation of Order Statistics of Large Datasets},
+  author = {Manku, Singh and Lindsay, G},
+  pages = {12},
+  abstract = {In a recent paper [MRL98], we had described a general framework for single pass approximate quantile finding algorithms. This framework included several known algorithms as special cases. We had identified a new algorithm, within the framework, which had a significantly smaller requirement for main memory than other known algorithms. In this paper, we address two issues left open in our earlier paper. First, all known and space efficient algorithms for approximate quantile finding require advance knowledge of the length of the input sequence. Many important database applications employing quantiles cannot provide this information. In this paper, we present a novel non-uniform random sampling scheme and an extension of our framework. Together, they form the basis of a new algorithm which computes approximate quantiles without knowing the input sequence length. Second, if the desired quantile is an extreme value (e.g., within the top 1\% of the elements), the space requirements of currently known algorithms are overly pessimistic. We provide a simple algorithm which estimates extreme values using less space than required by the earlier more general technique for computing all quantiles. Our principal observation here is that random sampling is quantifiably better when estimating extreme values than is the case with the median.},
+  file = {/Users/sue/Zotero/storage/RKVWHFFV/Manku and Lindsay - Random sampling techniques for space efficient onl.pdf},
   language = {en}
 }
 
@@ -639,10 +696,6 @@
   journal = {International Journal of Machine Learning and Cybernetics},
   language = {en},
   number = {3}
-}
-
-@article{zotero-121,
-  file = {/Users/sue/Zotero/storage/6LHSP7FL/_.pdf}
 }
 
 
