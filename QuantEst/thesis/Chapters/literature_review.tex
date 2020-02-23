@@ -63,11 +63,11 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 \subsection{Deterministic algorithms}
 \label{deterministic}
 % Manku's work
-The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}log^2 (\epsilon N))$ to compute a set of \textit{$\epsilon$-approximate} quantiles. Bulding on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
+The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute a set of \textit{$\epsilon$-approximate} quantiles. Bulding on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
 
-\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, who provide a mergeable sketch based on the GK algorithm.
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, who provide a mergeable sketch based on the GK algorithm.
 
-A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
+A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}\log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
 
 
 \subsection{Randomised algorithms}
@@ -81,16 +81,22 @@ A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \cit
 % }
 
 Estimating quantile from a random sample of data stream input is the basic idea for most randomized algorithms, and it reduces space usage to a considerable extend.
-A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\phi$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
+A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} \log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\phi$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
 Later, \citeauthor{mankuRandomSamplingTechniques}\cite{mankuRandomSamplingTechniques} proposed a randomized quantile estimation algorithm based on their previous framework in \cite{mankuApproximateMediansOthera}. The new method requires space of size 
 $O(
-    \frac{1}{\epsilon} log^2 
+    \frac{1}{\epsilon} \log^2 
     (\frac{1}{\epsilon} 
-        log \frac{1}{\epsilon \delta}
+        \log \frac{1}{\epsilon \delta}
     )
 )
 $
 , being the first practical algorithm that does not require advance knowledge of data stream size $N$.
+
+The \textit{turnstile model} was first taken into consideration by \citeauthor{gilbertChapter40How2002}\cite{gilbertChapter40How2002}, who designed the \textit{random subset sum} sketch with space complexity 
+$O(\frac{1}{\epsilon^2} \log^2 U \log (\frac{\log U}{\epsilon}))$, where $U$ is the size of the universe. 
+The key idea is based on their findings that insertions or deletions of quantiles can be reduced to finding range sums.
+The space requirement is greatly improved by another algorithm for turnstile model -- the \textit{Count-Min sketch} designed by \citeauthor{cormodeImprovedDataStream2005}\cite{cormodeImprovedDataStream2005}. Only 
+$O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\phi \delta}))$ space is needed for an $\epsilon$-approximate $\phi$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest} and the randomized algorithm below, it has a noticeable advantage of dealing with both insertions and deletions to streams.
 
 \iffalse
 \subsection{Quantile estimation under other requirements}
