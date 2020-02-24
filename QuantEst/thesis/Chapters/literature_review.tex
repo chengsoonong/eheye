@@ -63,7 +63,7 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 \subsection{Deterministic algorithms}
 \label{deterministic}
 % Manku's work
-The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute a set of \textit{$\epsilon$-approximate} quantiles. Bulding on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
+The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
 
 \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, who provide a mergeable sketch based on the GK algorithm.
 
@@ -72,13 +72,6 @@ A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \cit
 
 \subsection{Randomised algorithms}
 \label{randomised}
-% \cite{guhaStreamOrderOrder2009}
-% The frequently used ``one pass" quantile estimation model is well-studied with regards to its effectiveness and limitations.
-
-% \textbf{ From Manku: Approcimate counts and quantiles over sliding windows
-%     Randomized Quantile-Finding Algorithms
-%     % For identifying exact quantiles in main memory, a simplelinear time randomized algorithm was presented by Floydand Rivest [12]. For approximate quantiles, randomizationreduces the space requirements signiﬁcantly. The key insightis the well-known fact that the φ-quantile of a random sam-ple of size O(12log (δ)−1) is an -approximate φ-quantileof N elements with probability at least 1 − δ. This observa-tion has been exploited, for example, by DeWitt et al [11]to identify splitters of large datasets in the context of dis-tributed sorting. For data streams, a randomized quantile-ﬁnding algorithm was proposed by Manku et al [20] that requires only O(1log2(1log(δ)−1)) space, beating the sampling bound. Further improvement in space is possible, as described in Section 6. Recently Cormode and Muthukrish-nan [8] proposed a sketching technique called CM-sketchesthat can be used to maintain -approximate quantiles overstreams and updateable relations. Their approach requiresan advance knowledge of the domain U from which the ele-ments of the stream are drawn. The space requirement fortheir approach is O(1log2|U | log(|U | /(δ))), where |U |denotes the size of the domain U.
-% }
 
 Estimating quantile from a random sample of data stream input is the basic idea for most randomized algorithms, and it reduces space usage to a considerable extend.
 A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} \log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\phi$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
@@ -96,9 +89,11 @@ The \textit{turnstile model} was first taken into consideration by \citeauthor{g
 $O(\frac{1}{\epsilon^2} \log^2 U \log (\frac{\log U}{\epsilon}))$, where $U$ is the size of the universe. 
 The key idea is based on their findings that insertions or deletions of quantiles can be reduced to finding range sums.
 The space requirement is greatly improved by another algorithm for turnstile model -- the \textit{Count-Min sketch} designed by \citeauthor{cormodeImprovedDataStream2005}\cite{cormodeImprovedDataStream2005}. Only 
-$O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\phi \delta}))$ space is needed for an $\epsilon$-approximate $\phi$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest} and the randomized algorithm below, it has a noticeable advantage of dealing with both insertions and deletions to streams.
+$O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\phi \delta}))$ space is needed for an $\epsilon$-approximate $\phi$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest}, it has a noticeable advantage on dealing with both insertions and deletions to streams.
 
-\iffalse
+Another significant improvement on randomised algorithms were made in 2017, when \citeauthor{felberRandomizedOnlineQuantile2017}\cite{felberRandomizedOnlineQuantile2017} developed an algorithm that uses $O(\frac{1}{\epsilon}\log \frac{1}{\epsilon})$ of memory space. The algorithm not only beats the previous best upper bound of $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, but it also beats the lower bound for any deterministic comparison-based algorithm, according to the work of \citeauthor{hungBoundFindingEApproximate}\cite{hungBoundFindingEApproximate}. The estimation ensures the return of the $\epsilon$-approximate quantile summary, with probability at least $1-e^{-poly(1/\epsilon)}$.
+
+
 \subsection{Quantile estimation under other requirements}
 \label{other}
 For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
@@ -114,7 +109,6 @@ In this method, multiple histograms are built from streaming data in parallel, w
     % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
 
 % The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
-\fi
 %----------------------------------------------------------------------------------------
 %   Single quantile estimation
 %----------------------------------------------------------------------------------------
