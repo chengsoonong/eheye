@@ -63,9 +63,9 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 \subsection{Deterministic algorithms}
 \label{deterministic}
 % Manku's work
-The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOthera}\cite{mankuApproximateMediansOthera} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOthera}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
+The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOther1998}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}.
 
-\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, who provide a mergeable sketch based on the GK algorithm.
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, who provide a mergeable sketch based on the GK algorithm.
 
 A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004}\cite{shrivastavaMediansNewAggregation2004}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}\log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
 
@@ -75,7 +75,7 @@ A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \cit
 
 Estimating quantile from a random sample of data stream input is the basic idea for most randomized algorithms, and it reduces space usage to a considerable extend.
 A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} \log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\phi$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
-Later, \citeauthor{mankuRandomSamplingTechniques}\cite{mankuRandomSamplingTechniques} proposed a randomized quantile estimation algorithm based on their previous framework in \cite{mankuApproximateMediansOthera}. The new method requires space of size 
+Later, \citeauthor{mankuRandomSamplingTechniques1999}\cite{mankuRandomSamplingTechniques1999} proposed a randomized quantile estimation algorithm based on their previous framework in \cite{mankuApproximateMediansOther1998}. The new method requires space of size 
 $O(
     \frac{1}{\epsilon} \log^2 
     (\frac{1}{\epsilon} 
@@ -91,17 +91,17 @@ The key idea is based on their findings that insertions or deletions of quantile
 The space requirement is greatly improved by another algorithm for turnstile model -- the \textit{Count-Min sketch} designed by \citeauthor{cormodeImprovedDataStream2005}\cite{cormodeImprovedDataStream2005}. Only 
 $O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\phi \delta}))$ space is needed for an $\epsilon$-approximate $\phi$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest}, it has a noticeable advantage on dealing with both insertions and deletions to streams.
 
-Another significant improvement on randomised algorithms were made in 2017, when \citeauthor{felberRandomizedOnlineQuantile2017}\cite{felberRandomizedOnlineQuantile2017} developed an algorithm that uses $O(\frac{1}{\epsilon}\log \frac{1}{\epsilon})$ of memory space. The algorithm not only beats the previous best upper bound of $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries}\cite{agarwalMergeableSummaries}, but it also beats the lower bound for any deterministic comparison-based algorithm, according to the work of \citeauthor{hungBoundFindingEApproximate}\cite{hungBoundFindingEApproximate}. The estimation ensures the return of the $\epsilon$-approximate quantile summary, with probability at least $1-e^{-poly(1/\epsilon)}$.
+Another significant improvement on randomised algorithms were made in 2017, when \citeauthor{felberRandomizedOnlineQuantile2017}\cite{felberRandomizedOnlineQuantile2017} developed an algorithm that uses $O(\frac{1}{\epsilon}\log \frac{1}{\epsilon})$ of memory space. The algorithm not only beats the previous best upper bound of $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, but it also beats the lower bound for any deterministic comparison-based algorithm, according to the work of \citeauthor{hungLogSpaceLower2010}\cite{hungLogSpaceLower2010}. The estimation ensures the return of the $\epsilon$-approximate quantile summary, with probability at least $1-e^{-poly(1/\epsilon)}$.
 
 
-\subsection{Quantile estimation under other requirements}
+\subsection{Algorithms for other requirements}
 \label{other}
-For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation ($U$ is the size of universe from which the samples are drawn). 
+For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation, where $U$ is the size of universe from which the samples are drawn. 
 
 Manku: Approcimate counts and quantiles over sliding windows
 
 Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
-The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision} introduces an on-line histogram building method % from streaming data at parallel processors.
+The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building method % from streaming data at parallel processors.
 in which histogram boundaries are estimated quantile values.
 In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
 
@@ -124,7 +124,7 @@ Several algorithms have been proposed to deal with this challenges, and two of t
 
 
 \textbf{
-\citeauthor{mankuApproximateMediansOthera} \cite{mankuApproximateMediansOthera} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
+\citeauthor{mankuApproximateMediansOther1998} \cite{mankuApproximateMediansOther1998} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
 \\
 \citeauthor{dunningComputingExtremelyAccurate2019} \cite{dunningComputingExtremelyAccurate2019} can have constant or weakly growing memory.
 }

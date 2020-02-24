@@ -1,10 +1,18 @@
 
-@article{agarwalMergeableSummaries,
+@article{agarwalMergeableSummaries2013,
   title = {Mergeable Summaries},
-  author = {Agarwal, Pankaj K and Cormode, Graham and Huang, Zengfeng and Phillips, Jeff and Wei, Zhewei and Yi, Ke},
-  pages = {12},
-  file = {/Users/sue/Zotero/storage/RW642I4K/Agarwal et al. - Mergeable summaries.pdf},
-  language = {en}
+  author = {Agarwal, Pankaj K. and Cormode, Graham and Huang, Zengfeng and Phillips, Jeff M. and Wei, Zhewei and Yi, Ke},
+  year = {2013},
+  month = dec,
+  volume = {38},
+  pages = {26:1--26:28},
+  issn = {0362-5915},
+  doi = {10.1145/2500128},
+  abstract = {We study the mergeability of data summaries. Informally speaking, mergeability requires that, given two summaries on two datasets, there is a way to merge the two summaries into a single summary on the two datasets combined together, while preserving the error and size guarantees. This property means that the summaries can be merged in a way akin to other algebraic operators such as sum and max, which is especially useful for computing summaries on massive distributed data. Several data summaries are trivially mergeable by construction, most notably all the sketches that are linear functions of the datasets. But some other fundamental ones, like those for heavy hitters and quantiles, are not (known to be) mergeable. In this article, we demonstrate that these summaries are indeed mergeable or can be made mergeable after appropriate modifications. Specifically, we show that for {$\epsilon$}-approximate heavy hitters, there is a deterministic mergeable summary of size O(1/{$\epsilon$}); for {$\epsilon$}-approximate quantiles, there is a deterministic summary of size O((1/{$\epsilon$}) log({$\epsilon$} n)) that has a restricted form of mergeability, and a randomized one of size O((1/{$\epsilon$}) log3/2(1/{$\epsilon$})) with full mergeability. We also extend our results to geometric summaries such as {$\epsilon$}-approximations which permit approximate multidimensional range counting queries. While most of the results in this article are theoretical in nature, some of the algorithms are actually very simple and even perform better than the previously best known algorithms, which we demonstrate through experiments in a simulated sensor network. We also achieve two results of independent interest: (1) we provide the best known randomized streaming bound for {$\epsilon$}-approximate quantiles that depends only on {$\epsilon$}, of size O((1/{$\epsilon$}) log3/2(1/{$\epsilon$})), and (2) we demonstrate that the MG and the SpaceSaving summaries for heavy hitters are isomorphic.},
+  file = {/Users/sue/Zotero/storage/HTMH9ZWY/Agarwal et al. - 2013 - Mergeable summaries.pdf},
+  journal = {ACM Transactions on Database Systems (TODS)},
+  keywords = {Data summarization,heavy hitters,quantiles},
+  number = {4}
 }
 
 @article{arandjelovicTwoMaximumEntropy2014,
@@ -37,12 +45,16 @@
   language = {en}
 }
 
-@article{ben-haimStreamingParallelDecision,
+@article{ben-haimStreamingParallelDecision2010,
   title = {A {{Streaming Parallel Decision Tree Algorithm}}},
   author = {{Ben-Haim}, Yael and {Tom-Tov}, Elad},
-  pages = {24},
+  year = {2010},
+  month = feb,
+  volume = {11},
+  pages = {849--872},
   abstract = {We propose a new algorithm for building decision tree classifiers. The algorithm is executed in a distributed environment and is especially designed for classifying large data sets and streaming data. It is empirically shown to be as accurate as a standard decision tree classifier, while being scalable for processing of streaming data on multiple processors. These findings are supported by a rigorous analysis of the algorithm's accuracy.},
   file = {/Users/sue/Zotero/storage/5QY79AUD/Ben-Haim and Tom-Tov - A Streaming Parallel Decision Tree Algorithm.pdf},
+  journal = {Journal of Machine Learning Research},
   language = {en}
 }
 
@@ -156,7 +168,7 @@
 }
 
 @article{felberRandomizedOnlineQuantile2017,
-  title = {A Randomized Online Quantile Summary in {{O}}((1/Epsilon)Log(1/Epsilon)) Words},
+  title = {A Randomized Online Quantile Summary in {{O}}((1/{$\epsilon$})Log (1/{$\epsilon$} )) Words},
   author = {Felber, David and Ostrovsky, Rafail},
   year = {2017},
   volume = {13},
@@ -323,12 +335,22 @@
   language = {en}
 }
 
-@article{hungBoundFindingEApproximate,
-  title = {Bound for {{Finding}} {$\epsilon$}-{{Approximate Quantiles}} in a {{Data Stream}}},
-  author = {Hung, Regant Y S and Ting, Hingfung F},
-  pages = {12},
-  file = {/Users/sue/Zotero/storage/R6ZUL7DP/Hung and Ting - Bound for Finding ε-Approximate Quantiles in a Dat.pdf},
-  language = {en}
+@inproceedings{hungLogSpaceLower2010,
+  title = {An {{$\Omega$}}((1/{$\epsilon$})Log (1/{$\epsilon$} )) {{Space Lower Bound}} for {{Finding}} {$\epsilon$}-{{Approximate Quantiles}} in a {{Data Stream}}},
+  booktitle = {Frontiers in {{Algorithmics}}},
+  author = {Hung, Regant Y. S. and Ting, Hingfung F.},
+  editor = {Lee, Der-Tsai and Chen, Danny Z. and Ying, Shi},
+  year = {2010},
+  pages = {89--100},
+  publisher = {{Springer}},
+  address = {{Berlin, Heidelberg}},
+  doi = {10.1007/978-3-642-14553-7_11},
+  abstract = {This paper studies the space complexity of the {$\epsilon$}-approximate quantiles problem, which asks for some data structure that enables us to determine, after reading a whole data stream, a {$\varphi$}-quantile (for any 0 {$\leq$} {$\varphi$} {$\leq$} 1) of the stream within some error bound {$\epsilon$}. The best known algorithm for the problem uses {$\mathsl{O}$}(1{$\mathsl{E}$}log{$\mathsl{E}\mathsl{N}$})O(1{$\epsilon$}log⁡{$\epsilon$}N)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log \textbackslash{}varepsilon N) words where N is the total number of items in the stream, or uses {$\mathsl{O}$}(1{$\mathsl{E}$}log|{$\mathsl{U}$}|)O(1{$\epsilon$}log⁡|U|)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log |U|) words where U is the set of possible items. It is known that the space lower bound of the problem is {$\Omega$}(1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words; however, improvement of this bound is elusive.In this paper, we prove that any comparison-based algorithm for finding {$\epsilon$}-approximate quantiles needs {$\Omega$}(1{$\mathsl{E}$}log1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$}log⁡1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\} \textbackslash{}log \textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words.},
+  file = {/Users/sue/Zotero/storage/6MEL68J8/Hung and Ting - 2010 - An $Omega(frac 1 varepsilon log frac 1 va.pdf},
+  isbn = {978-3-642-14553-7},
+  keywords = {Data Stream,Distinct Item,General Memory,Item Memory,Space Complexity},
+  language = {en},
+  series = {Lecture {{Notes}} in {{Computer Science}}}
 }
 
 @misc{IEEEXploreFullText,
@@ -408,22 +430,34 @@
   primaryClass = {cs}
 }
 
-@article{mankuApproximateMediansOthera,
-  title = {Approximate {{Medians}} and Other {{Quantiles}} in {{One Pass}} and with {{Limited Memory}}},
-  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G},
-  pages = {10},
-  abstract = {We present new algorithms for computing approximate quantiles of large datasets in a single pass. The approximation guarantees are explicit, and apply without regard to the value distribution or the arrival distributions of the dataset. The main memory requirements are smaller than those reported earlier by an order of magnitude.},
-  file = {/Users/sue/Zotero/storage/KKAD4EX4/Manku et al. - Approximate Medians and other Quantiles in One Pas.pdf},
-  language = {en}
+@article{mankuApproximateMediansOther1998,
+  title = {Approximate Medians and Other Quantiles in One Pass and with Limited Memory},
+  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G.},
+  year = {1998},
+  month = jun,
+  volume = {27},
+  pages = {426--435},
+  issn = {0163-5808},
+  doi = {10.1145/276305.276342},
+  abstract = {We present new algorithms for computing approximate quantiles of large datasets in a single pass. The approximation guarantees are explicit, and apply for arbitrary value distributions and arrival distributions of the dataset. The main memory requirements are smaller than those reported earlier by an order of magnitude. We also discuss methods that couple the approximation algorithms with random sampling to further reduce memory requirements. With sampling, the approximation guarantees are explicit but probabilistic, i.e. they apply with respect to a (user controlled) confidence parameter. We present the algorithms, their theoretical analysis and simulation results on different datasets.},
+  file = {/Users/sue/Zotero/storage/8DRLX4MF/Manku et al. - 1998 - Approximate medians and other quantiles in one pas.pdf},
+  journal = {ACM SIGMOD Record},
+  number = {2}
 }
 
-@article{mankuRandomSamplingTechniques,
+@article{mankuRandomSamplingTechniques1999,
   title = {Random Sampling Techniques for Space Efficient Online Computation of Order Statistics of Large Datasets},
-  author = {Manku, Singh and Lindsay, G},
-  pages = {12},
+  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G.},
+  year = {1999},
+  month = jun,
+  volume = {28},
+  pages = {251--262},
+  issn = {0163-5808},
+  doi = {10.1145/304181.304204},
   abstract = {In a recent paper [MRL98], we had described a general framework for single pass approximate quantile finding algorithms. This framework included several known algorithms as special cases. We had identified a new algorithm, within the framework, which had a significantly smaller requirement for main memory than other known algorithms. In this paper, we address two issues left open in our earlier paper. First, all known and space efficient algorithms for approximate quantile finding require advance knowledge of the length of the input sequence. Many important database applications employing quantiles cannot provide this information. In this paper, we present a novel non-uniform random sampling scheme and an extension of our framework. Together, they form the basis of a new algorithm which computes approximate quantiles without knowing the input sequence length. Second, if the desired quantile is an extreme value (e.g., within the top 1\% of the elements), the space requirements of currently known algorithms are overly pessimistic. We provide a simple algorithm which estimates extreme values using less space than required by the earlier more general technique for computing all quantiles. Our principal observation here is that random sampling is quantifiably better when estimating extreme values than is the case with the median.},
-  file = {/Users/sue/Zotero/storage/RKVWHFFV/Manku and Lindsay - Random sampling techniques for space efficient onl.pdf},
-  language = {en}
+  file = {/Users/sue/Zotero/storage/EVITTLHE/Manku et al. - 1999 - Random sampling techniques for space efficient onl.pdf},
+  journal = {ACM SIGMOD Record},
+  number = {2}
 }
 
 @article{mcdermottDataSkeletonsSimultaneous2007,
