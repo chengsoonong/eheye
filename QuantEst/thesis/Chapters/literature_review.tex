@@ -96,16 +96,24 @@ Another significant improvement on randomised algorithms were made in 2017, when
 
 \subsection{Algorithms for other requirements}
 \label{other}
-For specific estimation accuracy requirements, space and time limitations vary. For example, the biased quantiles problem requires higher accuracy for more extreme quantile values. \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} propose a deterministic algorithm that takes only space $O(\frac{\log {U}}{\epsilon} \log {\epsilon N})$ for a biased quantiles with $\epsilon$ approximation, where $U$ is the size of universe from which the samples are drawn. 
+Due to the large range of data streams and quantile application requirements, it is not surprising to have a considerable variety in quantile estimation algorithms attacking on specific requirements. We will introduce some interesting applications in the following, such as the methods for biased accuracy requirements and the parallel algorithm for distributed data streams.
+\\\\
+Although most quantile estimation work target at the \textit{uniform accuracy} problem on quantile estimation, many queries over data streams require differently. For example, the $0.99$-quantile is usually sparsely surrounded while the $0.5$-quantile is likely to locate in the center of a distribution where the data is much more dense. Thus comes the \textit{biased quantiles} problem which demands higher accuracy for more extreme quantile values.
+The first deterministic algorithms for the biased quantiles problem is proposed by \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} that takes only space $O(\frac{1}{\epsilon} \log {U} \cdot \log {\epsilon N})$, where $N$ is the size of the data stream and $U$ is the size of universe from which the samples are drawn. Besides, tha algorithms also apply for Other related problems like biased rank queries and targeted quantiles. 
 
-Manku: Approcimate counts and quantiles over sliding windows
+% Manku: Approximate counts and quantiles over sliding windows
 
-Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
-The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building method % from streaming data at parallel processors.
-in which histogram boundaries are estimated quantile values.
-In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
+% Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
+% The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building method % from streaming data at parallel processors.
+% in which histogram boundaries are estimated quantile values.
+% In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
 
- It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
+%  It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
+
+
+
+
+
     % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
 
 % The stochastic gradient descent algorithm, however, is proposed under the assumption that the si` zze of data stream samples is unknown. \textbf{i dont know what to write for the accuracy/convergence part QAQ}
