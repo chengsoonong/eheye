@@ -242,6 +242,22 @@
   language = {en}
 }
 
+@inproceedings{greenwaldPowerconservingComputationOrderstatistics2004,
+  title = {Power-Conserving Computation of Order-Statistics over Sensor Networks},
+  booktitle = {Proceedings of the Twenty-Third {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems},
+  author = {Greenwald, Michael B. and Khanna, Sanjeev},
+  year = {2004},
+  month = jun,
+  pages = {275--285},
+  publisher = {{Association for Computing Machinery}},
+  address = {{Paris, France}},
+  doi = {10.1145/1055558.1055597},
+  abstract = {We study the problem of power-conserving computation of order statistics in sensor networks. Significant power-reducing optimizations have been devised for computing simple aggregate queries such as COUNT, AVERAGE, or MAX over sensor networks. In contrast, aggregate queries such as MEDIAN have seen little progress over the brute force approach of forwarding all data to a central server. Moreover, battery life of current sensors seems largely determined by communication costs --- therefore we aim to minimize the number of bytes transmitted. Unoptimized aggregate queries typically impose extremely high power consumption on a subset of sensors located near the server. Metrics such as total communication cost underestimate the penalty of such imbalance: network lifetime may be dominated by the worst-case replacement time for depleted batteries.In this paper, we design the first algorithms for computing order-statistics such that power consumption is balanced across the entire network. Our first main result is a distributed algorithm to compute an {$\epsilon$}-approximate quantile summary of the sensor data such that each sensor transmits only O(log2n/{$\epsilon$}) data values, irrespective of the network topology, an improvement over the current worst-case behavior of {$\Omega$}(n). Second, we show an improved result when the height, h, of the network is significantly smaller than n. Our third result is that we can exactly compute any order statistic (e.g., median) in a distributed manner such that each sensor needs to transmit O(log3n) values.Further, we design the aggregates used by our algorithms to be decomposable. An aggregate Q over a set S is decomposable if there exists a function, f, such that for all S = S1 {$\cup$} S2, Q(S) = f(Q(S1), Q(S2)). We can thus directly apply existing optimizations to decomposable aggregates that increase error-resilience and reduce communication cost.Finally, we validate our results empirically, through simulation. When we compute the median exactly, we show that, even for moderate size networks, the worst communication cost for any single node is several times smaller than the corresponding cost in prior median algorithms. We show similar cost reductions when computing approximate order-statistic summaries with guaranteed precision. In all cases, our total communication cost over the entire network is smaller than or equal to the total cost of prior algorithms.},
+  file = {/Users/sue/Zotero/storage/BUCB6W4B/Greenwald and Khanna - 2004 - Power-conserving computation of order-statistics o.pdf},
+  isbn = {978-1-58113-858-0},
+  series = {{{PODS}} '04}
+}
+
 @incollection{greenwaldQuantilesEquidepthHistograms2016a,
   title = {Quantiles and {{Equi}}-Depth {{Histograms}} over {{Streams}}},
   booktitle = {Data {{Stream Management}}},
@@ -396,6 +412,20 @@
   pages = {10},
   file = {/Users/sue/Zotero/storage/ULN3TXRW/Liechty et al. - Single-pass low-storage arbitrary quantile estimat.pdf},
   language = {en}
+}
+
+@inproceedings{linContinuouslyMaintainingQuantile2004,
+  title = {Continuously Maintaining Quantile Summaries of the Most Recent {{N}} Elements over a Data Stream},
+  booktitle = {Proceedings. 20th {{International Conference}} on {{Data Engineering}}},
+  author = {Lin, X. and Lu, H. and Xu, J. and Yu, J.X.},
+  year = {2004},
+  month = apr,
+  pages = {362--373},
+  issn = {1063-6382},
+  doi = {10.1109/ICDE.2004.1320011},
+  abstract = {Statistics over the most recently observed data elements are often required in applications involving data streams, such as intrusion detection in network monitoring, stock price prediction in financial markets, Web log mining for access prediction, and user click stream mining for personalization. Among various statistics, computing quantile summary is probably most challenging because of its complexity. We study the problem of continuously maintaining quantile summary of the most recently observed N elements over a stream so that quantile queries can be answered with a guaranteed precision of /spl epsiv/N. We developed a space efficient algorithm for predefined N that requires only one scan of the input data stream and O(log(/spl epsiv//sup 2/N)//spl epsiv/+1//spl epsiv//sup 2/) space in the worst cases. We also developed an algorithm that maintains quantile summaries for most recent N elements so that quantile queries on any most recent n elements (n /spl les/ N) can be answered with a guaranteed precision of /spl epsiv/n. The worst case space requirement for this algorithm is only O(log/sup 2/(/spl epsiv/N)//spl epsiv//sup 2/). Our performance study indicated that not only the actual quantile estimation error is far below the guaranteed precision but the space requirement is also much less than the given theoretical bound.},
+  file = {/Users/sue/Zotero/storage/5URL66M4/Lin et al. - 2004 - Continuously maintaining quantile summaries of the.pdf;/Users/sue/Zotero/storage/JL88AW2Q/1320011.html},
+  keywords = {access prediction,approximation theory,Australia,computational complexity,Data mining,data stream,Estimation error,financial market,Histograms,intrusion detection,Intrusion detection,Monitoring,network monitoring,quantile estimation error,quantile queries,quantile summary computing,query processing,Query processing,statistical analysis,Statistics,stock price prediction,user click stream mining,Web log mining,Web pages,XML}
 }
 
 @article{liuSimultaneousMultipleNoncrossing2011,

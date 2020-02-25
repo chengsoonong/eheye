@@ -65,7 +65,8 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 % Manku's work
 The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOther1998}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}.
 
-\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, who provide a mergeable sketch based on the GK algorithm.
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to 
+$O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, who provide a mergeable sketch based on the GK algorithm.
 
 A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}\log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
 
@@ -101,17 +102,24 @@ Due to the large range of data streams and quantile application requirements, it
 Although most quantile estimation work target at the \textit{uniform accuracy} problem on quantile estimation, many queries over data streams require differently. For example, the $0.99$-quantile is usually sparsely surrounded while the $0.5$-quantile is likely to locate in the center of a distribution where the data is much more dense. Thus comes the \textit{biased quantiles} problem which demands higher accuracy for more extreme quantile values.
 The first deterministic algorithms for the biased quantiles problem is proposed by \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} that takes only space $O(\frac{1}{\epsilon} \log {U} \cdot \log {\epsilon N})$, where $N$ is the size of the data stream and $U$ is the size of universe from which the samples are drawn. Besides, tha algorithms also apply for Other related problems like biased rank queries and targeted quantiles. 
 
-% Manku: Approximate counts and quantiles over sliding windows
+There are also applications requiring algorithms work for distributed system where a big data stream is processed by different processors.
+The \citeauthor{ben-haimStreamingParallelDecision2010}\cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building algorithm \textit{Streaming Parallel Decision Tree (SPDT)} in which the histogram boundaries can be seen as estimated quantile values.
+In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
+Some quantiles estimation methods mentioned before are also available for distributed settings. To mention a few,
+{Q-Digest}\cite{shrivastavaMediansNewAggregation2004b} is a tree based algorithm which can be extended for distributed quantile processors by merging the quantile summaries across different nodes. The Count-Min sketch\cite{cormodeImprovedDataStream2005} is also suited for distributed applications too. Both adjustments do not get involved in change of space complexity.
+The {GK} algorithm also has a structure that maintains distributed nodes, and \citeauthor{greenwaldPowerconservingComputationOrderstatistics2004}\cite{greenwaldPowerconservingComputationOrderstatistics2004} found a method to fit it in distributed settings with a larger space complexity $O(\frac{1}{\epsilon}log^3 N)$.
+It was \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013} who made the significant improvement to lower space complexity 
+$O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$
+and distributed setting capability.
 
-% Some other applications require algorithms work for distributed system where big data stream is processed by different processors.
-% The Streaming Parallel Decision Tree (SPDT) algorithm \cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building method % from streaming data at parallel processors.
-% in which histogram boundaries are estimated quantile values.
-% In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
-
-%  It also works well for huge amount of data because the computation complexity is not affected by the size of dataset.
-
-
-
+In the situation when old data get expired, the applications seek for quantile of only the most recent observations from a data stream.
+The \textit{sliding window} represents the most recent $W$ in a data stream. The types of sliding window can be classified as \textit{fixed-size} for $W$ is fixed and \textit{variable-size} when $W$ changes.
+In \cite{linContinuouslyMaintainingQuantile2004}, \citeauthor{linContinuouslyMaintainingQuantile2004} posed their algorithm for fixed-size sliding window problem with an 
+$O(\frac{1}{\epsilon} \log (\epsilon^2 W) + \frac{1}{\epsilon^2})$ space requirement.
+The result was then beaten by the work of \citeauthor{arasuApproximateCountsQuantiles2004}\cite{arasuApproximateCountsQuantiles2004} with space complexity 
+$O(\frac{1}{\epsilon} \log\frac{1}{\epsilon} \log W)$,
+which are designed for both fixed and variable sized windows.
+Despite of a worse memory space usage, the work of \citeauthor{linContinuouslyMaintainingQuantile2004}\cite{linContinuouslyMaintainingQuantile2004} has the advantage of estimating quantiles for the most $w$ observations ($w < W$) with $O(\frac{1}{\epsilon^2} \log (\epsilon W))$ space requirement.
 
 
     % This summary histogram is notable for its evenly distributed intervals sizes, as each interval has the same number of data points. To interpret the histogram into quantiles, 
