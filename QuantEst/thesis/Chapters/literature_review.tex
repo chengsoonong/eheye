@@ -13,21 +13,18 @@
 \label{ch: literature_review}
 
 
-The field of quantile estimation is big, and this thesis is incapable of covering all the topics.
-\marginpar{This part feels weird}
-This chapter details some of the work that has been done in the quantile estimation on streaming data, and is organised as follows:
+The field of quantile estimation on data stream is big, and this thesis is incapable of covering all the topics.
+This chapter details some of the work that has been done in this field, and is organised as follows:
 
-Section~\ref{streamingdata} introduces the data stream phenomenon and some quantile estimation methods on it, which are classifies by algorithm types. 
-% while section~\ref{singlequantile} and ~\ref{multiquantile} classify quantile estimation problems by aims
+Section~\ref{streamingdata} introduces the data stream phenomenon and some quantile estimation methods on it, and are classifies by algorithm types. We specially highlight the space complexity of those algorithms, to show the improvements of quantile estimation algorithms in an intuitive way.
 
-Section~\ref{singlequantile} discusses algorithms on single quantile estimation, and especially details two methods for restricted memory storage limit.
+Section~\ref{singlequantile} focuses algorithms with extreme restriction: estimate a quantile in constant space complexity. Two methods are described in detail, followed by a brief comparison.
 
-Section~\ref{multiquantile} presents algorithms on the problem of multi-quantile estimation, which estimate multiple quantiles at the same time, and the methods are 
-
+Since algorithms in section~\ref{singlequantile} cannot deal with multiple quantiles, section~\ref{multiquantile} introduces an improved constant space usage algorithm for quantile summary queries, which also becomes the inspiration of our work.
 %----------------------------------------------------------------------------------------
 %   Quantile estimation methods on streaming data
 %----------------------------------------------------------------------------------------
-
+\iffalse
 \section{Quantile estimation methods on streaming data}
 \label{streamingdata}
 Data stream is the phenomenon that input data comes at a high rate instead of being accessible all at the same time\cite{muthukrishnanDataStreamsAlgorithms2005}.
@@ -130,23 +127,18 @@ Despite of a worse memory space usage, the work of \citeauthor{linContinuouslyMa
 %----------------------------------------------------------------------------------------
 
 \pagebreak
+\fi
 
-\iffalse
-\section{Single quantile estimation with non-growing memory}
+\section{Non-growing memory for single quantile estimation}
 \label{singlequantile}
-Memory storage restrictions from data stream can be stronger for some applications, which asks for algorithms with memory space not affected by sample size. 
-\textbf{examples/explanations}
-Several algorithms have been proposed to deal with this challenges, and two of them are discussed in detail later in this research.
+The brief history above has shown a clear path for quantile estimation algorithm development: keeping a relatively accurate result while using as little memory as possible. This triggers another interesting question: what if only a constant unit of memory is allowed and how would it affect the accuracy on quantile estimation? In the following part, we introduce two similar algorithms that estimate a single quantile with a $O(1)$ space requirement.
+% \textbf{Online algorithms: Data stream algorithms have an online component where input is revealed in steps, but they have resource constraints that are not typically incorporated in competitive analysis of online algorithms. \cite{muthukrishnanDataStreamsAlgorithms2005}}
 
+\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming (referred to as Frugal below) that require only one or two units of memory.
+They have an important difference from the randomized algorithms introduced before. 
+As mentioned before, the key idea of randomized algorithms is the maintenance of a random set of samplings from the data stream. The Frugal algorithm, however, is not able to keep such a samplings with its extremely limited space, its randomness is caused by another design of the algorithm.
 
-\textbf{
-\citeauthor{mankuApproximateMediansOther1998} \cite{mankuApproximateMediansOther1998} uses $bk$ memories, where $b$ is the number of buffer that each can store $k$ elements.
-\\
-\citeauthor{dunningComputingExtremelyAccurate2019} \cite{dunningComputingExtremelyAccurate2019} can have constant or weakly growing memory.
-}
-
-\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming that requires even less memory.
-In Frugal-1U, the algorithm requires only one unit of memory to record the current quantile estimate. On arrival of each sample, the quantile estimate either stays unchanged or changed by a constant value. 
+In \textit{Frugal-1U}, the algorithm requires only one unit of memory to record the current quantile estimate. On arrival of each sample, the quantile estimate either stays unchanged or changed by a constant value. 
 % An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
 
 To attack the same problem, \citeauthor{yazidiQuantileEstimationDynamic2016}\cite{yazidiQuantileEstimationDynamic2016} resort to the idea of online learning and achieves a similar method. 
@@ -156,13 +148,10 @@ Their work is inspired by \citeauthor{tierneySpaceEfficientRecursiveProcedure198
 
 In \textbf{section ?}, we provide a theoretical analysis and experiment comparisons on the noticeable similarity between the Frugal-1U and \citeauthor{yazidiQuantileEstimationDynamic2016}'s work . 
 
-
-\pagebreak 
-
 %----------------------------------------------------------------------------------------
 %   Multi- quantile estimation
 %----------------------------------------------------------------------------------------
-
+\iffalse
 \section{Multi-quantile estimation}
 \label{multiquantile}
 When more quantile numbers are required, for example, two quantiles each identifying the upper and lower outlier of a distribution, the single quantile estimation methods become inefficient and less applicable.
