@@ -133,14 +133,40 @@ Despite of a worse memory space usage, the work of \citeauthor{linContinuouslyMa
 \label{singlequantile}
 The brief history above has shown a clear path for quantile estimation algorithm development: keeping a relatively accurate result while using as little memory as possible. This triggers another interesting question: what if only a constant unit of memory is allowed and how would it affect the accuracy on quantile estimation? In the following part, we introduce two similar algorithms that estimate a single quantile with a $O(1)$ space requirement.
 % \textbf{Online algorithms: Data stream algorithms have an online component where input is revealed in steps, but they have resource constraints that are not typically incorporated in competitive analysis of online algorithms. \cite{muthukrishnanDataStreamsAlgorithms2005}}
+\\\\
+\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming (referred to as Frugal below) that require only one or two units of memory. This algorithm does not need a prior knowledge of the size of input data or the universe, and the query of quantile estimation can be made after the arrival of any item.
+It is worth noticing that Frugal is significantly different from the randomized algorithms introduced before.
+As mentioned before, the key idea of randomized algorithms is the maintenance of a random set of samplings from the data stream. Frugal, however, is not able to keep such a samplings with its extremely limited space, its randomness is caused by another design of the algorithm.
 
-\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming (referred to as Frugal below) that require only one or two units of memory.
-They have an important difference from the randomized algorithms introduced before. 
-As mentioned before, the key idea of randomized algorithms is the maintenance of a random set of samplings from the data stream. The Frugal algorithm, however, is not able to keep such a samplings with its extremely limited space, its randomness is caused by another design of the algorithm.
+The \textit{Frugal-1U} requires only one unit of memory to record the current quantile estimate, and the estimate is updated with randomness on the arrival of each new observation. As the authors described, the current estimate ``drifts'' towards the direction indicated by the new item\cite{maFrugalStreamingEstimating2014}. That is, when the current estimate equals the new observation, the value is not changed. When the new observation is greater than current estimate, then the estimate is increased with some probability; otherwise it decreased with some probability.
+The pseudo code of the algorithm is shown below.
 
-In \textit{Frugal-1U}, the algorithm requires only one unit of memory to record the current quantile estimate. On arrival of each sample, the quantile estimate either stays unchanged or changed by a constant value. 
+\begin{algorithm}
+    \caption{Frugal-1U}\label{alg:frugal_1U}
+        \begin{algorithmic}[1]
+            \Require{Data Stream $S$, $\phi$, $1$ unit of memory $\tilde{q}$}
+            \Ensure{$\tilde{q}$}
+            % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+            \State {Initialization $\tilde{q} = 0$}               %\Comment{Default initialization $q_0$ = 0}
+                \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
+                    \State{$rand$ = random(0,1); //get a random value in $[0,1]$}
+                    % \State {\textbf{set} $\alpha_k$} \Comment{Set stepsize}
+                    \If{$s_i > \tilde{q}$ \textbf{and} $rand > 1-\phi$} %\Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
+                        \State{$\tilde{q} = \tilde{q} + 1$;}
+                    \Else { \textbf{if} $s_i < \tilde{q}$ \textbf{and} $rand > \phi$}  %\Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
+                        \State{$\tilde{q} = \tilde{q} - 1$;}
+                    \EndIf
+                \State{\textbf{end if}}
+                \EndFor
+            \State{\textbf{end for}}
+            % \State \textbf{return} $q$              \Comment{$q_k$ is the SGD result of quantile estimate}
+            % \EndProcedure
+        \end{algorithmic}
+    \end{algorithm}
+Specifically, the output $\tilde{q}$ is the estimate of the $\phi$-quantile for a given data stream $S$.
+In line 3\textasciitilde 8 in the pseudo code, the algorithm get randomness in its estimate update procedure, for the update is done by probability compared with $1- \phi$ or $\phi$.
 % An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
-
+\\\\\\\\
 To attack the same problem, \citeauthor{yazidiQuantileEstimationDynamic2016}\cite{yazidiQuantileEstimationDynamic2016} resort to the idea of online learning and achieves a similar method. 
 One distinction is step size. In this algorithm, each step the new estimate is updated by a variable related with the current estimate rather than a constant.
 Their work is inspired by \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, who introduce stochastic learning method to quantile estimation problems. 
