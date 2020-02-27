@@ -24,7 +24,7 @@ Since algorithms in section~\ref{singlequantile} cannot deal with multiple quant
 %----------------------------------------------------------------------------------------
 %   Quantile estimation methods on streaming data
 %----------------------------------------------------------------------------------------
-\iffalse
+
 \section{Quantile estimation methods on streaming data}
 \label{streamingdata}
 Data stream is the phenomenon that input data comes at a high rate instead of being accessible all at the same time\cite{muthukrishnanDataStreamsAlgorithms2005}.
@@ -127,9 +127,9 @@ Despite of a worse memory space usage, the work of \citeauthor{linContinuouslyMa
 %----------------------------------------------------------------------------------------
 
 \pagebreak
-\fi
 
-\section{Non-growing memory for single quantile estimation}
+
+\section{Non-growing space for single quantile estimation}
 \label{singlequantile}
 The brief history above has shown a clear path for quantile estimation algorithm development: keeping a relatively accurate result while using as little memory as possible. This triggers another interesting question: what if only a constant unit of memory is allowed and how would it affect the accuracy on quantile estimation? In the following part, we introduce two similar algorithms that estimate a single quantile with a $O(1)$ space requirement.
 % \textbf{Online algorithms: Data stream algorithms have an online component where input is revealed in steps, but they have resource constraints that are not typically incorporated in competitive analysis of online algorithms. \cite{muthukrishnanDataStreamsAlgorithms2005}}
@@ -164,45 +164,43 @@ The pseudo code of the algorithm is shown below.
         \end{algorithmic}
     \end{algorithm}
 Specifically, the output $\tilde{q}$ is the estimate of the $\phi$-quantile for a given data stream $S$.
-In line 3\textasciitilde 8 in the pseudo code, the algorithm get randomness in its estimate update procedure, for the update is done by probability compared with $1- \phi$ or $\phi$.
+In line 3\textasciitilde 8 of the pseudo code, the algorithm get randomness in its estimate update procedure, for the update is done by probability compared with $1- \phi$ or $\phi$.
 % An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
-\\\\\\\\
+\\\\
+\marginpar{needs to be extended}
 To attack the same problem, \citeauthor{yazidiQuantileEstimationDynamic2016}\cite{yazidiQuantileEstimationDynamic2016} resort to the idea of online learning and achieves a similar method. 
 One distinction is step size. In this algorithm, each step the new estimate is updated by a variable related with the current estimate rather than a constant.
 Their work is inspired by \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, who introduce stochastic learning method to quantile estimation problems. 
 % In The noticeable similarity and difference between \citeauthor{yazidiQuantileEstimationDynamic2016}'s work and the Frugal-1U is analysed in \textbf{section ??}.  
 
-In \textbf{section ?}, we provide a theoretical analysis and experiment comparisons on the noticeable similarity between the Frugal-1U and \citeauthor{yazidiQuantileEstimationDynamic2016}'s work . 
 
 %----------------------------------------------------------------------------------------
 %   Multi- quantile estimation
 %----------------------------------------------------------------------------------------
-\iffalse
-\section{Multi-quantile estimation}
+
+\section{Non-growing space for multi-quantile estimation}
 \label{multiquantile}
+\marginpar{Want to include the work of \citeauthor{yazidiMultiplicativeUpdateMethods2019}\cite{yazidiMultiplicativeUpdateMethods2019}: Multiplicative Update Methods for Incremental Quantile Estimation}
+One new problem for the constant space usage algorithms is the limit in number of quantiles estimated for each query.
 When more quantile numbers are required, for example, two quantiles each identifying the upper and lower outlier of a distribution, the single quantile estimation methods become inefficient and less applicable.
 For only a few quantiles, this problem can be solved by running parallel single quantile estimation processes for each quantile. But the issue remains when the number of processes excesses the computer's parallel capacity.
 The algorithm which estimates several quantile values in one process, as a general solution to this problem, is then brought forward.
-Multiple quantile estimation is the simultaneous estimation on different quantile values from streaming data. 
+Multiple quantile estimation, or the quantile summary estimation, is the simultaneous estimation on different quantile values from streaming data. 
 In general, it is the estimator that estimates $k$ quantiles (the $\tau_1$-, $\tau_2$-, $...$, $\tau_k$-quantiles) at the same time.
 Given the relationship between 
 It has been an issue targeted by different algorithms.
-        % excluded: \cite{pebayFormulasRobustOnepass2008}: online learning, not quantile\\\\
-    \subsection{Other Method and Advantages of simultaneous estimation\cite{mcdermottDataSkeletonsSimultaneous2007}}
-
-    Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \citeauthor{liechtySinglepassLowstorageArbitrary} \cite{liechtySinglepassLowstorageArbitrary}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
 
 
-    Over the comparison with \citeauthor{liechtySinglepassLowstorageArbitrary}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
+
+\subsection{Other Method and Advantages of simultaneous estimation}
+\marginpar{Not sure if I should keep this part}
+
+Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \citeauthor{liechtySinglepassLowstorageArbitrary} \cite{liechtySinglepassLowstorageArbitrary}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
 
 
-    
-\textbf{
-    Parallel quantile estimation using Stochastic approximation \cite{hammerSmoothEstimatesMultiple2019}
-}
+Over the comparison with \citeauthor{liechtySinglepassLowstorageArbitrary}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
 
-\textbf{P2 algorithm and latter algorithms that based on it}
+ And need to mention: {P2 algorithm and latter algorithms that based on it}
 
 
 % \section{Anomaly Detection and Outlier}
-\fi
