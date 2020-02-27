@@ -1,0 +1,781 @@
+
+@article{agarwalMergeableSummaries2013,
+  title = {Mergeable Summaries},
+  author = {Agarwal, Pankaj K. and Cormode, Graham and Huang, Zengfeng and Phillips, Jeff M. and Wei, Zhewei and Yi, Ke},
+  year = {2013},
+  month = dec,
+  volume = {38},
+  pages = {26:1--26:28},
+  issn = {0362-5915},
+  doi = {10.1145/2500128},
+  abstract = {We study the mergeability of data summaries. Informally speaking, mergeability requires that, given two summaries on two datasets, there is a way to merge the two summaries into a single summary on the two datasets combined together, while preserving the error and size guarantees. This property means that the summaries can be merged in a way akin to other algebraic operators such as sum and max, which is especially useful for computing summaries on massive distributed data. Several data summaries are trivially mergeable by construction, most notably all the sketches that are linear functions of the datasets. But some other fundamental ones, like those for heavy hitters and quantiles, are not (known to be) mergeable. In this article, we demonstrate that these summaries are indeed mergeable or can be made mergeable after appropriate modifications. Specifically, we show that for {$\epsilon$}-approximate heavy hitters, there is a deterministic mergeable summary of size O(1/{$\epsilon$}); for {$\epsilon$}-approximate quantiles, there is a deterministic summary of size O((1/{$\epsilon$}) log({$\epsilon$} n)) that has a restricted form of mergeability, and a randomized one of size O((1/{$\epsilon$}) log3/2(1/{$\epsilon$})) with full mergeability. We also extend our results to geometric summaries such as {$\epsilon$}-approximations which permit approximate multidimensional range counting queries. While most of the results in this article are theoretical in nature, some of the algorithms are actually very simple and even perform better than the previously best known algorithms, which we demonstrate through experiments in a simulated sensor network. We also achieve two results of independent interest: (1) we provide the best known randomized streaming bound for {$\epsilon$}-approximate quantiles that depends only on {$\epsilon$}, of size O((1/{$\epsilon$}) log3/2(1/{$\epsilon$})), and (2) we demonstrate that the MG and the SpaceSaving summaries for heavy hitters are isomorphic.},
+  file = {/Users/sue/Zotero/storage/HTMH9ZWY/Agarwal et al. - 2013 - Mergeable summaries.pdf},
+  journal = {ACM Transactions on Database Systems (TODS)},
+  keywords = {Data summarization,heavy hitters,quantiles},
+  number = {4}
+}
+
+@article{arandjelovicTwoMaximumEntropy2014,
+  title = {Two Maximum Entropy Based Algorithms for Running Quantile Estimation in Non-Stationary Data Streams},
+  author = {Arandjelovic, Ognjen and Pham, Duc-Son and Venkatesh, Svetha},
+  year = {2014},
+  month = nov,
+  abstract = {The need to estimate a particular quantile of a distribution is an important problem which frequently arises in many computer vision and signal processing applications. For example, our work was motivated by the requirements of many semi-automatic surveillance analytics systems which detect abnormalities in close-circuit television (CCTV) footage using statistical models of low-level motion features. In this paper we specifically address the problem of estimating the running quantile of a data stream when the memory for storing observations is limited. We make several major contributions: (i) we highlight the limitations of approaches previously described in the literature which make them unsuitable for non-stationary streams, (ii) we describe a novel principle for the utilization of the available storage space, (iii) we introduce two novel algorithms which exploit the proposed principle in different ways, and (iv) we present a comprehensive evaluation and analysis of the proposed algorithms and the existing methods in the literature on both synthetic data sets and three large real-world streams acquired in the course of operation of an existing commercial surveillance system. Our findings convincingly demonstrate that both of the proposed methods are highly successful and vastly outperform the existing alternatives. We show that the better of the two algorithms (data-aligned histogram) exhibits far superior performance in comparison with the previously described methods, achieving more than 10 times lower estimate errors on real-world data, even when its available working memory is an order of magnitude smaller.},
+  archivePrefix = {arXiv},
+  eprint = {1411.2250},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/VDMNUMBB/Arandjelovic et al. - 2014 - Two maximum entropy based algorithms for running q.pdf;/Users/sue/Zotero/storage/YD3GMBJD/1411.html},
+  journal = {arXiv:1411.2250 [cs]},
+  keywords = {Computer Science - Data Structures and Algorithms},
+  primaryClass = {cs}
+}
+
+@inproceedings{arasuApproximateCountsQuantiles2004,
+  title = {Approximate Counts and Quantiles over Sliding Windows},
+  booktitle = {Proceedings of the Twenty-Third {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems  - {{PODS}} '04},
+  author = {Arasu, Arvind and Manku, Gurmeet Singh},
+  year = {2004},
+  pages = {286},
+  publisher = {{ACM Press}},
+  address = {{Paris, France}},
+  doi = {10.1145/1055558.1055598},
+  abstract = {We consider the problem of maintaining -approximate counts and quantiles over a stream sliding window using limited space. We consider two types of sliding windows depending on whether the number of elements N in the window is fixed (fixed-size sliding window) or variable (variable-size sliding window). In a fixed-size sliding window, both the ends of the window slide synchronously over the stream. In a variable-size sliding window, an adversary slides the window ends independently, and therefore has the ability to vary the number of elements N in the window.},
+  file = {/Users/sue/Zotero/storage/ZB2KHS64/Arasu and Manku - 2004 - Approximate counts and quantiles over sliding wind.pdf},
+  isbn = {978-1-58113-858-0},
+  language = {en}
+}
+
+@article{ben-haimStreamingParallelDecision2010,
+  title = {A {{Streaming Parallel Decision Tree Algorithm}}},
+  author = {{Ben-Haim}, Yael and {Tom-Tov}, Elad},
+  year = {2010},
+  month = feb,
+  volume = {11},
+  pages = {849--872},
+  abstract = {We propose a new algorithm for building decision tree classifiers. The algorithm is executed in a distributed environment and is especially designed for classifying large data sets and streaming data. It is empirically shown to be as accurate as a standard decision tree classifier, while being scalable for processing of streaming data on multiple processors. These findings are supported by a rigorous analysis of the algorithm's accuracy.},
+  file = {/Users/sue/Zotero/storage/5QY79AUD/Ben-Haim and Tom-Tov - A Streaming Parallel Decision Tree Algorithm.pdf},
+  journal = {Journal of Machine Learning Research},
+  language = {en}
+}
+
+@article{blassWhenAreTwo2008,
+  title = {When Are Two Algorithms the Same?},
+  author = {Blass, Andreas and Dershowitz, Nachum and Gurevich, Yuri},
+  year = {2008},
+  month = nov,
+  abstract = {People usually regard algorithms as more abstract than the programs that implement them. The natural way to formalize this idea is that algorithms are equivalence classes of programs with respect to a suitable equivalence relation. We argue that no such equivalence relation exists.},
+  archivePrefix = {arXiv},
+  eprint = {0811.0811},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/3KVXJDD8/Blass et al. - 2008 - When are two algorithms the same.pdf;/Users/sue/Zotero/storage/J3S8QTM6/0811.html},
+  journal = {arXiv:0811.0811 [cs]},
+  keywords = {Computer Science - Data Structures and Algorithms,Computer Science - General Literature,Computer Science - Logic in Computer Science},
+  primaryClass = {cs}
+}
+
+@article{buragohainQuantilesStreams2009,
+  title = {Quantiles on {{Streams}}},
+  author = {Buragohain, Chiranjeeb and Subhash, Suri},
+  year = {2009},
+  doi = {10.1007/978-0-387-39940-9_290},
+  file = {/Users/sue/Zotero/storage/3XJDLJVX/ency.pdf}
+}
+
+@inproceedings{caoIncrementalTrackingMultiple2009,
+  title = {Incremental Tracking of Multiple Quantiles for Network Monitoring in Cellular Networks},
+  booktitle = {Proceedings of the 1st {{ACM}} Workshop on {{Mobile}} Internet through Cellular Networks},
+  author = {Cao, Jin and Li, Li Erran and Chen, Aiyou and Bu, Tian},
+  year = {2009},
+  month = sep,
+  pages = {7--12},
+  publisher = {{Association for Computing Machinery}},
+  address = {{Beijing, China}},
+  doi = {10.1145/1614255.1614258},
+  abstract = {Network monitoring in cellular networks requires the tracking of quantiles for data distributions of many evolving network measurements (e.g. number of high signaling subscribers per minute). Most quantile estimation algorithms are based on a summary of the empirical data distribution, using either a representative sample or a global approximation of the entire distribution. In contrast, by viewing data as a quantity from a random distribution, the stochastic approximation (SA) for quantile estimation does not keep a global approximation, but rather local approximations at the quantiles of interest, and therefore uses negligible memory even for estimating tail quantiles. However, the current stochastic approximation algorithm for quantile estimation tracks each quantile separately, and this may lead to a violation of the monotone property of quantiles. In this paper, we propose a stochastic approximation technique that enables the simultaneous tracking of multiple quantiles. Our technique maintains the monotone property of different quantiles, and is adaptive to changes in the data distribution. We evaluate its performance using real cellular provider datasets. Our results show that the technique is very efficient.},
+  file = {/Users/sue/Zotero/storage/8V9YUW42/Cao et al. - 2009 - Incremental tracking of multiple quantiles for net.pdf},
+  isbn = {978-1-60558-753-0},
+  keywords = {cellular networks,quantile estimation,stochastic approximation},
+  series = {{{MICNET}} '09}
+}
+
+@article{cormodeImprovedDataStream2005,
+  title = {An Improved Data Stream Summary: The Count-Min Sketch and Its Applications},
+  shorttitle = {An Improved Data Stream Summary},
+  author = {Cormode, Graham and Muthukrishnan, S.},
+  year = {2005},
+  month = apr,
+  volume = {55},
+  pages = {58--75},
+  issn = {01966774},
+  doi = {10.1016/j.jalgor.2003.12.001},
+  abstract = {We introduce a new sublinear space data structure\textemdash{}the count-min sketch\textemdash{}for summarizing data streams. Our sketch allows fundamental queries in data stream summarization such as point, range, and inner product queries to be approximately answered very quickly; in addition, it can be applied to solve several important problems in data streams such as finding quantiles, frequent items, etc. The time and space bounds we show for using the CM sketch to solve these problems significantly improve those previously known\textemdash{}typically from 1/{$\epsilon$}2 to 1/{$\epsilon$} in factor.},
+  file = {/Users/sue/Zotero/storage/9YE3GB3W/Cormode and Muthukrishnan - 2005 - An improved data stream summary the count-min ske.pdf},
+  journal = {Journal of Algorithms},
+  language = {en},
+  number = {1}
+}
+
+@inproceedings{cormodeSpaceTimeefficientDeterministic2006,
+  title = {Space- and Time-Efficient Deterministic Algorithms for Biased Quantiles over Data Streams},
+  booktitle = {Proceedings of the Twenty-Fifth {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems  - {{PODS}} '06},
+  author = {Cormode, Graham and Korn, Flip and Muthukrishnan, S. and Srivastava, Divesh},
+  year = {2006},
+  pages = {263},
+  publisher = {{ACM Press}},
+  address = {{Chicago, IL, USA}},
+  doi = {10.1145/1142351.1142389},
+  abstract = {Skew is prevalent in data streams, and should be taken into account by algorithms that analyze the data. The problem of finding ``biased quantiles''\textemdash{} that is, approximate quantiles which must be more accurate for more extreme values \textemdash{} is a framework for summarizing such skewed data on data streams. We present the first deterministic algorithms for answering biased quantiles queries accurately with small\textemdash{}sublinear in the input size\textemdash{} space and time bounds in one pass. The space bound is near-optimal, and the amortized update cost is close to constant, making it practical for handling high speed network data streams. We not only demonstrate theoretical properties of the algorithm, but also show it uses less space than existing methods in many practical settings, and is fast to maintain.},
+  file = {/Users/sue/Zotero/storage/Q4ZA82QZ/Cormode et al. - 2006 - Space- and time-efficient deterministic algorithms.pdf},
+  isbn = {978-1-59593-318-8},
+  language = {en}
+}
+
+@incollection{dobraAMSSketch2009,
+  title = {{{AMS Sketch}}},
+  booktitle = {Encyclopedia of {{Database Systems}}},
+  author = {Dobra, Alin},
+  editor = {LIU, LING and {\"O}ZSU, M. TAMER},
+  year = {2009},
+  pages = {80--83},
+  publisher = {{Springer US}},
+  address = {{Boston, MA}},
+  doi = {10.1007/978-0-387-39940-9_16},
+  file = {/Users/sue/Zotero/storage/JL2HYAE5/Dobra - 2009 - AMS Sketch.pdf},
+  isbn = {978-0-387-39940-9},
+  language = {en}
+}
+
+@article{dunningComputingExtremelyAccurate2019,
+  title = {Computing {{Extremely Accurate Quantiles Using}} T-{{Digests}}},
+  author = {Dunning, Ted and Ertl, Otmar},
+  year = {2019},
+  month = feb,
+  abstract = {We present on-line algorithms for computing approximations of rank-based statistics that give high accuracy, particularly near the tails of a distribution, with very small sketches. Notably, the method allows a quantile \$q\$ to be computed with an accuracy relative to \$\textbackslash{}max(q, 1-q)\$ rather than absolute accuracy as with most other methods. This new algorithm is robust with respect to skewed distributions or ordered datasets and allows separately computed summaries to be combined with no loss in accuracy. An open-source Java implementation of this algorithm is available from the author. Independent implementations in Go and Python are also available.},
+  archivePrefix = {arXiv},
+  eprint = {1902.04023},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/CQEAZNHG/Dunning and Ertl - 2019 - Computing Extremely Accurate Quantiles Using t-Dig.pdf;/Users/sue/Zotero/storage/B3QVVV62/1902.html},
+  journal = {arXiv:1902.04023 [cs, stat]},
+  keywords = {Computer Science - Data Structures and Algorithms,Statistics - Computation},
+  primaryClass = {cs, stat}
+}
+
+@article{emmottMetaAnalysisAnomalyDetection2015,
+  title = {A {{Meta}}-{{Analysis}} of the {{Anomaly Detection Problem}}},
+  author = {Emmott, Andrew and Das, Shubhomoy and Dietterich, Thomas and Fern, Alan and Wong, Weng-Keen},
+  year = {2015},
+  month = mar,
+  abstract = {This article provides a thorough meta-analysis of the anomaly detection problem. To accomplish this we first identify approaches to benchmarking anomaly detection algorithms across the literature and produce a large corpus of anomaly detection benchmarks that vary in their construction across several dimensions we deem important to real-world applications: (a) point difficulty, (b) relative frequency of anomalies, (c) clusteredness of anomalies, and (d) relevance of features. We apply a representative set of anomaly detection algorithms to this corpus, yielding a very large collection of experimental results. We analyze these results to understand many phenomena observed in previous work. First we observe the effects of experimental design on experimental results. Second, results are evaluated with two metrics, ROC Area Under the Curve and Average Precision. We employ statistical hypothesis testing to demonstrate the value (or lack thereof) of our benchmarks. We then offer several approaches to summarizing our experimental results, drawing several conclusions about the impact of our methodology as well as the strengths and weaknesses of some algorithms. Last, we compare results against a trivial solution as an alternate means of normalizing the reported performance of algorithms. The intended contributions of this article are many; in addition to providing a large publicly-available corpus of anomaly detection benchmarks, we provide an ontology for describing anomaly detection contexts, a methodology for controlling various aspects of benchmark creation, guidelines for future experimental design and a discussion of the many potential pitfalls of trying to measure success in this field.},
+  archivePrefix = {arXiv},
+  eprint = {1503.01158},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/PF2M6YTA/Emmott et al. - 2015 - A Meta-Analysis of the Anomaly Detection Problem.pdf},
+  journal = {arXiv:1503.01158 [cs, stat]},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
+  language = {en},
+  primaryClass = {cs, stat}
+}
+
+@misc{farmerCarsonfarmerStreamhist2019,
+  title = {Carsonfarmer/Streamhist},
+  author = {Farmer, Carson},
+  year = {2019},
+  month = oct,
+  abstract = {Streaming approximate histograms with Python. Contribute to carsonfarmer/streamhist development by creating an account on GitHub.}
+}
+
+@article{felberRandomizedOnlineQuantile2017,
+  title = {A Randomized Online Quantile Summary in {{O}}((1/{$\epsilon$})Log (1/{$\epsilon$} )) Words},
+  author = {Felber, David and Ostrovsky, Rafail},
+  year = {2017},
+  volume = {13},
+  pages = {1--17},
+  issn = {1557-2862},
+  doi = {10.4086/toc.2017.v013a014},
+  abstract = {A quantile summary is a data structure that approximates to {$\epsilon$} error the order statistics of a much larger underlying dataset. In this paper we develop a randomized online quantile summary for the cash register data input model and comparison data domain model that uses O((1/{$\epsilon$}) log(1/{$\epsilon$})) words of memory. This improves upon the previous best upper bound of O((1/{$\epsilon$}) log3/2(1/{$\epsilon$})) by Agarwal et al. (PODS 2012). Further, by a lower bound of Hung and Ting (FAW 2010) no deterministic summary for the comparison model can outperform our randomized summary in terms of space complexity. Lastly, our summary has the nice property that O((1/{$\epsilon$}) log(1/{$\epsilon$})) words suffice to ensure that the success probability is at least 1 - exp(-poly(1/{$\epsilon$})).},
+  file = {/Users/sue/Zotero/storage/E2PYZDW4/Felber and Ostrovsky - 2017 - [No title found].pdf},
+  journal = {Theory of Computing},
+  language = {en},
+  number = {1}
+}
+
+@article{floydExpectedTimeBounds1975,
+  title = {Expected Time Bounds for Selection},
+  author = {Floyd, Robert W. and Rivest, Ronald L.},
+  year = {1975},
+  month = mar,
+  volume = {18},
+  pages = {165--172},
+  issn = {00010782},
+  doi = {10.1145/360680.360691},
+  abstract = {A new selection algorithm is presented which is shown to be very efficient on the average, both theoretically and practically. The number of comparisons used to select the ith smallest of n numbers is n q- min(i,n--i) q- o(n). A lower bound within 9 percent of the above formula is also derived.},
+  file = {/Users/sue/Zotero/storage/JZUHWAN6/Floyd and Rivest - 1975 - Expected time bounds for selection.pdf},
+  journal = {Communications of the ACM},
+  language = {en},
+  number = {3}
+}
+
+@article{freundDecisionTheoreticGeneralizationOnLine1997,
+  title = {A {{Decision}}-{{Theoretic Generalization}} of {{On}}-{{Line Learning}} and an {{Application}} to {{Boosting}}},
+  author = {Freund, Yoav and Schapire, Robert E},
+  year = {1997},
+  month = aug,
+  volume = {55},
+  pages = {119--139},
+  issn = {0022-0000},
+  doi = {10.1006/jcss.1997.1504},
+  abstract = {In the first part of the paper we consider the problem of dynamically apportioning resources among a set of options in a worst-case on-line framework. The model we study can be interpreted as a broad, abstract extension of the well-studied on-line prediction model to a general decision-theoretic setting. We show that the multiplicative weight-update Littlestone\textendash{}Warmuth rule can be adapted to this model, yielding bounds that are slightly weaker in some cases, but applicable to a considerably more general class of learning problems. We show how the resulting learning algorithm can be applied to a variety of problems, including gambling, multiple-outcome prediction, repeated games, and prediction of points in Rn. In the second part of the paper we apply the multiplicative weight-update technique to derive a new boosting algorithm. This boosting algorithm does not require any prior knowledge about the performance of the weak learning algorithm. We also study generalizations of the new boosting algorithm to the problem of learning functions whose range, rather than being binary, is an arbitrary finite set or a bounded segment of the real line.},
+  file = {/Users/sue/Zotero/storage/8WS72FHI/Freund and Schapire - 1997 - A Decision-Theoretic Generalization of On-Line Lea.pdf;/Users/sue/Zotero/storage/CBPVDZDY/S002200009791504X.html},
+  journal = {Journal of Computer and System Sciences},
+  number = {1}
+}
+
+@article{gilbertAnalysisDataStreams2007,
+  title = {Analysis of {{Data Streams}}: {{Computational}} and {{Algorithmic Challenges}}},
+  author = {Gilbert, A C and Strauss, M J},
+  year = {2007},
+  volume = {49},
+  pages = {12},
+  file = {/Users/sue/Zotero/storage/2F5D9UIX/Gilbert and Strauss - 2007 - Analysis of Data Streams Computational and Algori.pdf},
+  language = {en},
+  number = {3}
+}
+
+@incollection{gilbertChapter40How2002,
+  title = {Chapter 40 - {{How}} to {{Summarize}} the {{Universe}}: {{Dynamic Maintenance}} of {{Quantiles}}},
+  shorttitle = {Chapter 40 - {{How}} to {{Summarize}} the {{Universe}}},
+  booktitle = {{{VLDB}} '02: {{Proceedings}} of the 28th {{International Conference}} on {{Very Large Databases}}},
+  author = {Gilbert, Anna C. and Kotidis, Yannis and Muthukrishnan, S. and Strauss, Martin J.},
+  editor = {Bernstein, Philip A. and Ioannidis, Yannis E. and Ramakrishnan, Raghu and Papadias, Dimitris},
+  year = {2002},
+  month = jan,
+  pages = {454--465},
+  publisher = {{Morgan Kaufmann}},
+  address = {{San Francisco}},
+  doi = {10.1016/B978-155860869-6/50047-0},
+  abstract = {This chapter presents a new algorithm for dynamically computing quantiles of a relation subject to insert as well as delete operations. Order statistics (quantiles) are frequently used in databases at both the database server as well as the application level. For example, they are useful in selectivity estimation during query optimization, in partitioning large relations, in estimating query result sizes when building user interfaces, and in characterizing the data distribution of evolving datasets in the process of data mining. Most database management systems (DBMSs) maintain order statistics (quantiles) on the contents of their database relations. Medians (half-way points) and quartiles (quarter-way points) are elementary order statistics. Quantiles find multiple uses in databases. Simple statistics, such as the mean and variance, are both insufficiently descriptive and highly sensitive to data anomalies in real world data distributions. Quantiles can summarize massive database relations more robustly. Many commercial DBMSs use equidepth histograms, which are in fact quantiles, during query optimization in order to estimate the size of intermediate results and pick competitive query execution plans.},
+  file = {/Users/sue/Zotero/storage/RI5CWZXP/B9781558608696500470.html},
+  isbn = {978-1-55860-869-6},
+  language = {en}
+}
+
+@inproceedings{greenwaldPowerconservingComputationOrderstatistics2004,
+  title = {Power-Conserving Computation of Order-Statistics over Sensor Networks},
+  booktitle = {Proceedings of the Twenty-Third {{ACM SIGMOD}}-{{SIGACT}}-{{SIGART}} Symposium on {{Principles}} of Database Systems},
+  author = {Greenwald, Michael B. and Khanna, Sanjeev},
+  year = {2004},
+  month = jun,
+  pages = {275--285},
+  publisher = {{Association for Computing Machinery}},
+  address = {{Paris, France}},
+  doi = {10.1145/1055558.1055597},
+  abstract = {We study the problem of power-conserving computation of order statistics in sensor networks. Significant power-reducing optimizations have been devised for computing simple aggregate queries such as COUNT, AVERAGE, or MAX over sensor networks. In contrast, aggregate queries such as MEDIAN have seen little progress over the brute force approach of forwarding all data to a central server. Moreover, battery life of current sensors seems largely determined by communication costs --- therefore we aim to minimize the number of bytes transmitted. Unoptimized aggregate queries typically impose extremely high power consumption on a subset of sensors located near the server. Metrics such as total communication cost underestimate the penalty of such imbalance: network lifetime may be dominated by the worst-case replacement time for depleted batteries.In this paper, we design the first algorithms for computing order-statistics such that power consumption is balanced across the entire network. Our first main result is a distributed algorithm to compute an {$\epsilon$}-approximate quantile summary of the sensor data such that each sensor transmits only O(log2n/{$\epsilon$}) data values, irrespective of the network topology, an improvement over the current worst-case behavior of {$\Omega$}(n). Second, we show an improved result when the height, h, of the network is significantly smaller than n. Our third result is that we can exactly compute any order statistic (e.g., median) in a distributed manner such that each sensor needs to transmit O(log3n) values.Further, we design the aggregates used by our algorithms to be decomposable. An aggregate Q over a set S is decomposable if there exists a function, f, such that for all S = S1 {$\cup$} S2, Q(S) = f(Q(S1), Q(S2)). We can thus directly apply existing optimizations to decomposable aggregates that increase error-resilience and reduce communication cost.Finally, we validate our results empirically, through simulation. When we compute the median exactly, we show that, even for moderate size networks, the worst communication cost for any single node is several times smaller than the corresponding cost in prior median algorithms. We show similar cost reductions when computing approximate order-statistic summaries with guaranteed precision. In all cases, our total communication cost over the entire network is smaller than or equal to the total cost of prior algorithms.},
+  file = {/Users/sue/Zotero/storage/BUCB6W4B/Greenwald and Khanna - 2004 - Power-conserving computation of order-statistics o.pdf},
+  isbn = {978-1-58113-858-0},
+  series = {{{PODS}} '04}
+}
+
+@incollection{greenwaldQuantilesEquidepthHistograms2016a,
+  title = {Quantiles and {{Equi}}-Depth {{Histograms}} over {{Streams}}},
+  booktitle = {Data {{Stream Management}}},
+  author = {Greenwald, Michael B. and Khanna, Sanjeev},
+  editor = {Garofalakis, Minos and Gehrke, Johannes and Rastogi, Rajeev},
+  year = {2016},
+  pages = {45--86},
+  publisher = {{Springer Berlin Heidelberg}},
+  address = {{Berlin, Heidelberg}},
+  doi = {10.1007/978-3-540-28608-0_3},
+  file = {/Users/sue/Zotero/storage/T8TKWAV4/Greenwald and Khanna - 2016 - Quantiles and Equi-depth Histograms over Streams.pdf},
+  isbn = {978-3-540-28607-3 978-3-540-28608-0},
+  language = {en}
+}
+
+@article{guhaStreamOrderOrder2009,
+  title = {Stream {{Order}} and {{Order Statistics}}: {{Quantile Estimation}} in {{Random}}-{{Order Streams}}},
+  shorttitle = {Stream {{Order}} and {{Order Statistics}}},
+  author = {Guha, S. and McGregor, A.},
+  year = {2009},
+  month = jan,
+  volume = {38},
+  pages = {2044--2059},
+  issn = {0097-5397},
+  doi = {10.1137/07069328X},
+  abstract = {When trying to process a data stream in small space, how important is the order in which the data arrive? Are there problems that are unsolvable when the ordering is worst case, but that can be solved (with high probability) when the order is chosen uniformly at random? If we consider the stream as if ordered by an adversary, what happens if we restrict the power of the adversary? We study these questions in the context of quantile estimation, one of the most well studied problems in the data-stream model. Our results include an \$O(\$polylog \$n)\$-space, \$O(\textbackslash{}log\textbackslash{}log n)\$-pass algorithm for exact selection in a randomly ordered stream of n elements. This resolves an open question of Munro and Paterson [Theoret. Comput. Sci., 23 (1980), pp. 315\textendash{}323]. We then demonstrate an exponential separation between the random-order and adversarial-order models: using \$O(\$polylog \$n)\$ space, exact selection requires \$\textbackslash{}Omega(\textbackslash{}log n/\textbackslash{}log\textbackslash{}log n)\$ passes in the adversarial-order model. This lower bound, in contrast to previous results, applies to fully general randomized algorithms and is established via a new bound on the communication complexity of a natural pointer-chasing style problem. We also prove the first fully general lower bounds in the random-order model: finding an element with rank \$n/2\textbackslash{}pm n\^\{\textbackslash{}delta\}\$ in the single-pass random-order model with probability at least \$9/10\$ requires \$\textbackslash{}Omega(\textbackslash{}sqrt\{n\^\{1-3\textbackslash{}delta\}/\textbackslash{}log n\})\$ space.},
+  file = {/Users/sue/Zotero/storage/W4A8HBP4/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf;/Users/sue/Zotero/storage/XRTFKI4K/07069328X.html},
+  journal = {SIAM Journal on Computing},
+  number = {5}
+}
+
+@article{hammerSmoothEstimatesMultiple2019,
+  title = {Smooth Estimates of Multiple Quantiles in Dynamically Varying Data Streams},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis},
+  year = {2019},
+  month = apr,
+  issn = {1433-7541, 1433-755X},
+  doi = {10.1007/s10044-019-00794-3},
+  abstract = {In this paper, we investigate the problem of estimating multiple quantiles when samples are received online (data stream). We assume a dynamical system, i.e., the distribution of the samples from the data stream changes with time. A major challenge of using incremental quantile estimators to track multiple quantiles is that we are not guaranteed that the monotone property of quantiles will be satisfied, i.e, an estimate of a lower quantile might erroneously overpass that of a higher quantile estimate. Surprisingly, we have only found two papers in the literature that attempt to counter these challenges, namely the works of Cao et al. (Proceedings of the first ACM workshop on mobile internet through cellular networks, ACM, 2009) and Hammer and Yazidi (Proceedings of the 30th international conference on industrial engineering and other applications of applied intelligent systems (IEA/AIE), France, Springer, 2017) where the latter is a preliminary version of the work in this paper. Furthermore, the state-of-the-art incremental quantile estimator called deterministic update-based multiplicative incremental quantile estimator (DUMIQE), due to Yazidi and Hammer (IEEE Trans Cybernet, 2017), fails to guarantee the monotone property when estimating multiple quantiles. A challenge with the solutions, in Cao et al.(2009) and Hammer and Yazidi(2017), is that even though the estimates satisfy the monotone property of quantiles, the estimates can be highly irregular relative to each other which usually is unrealistic from a practical point of view. In this paper, we suggest to generate the quantile estimates by inserting the quantile probabilities (e.g., 0.1, 0.2, \ldots{} , 0.9{$\mkern1mu$}) into a monotonically increasing and infinitely smooth function (can be differentiated infinitely many times). The function is incrementally updated from the data stream. The monotonicity and smoothness of the function ensure that both the monotone property and regularity requirement of the quantile estimates are satisfied. The experimental results show that the method performs very well and estimates multiple quantiles more precisely than the original DUMIQE (Yazidi and Hammer 2017), and the approaches reported in Hammer and Yazidi(2017) and Cao et al.(2009).},
+  file = {/Users/sue/Zotero/storage/CJYJCJIL/Hammer and Yazidi - 2019 - Smooth estimates of multiple quantiles in dynamica.pdf},
+  journal = {Pattern Analysis and Applications},
+  language = {en}
+}
+
+@article{hardtTrainFasterGeneralize2015,
+  title = {Train Faster, Generalize Better: {{Stability}} of Stochastic Gradient Descent},
+  shorttitle = {Train Faster, Generalize Better},
+  author = {Hardt, Moritz and Recht, Benjamin and Singer, Yoram},
+  year = {2015},
+  month = sep,
+  abstract = {We show that parametric models trained by a stochastic gradient method (SGM) with few iterations have vanishing generalization error. We prove our results by arguing that SGM is algorithmically stable in the sense of Bousquet and Elisseeff. Our analysis only employs elementary tools from convex and continuous optimization. We derive stability bounds for both convex and non-convex optimization under standard Lipschitz and smoothness assumptions.},
+  archivePrefix = {arXiv},
+  eprint = {1509.01240},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/CSE3I8T2/Hardt et al. - 2015 - Train faster, generalize better Stability of stoc.pdf},
+  journal = {arXiv:1509.01240 [cs, math, stat]},
+  keywords = {Computer Science - Machine Learning,Mathematics - Optimization and Control,Statistics - Machine Learning},
+  language = {en},
+  primaryClass = {cs, math, stat}
+}
+
+@article{hongEstimatingQuantileSensitivities2009,
+  title = {Estimating {{Quantile Sensitivities}}},
+  author = {Hong, L. Jeff},
+  year = {2009},
+  month = feb,
+  volume = {57},
+  pages = {118--130},
+  issn = {0030-364X, 1526-5463},
+  doi = {10.1287/opre.1080.0531},
+  file = {/Users/sue/Zotero/storage/8FLHM955/Hong - 2009 - Estimating Quantile Sensitivities.pdf},
+  journal = {Operations Research},
+  language = {en},
+  number = {1}
+}
+
+@incollection{huangOnlineAnomalousTime2013,
+  title = {An {{Online Anomalous Time Series Detection Algorithm}} for {{Univariate Data Streams}}},
+  booktitle = {Recent {{Trends}} in {{Applied Artificial Intelligence}}},
+  author = {Huang, Huaming and Mehrotra, Kishan and Mohan, Chilukuri K.},
+  editor = {Hutchison, David and Kanade, Takeo and Kittler, Josef and Kleinberg, Jon M. and Mattern, Friedemann and Mitchell, John C. and Naor, Moni and Nierstrasz, Oscar and Pandu Rangan, C. and Steffen, Bernhard and Sudan, Madhu and Terzopoulos, Demetri and Tygar, Doug and Vardi, Moshe Y. and Weikum, Gerhard and Ali, Moonis and Bosse, Tibor and Hindriks, Koen V. and Hoogendoorn, Mark and Jonker, Catholijn M. and Treur, Jan},
+  year = {2013},
+  volume = {7906},
+  pages = {151--160},
+  publisher = {{Springer Berlin Heidelberg}},
+  address = {{Berlin, Heidelberg}},
+  doi = {10.1007/978-3-642-38577-3_16},
+  abstract = {We address the online anomalous time series detection problem among a set of series, combining three simple distance measures. This approach, akin to control charts, makes it easy to determine when a series begins to differ from other series. Empirical evidence shows that this novel online anomalous time series detection algorithm performs very well, while being efficient in terms of time complexity, when compared to approaches previously discussed in the literature.},
+  file = {/Users/sue/Zotero/storage/YGGN44NJ/Huang et al. - 2013 - An Online Anomalous Time Series Detection Algorith.pdf},
+  isbn = {978-3-642-38576-6 978-3-642-38577-3},
+  language = {en}
+}
+
+@inproceedings{hungLogSpaceLower2010,
+  title = {An {{$\Omega$}}((1/{$\epsilon$})Log (1/{$\epsilon$} )) {{Space Lower Bound}} for {{Finding}} {$\epsilon$}-{{Approximate Quantiles}} in a {{Data Stream}}},
+  booktitle = {Frontiers in {{Algorithmics}}},
+  author = {Hung, Regant Y. S. and Ting, Hingfung F.},
+  editor = {Lee, Der-Tsai and Chen, Danny Z. and Ying, Shi},
+  year = {2010},
+  pages = {89--100},
+  publisher = {{Springer}},
+  address = {{Berlin, Heidelberg}},
+  doi = {10.1007/978-3-642-14553-7_11},
+  abstract = {This paper studies the space complexity of the {$\epsilon$}-approximate quantiles problem, which asks for some data structure that enables us to determine, after reading a whole data stream, a {$\varphi$}-quantile (for any 0 {$\leq$} {$\varphi$} {$\leq$} 1) of the stream within some error bound {$\epsilon$}. The best known algorithm for the problem uses {$\mathsl{O}$}(1{$\mathsl{E}$}log{$\mathsl{E}\mathsl{N}$})O(1{$\epsilon$}log⁡{$\epsilon$}N)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log \textbackslash{}varepsilon N) words where N is the total number of items in the stream, or uses {$\mathsl{O}$}(1{$\mathsl{E}$}log|{$\mathsl{U}$}|)O(1{$\epsilon$}log⁡|U|)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log |U|) words where U is the set of possible items. It is known that the space lower bound of the problem is {$\Omega$}(1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words; however, improvement of this bound is elusive.In this paper, we prove that any comparison-based algorithm for finding {$\epsilon$}-approximate quantiles needs {$\Omega$}(1{$\mathsl{E}$}log1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$}log⁡1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\} \textbackslash{}log \textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words.},
+  file = {/Users/sue/Zotero/storage/6MEL68J8/Hung and Ting - 2010 - An $Omega(frac 1 varepsilon log frac 1 va.pdf},
+  isbn = {978-3-642-14553-7},
+  keywords = {Data Stream,Distinct Item,General Memory,Item Memory,Space Complexity},
+  language = {en},
+  series = {Lecture {{Notes}} in {{Computer Science}}}
+}
+
+@misc{IEEEXploreFullText,
+  title = {{{IEEE Xplore Full}}-{{Text PDF}}:},
+  file = {/Users/sue/Zotero/storage/E4JURMV7/stamp.html},
+  howpublished = {https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=\&arnumber=8360417}
+}
+
+@article{jainP2AlgorithmDynamic1985,
+  title = {The {{P2}} Algorithm for Dynamic Calculation of Quantiles and Histograms without Storing Observations},
+  author = {Jain, Raj and Chlamtac, Imrich},
+  year = {1985},
+  month = oct,
+  volume = {28},
+  pages = {1076--1085},
+  issn = {00010782},
+  doi = {10.1145/4372.4378},
+  abstract = {A heuristic algorithm is proposed for dynamic calculation qf the median and other quantiles. The estimates are produced dynamically as the observations are generated. The observations are not stored; therefore, the algorithm has a very small and fixed storage requirement regardless of the number of observations. This makes it ideal for implementing in a quantile chip that can be used in industrial controllers and recorders. The algorithm is further extended to histogram plotting. The accuracy of the al,gorithm is analyzed.},
+  file = {/Users/sue/Zotero/storage/US7XKXCT/Jain and Chlamtac - 1985 - The P2 algorithm for dynamic calculation of quanti.pdf},
+  journal = {Communications of the ACM},
+  language = {en},
+  number = {10}
+}
+
+@article{koenkerRegressionQuantiles1978,
+  title = {Regression {{Quantiles}}},
+  author = {Koenker, Roger and Bassett, Gilbert},
+  year = {1978},
+  month = jan,
+  volume = {46},
+  pages = {33},
+  issn = {00129682},
+  doi = {10.2307/1913643},
+  file = {/Users/sue/Zotero/storage/WR4KA8JA/Koenker and Bassett - 1978 - Regression Quantiles.pdf},
+  journal = {Econometrica},
+  language = {en},
+  number = {1}
+}
+
+@article{liechtySinglepassLowstorageArbitrary,
+  title = {Single-Pass Low-Storage Arbitrary Quantile Estimation for Massive Datasets},
+  author = {Liechty, John C and Lin, Dennis K J and McDERMOTT, JAMES P},
+  pages = {10},
+  file = {/Users/sue/Zotero/storage/ULN3TXRW/Liechty et al. - Single-pass low-storage arbitrary quantile estimat.pdf},
+  language = {en}
+}
+
+@inproceedings{linContinuouslyMaintainingQuantile2004,
+  title = {Continuously Maintaining Quantile Summaries of the Most Recent {{N}} Elements over a Data Stream},
+  booktitle = {Proceedings. 20th {{International Conference}} on {{Data Engineering}}},
+  author = {Lin, X. and Lu, H. and Xu, J. and Yu, J.X.},
+  year = {2004},
+  month = apr,
+  pages = {362--373},
+  issn = {1063-6382},
+  doi = {10.1109/ICDE.2004.1320011},
+  abstract = {Statistics over the most recently observed data elements are often required in applications involving data streams, such as intrusion detection in network monitoring, stock price prediction in financial markets, Web log mining for access prediction, and user click stream mining for personalization. Among various statistics, computing quantile summary is probably most challenging because of its complexity. We study the problem of continuously maintaining quantile summary of the most recently observed N elements over a stream so that quantile queries can be answered with a guaranteed precision of /spl epsiv/N. We developed a space efficient algorithm for predefined N that requires only one scan of the input data stream and O(log(/spl epsiv//sup 2/N)//spl epsiv/+1//spl epsiv//sup 2/) space in the worst cases. We also developed an algorithm that maintains quantile summaries for most recent N elements so that quantile queries on any most recent n elements (n /spl les/ N) can be answered with a guaranteed precision of /spl epsiv/n. The worst case space requirement for this algorithm is only O(log/sup 2/(/spl epsiv/N)//spl epsiv//sup 2/). Our performance study indicated that not only the actual quantile estimation error is far below the guaranteed precision but the space requirement is also much less than the given theoretical bound.},
+  file = {/Users/sue/Zotero/storage/5URL66M4/Lin et al. - 2004 - Continuously maintaining quantile summaries of the.pdf;/Users/sue/Zotero/storage/JL88AW2Q/1320011.html},
+  keywords = {access prediction,approximation theory,Australia,computational complexity,Data mining,data stream,Estimation error,financial market,Histograms,intrusion detection,Intrusion detection,Monitoring,network monitoring,quantile estimation error,quantile queries,quantile summary computing,query processing,Query processing,statistical analysis,Statistics,stock price prediction,user click stream mining,Web log mining,Web pages,XML}
+}
+
+@article{liuSimultaneousMultipleNoncrossing2011,
+  title = {Simultaneous Multiple Non-Crossing Quantile Regression Estimation Using Kernel Constraints},
+  author = {Liu, Yufeng and Wu, Yichao},
+  year = {2011},
+  month = jun,
+  volume = {23},
+  pages = {415--437},
+  issn = {1048-5252, 1029-0311},
+  doi = {10.1080/10485252.2010.537336},
+  file = {/Users/sue/Zotero/storage/XQZ4IUSD/Liu and Wu - 2011 - Simultaneous multiple non-crossing quantile regres.pdf},
+  journal = {Journal of Nonparametric Statistics},
+  language = {en},
+  number = {2}
+}
+
+@article{maFrugalStreamingEstimating2014,
+  title = {Frugal {{Streaming}} for {{Estimating Quantiles}}:{{One}} (or Two) Memory Suffices},
+  shorttitle = {Frugal {{Streaming}} for {{Estimating Quantiles}}},
+  author = {Ma, Qiang and Muthukrishnan, S. and Sandler, Mark},
+  year = {2014},
+  month = jul,
+  abstract = {Modern applications require processing streams of data for estimating statistical quantities such as quantiles with small amount of memory. In many such applications, in fact, one needs to compute such statistical quantities for each of a large number of groups, which additionally restricts the amount of memory available for the stream for any particular group. We address this challenge and introduce frugal streaming, that is algorithms that work with tiny \textendash{}typically, sub-streaming \textendash{} amount of memory per group.},
+  archivePrefix = {arXiv},
+  eprint = {1407.1121},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/BUA5VZNG/Ma et al. - 2014 - Frugal Streaming for Estimating QuantilesOne (or .pdf},
+  journal = {arXiv:1407.1121 [cs]},
+  keywords = {Computer Science - Data Structures and Algorithms,Computer Science - Databases},
+  language = {en},
+  primaryClass = {cs}
+}
+
+@article{mankuApproximateMediansOther1998,
+  title = {Approximate Medians and Other Quantiles in One Pass and with Limited Memory},
+  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G.},
+  year = {1998},
+  month = jun,
+  volume = {27},
+  pages = {426--435},
+  issn = {0163-5808},
+  doi = {10.1145/276305.276342},
+  abstract = {We present new algorithms for computing approximate quantiles of large datasets in a single pass. The approximation guarantees are explicit, and apply for arbitrary value distributions and arrival distributions of the dataset. The main memory requirements are smaller than those reported earlier by an order of magnitude. We also discuss methods that couple the approximation algorithms with random sampling to further reduce memory requirements. With sampling, the approximation guarantees are explicit but probabilistic, i.e. they apply with respect to a (user controlled) confidence parameter. We present the algorithms, their theoretical analysis and simulation results on different datasets.},
+  file = {/Users/sue/Zotero/storage/8DRLX4MF/Manku et al. - 1998 - Approximate medians and other quantiles in one pas.pdf},
+  journal = {ACM SIGMOD Record},
+  number = {2}
+}
+
+@article{mankuRandomSamplingTechniques1999,
+  title = {Random Sampling Techniques for Space Efficient Online Computation of Order Statistics of Large Datasets},
+  author = {Manku, Gurmeet Singh and Rajagopalan, Sridhar and Lindsay, Bruce G.},
+  year = {1999},
+  month = jun,
+  volume = {28},
+  pages = {251--262},
+  issn = {0163-5808},
+  doi = {10.1145/304181.304204},
+  abstract = {In a recent paper [MRL98], we had described a general framework for single pass approximate quantile finding algorithms. This framework included several known algorithms as special cases. We had identified a new algorithm, within the framework, which had a significantly smaller requirement for main memory than other known algorithms. In this paper, we address two issues left open in our earlier paper. First, all known and space efficient algorithms for approximate quantile finding require advance knowledge of the length of the input sequence. Many important database applications employing quantiles cannot provide this information. In this paper, we present a novel non-uniform random sampling scheme and an extension of our framework. Together, they form the basis of a new algorithm which computes approximate quantiles without knowing the input sequence length. Second, if the desired quantile is an extreme value (e.g., within the top 1\% of the elements), the space requirements of currently known algorithms are overly pessimistic. We provide a simple algorithm which estimates extreme values using less space than required by the earlier more general technique for computing all quantiles. Our principal observation here is that random sampling is quantifiably better when estimating extreme values than is the case with the median.},
+  file = {/Users/sue/Zotero/storage/EVITTLHE/Manku et al. - 1999 - Random sampling techniques for space efficient onl.pdf},
+  journal = {ACM SIGMOD Record},
+  number = {2}
+}
+
+@article{mcdermottDataSkeletonsSimultaneous2007,
+  title = {Data Skeletons: Simultaneous Estimation of Multiple Quantiles for Massive Streaming Datasets with Applications to Density Estimation},
+  shorttitle = {Data Skeletons},
+  author = {McDermott, James P. and Babu, G. Jogesh and Liechty, John C. and Lin, Dennis K. J.},
+  year = {2007},
+  month = sep,
+  volume = {17},
+  pages = {311--321},
+  issn = {0960-3174, 1573-1375},
+  doi = {10.1007/s11222-007-9021-3},
+  abstract = {We consider the problem of density estimation when the data is in the form of a continuous stream with no fixed length. In this setting, implementations of the usual methods of density estimation such as kernel density estimation are problematic. We propose a method of density estimation for massive datasets that is based upon taking the derivative of a smooth curve that has been fit through a set of quantile estimates. To achieve this, a low-storage, singlepass, sequential method is proposed for simultaneous estimation of multiple quantiles for massive datasets that form the basis of this method of density estimation. For comparison, we also consider a sequential kernel density estimator. The proposed methods are shown through simulation study to perform well and to have several distinct advantages over existing methods.},
+  file = {/Users/sue/Zotero/storage/85H4KMAW/McDermott et al. - 2007 - Data skeletons simultaneous estimation of multipl.pdf},
+  journal = {Statistics and Computing},
+  language = {en},
+  number = {4}
+}
+
+@article{munroSelectionSortingLimited1980,
+  title = {Selection and Sorting with Limited Storage},
+  author = {Munro, J. I. and Paterson, M. S.},
+  year = {1980},
+  month = nov,
+  volume = {12},
+  pages = {315--323},
+  issn = {0304-3975},
+  doi = {10.1016/0304-3975(80)90061-4},
+  abstract = {When selecting from, or sorting, a file stored on a read-only tape and the internal storage is rather limited, several passes of the input tape may be required. We study the relation between the amount of internal storage available and the number of passes required to select the Kth highest of N inputs. We show, for example, that to find the median in two passes requires at least {$\omega$}(N12) and at most O(N12log N) internal storage. For probabilistic methods, \texttheta{}(N12) internal storage is necessary and sufficient for a single pass method which finds the median with arbitrarily high probability.},
+  file = {/Users/sue/Zotero/storage/ANEGN3DC/Munro and Paterson - 1980 - Selection and sorting with limited storage.pdf;/Users/sue/Zotero/storage/BSILCJ3P/0304397580900614.html},
+  journal = {Theoretical Computer Science},
+  language = {en},
+  number = {3}
+}
+
+@article{muthukrishnanDataStreamsAlgorithms2005,
+  title = {Data {{Streams}}: {{Algorithms}} and {{Applications}}},
+  shorttitle = {Data {{Streams}}},
+  author = {Muthukrishnan, S.},
+  year = {2005},
+  volume = {1},
+  pages = {117--236},
+  issn = {1551-305X, 1551-3068},
+  doi = {10.1561/0400000002},
+  file = {/Users/sue/Zotero/storage/QPXDC4UQ/Muthukrishnan - 2005 - Data Streams Algorithms and Applications.pdf},
+  journal = {Foundations and Trends\textregistered{} in Theoretical Computer Science},
+  language = {en},
+  number = {2}
+}
+
+@article{ouyangStochasticSmoothingNonsmooth2012,
+  title = {Stochastic {{Smoothing}} for {{Nonsmooth Minimizations}}: {{Accelerating SGD}} by {{Exploiting Structure}}},
+  shorttitle = {Stochastic {{Smoothing}} for {{Nonsmooth Minimizations}}},
+  author = {Ouyang, Hua and Gray, Alexander},
+  year = {2012},
+  month = may,
+  abstract = {In this work we consider the stochastic minimization of nonsmooth convex loss functions, a central problem in machine learning. We propose a novel algorithm called Accelerated Nonsmooth Stochastic Gradient Descent (ANSGD), which exploits the structure of common nonsmooth loss functions to achieve optimal convergence rates for a class of problems including SVMs. It is the first stochastic algorithm that can achieve the optimal O(1/t) rate for minimizing nonsmooth loss functions (with strong convexity). The fast rates are confirmed by empirical comparisons, in which ANSGD significantly outperforms previous subgradient descent algorithms including SGD.},
+  archivePrefix = {arXiv},
+  eprint = {1205.4481},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/WMC8HEY3/Ouyang and Gray - 2012 - Stochastic Smoothing for Nonsmooth Minimizations .pdf;/Users/sue/Zotero/storage/D35G6A3Y/1205.html},
+  journal = {arXiv:1205.4481 [cs, stat]},
+  keywords = {Computer Science - Machine Learning,Statistics - Computation,Statistics - Machine Learning},
+  primaryClass = {cs, stat}
+}
+
+@techreport{pebayFormulasRobustOnepass2008,
+  title = {Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments.},
+  author = {Pebay, Philippe Pierre},
+  year = {2008},
+  month = sep,
+  pages = {SAND2008-6212, 1028931},
+  doi = {10.2172/1028931},
+  abstract = {We present a formula for the pairwise update of arbitrary-order centered statistical moments. This formula is of particular interest to compute such moments in parallel for large-scale, distributed data sets. As a corollary, we indicate a specialization of this formula for incremental updates, of particular interest to streaming implementations. Finally, we provide pairwise and incremental update formulas for the covariance.},
+  file = {/Users/sue/Zotero/storage/EKFQZ5WM/Pebay - 2008 - Formulas for robust, one-pass parallel computation.pdf},
+  language = {en},
+  number = {SAND2008-6212, 1028931}
+}
+
+@article{rayArtApproximatingDistributions1800,
+  title = {The {{Art}} of {{Approximating Distributions}}: {{Histograms}} and {{Quantiles}} at {{Scale}}},
+  author = {Ray, Nelson},
+  year = {1800},
+  pages = {8},
+  file = {/Users/sue/ANU_study/2019_sem2/Honors/Readings/The Art of Approximating Distributions_ Histograms and Quantiles at Scale.pdf},
+  language = {en}
+}
+
+@article{sangnierJointQuantileRegression,
+  title = {Joint Quantile Regression in Vector-Valued {{RKHSs}}},
+  author = {Sangnier, Maxime and Fercoq, Olivier},
+  pages = {19},
+  abstract = {Addressing the will to give a more complete picture than an average relationship provided by standard regression, a novel framework for estimating and predicting simultaneously several conditional quantiles is introduced. The proposed methodology leverages kernel-based multi-task learning to curb the embarrassing phenomenon of quantile crossing, with a one-step estimation procedure and no post-processing. Moreover, this framework comes along with theoretical guarantees and an efficient coordinate descent learning algorithm. Numerical experiments on benchmark and real datasets highlight the enhancements of our approach regarding the prediction error, the crossing occurrences and the training time.},
+  file = {/Users/sue/Zotero/storage/SITM7K4L/Sangnier and Fercoq - Joint quantile regression in vector-valued RKHSs.pdf},
+  language = {en}
+}
+
+@article{shamirStochasticGradientDescent,
+  title = {Stochastic {{Gradient Descent}} for {{Non}}-Smooth {{Optimization}}: {{Convergence Results}} and {{Optimal Averaging Schemes}}},
+  author = {Shamir, Ohad and Zhang, Tong},
+  pages = {9},
+  abstract = {Stochastic Gradient Descent (SGD) is one of the simplest and most popular stochastic optimization methods. While it has already been theoretically studied for decades, the classical analysis usually required nontrivial smoothness assumptions, which do not apply to many modern applications of SGD with non-smooth objective functions such as support vector machines. In this paper, we investigate the performance of SGD without such smoothness assumptions, as well as a running average scheme to convert the SGD iterates to a solution with optimal optimization accuracy. In this framework, we prove that after T rounds, the suboptimalit{$\surd$}y of the last SGD iterate scales as O(log(T )/ T ) for non-smooth convex objective functions, and O(log(T )/T ) in the non-smooth strongly convex case. To the best of our knowledge, these are the first bounds of this kind, and almost match the minimax-optimal rates obtainable by appropriate averaging schemes. We also propose a new and simple averaging scheme, which not only attains optimal rates, but can also be easily computed on-the-fly (in contrast, the suffix averaging scheme proposed in Rakhlin et al. (2011) is not as simple to implement). Finally, we provide some experimental illustrations.},
+  file = {/Users/sue/Zotero/storage/VEPFGNVH/Shamir and Zhang - Stochastic Gradient Descent for Non-smooth Optimiz.pdf},
+  language = {en}
+}
+
+@inproceedings{shrivastavaMediansNewAggregation2004b,
+  title = {Medians and beyond: New Aggregation Techniques for Sensor Networks},
+  shorttitle = {Medians and Beyond},
+  booktitle = {Proceedings of the 2nd International Conference on {{Embedded}} Networked Sensor Systems},
+  author = {Shrivastava, Nisheeth and Buragohain, Chiranjeeb and Agrawal, Divyakant and Suri, Subhash},
+  year = {2004},
+  month = nov,
+  pages = {239--249},
+  publisher = {{Association for Computing Machinery}},
+  address = {{Baltimore, MD, USA}},
+  doi = {10.1145/1031495.1031524},
+  abstract = {Wireless sensor networks offer the potential to span and monitor large geographical areas inexpensively. Sensors, however, have significant power constraint (battery life), making communication very expensive. Another important issue in the context of sensor-based information systems is that individual sensor readings are inherently unreliable. In order to address these two aspects, sensor database systems like TinyDB and Cougar enable in-network data aggregation to reduce the communication cost and improve reliability. The existing data aggregation techniques, however, are limited to relatively simple types of queries such as SUM, COUNT, AVG, and MIN/MAX. In this paper we propose a data aggregation scheme that significantly extends the class of queries that can be answered using sensor networks. These queries include (approximate) quantiles, such as the median, the most frequent data values, such as the \emph{consensus} value, a histogram of the data distribution, as well as range queries. In our scheme, each sensor aggregates the data it has received from other sensors into a fixed (user specified) size message. We provide strict theoretical guarantees on the approximation quality of the queries in terms of the message size. We evaluate the performance of our aggregation scheme by simulation and demonstrate its accuracy, scalability and low resource utilization for highly variable input data sets.},
+  file = {/Users/sue/Zotero/storage/MRU4VVRD/Shrivastava et al. - 2004 - Medians and beyond new aggregation techniques for.pdf},
+  isbn = {978-1-58113-879-5},
+  keywords = {aggregation,approximation algorithms,distributed algorithms,sensor networks},
+  series = {{{SenSys}} '04}
+}
+
+@article{steinwartEstimatingConditionalQuantiles2011,
+  title = {Estimating Conditional Quantiles with the Help of the Pinball Loss},
+  author = {Steinwart, Ingo and Christmann, Andreas},
+  year = {2011},
+  month = feb,
+  volume = {17},
+  pages = {211--225},
+  issn = {1350-7265},
+  doi = {10.3150/10-BEJ267},
+  abstract = {The so-called pinball loss for estimating conditional quantiles is a well-known tool in both statistics and machine learning. So far, however, only little work has been done to quantify the efficiency of this tool for nonparametric approaches. We fill this gap by establishing inequalities that describe how close approximate pinball risk minimizers are to the corresponding conditional quantile. These inequalities, which hold under mild assumptions on the data-generating distribution, are then used to establish so-called variance bounds, which recently turned out to play an important role in the statistical analysis of (regularized) empirical risk minimization approaches. Finally, we use both types of inequalities to establish an oracle inequality for support vector machines that use the pinball loss. The resulting learning rates are min--max optimal under some standard regularity assumptions on the conditional quantile.},
+  archivePrefix = {arXiv},
+  eprint = {1102.2101},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/H5HYKNNY/Steinwart and Christmann - 2011 - Estimating conditional quantiles with the help of .pdf},
+  journal = {Bernoulli},
+  keywords = {Mathematics - Statistics Theory},
+  language = {en},
+  number = {1}
+}
+
+@article{tierneySpaceEfficientRecursiveProcedure1983,
+  title = {A {{Space}}-{{Efficient Recursive Procedure}} for {{Estimating}} a {{Quantile}} of an {{Unknown Distribution}}},
+  author = {Tierney, Luke},
+  year = {1983},
+  month = dec,
+  volume = {4},
+  pages = {706--711},
+  issn = {0196-5204, 2168-3417},
+  doi = {10.1137/0904048},
+  abstract = {Consider the problem of computing an estimate of a percentile or quantile of an unknown population based on a random sample of n observations. By viewing this problem as a problem in stochastic approximation, we obtain an estimator that requires only a small amount of direct access storage space that does not increase with the sample size. We show that a modified version of the simple stochastic approximation estimator has the same large-sample behavior as the sample quantile, which has the smallest asymptotic variance among all reasonable estimators. The modified procedure also yields an estimate of the asymptotic variance of the estimator. Some simulation results are presented to show that the proposed estimator performs well in samples of moderate size.},
+  file = {/Users/sue/Zotero/storage/27GGS95A/Tierney - 1983 - A Space-Efficient Recursive Procedure for Estimati.pdf},
+  journal = {SIAM Journal on Scientific and Statistical Computing},
+  language = {en},
+  number = {4}
+}
+
+@article{vitterRandomSamplingReservoir1985,
+  title = {Random Sampling with a Reservoir},
+  author = {Vitter, Jeffrey S.},
+  year = {1985},
+  month = mar,
+  volume = {11},
+  pages = {37--57},
+  issn = {0098-3500, 1557-7295},
+  doi = {10.1145/3147.3165},
+  file = {/Users/sue/Zotero/storage/MQ97JRE2/Vitter - 1985 - Random sampling with a reservoir.pdf},
+  journal = {ACM Transactions on Mathematical Software (TOMS)},
+  language = {en},
+  number = {1}
+}
+
+@inproceedings{wangQuantilesDataStreams2013,
+  title = {Quantiles over Data Streams: An Experimental Study},
+  shorttitle = {Quantiles over Data Streams},
+  booktitle = {Proceedings of the 2013 International Conference on {{Management}} of Data - {{SIGMOD}} '13},
+  author = {Wang, Lu and Luo, Ge and Yi, Ke and Cormode, Graham},
+  year = {2013},
+  pages = {737},
+  publisher = {{ACM Press}},
+  address = {{New York, New York, USA}},
+  doi = {10.1145/2463676.2465312},
+  abstract = {A fundamental problem in data management and analysis is to generate descriptions of the distribution of data. It is most common to give such descriptions in terms of the cumulative distribution, which is characterized by the quantiles of the data. The design and engineering of efficient methods to find these quantiles has attracted much study, especially in the case where the data is described incrementally, and we must compute the quantiles in an online, streaming fashion. Yet while such algorithms have proved to be tremendously useful in practice, there has been limited formal comparison of the competing methods, and no comprehensive study of their performance. In this paper, we remedy this deficit by providing a taxonomy of different methods, and describe efficient implementations. In doing so, we propose and analyze variations that have not been explicitly studied before, yet which turn out to perform the best. To illustrate this, we provide detailed experimental comparisons demonstrating the tradeoffs between space, time, and accuracy for quantile computation.},
+  file = {/Users/sue/Zotero/storage/2KPRG463/Wang et al. - 2013 - Quantiles over data streams an experimental study.pdf},
+  isbn = {978-1-4503-2037-5},
+  language = {en}
+}
+
+@misc{WhatStreamingData,
+  title = {What Is {{Streaming Data}}? \textendash{} {{Amazon Web Services}} ({{AWS}})},
+  shorttitle = {What Is {{Streaming Data}}?},
+  abstract = {Learn about what Streaming Data is and see a simple comparison chart that shows you the main differences between stream processing and batch processing in big data workloads.},
+  file = {/Users/sue/Zotero/storage/KWRFH7PK/streaming-data.html},
+  howpublished = {https://aws.amazon.com/streaming-data/},
+  journal = {Amazon Web Services, Inc.},
+  language = {en-US}
+}
+
+@article{yangRSGBeatingSubgradient,
+  title = {{{RSG}}: {{Beating Subgradient Method}} without {{Smoothness}} and {{Strong Convexity}}},
+  author = {Yang, Tianbao and Lin, Qihang},
+  pages = {33},
+  file = {/Users/sue/Zotero/storage/TZSIQIET/Yang and Lin - RSG Beating Subgradient Method without Smoothness.pdf},
+  language = {en}
+}
+
+@article{yazidiMultiplicativeUpdateMethods2019,
+  title = {Multiplicative {{Update Methods}} for {{Incremental Quantile Estimation}}},
+  author = {Yazidi, Anis and Hammer, Hugo},
+  year = {2019},
+  month = mar,
+  volume = {49},
+  pages = {746--756},
+  issn = {2168-2275},
+  doi = {10.1109/TCYB.2017.2779140},
+  abstract = {We present a novel lightweight incremental quantile estimator which possesses far less complexity than the Tierney's estimator and its extensions. Notably, our algorithm relies only on tuning one single parameter which is a plausible property which we could only find in the discretized quantile estimator Frugal. This makes our algorithm easy to tune for better performance. Furthermore, our algorithm is multiplicative which makes it highly suitable to handle quantile estimation in systems in which the underlying distribution varies with time. Unlike Frugal and our legacy work which are randomized algorithms, we suggest deterministic updates where the step size is adjusted in a subtle manner to ensure the convergence. The deterministic algorithm is more efficient since the estimate is updated at every iteration. The convergence of the proposed estimator is proven using the theory of stochastic learning. Extensive experimental results show that our estimator clearly outperforms legacy works.},
+  file = {/Users/sue/Zotero/storage/NCEGYA26/Yazidi and Hammer - 2019 - Multiplicative Update Methods for Incremental Quan.pdf;/Users/sue/Zotero/storage/IAGQL8F4/8237199.html},
+  journal = {IEEE Transactions on Cybernetics},
+  keywords = {Approximation algorithms,approximation theory,Complexity theory,computational complexity,Convergence,deterministic algorithm,deterministic algorithms,deterministic updates,Distribution functions,Estimation,estimation theory,Frugal discretized quantile estimator,incremental quantile estimation,learning (artificial intelligence),legacy work,lightweight incremental quantile estimator,Memory management,Monitoring,multiplicative update methods,Multiplicative updates,quantiles estimation,randomised algorithms,randomized algorithms,statistical analysis,stochastic learning theory,stochastic processes,Tierney estimator,time varying distributions},
+  number = {3}
+}
+
+@article{yazidiQuantileEstimationDynamic2016,
+  title = {Quantile Estimation in Dynamic and Stationary Environments Using the Theory of Stochastic Learning},
+  author = {Yazidi, Anis and Hammer, Hugo},
+  year = {2016},
+  month = apr,
+  volume = {16},
+  pages = {15--24},
+  issn = {15596915},
+  doi = {10.1145/2924715.2924717},
+  abstract = {The goal of our research is to estimate the quantiles of a distribution from a large set of samples that arrive sequentially. Since the data set is large, the model we choose is that the data cannot be stored, but rather that estimates of the quantiles are computed in a real-time setting. In such settings, classical estimators that require storing the whole history of the data (or stream) cannot be deployed. In this paper, we present an incremental quantile estimator of a distribution, i.e., one that utilizes the previously-computed estimates and only resorts to the last sample for updating these estimates. The state-of-the-art work on obtaining incremental quantile estimators is due to Tierney [12], and is based on the theory of stochastic approximation. However, a primary shortcoming of the latter work is the requirement to incrementally build local approximations of the distribution function in the neighborhood of the quantiles. This requirement, unfortunately, increases the complexity of the algorithm.},
+  file = {/Users/sue/Zotero/storage/VLU7G4KT/Yazidi and Hammer - 2016 - Quantile estimation in dynamic and stationary envi.pdf},
+  journal = {ACM SIGAPP Applied Computing Review},
+  language = {en},
+  number = {1}
+}
+
+@inproceedings{yiuEfficientQuantileRetrieval2006,
+  title = {Efficient {{Quantile Retrieval}} on {{Multi}}-Dimensional {{Data}}},
+  booktitle = {Advances in {{Database Technology}} - {{EDBT}} 2006},
+  author = {Yiu, Man Lung and Mamoulis, Nikos and Tao, Yufei},
+  editor = {Ioannidis, Yannis and Scholl, Marc H. and Schmidt, Joachim W. and Matthes, Florian and Hatzopoulos, Mike and Boehm, Klemens and Kemper, Alfons and Grust, Torsten and Boehm, Christian},
+  year = {2006},
+  pages = {167--185},
+  publisher = {{Springer Berlin Heidelberg}},
+  abstract = {Given a set of N multi-dimensional points, we study the computation of {$\varphi$}-quantiles according to a ranking function F, which is provided by the user at runtime. Specifically, F computes a score based on the coordinates of each point; our objective is to report the object whose score is the {$\varphi$}N-th smallest in the dataset. {$\varphi$}-quantiles provide a succinct summary about the F-distribution of the underlying data, which is useful for online decision support, data mining, selectivity estimation, query optimization, etc. Assuming that the dataset is indexed by a spatial access method, we propose several algorithms for retrieving a quantile efficiently. Analytical and experimental results demonstrate that a branch-and-bound method is highly effective in practice, outperforming alternative approaches by a significant factor.},
+  file = {/Users/sue/Zotero/storage/BWIIFGX2/Yiu et al. - 2006 - Efficient Quantile Retrieval on Multi-dimensional .pdf},
+  isbn = {978-3-540-32961-9},
+  keywords = {Multidimensional Data,Query Point,Range Count,Ranking Function,Skyline Query},
+  language = {en},
+  series = {Lecture {{Notes}} in {{Computer Science}}}
+}
+
+@article{zhengGradientDescentAlgorithms2011,
+  title = {Gradient Descent Algorithms for Quantile Regression with Smooth Approximation},
+  author = {Zheng, Songfeng},
+  year = {2011},
+  month = sep,
+  volume = {2},
+  pages = {191--207},
+  issn = {1868-8071, 1868-808X},
+  doi = {10.1007/s13042-011-0031-2},
+  abstract = {Gradient based optimization methods often converge quickly to a local optimum. However, the check loss function used by quantile regression model is not everywhere differentiable, which prevents the gradient based optimization methods from being applicable. As such, this paper introduces a smooth function to approximate the check loss function so that the gradient based optimization methods could be employed for fitting quantile regression model. The properties of the smooth approximation are discussed. Two algorithms are proposed for minimizing the smoothed objective function. The first method directly applies gradient descent, resulting the gradient descent smooth quantile regression model; the second approach minimizes the smoothed objective function in the framework of functional gradient descent by changing the fitted model along the negative gradient direction in each iteration, which yields boosted smooth quantile regression algorithm. Extensive experiments on simulated data and real-world data show that, compared to alternative quantile regression models, the proposed smooth quantile regression algorithms can achieve higher prediction accuracy and are more efficient in removing noninformative predictors.},
+  file = {/Users/sue/Zotero/storage/4ULXALN2/Zheng - 2011 - Gradient descent algorithms for quantile regressio.pdf},
+  journal = {International Journal of Machine Learning and Cybernetics},
+  language = {en},
+  number = {3}
+}
+
+

@@ -1,16 +1,16 @@
-\documentclass[12pt]{article}
-\usepackage{xcolor}
+% \documentclass[12pt]{article}
+% \usepackage{xcolor}
 
-\input{nams.tex}
+% \input{nams.tex}
 \graphicspath{{Figures/Experiment_results/SGD/}{./}} 
 \captionsetup[figure]{font=scriptsize,labelfont=bf}
 
 
-\title{SGD Quantile Estimation Experiment}
-\date{\vspace{-5ex}}
+\chapter{SGD Quantile Estimation Experiment}
+\label{ch: experiments}
 
-\begin{document}
-\maketitle
+% \begin{document}
+% \maketitle
 
 \section{Introduction}
 
@@ -110,16 +110,19 @@ The parameter of SGD quantile estimation is important. The current settings for 
 \end{itemize}
 where $k$ is the index of step count.
 
-% \section{Frugal and SGD algorithm}
+\section{Frugal and SGD algorithm}
 
-% Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
+Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
 
 \subsubsection{Error Computation}
 
 An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between empirical and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for empirical quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of same size and distribution, we take the mean of the error value $\overline{E^{(\tau)}}$, where 
-    $$
+    
+    \begin{equation*}
         \overline{E^{(\tau)}} = \frac{1}{n}\sum_{i=1}^{n} E^{(\tau)}_{i}
-    $$
+    \end{equation*}
+        
+    
 where $E^{(\tau)}_{i}$ is the error value of $\tau$-quantile for the $i$th data stream. To compare the performance of different settings of SGD estimation, we can now compare the $\overline{E^{(\tau)}}$ value for each setting.
 \\\\
  Despite the capability of accuracy comparison, there is still room for improvement for this preliminary error measurement. 
@@ -131,10 +134,13 @@ where $E^{(\tau)}_{i}$ is the error value of $\tau$-quantile for the $i$th data 
  Third and more importantly, it is incapable of showing if the estimation "works". Specifically, for some number $x$, we cannot find a reasonable explanation for the statement ``the estimate is accurate enough because we have $\overline{E^{(\tau)}} \leq x$''. Since for any $x$, we could find an example from the first two issues as a counter example. To solve those problems, a more general comparison of accuracy should be enabled by the new error measurement.
 \\\\
 In the new version of error value calculation, true quantile value of a data distribution $q_{true}^{(\tau)}$ is involved, so that $E^{(\tau)}$ is normalized by $|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|$. It is now defined as
-$$
+
+\begin{equation*}
     E^{(\tau)} = \frac{|q_{batch}^{(\tau)} - q_{sgd}^{(\tau)}|}
                       {|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|}
-$$
+\end{equation*}
+    
+
 So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{batch}^{(\tau)}$. The above problem is solved because 
 \textcolor{blue}{(I am not sure about this part)\\
     $
@@ -483,23 +489,29 @@ Except for default setting of gaussian 1 distribution, two other distributions a
 \section{Discussion}
 \subsection{Failure on Newton's Method}
 Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
-$$
-l_\tau(t)= 
-    \begin{cases}
-        \tau t & t > 0\\
-        -(1-\tau) t & otherwise
-    \end{cases}
-$$
+
+\begin{equation*}
+    l_\tau(t)= 
+        \begin{cases}
+            \tau t & t > 0\\
+            -(1-\tau) t & otherwise
+        \end{cases}
+\end{equation*}
+
+
 is a linear function of $t$, which doesn't have any second derivative. 
 \\\\
 Though the method cannot be applied, it is easy to reach the goal of Newton's method: to find the critical points of a function. Instead of stationary point, the loss function has a critical point where it is not differentiable and the derivative changes sign. For any $\tau \in (0,1)$, when $t=0$, the loss function reaches it's critical points at $l_\tau(0) = 0$. Taking the critical point for every step, however, does not contribute to any improvement in quantile estimation. To be at a critical point, the quantile estimate is set to have the equal value of input data $x$, and only in this way we could have $t = x-q = x-x = 0$. Regardless of $\tau$, the quantile estimate is always equal to the value of the latest data point. So far this method has totally failed its goal to estimate a quantile value based on $\tau$ and the entire data stream.
 \\\\
 From another perspective, the failure of Newton's method is the result of applying large step size for the last input data for a SGD method. In this way, the minimal of current loss function $l_\tau(t)$ is reached, while the total loss function for the input data stream $X$
-$$
-L_{\tau}(t) = \sum_{x \in X} l_{\tau}(t)
-$$
+
+\begin{equation*}
+    L_{\tau}(t) = \sum_{x \in X} l_{\tau}(t)
+\end{equation*}
+
+
 is entirely ignored.
 \section{Conclusion}
 
-\end{document}
-\end(documentclass)
+% \end{document}
+% \end(documentclass)
