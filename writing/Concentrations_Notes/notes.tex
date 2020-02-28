@@ -24,9 +24,10 @@
 \newtheorem{theo}{Theorem}
 \theoremstyle{plain}
 \newtheorem{lemma}{Lemma}
+\newtheorem{prop}{Proposition}
 
 \title{Concentration Notes}
-\author{u6015325 }
+\author{Mengyan Zhang}
 \date{\today}
 \bibliography{ref.bib}
 
@@ -34,57 +35,125 @@
 
 \maketitle
 
-\section{Our Work}
-
-This note shows the concentration analysis for our recent paper \textit{Median-based Bandits for Unbounded Rewards}. In this paper, we propose a Bernstein like inequality for quantiles.
-\begin{restatable}[Bernstein Inequality for Quantiles]{theo}{BernQuant}
-\label{theo: Bernstein Inequality for Quantiles.}
-Let $X_{\left(1\right)} \geq X_{\left(2\right)} \geq ... \geq X_{\left(n\right)}$ denote the order statistics of $X_1, ..., X_n$, and $X_{(qn)}$ is the empirical $q$-quantile (assume $qn$ is an integer, $q \in (0, \frac{1}{2}]$).
-Define $v_n = \frac{1}{q^2 n L^2}$, with non-decreasing hazard rate Assumption and $L$ as the lower bound of the hazard rate.
-For all $\lambda$ such that $0 \leq \lambda< \frac{1}{2} \sqrt{\frac{n}{v_n}}$,
+We provide the summary of concentration inequalities for quantiles. In the following, we assume the random variable $X$ is continuous and has strictly increasing CDF $F(\cdot)$. Quantile $v_\alpha(X)$ at level $\alpha \in (0,1)$ is defined as 
 \begin{align}
-    \label{equ: log mgf for quantile}
-    \log \mathbb{E}\left[e^{\lambda\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \right)}\right] \leq  \frac{\lambda^{2}  v_{n}}{2 \left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}.
+    v_\alpha(X) = F^{-1}(\alpha).
 \end{align}
-For all $\varepsilon > 0$, we obtain the concentration inequality
+Let $\{X\}_{i = 1}^n$ denote $n$ i.i.d. samples from the distribution of $X$, the empirical quantile at level $\alpha$ is 
 \begin{align}
-    \label{equ: bernstein ineq for quantile}
-    \mathbb{P}\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right) \leq e^{-\varepsilon},
-    %\label{inequality Bernstein lower bound for abr}
-    %\mathbb{P}\left\{\mathbb{E}[X_{\left(qn\right)}] - X_{\left(qn\right)}\geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right\} \leq e^{-\varepsilon}.
-\end{align}
-\end{restatable}
-
-Plugging $v_n$ into the confidence width term, we have 
-\begin{align}
-& \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\\
-=& \frac{\sqrt{2n\varepsilon} + 2 \varepsilon}{qnL}
+    \hat{v}_{n, \alpha} = \hat{F}^{-1}(\alpha) = \inf \{x: \hat{F}_n(x) \geq \alpha \}
 \end{align}
 
-Using this concentration inequality to design the bandit policy, the topical choice of $\varepsilon$ is $\alpha log t$, where $t$ is the current round, $\alpha$ is the hyper-parameter. Since the policy is designed for empirical medians, we let $q = \frac{1}{2}$, then confidence width term can be shown as 
+\section{Two types of concentration bounds}
+
+In the literature of concentration bounds for quantiles, there are two types concentration inequalities. For $\delta \in (0,1)$
+
+\begin{enumerate}
+    \item confidence interval in terms of the difference between true quantile and empirical quantile at level $\alpha$,
+    \begin{align}
+    \label{bound type 1}
+         P\left(\hat{v}_{n, \alpha}-d_{n}(\delta) \leq v_{n} \leq \hat{v}_{ n, \alpha}+d_n(\delta)\right) \geq 1-\delta
+    \end{align}
+   
+    \item confidence interval constructed empirical quantiles at level $\alpha +/- c_n(\delta)$. 
+    \begin{align}
+    \label{bound type 2}
+        \mathbb{P}\left(\hat{v}_{n, \alpha- c_n(\delta)} \leq v_{\alpha} \leq \hat{v}_{n, \alpha+ c_n(\delta))} \right) \geq 1 - \delta
+    \end{align}
+\end{enumerate}
+
+It would be great if we can convert the concentration bounds of the two type into each other. It can be divided into two sub-questions:
+
+1) Known a probability for type 1 with $d_n(\delta)$, can we get an inequality of type 2 (i.e. get the form of $c_n(\delta)$)? 
+
+We need to find the minimum $c_n(\delta)$ satisfies the following,
+$$\hat{v}_{n, \alpha} - d_n(\delta) \geq \hat{v}_{n, \alpha -c_n(\delta)}.$$
+$$\hat{v}_{n, \alpha} + d_n(\delta) \leq \hat{v}_{n, \alpha + c_n(\delta)}.$$
+
+
+2) Known a probability for type 2 with $c_n(\delta)$, can we get an inequality of type 1 (i.e. get the form of $d_n(\delta)$)?
+$$d_n(\delta) = \hat{v}_{n, \alpha} - \hat{v}_{n, \alpha -c_n(\delta)}.$$
+
+We need to find the minimum $d_n(\delta)$ satisfies the following,
+$$\hat{v}_{n, \alpha} - d_n(\delta) \leq \hat{v}_{n, \alpha -c_n(\delta)}.$$
+$$\hat{v}_{n, \alpha} + d_n(\delta) \geq \hat{v}_{n, \alpha + c_n(\delta)}.$$
+
+Combining above, we get $d_n(\delta) \geq max \{\hat{v}_{n, \alpha} - \hat{v}_{n, \alpha -c_n(\delta)},   \hat{v}_{n, \alpha + c_n(\delta)} - \hat{v}_{n, \alpha}\}$\\
+
+However, it is tricky to calculate the form of $d_n(\delta)$ by the above equation, since it is not clear how to solve the difference of empirical quantiles. So I do not think there is a closed form solution for this problem. 
+
+We show examples for each type of inequality.
+
 \begin{align}
-    \sqrt{\alpha \log t} \left( \frac{2\sqrt{2}}{\sqrt{n}L} + \sqrt{\alpha \log t} \frac{4}{nL}\right)
-\end{align}.
-
-The concentration inequality allows the tradeoff between the 'fast rate' ($O(\frac{1}{n})$) and 'slow rate' ($O(\frac{1}{\sqrt{n}})$) of convergence by choosing the value of $\alpha$. [Not sure whether the conclusion is correct]. See \cite{van2015fast}.
-
-\section{Related Work}
-
-\textcite{cassel_general_2018} proposed the general framework for bandit under risk criteria. For $\varepsilon > 0$, the concentration inequaltiy for median is 
-\begin{align}
-    \mathbb{P}\left(\hat{m} - \mathbb{E}[\hat{m}] \geq 2b \sqrt{\frac{\log 4n + \varepsilon}{n}}\right) \leq  e^{- \varepsilon},
+    \mathbb{P} \left( ||F-\hat{F}_{n} \|_{\infty}>c\right) \leq 2 \exp \left(-2 n c^{2}\right)
 \end{align}
-which is derived based on Hoeffding inequality and requires bounded reward support.
 
-\textcite{kolla_concentration_2019} proved the concentration inequality for quantiles based on the Dvoretzky–Kiefer–Wolfowitz (DKW) inequality. Especially, for any $\varepsilon >0$,  the tail probability bound for empirical medians is 
+\begin{prop}[\textcite{kolla_concentration_2019}] Confidence bounds of type 1 shown in (\ref{bound type 1}) with $d_n(\delta) = \sqrt{\frac{1}{2nc} \log \frac{2}{\delta}}$, where $c$ is a constant that depends on the value of the density of $f$ of $X$ in a neighbourhood of $v_\alpha$.
+\end{prop}
+
+\begin{proof}
 \begin{align}
-\label{equ: Concentration inequality for quantiles based on DKW}
-    P \left(\hat{m} - \mathbb{E}[\hat{m}] \geq \sqrt{\frac{\varepsilon}{2nc}}\right) \leq e^{- \varepsilon},
+&  \mathbb{P}\left[\left|\hat{v}_{n, \alpha}-v_{\alpha}\right|\geq \epsilon\right]\\
+=&\mathbb{P}\left[\hat{v}_{n, \alpha} \geq v_{\alpha}+\epsilon\right]+\mathbb{P}\left[\hat{v}_{n, \alpha} \leq v_{\alpha}-\epsilon\right] \\
+\leq& \mathbb{P}\left[\hat{F}_{n}\left(v_{\alpha}+\epsilon\right) \leq \alpha\right]+\mathbb{P}\left[\hat{F}_{n}\left(v_{\alpha}-\epsilon\right) \geq \alpha\right] \\
+=&\mathbb{P}\left[F\left(v_{\alpha}+\epsilon\right)-\hat{F}_{n}\left(v_{\alpha}+\epsilon\right) \geq F\left(v_{\alpha}+\epsilon\right)-\alpha\right]+\mathbb{P}\left[\hat{F}_{n}\left(v_{\alpha}-\epsilon\right)-F\left(v_{\alpha}-\epsilon\right) \geq \alpha-F\left(v_{\alpha}-\epsilon\right)\right] \\
+\stackrel{(a)}{\leq}& \exp \left(-2 n\left(F\left(v_{\alpha}+\epsilon\right)-F\left(v_{\alpha}\right)\right)^{2}\right)+\exp \left(-2 n\left(F\left(v_{\alpha}\right)-F\left(v_{\alpha}-\epsilon\right)\right)^{2}\right) \\
+\leq& 2 \exp \left(-2 n c \epsilon^{2}\right)
 \end{align}
-where $c$ is a constant that depends on the value of the density $f$ of $X$ in a neighbourhood of $\hat{m}$.
-Note that this bound depends on the value of $c$. When $c$ approaches 0, the bound is useless.
+
+where $(a)$ is due to the DKW inequality, and $ \sqrt{c \epsilon^2} =\min \left\{F\left(v_{\alpha}+\epsilon\right)-F\left(v_{\alpha}\right), F\left(v_{\alpha}\right)-F\left(v_{\alpha}-\epsilon\right)\right\}$
+Given that the density exists, we have
+$$
+F\left(v_{\alpha}+\eta_{1}\right)-F\left(v_{\alpha}-\eta_{2}\right)=f(\bar{v})\left(\eta_{1}+\eta_{2}\right)
+$$
+for some $\bar{v} \in\left[v_{\alpha}-\eta_{2}, v_{\alpha}+\eta_{1}\right] .$ Using the identity above for the two expressions inside $\sqrt{c \epsilon^2},$ we obtain
+$$
+\sqrt{c \epsilon^2} = \min \left(f\left(\bar{v}_{1}\right), f\left(\bar{v}_{2}\right)\right) \times \epsilon
+$$
+for some $\bar{v}_{1} \in\left[v_{\alpha}, v_{\alpha}+\epsilon\right]$ and $\bar{v}_{2} \in\left[v_{\alpha}-\epsilon, v_{\alpha}\right] .$ 
+Let $\delta = 2 \exp \left(-2 n c \epsilon^{2}\right)$, $d_n(\delta) = \epsilon = \sqrt{\frac{1}{2nc} \log \frac{2}{\delta}}$, the claim follows.
+\end{proof}
+
+\begin{prop}[Our work M-UCB.]
+Confidence bounds of type 1 shown in (\ref{bound type 1}) with $d_n(\delta) = \frac{\sqrt{2n\log \frac{1}{\delta} + 2 \log \frac{1}{\delta}}}{\alpha n L}$.
+
+\end{prop}
+
+\begin{prop}[\textcite{cassel_general_2018}]
+Confidence bounds of type 1 shown in (\ref{bound type 1}) with $d_n(\delta) = 2b \sqrt{\frac{\log 4n + \log \frac{1}{\delta}}{n}}$.
+
+\end{prop}
+
+
+\begin{prop}[\textcite{szorenyi_qualitative_nodate}] Confidence bounds of type 2 shown in (\ref{bound type 2}) with $c_n(\delta) = \sqrt{\frac{1}{2n} \log \frac{\pi^2 n^2}{3 \delta}}$. 
+\end{prop}
+
+\begin{proof}
+ Combining the bound (1) with the uniform bound and the Basel problem one obtains that, with probability at least $(1-\delta),\left\|F-\widehat{F}_{n}\right\|_{\infty} \leq c_{n}(\delta)$ for all $n>0 .$ In addition, $\| F -\widehat{F}_{n} \|_{\infty} \leq c_{n}(\delta)$ implies\\
+$$
+\begin{aligned}
+\qquad \begin{aligned}
+v_\alpha &=\inf \{x \in L: \alpha \leq F(x)\} \\
+& \leq \inf \left\{x \in L: \alpha \leq \widehat{F}_{n}(x)-c_{n}(\delta)\right\} \\
+&=\widehat{v}_{n, \alpha+c_{n}(\delta)}
+\end{aligned}
+\end{aligned}
+$$
+and
+$$
+\widehat{v}_{n, \alpha-c_{n}(\delta)}=\inf \left\{x \in L: \alpha \leq \widehat{F}_{n}(x)+c_{n}(\delta)\right\}
+$$
+$$
+\begin{array}{l}
+\preceq \inf \{x \in L: \alpha \leq F(x)\} \\
+=v_\alpha
+\end{array}
+$$
+\end{proof}
 
 
 
+
+\printbibliography
 
 \end{document}
