@@ -1,0 +1,54 @@
+
+
+\chapter{Research Approaches} \label{chap-3}
+
+\section{Research questions}
+
+In the following, I list the ideas come to my head in two main groups, one is the extension of the current work M-UCB, one is for our current designing RBS project.  When more literature review is done, I plan to select two or three of them to attack and write detailed research methods proposal in later section. 
+
+\subsection{M-UCB related}
+
+\begin{enumerate}
+    \item Whether can we design a bandit algorithm based on medians/quantiles with the objective function in best arm identification setting? i.e. consider M-UCB in BAI setting. There are two main objective functions to be considered: PAC (fixed confidence); sample complexity (fix budget). 
+    
+    \item Whether can we extend the M-UCB algorithm into a quantile version? what's the gap between M-UCB and a quantile-UCB?
+    
+    \item Whether can we extend the M-UCB algorithm into qualitative rewards? It makes sense since our concentration inequality is based on order statistics. If so, what's the difference for our approach compared with [Szorenyi et al 2015]. 
+    
+    \item Whether can we design a bandit algorithm based other summary statistics except quantile and mean? For example, it is interesting to consider coherent risk measures. CVaR could be a good start.
+        \begin{itemize}
+            \item figure out the literature have already achieved for CVaR bandit. Start from [Kagrecha et al 2019].
+            \item Figure out other possibilities. e.g. Entropic value at risk, tail value at risk. 
+            \item Figure the motivation of considering risk of bandit. Can it be a general interest? say, for example, is it interesting for finical applications? or can it be generalised to a MDP problem. 
+            \item If it's a general interesting, then it would be great to consider a general framework for risk averse bandit. Similar idea can be referred to [cassel et al 2018].
+        \end{itemize}
+        
+    \item Now we are considering sub-Gaussian or sub-exponential distributions for reward distributions. Can we consider a heavier tail distributions? For example, heavy-tailed distribution with finite $1 + \varepsilon$ moment, where $\varepsilon \in (0,1)$. One possible way to do that is to consider estimator of summary statistics [mean: Bubeck et al. 2013][CVaR: Kagrecha et al. 2019].
+    
+    \item Another way to think about new directions could be, what applications need bandits? what's the gap between we already can solve by bandit algorithms and what is required by the applications. One example is we need ordinal values for reward sometimes, so [Szorenyi et al 2015] proposed a quantile-based bandit. 
+    \begin{itemize}
+        \item List at lease three gaps (applications).
+        \item Try to proposed the idea we can attack those gaps. (No detailed approaches needed).
+    \end{itemize}
+    
+    \item Can we propose a quantile/CVaR based bandit algorithm assuming there are correlations between arms? A quantile/CVaR Bayesian regression algorihtm is a possible idea. Back to the idea that, if we consider GPUCB where the reward distribution for each arm which is not generated from a Gaussian distribution, not some general distribution, e.g. sub-Gaussian, or even heavier tails, how can we attack that problem?
+    \begin{itemize}
+        \item Figure out whether there are results for concentration inequality for quantile/CVaR regression. 
+    \end{itemize}
+    
+\end{enumerate}
+
+\subsection{Synthetic biology related}
+
+\begin{enumerate}
+    \item Embedding for sequences:
+        \begin{itemize}
+            \item Can we design a spectrum kernel with different weights for different pairs of letters? For example, A-T, C-G pairs should have higher weights since they are more similar. 
+            
+            \item Can we embedding sequences using BERT model? Similar idea was proposed for embedding protein. 
+        \end{itemize}
+    \item Can we analyse GPUCB in terms of fixed budget BAI objective, which is closer to our setting compared with the regret objective.
+    \item What's other possible ideas to recommend arms in batch, instead of returning top n?
+\end{enumerate}
+
+\section{Research methods proposal}

@@ -1,0 +1,755 @@
+
+
+
+
+\chapter{Current Work and Preliminary Results} \label{ch-1}
+
+\section{Active Learning}
+
+A graph model contains nodes and edges, where nodes represent entities (e.g. person) and edges represent relations (e.g. friendship). We use a three-way tensor $\mathcal{X} \in \{0,1\}^{K \times N \times N}$ to represent the graph model, where K is the number of relations and N is the number of entities, and $x_{ikj}$ indicates whether the triple is valid.\newline
+ To recommend as many valid triples to get labels as possible, we use Thompson Sampling model to predict the probability of a triple being valid and recommend the triple with the highest probability. \newline
+ \newline
+ Labeller: the same as before. \newline
+ Recommender: Thompson sampling, recommends triple (i,k,j) = {argmax}$_{i,k,j} P(x_{ikj})$ \newline
+ Predictor: update posterior distribution based on Bayesian inference; sample latent variables from the posterior distribution.
+
+\section{\ourtitle}
+
+We consider the class of upper confidence bound bandit algorithms for sequential experiment design problems.
+We propose a policy, \emph{Median-based Upper Confidence Bound}, based on the empirical median, that is robust to skewed distributions and outliers.
+Under the assumption of reward distributions having non-decreasing hazard rate,
+we derive a confidence width based on an extension of the Exponential Efron-Stein inequality.
+We prove a Bernstein like concentration inequality for quantiles, where the reward support can be unbounded. We further show logarithmic upper bounds on the expected sub-optimal draws and regret.
+The performance of our proposed algorithm outperforms benchmark algorithms on both simulated and cancer treatment datasets.
+
+\subsection{Introduction}
+
+Multi-Armed Bandit (MAB) problems are sequential experiment design problems where an agent adaptively chooses one option among several actions to maximise cumulative rewards.
+We consider the stochastic $K$ arm MAB setting, i.e.
+the reward from the environment is formulated as a set of reward distributions
+$\nu = \{F_i: i \in \mathcal{K}\}$, where $\mathcal{K} = \{1, ..., K\}$,
+and the elements of which are independent and unknown to the agent.
+In each round $t \in [1,N]$, where $N < \infty$ is the total number of rounds, an agent chooses an arm $A_t = i \in \mathcal{K}$ according to a policy, and gets a reward which is sampled from the distribution $F_i$ of arm $i$.
+In MAB algorithms, the distribution $F_i$ is often represented by summary statistics,
+and in this paper we propose a novel approach based on the empirical median
+and a corresponding confidence width.
+
+MAB problems illustrate an exploration-exploitation tradeoff dilemma where agents try to optimise their choice in face of uncertainty.
+They need to decide between exploitation in terms of the best choice with the current information, or exploration in terms of some other possibilities which have not been tried but have a chance to beat the current best options \cite{lattimore2018bandit}.
+%The real world is full of such decision dilemmas, where pursuing a good life can be considered as finding a balance between ``exploitation" for the current choices, or ``exploration" for new options.
+%For example, when shopping we face a choice of purchasing the product we satisfied based on previous experience or to explore new options \cite{burtini2015survey}.
+MAB problems have been studied extensively in various areas, such as news recommendation \cite{li2010contextual}, dynamic pricing \cite{babaioff2015dynamic} and advertisement placement \cite{schwartz2017customer}.
+
+A particular family of algorithms called Upper Confidence Bound (UCB) have been proposed for stochastic bandits with finitely many arms.
+%The upper confidence bound algorithm is based on the principle of optimism in face of uncertainty.
+In general, UCB policies create an upper confidence bound of reward distributions, which is the sum of a central tendency and a confidence width~\cite{lattimore2018bandit}.
+In this paper, we propose a novel UCB type algorithm called Median-based UCB (M-UCB).
+Instead of using the common choice empirical mean as a summary of the distribution,
+we consider the empirical median, which is a more robust estimator for the central position and preferred by risk-averse decision-makers.
+
+The clinical treatment experiment design problem, where the type of treatment is to be determined when patients arrive sequentially and the effectiveness of treatments are initially unknown, is one of the early applications of bandits~\cite{thompson1933likelihood}.
+Motivated by the clinical treatment task,
+we consider problems where reward distributions can be thought of as
+survival times~\cite{cox2018analysis}, and arms are alternative treatment options.
+The survival lifetimes can usually be modelled as a reward distribution having a non-decreasing hazard rate (Assumption \ref{ass:IHR}), which we use in our analysis.
+
+Our \textbf{contributions} are:
+(1) a novel bandit algorithm \ourpolicy, based on empirical medians of the rewards,
+(2) a bound on the space between order statistics, by assuming a non-decreasing hazard rate,
+(3) a Bernstein like concentration inequality for quantiles, based on an extension of the Exponential Efron-Stein inequality,
+(4) a logarithmic upper bound on the expected number of sub-optimal draws and the expected regret,
+(5) an empirical evaluation of our algorithm on synthetic and real-world survival data.
+
+
+The paper is organised in the following manner.
+We provide background and survey related work in Section \ref{sec: Background}.
+We propose the main algorithm in Section \ref{sec: policy} and give a theoretical analysis in Section \ref{sec: Theorem}.
+We first propose an upper bound for space between order statistics (Proposition \ref{prop: bound of expected spacing}). Based on that and the Exponential Efron-Stein inequality (Theorem \ref{theo: Exponential Efron-Stein inequality}), we derive a Bernstein like concentration inequality for quantiles (Theorem \ref{theo: Bernstein Inequality for Quantiles.}). These two inequalities may be of independent interest for applications of concentration inequalities and order statistics.
+Based on the derived Bernstein like concentration inequality, we derive a confidence width term which complements the empirical median and prove a logarithmic upper bound for the expected sub-optimal draws (Theorem \ref{theo: sub-optimal draws bound}) and the expected regret (Corollary \ref{theo: regret bound}).
+The empirical experiments are reported in Section \ref{sec: Empirical Experiments} on both simulated and real-world datasets. Detailed proofs and experiment designs are shown in the Appendix.
+
+\subsection{Background and Related Work}
+\label{sec: Background}
+
+Designing a UCB-type policy requires summary statistics describing the reward distribution.
+We introduce the choices of summary statistics in
+Section~\ref{subsec: Measure of Distribution}.
+The main assumption we use in this paper for theoretical analysis is
+an assumption about the hazard rate (reviewed in Section~\ref{subsec: Hazard Rate})
+of the reward distribution.
+We review related UCB algorithms in Section \ref{subsec: MAB background}.
+
+\subsubsection{Summary Statistics}
+\label{subsec: Measure of Distribution}
+
+The central tendency of the reward distribution plays an important role in decision making.
+The empirical mean is the common choice to summarise the central tendency.
+Compared with the mean estimator, the median estimator is preferred by risk-averse decision-makers, who prefer the lower-risk options.
+% Cheng: Saving some space
+%For example, if a reward distribution has low rewards with high probability and high rewards in rare cases, it may have a high expected reward but low median. Compared with such a choice, a risk-averse decision-maker prefer a safer choice even though it might have a lower expected reward.
+%It happens especially in finance or medical areas, where decision-makers try to avoid risky choices that lead to a high loss.
+%The policy based on median estimator will not be influenced by those outliers, which makes the policy is robust to outliers.
+%The empirical mean is influenced by every sample and thus sensitive to outliers.
+Compared with the mean, the median is less sensitive to a single sample value, which makes it preferred for central tendency when the distribution is not symmetrical or includes outliers \cite{Rousseeuw2011}.
+
+Other summary statistics considered by bandit literature with consideration of risk.
+\textcite{sani_risk-aversion_2012} use mean-variance as a summary for distributions, which is defined as
+$\mathrm{MV}=\sigma^{2}-\rho \mu$,
+where $\mu, \sigma^{2}$ are the mean and variance, $\rho$ is the value of risk tolerance.
+\textcite{cassel_general_2018} use quantiles to model a more general view of distributions.
+A quantile is also known as Value-at-Risk (VaR) in finance and risk measure analysis.
+The quantile function $Q: (0,1) \rightarrow \mathbb{R}$ is defined as $Q(q)=\inf \{x \in \mathbb{R} : q \leq F(x)\}$,
+where $q \in (0,1)$.
+The quantile $Q(\frac{1}{2})$ is the median.
+Quantiles are often considered as a better summary of spread than variance since it is not affected by outliers and can express distributions in terms of different percentages.
+% Cheng: Not sure what this is trying to say.
+%When looking at tails of reward distributions, policies are good at measuring risk, sacrificing the ability to find a high reward option.
+We show a Bernstein inequality for quantiles in Theorem~\ref{theo: Bernstein Inequality for Quantiles.}.
+
+
+\subsubsection{Hazard Rate}
+\label{subsec: Hazard Rate}
+
+%\textit{Lifetimes} or \textit{survival times} are data that measure the time from entering into a state. The terminating event is called \textit{failure}. The density function of a lifetime is generally positively skewed, meaning longer lifetimes are less probable than shorted lifetimes.
+In survival analysis, the \textit{hazard rate} is defined as the failure event rate at time $T$ conditional on survival until time $T$ or later.
+
+%The \textit{hazard rate} is used to monitor the failures occur per unit of time relative to the portion of the population which has not yet failed \cite{rinne_hazard_nodate}.
+
+%--------------------------------------------------------
+% definitions/theos from paper
+
+\begin{defi} [Hazard rate]
+\label{defi: Hazard Rate}
+Hazard rate is defined as
+%the event rate at time $T$ conditional on survival until time $T$ or later (i.e. $X \geq T$).
+ \begin{align}
+     h(T)&=\lim _{\Delta t \rightarrow 0} \frac{\mathbb{P}\left(T < X \leq T + \Delta t |  X > T\right)}{\Delta t}\\
+     &=f\left(T\right)/\bar{F}\left(T\right),
+ \end{align}
+where $X$ indicates the failure event time and is continuous random variable defined on $[0, \infty]$, with PDF f and survival function $\bar{F} = 1 - F$.
+\end{defi}
+
+For a small increment $\Delta t$, the conditional probability that an event happens in the time interval $(T, T + \Delta t]$ is roughly equal to the product $h(T) \Delta t$, i.e. $\mathbb{P}\left(T < X \leq T + \Delta t |  X > T\right) \approx h(T) \Delta t$.
+%Suppose that an item has survived for a time $x$ and hazard rate gives the probability that it will not survive for an additional time $\de x$.
+We will make an assumption of non-decreasing hazard rate (Assumption~\ref{ass:IHR})
+in Section~\ref{sec: policy}.
+
+\subsubsection{Upper Confidence Bound algorithms}
+\label{subsec: MAB background}
+
+In this section, we mainly review (1) mean-based UCB algorithms, (2) risk-averse UCB algorithms, and (3) UCB algorithms with unbounded reward distributions. For a comprehensive literature of MAB problems, we refer the reader to \textcite{bubeck_regret_2012} and \textcite{lattimore2018bandit}.
+
+
+\textbf{Mean-based:}
+%The intuition of evaluating rewards by means is that maximising cumulative rewards is equivalent as minimising the weighted sum of sub-optimal draws with the weight as the difference between means, see Appendix \ref{app-subsec: Mean-based regret} for details.
+The goal of mean-based bandit algorithms is to maximise the cumulative rewards, i.e. minimise the regret of choosing a sub-optimal arm. See Appendix \ref{app-subsec: Mean-based regret} for mean-based regret definition in details.
+ \textcite{Auer2002} made UCB-type algorithms popular by extending the upper confidence bound idea to non-parametric case assuming the reward distribution has bounded support and proposing a policy called UCB1, which is derived based on Hoeffding inequality. The upper bound for the expected regret has a logarithmic rate.
+\iffalse
+\begin{align}
+     \mathbb{E}[R_N] = 8\left(\sum_{i : \mu_{i}<\mu^{*}} \frac{b^{2}}{\Delta^{\mu}_{i}}\right) \log \left(N\right)+O\left(1\right)
+\end{align}
+\fi
+Followed by \textcite{Auer2002}, several UCB-type algorithms based on empirical mean were proposed to achieve a tighter regret bound.
+For example, UCB-V algorithm \cite{audibert2009exploration} integrated variance estimation in confidence width term, which is derived based on empirical Bernstein inequality.
+KL-UCB \cite{lai1985asymptotically} made use of Kullback-Leibler divergence and reaches the lower-bound for binary rewards.
+
+\textbf{Risk-averse:} Policies caring about risks have been proposed recently.
+%The existing risk-averse bandit algorithms focus on controlling risk by looking at the variance or tails of reward distributions.
+Instead of minimising regret based on mean, the risk-averse regret is based on the choice of the summary statistic of distributions and can be different from policy to policy, see Appendix \ref{app-subsec: Risk-averse Regret} for details.
+\textcite{sani_risk-aversion_2012} considered the mean-variance criterion and propose the MV-LCB algorithm.
+\textcite{maillard_robust_2013} presented RA-UCB algorithm which uses a coherent risk measure by controlling the lower-tails. \textcite{cassel_general_2018} proposed a general framework for MAB problems under risk criteria, with the performance criteria defined as a function that maps the rewards to a real-valued number.
+%Such function can be differential (e.g. mean) or non-differential (e.g. CVaR).
+%In Section \ref{sec: Comparison with Related Work}, we will compare our algorithm with those related work.
+Being risk-averse implies sacrificing the gained cumulative reward to some extent.
+
+\textbf{Unbounded rewards:}
+Almost all the above-mentioned algorithms assume the rewards distribution having bounded support. The only exception is the \textcite{garivier2011kl} analysed for exponential families of distributions based on the mean analysis. \textcite{bubeck2013bandits} considered heavy tail distributions based on the mean of rewards, with several different mean estimators.
+\textcite{yu2018pure, kagrecha2019distribution} assumed unbounded rewards for \textit{Best Arm Identification} tasks (i.e. \textit{pure exploration tasks}), where the exploration phase and evaluation phase are separated, and the agent is only evaluated by the average reward of his recommended arm.
+
+To our best knowledge, there is no algorithm addressing exploration-exploitation balanced bandit tasks for unbounded rewards, taking risk measures and outlier-robustness into consideration.
+
+%Inspired by those works, we propose a policy which uses the empirical median as reward distribution measurement. The proposed policy avoid the shortcomings of both side, being robust to outliers and at the same time maximising the number of choosing optimal arms by looking at the central position.
+
+%-----------------------------------------------------------------
+
+\subsection{M-UCB Algorithm}
+\label{sec: policy}
+
+
+\begin{algorithm}[t]
+\caption{\ourpolicy}
+\label{alg:Policy for IHR distributions}
+\begin{algorithmic}
+    \STATE Draw each arm once initially.
+
+    \STATE In each round ${t}$ ($t > K$), pick an arm with index
+    \STATE
+    \begin{align*}
+        \argmax_{i \in \mathcal{K}} \underbrace{\hat{m}_{i, T_i(t-1)}}_{\substack{\text{Empirical} \\ \text{Median}}} + \beta  \underbrace{\left(\sqrt{2v_{i,t} \varepsilon_t} + 2 \varepsilon_t \sqrt{\frac{v_{i,t}}{T_i(t-1)}}\right)}_{\text{Confidence Width}},
+    \end{align*}
+    \STATE where
+    %$T_i(t-1)$ is the number of times arm $i$ has been played during first $t-1$ rounds,
+    exploration factor $\varepsilon_t = \alpha \log t$ with $\alpha$ controlling the exploration rate, hazard factor $v_{i,t} = \frac{4 }{T_i(t-1) \hat{L}_{i,T_i(t-1)}^2}$.
+    %with $\hat{L}_{i, T_i(t-1)}$ as the lower bound estimation of hazard rate for reward distribution of arm $i$ at the round $t$.
+    $\beta$ is a hyper-parameter balancing the empirical median and confidence width.
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Notation:} We denote the number of times the arm $i$ has been drawn up to the round $t$ as,
+$T_i(t) = \sum_{s = 1}^t \mathbb{I} \{A_s = i\}$,
+where $A_s$ is the arm drawn in the round $s$, $\mathbb{I}\{A_t = i\}$ is the indicator function which returns 1 when $A_t = i$ is true, otherwise returns 0.
+The reward for arm $i$ at round $t$ is given by the random variable $X_{i,T_i(t)}$,
+with distribution $F_i$.
+Define the median of arm $i$ as $m_i =\inf \{x : 1/2 \leq F(x)\}$, and the empirical median of arm $i$ at round $t$ as $\hat{m}_{i,T_i(t)}  =\inf \{x : 1/2 \leq \hat{F}_{i,T_i(t)}(x)\}$, where $\hat{F}_{i,T_i(t)}(x) = \sum_{s=1}^{T_i(t)} \mathbb{I}\{X_{i, s} \leq x\}$.
+The optimal arm $i_\ast$ is defined as the one with the maximum median (assuming only one arm is optimal), i.e. $i_\ast = \argmax_{i \in \mathcal{K}} m_i$. Other arms are sub-optimal.
+For simplicity, we denote the median of the optimal arm as $m_\ast = m_{i_\ast}$. Similarly, we define the lower bound of hazard rate for reward distribution $F_i$ of arm $i$ as $L_i$, and the empirical one for round $t$ is $\hat{L}_{i, T_i(t)}$.
+
+
+We propose a novel policy called \textit{Median-based Upper Confidence Bound (M-UCB)},
+shown in Algorithm~\ref{alg:Policy for IHR distributions}. Similar to other UCB algorithms,
+\ourpolicy \space consists of two parts: exploitation and exploration terms corresponding
+to the empirical median and the confidence width respectively.
+
+ \textbf{Empirical Median:} M-UCB chooses empirical median to summarise the central location of reward distributions, which is more robust to outliers and skewed distributions compared with the empirical mean.
+    The empirical median can be regarded as a special case of quantiles, which was analysed by  \textcite{cassel_general_2018} and \textcite{a2019concentration}. But \textcite{cassel_general_2018} limited on bounded support of rewards, and \cite{a2019concentration} only solved the pure exploration problem.
+
+\textbf{Confidence Width:}
+    The confidence width summarises the gap between the empirical median and the median of the reward distribution.
+    Our confidence width is derived based on a Bernstein type concentration inequality (Corollary \ref{theo: Bernstein Inequality for Medians.}) which allows unbounded reward support.
+    See Section \ref{subsec: concentration inequalities for medians} for details.
+    In the rest of the paper, we use $D_i(t, T_i(t-1))$ to represent the confidence width.
+    UCB-V \cite{audibert2009exploration} used the empirical Bernstein inequality to derive confidence bound. Their analysis limited to the bounded support and focused on the empirical mean.
+
+\iffalse
+When plugging in $\varepsilon_t$ and $v_{i,t}$, the confidence width is
+\begin{align}
+    & D_i(t, T_i(t-1))\\
+    = & \sqrt{2v_{i,t} \varepsilon_t} + 2 \varepsilon_t \sqrt{\frac{v_{i,t}}{T_i(t-1)}}\\
+    =& \frac{4 \sqrt{\log t} ( \sqrt{ 2T_i(t-1)} + 4\sqrt{\log t})}{T_i(t-1) \hat{L}_{i, T_i(t-1)}}.
+\end{align}
+\fi
+
+
+Our proposed policy (Algorithm~\ref{alg:Policy for IHR distributions}) is designed
+to maximise the expected number of optimal draws,
+i.e. minimise the expected number of sub-optimal draws up to round $N$.
+%We assume the rewards are sampled from a non-negative, subgamma distributions.
+\begin{defi}[Expected Sub-optimal Draws]
+\label{defi: sub-optimal draws}
+For $i \in \mathcal{K}$, the sub-optimal draws up to round $N$ is defined as $\Psi_N = \sum_{i \neq i_\ast} T_i\left(N\right)$. The expected sub-optimal draws is then defined as
+\begin{align}
+    \sd = \sum_{i \neq i_\ast} \mathbb{E}[T_i\left(N\right)],
+\end{align}
+where the expectation is taken with respect to the measure of outcomes induced by the interaction of policy and environment.
+\end{defi}
+  $\sd$ of our policy shows the number of sub-optimal choices determined by the empirical medians, which is essentially different from other UCB policies defining the optimal choice as the arm with maximum mean \cite{Auer2002, audibert2009exploration, garivier2011kl}.
+  The expected regret can be derived based on $\sd$, see Section \ref{subsec: Bounding the Regret} for details.
+
+     %Corresponding, the empicial mean and median of arm $i$ at round $t$ are defined as $\hat{\mu}_{i,T_i(t)}$, $\hat{m}_{i, T_i(t)}$.
+
+    %Since the policies choose the empirical mean of central tendency measurement, the cost $\Delta_i$ in (\ref{defi: expected regret}) is defined as the gap between the mean $\mu_\ast$ of the optimal arm (i.e. the arm with the maximum mean) and the mean $\mu_i$ of arm i. To differentiate from (\ref{defi: delta_i}), we add superscript $\mu$,
+
+%\subsection{Contributions}
+
+We summarise the policy \ourpolicy \space and dependency between variables in Figure \ref{fig: Dependency Diagram of HazardUCB}.
+The derivation of confidence width depends on the gap between distribution medians and empirical medians, which makes the confidence width depend on the empirical median. We discuss related work in Appendix \ref{sec: Comparison with Related Work}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=0.7]{plots/dependency_diagram.pdf}
+    \caption{Summary of notation and the dependency between concepts in this paper.
+    The variables on the heads of an arrow (i.e. the arrow point to) depend on those at the tails of the same arrow.
+    %The bottom box includes information about the reward distributions of arms, which are unknown to the agent and used for evaluations.
+    %The lower bound of the hazard rate is accessible to the agent.
+    %The right box shows the evaluation methods.
+    }
+    \label{fig: Dependency Diagram of HazardUCB}
+\end{figure}
+
+
+The main assumption that enables the analysis in the following section is the following.
+\begin{ass}
+\label{ass:IHR}
+The reward distributions have \emph{non-decreasing hazard rate (IHR)} with support $[0, \infty)$, i.e. for all $x_1, x_2 \in \mathbb{R}$ and $x_1 \geq x_2 \geq 0$, the hazard rate satisfies $h(x_1) \geq h(x_2)$.
+\end{ass}
+While the analysis of many other bandit algorithms require bounded support of the reward distribution \cite{Auer2002, audibert2009exploration, cassel_general_2018}, Assumption 1 allows reward distributions with unbounded support, i.e. $[0,\infty)$.
+Refer to \cite{boucheron2012} for more details about the IHR assumption.
+Recall the definition of a hazard rate (Definition~\ref{defi: Hazard Rate}).
+If the hazard rate $h(T)$ increases as time goes by, the probability of the failure event happens in next $\Delta t$ will increase as $T$ increases, given an item has survived up to time $T$.
+For example, a man is more likely to die within the next month when he is 88 years old than he is 18 years old.
+The increasing (or non-decreasing) hazard rate (IHR) property reflects the most natural life pattern that one would wear out with time.
+Many distributions have a non-decreasing hazard rate, including Gaussian, Exponential, Gumbel, and Logistic distribution.
+Note that distributions with increasing hazard rate property is light-tailed distributions \cite{rinne_hazard_nodate}, which have thinner tails than an exponential distribution.
+The IHR assumption enables us to derive bounds on $\sd$ and also regret bounds.
+The form of the confidence width $D_i(t, T_i(t-1))$
+in Algorithm~\ref{alg:Policy for IHR distributions} is chosen to exploit the IHR assumption.
+
+
+\subsection{Tail Bounds for Empirical Medians}
+\label{sec: Theorem}
+
+%A nonasymptotic concentration inequality provides an upper bound on the probability that a random variable deviates from its expected value. In other words,
+
+In this section, we justify our choice of confidence width, $D_i(t, T_i(t-1))$, in
+Algorithm~\ref{alg:Policy for IHR distributions} by deriving logarithmic upper bounds
+on the number of sub-optimal draws and expected regret.
+We seek the upper bounds for
+tail probabilities of the empirical median, $\hat{m}_{i,T_i(t-1)}$,
+for each arm $i \in \mathcal{K}$ at round $t$
+\begin{align}
+\label{equ: general form of concen ine for medians}
+    \mathbb{P}\left(\hat{m}_{i,T_i(t-1)}- \mathbb{E}[\hat{m}_{i,T_i(t-1)}] \geq D_i\left(t, T_i\left(t-1\right)\right)\right) \leq \delta_t,
+\end{align}
+where $\delta_t$ decreases as $t$ increases.
+
+\iffalse
+\begin{enumerate}[i]
+    \item How a concentration inequality shown in (\ref{equ: general form of concen ine for medians}) can be derived based on Theorem \ref{theo: Exponential Efron-Stein inequality}?
+    \item How well M-UCB performances in theory?
+\end{enumerate}
+\fi
+
+Notation for concentration bounds (Section \ref{subsec: Bounding the space between order statistics} and \ref{subsec: concentration inequalities for medians}) applies to all arms $i \in \mathcal{K}$ and thus we suppress the index $i$,
+i.e. instead of denoting $X_{i,1}, ..., X_{i,T_i(t-1)}$, we denote $X_{1}, ..., X_{n}$ as independently distributed according to a distribution $F$, where $n = T_i(t-1)$ is the number of samples for arm $i$ up to round $t-1$.
+And let $X_{\left(1\right)} \geq \ldots \geq X_{\left(n\right)}$ be the order statistics.
+
+Our concentration inequality is based on a recent result called the
+Exponential Efron-Stein inequality \cite{boucheron2012} (Theorem \ref{theo: Exponential Efron-Stein inequality}).
+We use this to bound the gap, $S_{k} = X_{\left(k\right)}-X_{\left(k+1\right)}$,
+between order statistics in Section~\ref{subsec: Bounding the space between order statistics}.
+We prove in Section~\ref{subsec: concentration inequalities for medians}
+a Bernstein inequality on the difference
+between the empirical $q$-quantile $X_{(qn)}$ and its expectation (Theorem~\ref{theo: Bernstein Inequality for Quantiles.}).
+This enables us to prove a logarithmic bound
+on expected sub-optimal draws (Section~\ref{subsec: Bounding the Sub-optimal Draws})
+and expected regret (Section~\ref{subsec: Bounding the Regret}),
+which is consistent with the state of the art.
+
+\subsubsection{Bounding Space between Order Statistics}
+\label{subsec: Bounding the space between order statistics}
+
+%The gap between the Exponential Efron-Stein inequality (Theorem \ref{theo: Exponential Efron-Stein inequality}) and what we need to derive a confidence width term is that
+%In Theorem \ref{theo: Exponential Efron-Stein inequality}, the upper bound of logarithm moment generating function of $X_{\left(k\right)}-\mathbb{E}[X_{\left(k\right)}]$ contains the expectation of space between order statistics, which leads to the existence of expectation in the confidence width term as well. However, the expectation is taken in terms of the reward distribution, which is not accessible by agents in the process of the game.
+
+
+Theorem \ref{theo: Exponential Efron-Stein inequality} bounds the logarithmic moment generating function of $X_{\left(k\right)}-\mathbb{E} X_{\left(k\right)}$ with the exponential moments of the $k^{th}$ spacing $S_{k}$.
+We derive a bound (Lemma~\ref{lemma: bound the upper bound of expon efron-stein})
+for the right-hand side of Theorem \ref{theo: Exponential Efron-Stein inequality}
+that will enable us to derive a bound for quantiles in the next section.
+
+\begin{theo} [\textit{Exponential Efron-Stein inequality, Theorem 2.9 in \cite{boucheron2012}}]
+\label{theo: Exponential Efron-Stein inequality}
+Let $X_{\left(1\right)} \geq X_{\left(2\right)} \geq ... \geq X_{\left(n\right)}$ denote the order statistics of $X_1, ..., X_n$, and let $S_{k} = X_{\left(k\right)}-X_{\left(k+1\right)}$ be the $k^{th}$ spacing. For $\lambda \geq 0, 1 \leq k \leq n / 2$,
+\begin{align}
+    \label{equ: Exponential Efron-Stein inequality}
+    \log \mathbb{E}[ e^{\lambda\left(X_{\left(k\right)}-\mathbb{E}[ X_{\left(k\right)}]\right)}]
+    \leq \lambda \frac{k}{2} \mathbb{E}\left[S_{k}\left(e^{\lambda S_{k}}-1\right)\right].
+\end{align}
+\end{theo}
+
+This upper bound contains an expectation taken with respect to the distribution $F$,
+i.e. the reward distribution of each arm.
+Since the reward distributions are unknown to agents, we cannot make use of this information to design our policies. So we need to further bound this inequality to avoid having expectations in the upper bound.
+%With the assumption of non-decreasing hazard rate, we further bound this inequality for the UCB policy design in Section \ref{subsec: Bounding the space between order statistics}. We show the background of the hazard rate in the next section.
+By assuming a non-decreasing hazard rate (Assumption~\ref{ass:IHR}),
+we bound the term in right hand side of Exponential Efron-Stein inequality $\mathbb{E}\left[S_{k}\left(e^{\lambda S_{k}}-1\right)\right]$
+in Lemma \ref{lemma: bound the upper bound of expon efron-stein}.
+%Observe that the expectation in upper bound of Exponential Efron-Stein inequality is taken for a term containing $S_{k}$, following similar proof structure, we bound right-hand side of Exponential Efron-Stein inequality.
+
+
+\begin{restatable}{lemma}{BoundUpperExpEfronStein}
+\label{lemma: bound the upper bound of expon efron-stein}
+Let $S_{k} = X_{\left(k\right)}-X_{\left(k+1\right)}$ be the $k^{th}$ spacing of order statistics, and the lower bound of hazard rate be $L$. Define $v_n = \frac{n}{k^2 L^2}$, for all $ 1 \leq k \leq \frac{n}{2},$
+%the logarithmic moment generating function of $X_{(k)} - \mathbb{E}[X_{(k)}]$ in Theorem \ref{theo: Exponential Efron-Stein inequality} can be bounded with the assumption of IHR.
+and all $\lambda$ such that $0 \leq \lambda< \frac{1}{2} \sqrt{\frac{n}{v_n}}$, we can bound $\lambda \mathbb{E}\left[S_{k}\left(e^{\lambda S_{k}}-1\right)\right]$ under Assumption \ref{ass:IHR} as following,
+\begin{align}
+\label{equ: bound the right hand side of EES}
+    \lambda \mathbb{E}\left[S_{k}\left(e^{\lambda S_{k}}-1\right)\right] \leq
+    \frac{2 \lambda^{2} v_{n} }{n\left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}.
+\end{align}
+\end{restatable}
+
+In Proposition \ref{prop: bound of expected spacing}, we show the expected space between order statistics can be bounded in terms of the index of space and the lower bound of hazard rate, which will not be used further in this paper, but can be useful for applications of order statistics.
+
+
+\begin{restatable}{prop}{BoundExpSpacing}
+\label{prop: bound of expected spacing}
+Let $S_{k} = X_{\left(k\right)}-X_{\left(k+1\right)}$ be the $k^{th}$ spacing, and $L$ be the lower bound of hazard rate of distribution $F$. For any $1 \leq k \leq \frac{n}{2}$, the expectation of spacing $S_k$ can be bounded under Assumption \ref{ass:IHR},
+\begin{align}
+    \mathbb{E}[S_k] \leq \frac{1}{kL}.
+\end{align}
+\end{restatable}
+
+The proof of Lemma \ref{lemma: bound the upper bound of expon efron-stein} and Proposition \ref{prop: bound of expected spacing} relies on R\`enyi's representation, see Appendix \ref{app-sec: Proof} for details.
+
+%With the assumption of non-decreasing hazard rate (IHR) of the reward distributions, the expectation of space between order statistics can be bounded in terms of the lower bound of hazard rate. Lemma \ref{lemma: bound the upper bound of expon efron-stein} shows the right-hand side of Exponential Efron-Stein inequality in Theorem \ref{theo: Exponential Efron-Stein inequality} can be further bounded into a Bernstein-type formula.
+
+\subsubsection{Bernstein Inequality for Quantiles}
+\label{subsec: concentration inequalities for medians}
+
+\begin{table*}[!ht]
+\renewcommand{\arraystretch}{2}
+\centering
+\scalebox{0.9}{
+\begin{tabular}{|c|c|c|c|}
+\hline
+& Arbitrary IHR Distribution & Absolute Centred Gaussian Distribution & Exponential Distribution  \\ \hline
+$L_{i}$       & $L_{i}$  &   $\frac{1}{\sigma_i \sqrt{2 \pi}}$     &   $\theta_i$   \\ \hline
+$\sd$ & $\sum_{i \neq i_\ast} \frac{ C_{i} \log N}{(\Delta_i L_{i})^2}  + 1 + \frac{\pi^2}{3}$   & $\sum_{i \neq i_\ast} \frac{2 \pi \sigma^2_i  C_{i} \log N}{\Delta_i^2}  + 1 + \frac{\pi^2}{3}$       &   $\sum_{i \neq i_\ast} \frac{ C_{i} \log N}{(\Delta_i \theta_{i})^2}  + 1 + \frac{\pi^2}{3}$   \\ \hline
+$\mathbb{E}[R_N]$ &  $\sum_{i \neq i_\ast}\frac{ C_{i} \log N}{\Delta_i L_{i}^2}  + \xi$ & $\sum_{i \neq i_\ast} \frac{2 \pi \sigma^2_i  C_{i} \log N}{\Delta_i}  + \xi$ & $\sum_{i \neq i_\ast} \frac{ C_{i} \log N}{\Delta_i \theta_{i}^2}  + \xi$ \\ \hline
+$C_{i}$ & $(2 + \Delta_i L_{i}) + 2\sqrt{1 +  \Delta_i L_{i}}$  & $(2 + \frac{\Delta_i}{\sigma_i \sqrt{2 \pi}} ) + 2\sqrt{1 + \frac{\Delta_i}{\sigma_i \sqrt{2 \pi}}}$ & $(2 + \Delta_i \theta_{i}) + 2\sqrt{1 +  \Delta_i \theta_{i}}$ \\ \hline
+\end{tabular}
+}
+\caption{Expected sub-optimal draws and regret bound for special case distributions, where $C_{i}$ is shown in the last row, and $\xi = \left(1 + \frac{\pi^2}{3}\right) \left(\sum_{j=1}^K \Delta_{j}\right)$. See Appendix \ref{app-sec: special case} for definitions of special case distributions. }
+\label{table: Summary for policies and bounds.}
+\end{table*}
+
+
+%Lemma \ref{lemma: bound the upper bound of expon efron-stein} extends Theorem \ref{theo: Exponential Efron-Stein inequality} into an inequality where upper bound does not include expectation.
+For a bandit setting, it is more interesting to consider a percentage of distribution, i.e. empirical quantile $X_{(qn)}$ than a specific order statistics $X_{(k)}$.
+With q-quantile as $\mathbb{E}[X_{(qn)}] = \inf \{x \in \mathbb{R} : q \leq F\left(x\right)\}$ (assume $qn$ is an integer), we derive a Bernstein like inequality for quantiles in Theorem \ref{theo: Bernstein Inequality for Quantiles.}, which resembles the Bernstein inequality (Theorem \ref{theo: Bernstein Inequality} in Appendix \ref{sec: Comparison with Related Work}).
+
+%We show the concentration inequality for quantile in Theorem \ref{theo: Bernstein Inequality for Quantiles.}, since it exhibits a form of Bernstein inequality, we call it Bernstein inequality for Quantiles. As a special case for quantiles, we show the concentration inequality of medians in Corollary \ref{theo: Bernstein Inequality for Medians.}.
+%We show how we bound the Exponential Efron-Stein inequality further in Theorem \ref{theo: Bernstein Inequality for Medians.}.
+
+%------------------------------------------------------
+
+
+\begin{restatable}[Bernstein Inequality for Quantiles]{theo}{BernQuant}
+\label{theo: Bernstein Inequality for Quantiles.}
+Let $X_{\left(1\right)} \geq X_{\left(2\right)} \geq ... \geq X_{\left(n\right)}$ denote the order statistics of $X_1, ..., X_n$, and $X_{(qn)}$ is the empirical $q$-quantile (assume $qn$ is an integer, $q \in (0, \frac{1}{2}]$).
+Define $v_n = \frac{1}{q^2 n L^2}$, with Assumption \ref{ass:IHR},
+for all $\lambda$ such that $0 \leq \lambda< \frac{1}{2} \sqrt{\frac{n}{v_n}}$,
+\begin{align}
+    \label{equ: log mgf for quantile}
+    \log \mathbb{E}\left[e^{\lambda\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \right)}\right] \leq  \frac{\lambda^{2}  v_{n}}{2 \left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}.
+\end{align}
+For all $\varepsilon > 0$, we obtain the concentration inequality
+\begin{align}
+    \label{equ: bernstein ineq for quantile}
+    \mathbb{P}\left(X_{\left(qn\right)}-\mathbb{E}[X_{\left(qn\right)}] \geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right) \leq e^{-\varepsilon}.
+    %\label{inequality Bernstein lower bound for abr}
+    %\mathbb{P}\left\{\mathbb{E}[X_{\left(qn\right)}] - X_{\left(qn\right)}\geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right\} \leq e^{-\varepsilon}.
+\end{align}
+%where the expectation is taken with respect to the randomness of the environment.
+\end{restatable}
+
+\begin{proof-sketch}
+By chaining the inequalities,
+Equation~\eqref{equ: Exponential Efron-Stein inequality} from Theorem~\ref{theo: Exponential Efron-Stein inequality}, and
+Equation~\eqref{equ: bound the right hand side of EES} from Lemma~\ref{lemma: bound the upper bound of expon efron-stein},
+we obtain a new upper bound for the logarithmic moment generating function of $X_{(k)} - \mathbb{E}[X_{(k)}]$.
+To express empirical quantiles, we replace $k$ with $qn$, and therefore substitute
+$v_n = \frac{n}{k^2 L^2}$ with $v_n = \frac{1}{q^2 n L^2}$. Since $q \in (0, \frac{1}{2}]$, we have
+$\frac{qn}{2} \times \frac{2 \lambda^{2} v_{n} }{n\left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}
+\leq \frac{\lambda^{2}  v_{n}}{2 \left(1-2 \lambda \sqrt{\frac{v_{n}}{n}}\right)}.$
+Thus we obtain (\ref{equ: log mgf for quantile}).
+Then choose a value of $\lambda$ which minimises the upper bound of (\ref{equ: log mgf for quantile}) and based on the Cram\'er-Chernoff method \cite{boucheron2013}, (\ref{equ: bernstein ineq for quantile}) is proved.
+For whole proof, see Appendix \ref{app-sec: proof for theo: Bernstein Inequality for Quantiles.}.
+\end{proof-sketch}
+
+
+%Intuitively, since the hazard rate is non-decreasing, the expectation of space between order statistics should be smaller then the time goes by (i.e. k increases). And the largest the spacing is still bounded by the lower bound of the hazard rate. We will make use of this interesting pattern to bound the Exponential Efron-Stein inequality in Theorem \ref{theo: Bernstein Inequality for Quantiles.}.
+A special case for Theorem \ref{theo: Bernstein Inequality for Quantiles.} is when $q = \frac{1}{2}$, we have the concentration inequality for medians.
+
+\begin{coro}[Bernstein Inequality for Medians]
+\label{theo: Bernstein Inequality for Medians.}
+Let $X_{\left(1\right)} \geq X_{\left(2\right)} \geq ... \geq X_{\left(n\right)}$ denote the order statistics of $X_1, ..., X_n$,
+and $\hat{m} = X_{(\frac{n}{2})}$ be the empirical median. Define $v_n = \frac{4}{n L^2}$, with Assumption \ref{ass:IHR}, for all $\varepsilon > 0$,
+\begin{align}
+\label{equ: inequality Bernstein bound for median}
+    \mathbb{P}\left( \hat{m}-\mathbb{E}[\hat{m}] \geq \sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}\right) \leq  e^{-\varepsilon}.
+\end{align}
+%where the expectation is taken with respect to distribution $F$.
+\end{coro}
+
+Observe that the term $\sqrt{2 v_{n} \varepsilon}+2 \varepsilon \sqrt{\frac{v_{n}}{n}}$ in the inequality (\ref{equ: inequality Bernstein bound for median}) provides the confidence width term in Algorithm \ref{alg:Policy for IHR distributions} with $n = T_i(t-1)$, $v_n = v_{i,T_i(t-1)}$ (we denote as $v_{i,t}$ in Section \ref{sec: policy} for simplicity), and $\varepsilon = \varepsilon_t$.
+%parameters adapting to the bandit setting.
+
+\subsubsection{Bounding the Sub-optimal Draws}
+\label{subsec: Bounding the Sub-optimal Draws}
+
+M-UCB is designed to minimise the expected number of sub-optimal draws $\sd$
+(Definition \ref{defi: sub-optimal draws}) up to round $N$.
+We show in Theorem~\ref{theo: sub-optimal draws bound} that the expected number
+of sub-optimal draws $\sd$ is bounded by a logarithmic rate,
+and show the proof in the Appendix~\ref{app-subsec: proof of theo: sub-optimal draws bound}. Recall that we define the optimal arm $i_\ast = \argmax_{i \in \mathcal{K}} m_i$, and $m_i, m_\ast$ as the median of arm $i$ and the optimal arm respectively. We show the proof for the case where $\alpha = 4, \beta =1$ in M-UCB policy.
+
+\begin{restatable}[Sub-optimal draws bound]{theo}{SubOptDrawsBound}
+\label{theo: sub-optimal draws bound}
+Let $\Delta_i$ be the difference between median of the optimal arm and arm $i$,
+i.e. $\Delta_{i} = m_\ast - m_i$, and $L_i$ be the lower bound of hazard rate for arm $i$.
+For all K $>$ 1, if the proposed policy M-UCB is run on K arms with reward distributions under Assumption \ref{ass:IHR},
+%$$h\left(U\left(exp\left(y\right)\right)\right) = \frac{f\left(U\left(exp\left(y\right)\right)\right)}{\bar{F}\left(U\left(exp\left(y\right)\right)\right) } \geq L,$$
+%where $\bar{F} = 1 - F$, R-transform is defined in Definition \ref{defi: R-transform}, $y > 0$, $L > 0$.
+then the upper bound of the expected sum of sub-optimal draws $\sd$  at round $N$
+is given by
+%Cheng: I don't see where you need $\varepsilon$
+%More precisely, when set $\varepsilon = 4 \log t$,
+\begin{align}
+    \sd \leq \sum_{i \neq i_\ast} \frac{ C_{i} \log N}{(\Delta_i L_{i})^2}  + 1 + \frac{\pi^2}{3},
+\end{align}
+where $C_{i} = 32[(2 + \Delta_i L_{i}) + 2\sqrt{1 +  \Delta_i L_{i}}]$. %$\pi$ is the mathematical constant.
+\end{restatable}
+
+\begin{proof-sketch}
+Arm $i$ is selected at round $t$ (i.e. $A_t = i$) only when the upper confidence width for arm $i$ constructed by M-UCB (i.e. $\hat{m}_{i, T_i\left(t-1\right)} +  D_i\left(t, T_i\left(t-1\right)\right)$) is larger than or equal to the one for the optimal arm. 
+%Define  $l' = \Bigl\lceil \frac{C_{i} \log N}{(\Delta_i L_{i})^2}  \Bigr\rceil,$ and set $\alpha = 4, \beta = 1$, from Lemma \ref{lemma: upper bound of expected number of draws} in Appendix \ref{app-subsec: proof of theo: sub-optimal draws bound}, 
+For a particular choice of $l'$, $0 < s <t$, and $l' \leq s_i <t$ (see Lemma 3 and 4 for details), we can decompose the probability of choosing the arm $i$, 
+\begin{align}
+    & \mathbb{P}\left(\hat{m}_{*, s} +  D_*(t, s)  \leq \hat{m}_{i, s_i} +  D_i(t, s_i)\right) \nonumber \\
+    \leq &  \mathbb{P}\left(\hat{m}_{*, s} +  D_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]\right) + \nonumber \\ & \mathbb{P}\left(\hat{m}_{i, s_i} -  D_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}]\right).
+\end{align}
+For non-negative distributions, the two-side version of Corollary \ref{theo: Bernstein Inequality for Medians.} can be proved 
+\begin{align}
+        & \mathbb{P}\left(\hat{m}_{*, s} +  D_*(t, s) \leq  \mathbb{E}[\hat{m}_{*, s}]\right) \nonumber\\ 
+\label{equ: lower side of bernstein inequality for median}
+        \leq & \mathbb{P}\left(\hat{m}_{i, s_i} -  D_i(t, s_i) \geq \mathbb{E}[\hat{m}_{i, s_i}]\right)
+        \leq   e^{- \varepsilon}.
+    \end{align}
+Note that the bound (\ref{equ: lower side of bernstein inequality for median}) is not sharp. 
+We take an expectation of $T_i(t-1)$ 
+%(recall Definition \ref{defi: sub-optimal draws})
+to obtain a bound on the expected number of draws in terms of Corollary \ref{theo: Bernstein Inequality for Medians.}.
+The whole proof is shown in Appendix \ref{app-subsec: proof of theo: sub-optimal draws bound}.
+
+\end{proof-sketch}
+
+
+\subsubsection{Bounding the Regret}
+\label{subsec: Bounding the Regret}
+
+To enable comparison with other bandit algorithms, we now
+%The expected regret bound can be derived based on $\sd$.
+%The regret is the cost we need to pay because we do not know the optimal arm ahead.
+introduce the median-based regret and pseudo-regret,
+and show in Proposition~\ref{prop: expectation of regret and pseudo-regret for median}
+that they are in fact equivalent.
+
+
+%Instead of summing up the sup-optimal draws, we consider the weighted sum of sup-optimal draws, where the weights are specified by the cost of choosing arm $i$ instead of choosing the optimal arm.
+
+\begin{defi}[Median-based Regret]
+\label{defi: regret for median}
+The median-based regret is defined as 
+%the difference between the sum of empirical medians under the optimal policy (i.e. always choosing the optimal arm) and the sum of empirical medians under M-UCB policy.
+\begin{align}
+    & R_N = \sum_{t=1}^N \hat{m}_{\ast, t} - \sum_{t = 1}^N \sum_{i = 1}^K \hat{m}_{i, T_i(t)} \mathbb{I}\{A_t = i\}.
+\end{align}
+\end{defi}
+
+\begin{defi}[Median-based Pseudo-regret]
+\label{defi: pseudo-regret for median}
+The median-based pseudo-regret is defined based on the medians of arms.
+    \begin{align}
+    & \overline{R}_N = N m_\ast - \sum_{i=1}^K m_i T_i(N).
+        %\mathbb{E}[\overline{R}_N] = \sum_{i = 1}^K \Delta_{i} \mathbb{E}[T_i\left(N\right)],
+    \end{align}
+\end{defi}
+
+By taking medians of sample rewards at each round, the median-based regret reflects the difference of the cumulative empirical median between the M-UCB policy and the optimal policy. Similar as risk-averse regret (see Appendix \ref{app-subsec: Risk-averse Regret} for an example),
+%the difference between the median-based regret and the mean-based regret (inequality \ref{equ: mean based regret}) is that
+minimising the median-based regret is not equivalent to maximising the cumulative rewards.
+
+\begin{restatable}{prop}{EquMedianRegret}
+\label{prop: expectation of regret and pseudo-regret for median}
+The expectations of median-based regret and pseudo-regret defined in Definition \ref{defi: regret for median} and \ref{defi: pseudo-regret for median} are equivalent and can be decomposed into the weighted sum of sub-optimal draws.
+i.e. $\mathbb{E}[R_N] = \mathbb{E}[\overline{R}_{N}] = \sum_{i=1}^K \Delta_i \mathbb{E}[T_i(N)]$,
+where $\Delta_i = m_\ast - m_i$.
+\end{restatable}
+
+Bounding the expected median-based regret is equivalent to
+%bounding the expected median-based pseudo-regret, which is also equal to
+bounding the expected number of sub-optimal draws.
+Recall from Definition~\ref{defi: sub-optimal draws} that $\Psi_N$ is
+directly related to the number of draws $T_i(N)$, and hence
+the expected regret bound can be derived based on
+Proposition~\ref{prop: expectation of regret and pseudo-regret for median} and
+Theorem~\ref{theo: sub-optimal draws bound}
+
+\begin{restatable}[Regret bound]{coro}{RegretBound}
+\label{theo: regret bound}
+Let $L_i$ be the lower bound of hazard rate, and $\Delta_i$ be the difference between median of the optimal arm and arm $i$, i.e. $\Delta_{i} = m_\ast - m_i$.
+For all K $>$ 1, if the proposed policy M-UCB is run on K arms with reward distributions under Assumption \ref{ass:IHR},
+then the upper bound of the expected regret $\mathbb{E}[R_N]$ is given by
+% Cheng: I don't see \varepsilon anywhere in this theorem
+%More precisely, when set $\varepsilon = 4 \log t$,
+\begin{align}
+    \label{equ: regret bound}
+    \mathbb{E}[R_N] \leq \sum_{i \neq i_\ast}\frac{C_{i} \log N}{\Delta_i L_{i}^2}  + \left(1 + \frac{\pi^2}{3}\right) \left(\sum_{j=1}^K \Delta_{j}\right) ,
+\end{align}
+where $C_{i} = 32 \left[(2 + \Delta_i L_{i}) + 2\sqrt{1 + \Delta_i L_{i}}\right]$.
+%$\pi$ is the mathematical constant.
+\end{restatable}
+
+We show the bound on expected sub-optimal draws and expected regret for the general case and two special cases: absolute centred Gaussian distribution and exponential distribution in Table \ref{table: Summary for policies and bounds.}. 
+%The definition of two special cases can be found in Appendix~\ref{app-sec: special case}.
+
+\textbf{Regret Design Discussion:} The definition of regret depends on the choice of summary statistics for reward distributions.
+When defining the optimal arm as the one with the highest mean, the mean-based regret and pseudo-regret are defined as \cite{Auer2002},
+\begin{align}
+    \label{equ: mean based regret}
+    R^\mu_{N} &= \sum_{t=1}^{N} X_{\ast, t}-\sum_{t=1}^{N} \sum_{i = 1}^{K} X_{i, T_i(t)} \mathbb{I}\{A_t = i\},\\
+    \label{equ: mean based pseudo regret}
+    \overline{R}^\mu_{N} &=
+    N \mu^{*}-\sum_{t=1}^{N} \sum_{i = 1}^{K} \mu_i \mathbb{I}\{A_t = i\},
+\end{align}
+where $X_{\ast, t}$ is the sample reward from the optimal arm at round $t$, and $\mu^\ast, \mu_i$ are the mean of optimal arm and arm $i$.
+Minimising the mean-based regret is equivalent to maximising the cumulative reward.
+The expected mean-based regret and pseudo-regret are equal and can be decomposed into the weighted sum of sub-optimal draws, i.e.  $\mathbb{E}[R^\mu_N] = \mathbb{E}[\overline{R}^\mu_{N}] = \sum_{i=1}^K \Delta^\mu_i \mathbb{E}[T_i(N)]$, where $\Delta^\mu_i = \mu_\ast - \mu_i$.
+
+
+When evaluating distributions by different summary statistics, regret can be defined accordingly. For example,  \textcite{cassel_general_2018} evaluates performance by means of a function $U$, which maps the empirical distribution $\hat{F} \text { to } \mathbb{R}$. Correspondingly, a risk-averse regret is proposed as the difference between $U$ measure of average empirical distributions with the optimal policy and their policy. Similarly, we define our regret as the difference between the medians of reward distributions.
+More discussion about different notions of regret can be found in Appendix \ref{app-sec: Design Choice of Regret}.
+%--------------------------------------------------------------
+
+
+\subsection{Empirical Evaluations}
+\label{sec: Empirical Experiments}
+
+We show the empirical performance of our policy on simulated data and two clinical treatment datasets\footnote{Implementation available at \url{http://hidden.url}}.
+We compare our policy (\ourpolicy) with two mean-based algorithms (UCB1 \cite{Auer2002}, UCB-V \cite{audibert2009exploration}), one risk-averse algorithm MV-LCB \cite{sani_risk-aversion_2012} and one adversarial algorithm Exp3 \cite{Auer2003adv} in terms of expected sub-optimal draws and expected regret.
+The Exp3 does not make assumptions about the reward distribution,
+which might suit the outlier setting better.
+%For each experiment, we show histograms of reward distributions in the first row, and report the expected sub-optimal draws and expected regret in the second and third-row respectively.
+
+The optimal arm and regret are defined in accordance with the benchmark algorithms,
+e.g. the optimal arm of UCB1 is the arm with the maximum mean,
+and the regret is the mean-based regret (\ref{equ: mean based regret}).
+See Appendix \ref{app-sec: Experiment Design and Report} for the details of benchmark algorithms.
+
+The expected regret is not directly comparable for algorithms with different definitions of regret. The mean-based algorithms have the goal of maximising the cumulative reward, while risk-averse algorithms have the goal of minimising the risk or balancing the risk and reward.
+This is why we show the expected sub-optimal draws, which is directly comparable. However
+we also provide results for expected regret, to enable comparisons with other papers.
+
+\subsubsection{Simulations}
+\label{subsec: Simulations}
+
+\begin{table}[t]
+\scalebox{0.9}{
+\begin{tabular}{|c|c|c|}
+\hline
+  Arms & No Outliers       & With Outliers                                                                               \\ \hline
+A & $|\mathcal{N}(0, 0.5)|$ & $0.95 |\mathcal{N}(0, 0.5)| + 0.05 |\mathcal{N}(20, 0.5)|$\\ \hline
+B & $|\mathcal{N}(0, 0.1)|$ & $0.95 |\mathcal{N}(0, 0.1)| + 0.05 |\mathcal{N}(20, 0.5)|$ \\ \hline
+C & $Exp(1)$         & $0.95 Exp(1) + 0.05 |\mathcal{N}(20, 0.5)|$        \\ \hline
+\end{tabular}
+}
+\caption{Simulated reward distributions for 3 arms. The reward distributions are absolute Gaussian and Exponential distribution (details in Appendix \ref{app-sec: special case}). }
+\label{table: Simulated reward distributions for 3-arm setting.}
+\end{table}
+
+\begin{figure}[t]
+    \centering
+    %\includegraphics[scale=0.4]{plots/Hist.pdf}
+    \includegraphics[scale=0.4]{plots/Exper_sd.pdf}
+    \includegraphics[scale=0.4]{plots/Exper_r.pdf}
+    \caption{Simulation Experiment.% Top: Reward histogram.
+    Top: Expected sub-optimal draws.
+    Bottom: Expected regret (MV-LCB is too large and is not shown).
+    M-UCB with parameter $\alpha = 0.5, \beta = 0.2$.
+    }
+    \label{fig: Simulated experiment.}
+\end{figure}
+
+We simulate 100 independent experiments, for a bandit task with 3 independent arms for
+1000 rounds.
+We consider two experimental settings, corresponding to two types of reward distributions:
+with and no outliers, as summarised in
+Table \ref{table: Simulated reward distributions for 3-arm setting.}.
+The outliers are an absolute Gaussian centred at 20.
+
+Figure \ref{fig: Simulated experiment.} shows that
+M-UCB outperforms other methods
+and has a stable performance for the situations with or without outliers,
+in terms of both expected sub-optimal draws and expected regret.
+Unsurprisingly, mean-based algorithms (UCB1 and UCB-V) are more sensitive to outliers
+compared to the risk-averse MV-LCB and our algorithm \ourpolicy,
+especially when the support of outliers is bigger than assumed reward support.
+Surprisingly, the outliers also cause the adversarial algorithm Exp3 to have
+worse performance. From the plot of the expected sub-optimal draws,
+we observe that MV-LCB is robust to outliers but still has a larger number of sub-optimal
+draws than \ourpolicy.
+
+% Cheng: I'm removing this discussion because we don't show evidence of this in the experiments.
+%The reason our algorithm has better performance is (1) Under the IHR assumption, our policy provides tighter upper confidence bound. (2) By using empirical medians to measure the rewards, our policy is robust to outliers. (3) Our policy does not assume bounded support, while other algorithms do. When the reward distribution is unknown, we may need to assume large support, and those algorithms will have a large number of sub-optimal draws.
+
+%In figure \ref{fig: Example reward distributions.}, we have shown different estimators of the reward distributions can lead to a different order of the arm ranking. The medians estimators can better suit the risk-averse decision-makers. In this section, we show that even though different estimators have the same optimal arm, our policy still has a better performance for IHR distributions.
+
+
+
+\subsubsection{Effect of Treatment on Cancer Survival}
+\label{subsec: Real Data Experiments}
+
+\begin{figure}[t]
+    \centering
+    \subfloat{{\includegraphics[scale = 0.38]{plots/glinoma_hist.pdf} }}%
+    \subfloat{{\includegraphics[scale = 0.38]{plots/STES_hist.pdf} }}\\
+    \subfloat{{\includegraphics[scale=0.38]{plots/Glinoma_treatmet_sd.pdf} }}
+    \subfloat{{\includegraphics[scale=0.38]{plots/STES_treatmet_sd.pdf} }}\\
+    \subfloat{{\includegraphics[scale=0.38]{plots/Glinoma_treatmet_r.pdf} }}
+    \subfloat{{\includegraphics[scale=0.38]{plots/STES_treatmet_r.pdf} }}%
+    \caption{ Clinical experiment. Top: Reward histogram.
+    Middle: Expected sub-optimal draws.
+    Bottom: Expected regret (MV-LCB is too large and is not shown).
+    M-UCB with parameter $\alpha = 4, \beta = 1$.}
+    \label{fig: Glinoma Clinical Treatment.}%
+\end{figure}
+
+The clinical experiment is a classical example of bandit problems. The type of treatments needs to be determined when patients arrive sequentially and the effectiveness of treatments are initially unknown \cite{thompson1933likelihood}.
+Survival analysis with medians and hazard rate are commonly used in clinical experiment analysis \cite{panaphut_ceftriaxone_2003, panaput_dialysis_2014}.
+The survival time reward distributions in such applications satisfy our IHR assumption.
+Decision-makers in clinical treatments need to manage risk and maximise the optimal choices (i.e. minimise the number of sub-optimal choices).
+Furthermore, empirical medians (the basis of our approach) are robust against outliers and positively skewed distributions.
+
+We use two clinical datasets from Broad Institute Firehouse\footnote{\url{https://gdac.broadinstitute.org/}
+}, namely the Glinoma dataset, and the Stomach and Esophageal carcinoma (STES) dataset.
+These were chosen because they have a large number of samples.
+For both datasets, there are two choices \textit{Radiation} and \textit{No Radiation},
+and the reward is the number of days a patient survives (Survival Days).
+As patients arrive sequentially, our goal is to minimise the sub-optimal treatment choices.
+%There 588 valid records for the patient.
+
+We repeat our experiment 500 times, each with 1000 rounds where we sample from
+the database of records with replacement.
+The reward distributions are positively skewed and have outliers in the right tail.
+A small number of patients survived longer than 3000 days which are not shown in the histogram.
+Our policy outperforms others in terms of both expected sub-optimal draws and regret, having a stable performance for both datasets.
+
+For expected sub-optimal draws, we compare two parameter settings of MV-LCB.  When choosing a very large $\rho$ (1e8), MV-LCB policy evaluates empirical mean and has a similar form to UCB1. In this case, MV-LCB has a reasonably small expected sub-optimal draws, but it does not manage the risk control. When $\rho$ is small (50), MV-LCB has linear sub-optimal draws.
+%--------------------------------------------------------------
+\subsection{Summary}
+\label{sec: Discussion}
+
+In this paper, we proposed \ourpolicy, a policy that summarises the reward distribution
+in terms of empirical median instead of the empirical mean.
+This takes advantage of the robustness of medians,
+allowing our policy to be robust to outliers and skewed distributions.
+The main assumption required in the derivation of the new policy is that the reward
+distributions have a non-decreasing hazard rate (Assumption \ref{ass:IHR}).
+This assumption allows us to bound the spacing between order statistics
+(Proposition \ref{prop: bound of expected spacing}) which leads to a bound using the
+Exponential Efron-Stein inequality (Theorem \ref{theo: Exponential Efron-Stein inequality}).
+Similar to other UCB style algorithms, our policy has two parts,
+namely the empirical median and the confidence width.
+Our confidence width is constructed from a Bernstein inequality for quantiles
+(Theorem \ref{theo: Bernstein Inequality for Quantiles.}).
+We proved a logarithmic upper bound of the expected sub-optimal draws $\sd$ and expected regret
+$\mathbb{E}[R_N]$, which is consistent with the state of the art in bandit regret.
+We demonstrated that M-UCB outperforms related policies on both simulated data and
+a clinical treatment dataset.
+We hope that this line of analysis will lead to a new class of bandit algorithms
+which are based on order statistics, and are robust to outliers.
+
+
+
+\section{Optimized Experimental Design for Translation Initiation using Machine Learning}
+
+Synthetic Biology is on the verge of a leap into high-throughput data generation for which new methods of data handling and analysis will have to be developed. In this work, we show how machine learning can be used to analyse, predict the performance of the ribosome binding site (RBS) of E. coli – one of the main genetic elements controlling protein expression. We also show how to sequentially design the RBS sequence the find the optimal choice with high protein expression as fast as possible.  
+
+We build a Gaussian process regression model to predict the translation initiation rate (TIR) of each gene in terms of different RBS design. We formalize sequential experiment design as a multiarmed bandit problem.  All possible unique sequences of RBS form the decision set, and the algorithm recommends design choices for each round. The experimental validation uses synthetic biology, with a plasmid inserted into E. coli. We compare our experimental design with random selections, in terms of the cumulative regret caused by not choosing the optimal sequence.
+
+We have analysed a number of datasets available from literature guiding our choice of algorithms and encoding methods. We discuss the generation and analysis of custom data produced in the CSIRO-UQ BioFoundry.
+
+Machine learning is seeing increasing use in synthetic biology, where it guides more and more design decisions. In this instance we have shown how Gaussian process regression model can be used for prediction of TIR of an E. coli RBS.
+

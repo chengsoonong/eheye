@@ -1,0 +1,79 @@
+\chapter{Literature Review} \label{ch-2}
+
+\section{Bandits}
+
+\subsection{Objective functions and summary statistics of bandits}
+
+Most of bandit literature focuses on mean-based analysis. Policies based on other statistics have been proposed recently, such as quantiles (also known as Value-at-Risk, i.e. VaR) \cite{david_pure_2016, david_pac_nodate, cassel_general_2018}, Conditional Value-at-Risk, i.e. CVaR \cite{cassel_general_2018}, mean-variance \cite{sani_risk-aversion_2012}. We review related work for two settings of bandit algorithms:
+
+\begin{itemize}
+    \item Best arm identification (BAI): \textcite{yu2013sample} was the first work considering quantiles for sample complexity of bandit problems.   \textcite{david_pure_2016} aimed to identify the arm for which the largest $\lambda$-quantile with the fixed confidence setting. They proposed the Max-Q algorithm which starts by sampling a fixed number of times from each arm and chooses the arm with a maximum $\lambda$-quantile estimated from the samples. More recent work considering quantile BAI are \textcite{howard_sequential_2019} and \textcite{torossian_x-armed_2019}. \cite{david_pac_nodate} considers a slightly different setting, instead of choosing the arm with the largest quantiles directly, they aim to find an arm with the highest mean with a risk constraint, i.e. $\lambda$-quantile of arms are larger than a threshold. \textcite{kagrecha_distribution_2019} and \textcite{la2019concentration} proposed modified successive rejects algorithms for CVaR BAI with fixed budget. 
+    
+    \item regret minimisation: The most related work to our setting is \textcite{cassel_general_2018}, which proposed a general framework for MAB problems under risk criteria, with the performance criteria defined as a function that maps the rewards to a real-valued number, for example, quantiles (VaR) and CVaR. \textcite{szorenyi2015qualitative} analyzed a qualitative quantile-based regret minimization setting, where rewards are measured on a qualitative scale instead of numerical. \textcite{tamkind2019} considered CVaR regret and compared with \textcite{cassel_general_2018}. 
+\end{itemize}
+
+\textbf{Concentration inequalities summary and comparison}
+
+We provide the summary of concentration inequalities for quantiles. In the following, we assume the random variable $X$ is continuous and has strictly increasing CDF $F(\cdot)$. Quantile $v_\alpha(X)$ at level $\alpha \in (0,1)$ is defined as 
+\begin{align}
+    v_\alpha(X) = F^{-1}(\alpha).
+\end{align}
+Let $\{X\}_{i = 1}^n$ denote $n$ i.i.d. samples from the distribution of $X$, the empirical quantile at level $\alpha$ is 
+\begin{align}
+    \hat{v}_{n, \alpha} = \hat{F}^{-1}(\alpha) = \inf \{x: \hat{F}_n(x) \geq \alpha \}
+\end{align}
+
+In the literature of concentration bounds for quantiles, there are two types concentration inequalities. For $\delta \in (0,1)$
+
+\begin{enumerate}
+    \item confidence interval in terms of the difference between true quantile and empirical quantile at level $\alpha$,
+    \begin{align}
+    \label{bound type 1}
+         P\left(\hat{v}_{n, \alpha}-d_{n}(\delta) \leq v_{n} \leq \hat{v}_{ n, \alpha}+d_n(\delta)\right) \geq 1-\delta
+    \end{align}
+   
+    \item confidence interval constructed empirical quantiles at level $\alpha +/- c_n(\delta)$. 
+    \begin{align}
+    \label{bound type 2}
+        \mathbb{P}\left(\hat{v}_{n, \alpha- c_n(\delta)} \leq v_{\alpha} \leq \hat{v}_{n, \alpha+ c_n(\delta))} \right) \geq 1 - \delta
+    \end{align}
+\end{enumerate}
+
+\begin{table}[]
+\begin{tabular}{llll}
+\hline
+  & Literature & $d_n(\delta)$ & Notes \\ \hline
+1 &  \textcite{kolla_concentration_2019} &  $\sqrt{\frac{1}{2nc} \log \frac{2}{\delta}}$ & \begin{tabular}[c]{@{}l@{}}$c$ is a constant that depends on the value of\\ the density of $f$ of $X$ in a neighbourhood of $v_\alpha$.\end{tabular}\\ \hline
+2 & \textcite{cassel_general_2018} &  $2b \sqrt{\frac{\log 4n + \log \frac{1}{\delta}}{n}}$ \\ \hline
+3 & M-UCB  &   $\frac{\sqrt{2n\log \frac{1}{\delta} + 2 \log \frac{1}{\delta}}}{\alpha n L}$ & L is the lower bound of hazard rate \\ \hline
+\end{tabular}
+\caption{Type 1.}
+\end{table}
+
+\begin{table}[]
+\begin{tabular}{llll}
+\hline
+  & Literature & $c_n(\delta)$ & Notes\\ \hline
+1 & \textcite{szorenyi_qualitative_nodate}  & $\sqrt{\frac{1}{2n} \log \frac{\pi^2 n^2}{3 \delta}}$  \\ \hline
+2 & \textcite{torossian_x-armed_2019} & $\sqrt{\frac{1}{2n}\log(\frac{2n^2}{\delta})}$  & Based on Hoeffding's. \\ \hline
+3 & \textcite{torossian_x-armed_2019} & $\sqrt{\frac{1}{3n}\log(\frac{2n^2}{\delta})} \left(1 + \sqrt{1 + \frac{18n \alpha (1- \alpha)}{\log (2n^2/\delta)}}\right)$  & Based on Bernstein's.  \\ \hline
+4 & \textcite{howard_sequential_2019} & $\mathcal{O}(\frac{\log \log n}{n})$
+\end{tabular}
+\caption{Type 2.}
+\end{table}
+
+\subsection{Reward distribution assumptions}
+
+Bandits algorithms usually make assumptions to the reward distributions, most of which assume the reward distributions are sub-Gaussian. Sub-Gaussian distributions have tail decaying as fast as a Gaussian, for example, any bounded distributions and Gaussian distribution are sub-Gaussian. UCB1 \cite{Auer2002}, UCB-V \cite{audibert2009exploration}, U-UCB \cite{cassel_general_2018} assumes the rewards are bounded. \textcite{honda2014optimality} assumes the reward distribution is Gaussian.  
+
+Our assumption allows distributions with unbounded support and wider tails than sub-Gaussian, including sub-exponential distributions as well. Sub-exponential distributions are those have a tail heavier than Gaussian and thinner than exponential distributions, e.g. exponential, Poisson are sub-exponential.
+
+There are also literature analysing bandits with heavy-tailed distributions \cite{bubeck2013bandits, yu2018pure, kagrecha2019distribution}, which is out of the scope of this paper. We empirically compare with one of the heavy-tailed algorithms in Section \ref{sec: Empirical Experiments} to show our algorithms gives a faster convergence.
+
+\subsection{Similarity of Bandits}
+
+\section{Synthetic Biology Application with Bandits}
+
+\subsection{Embedding methods}
+
+\subsection{Models}

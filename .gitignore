@@ -11,7 +11,7 @@
 /notes.md
 /QuantEst/sgd_est_experiment/trail
 /QuantEst/sgd_est_experiment/Experiment_results
-/writing
+#/writing
 .DS_Store
 
 # LaTeX
@@ -141,7 +141,7 @@ venv.bak/
 /notes.md
 /QuantEst/sgd_est_experiment/trail
 /QuantEst/sgd_est_experiment/Experiment_results
-/writing
+#/writing
 .DS_Store
 
 # LaTeX
