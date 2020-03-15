@@ -98,6 +98,20 @@
   series = {{{MICNET}} '09}
 }
 
+@inproceedings{caoTrackingQuantilesNetwork2010,
+  title = {Tracking {{Quantiles}} of {{Network Data Streams}} with {{Dynamic Operations}}},
+  booktitle = {2010 {{Proceedings IEEE INFOCOM}}},
+  author = {Cao, Jin and Li, Li Erran and Chen, Aiyou and Bu, Tian},
+  year = {2010},
+  month = mar,
+  pages = {1--5},
+  issn = {0743-166X},
+  doi = {10.1109/INFCOM.2010.5462241},
+  abstract = {Quantiles are very useful in characterizing the data distribution of an evolving dataset in the process of data mining or network monitoring. The method of Stochastic Approximation (SA) tracks quantiles online by incrementally deriving and updating local approximations of the underly distribution function at the quantiles of interest. In this paper, we propose a generalization of the SA method for quantile estimation that allows not only data insertions, but also dynamic data operations such as deletions and updates.},
+  file = {/Users/sue/Zotero/storage/EMN2KBXX/Cao et al. - 2010 - Tracking Quantiles of Network Data Streams with Dy.pdf;/Users/sue/Zotero/storage/9GXUPZ9P/5462241.html},
+  keywords = {Approximation algorithms,Communications Society,data communication,data mining,Data mining,distribution function,Distribution functions,dynamic operations,High-speed networks,Linear approximation,Memory,Monitoring,network data streams,network monitoring,stochastic approximation,stochastic processes,Stochastic processes,telecommunication traffic,Telecommunication traffic}
+}
+
 @article{cormodeImprovedDataStream2005,
   title = {An Improved Data Stream Summary: The Count-Min Sketch and Its Applications},
   shorttitle = {An Improved Data Stream Summary},
@@ -304,6 +318,37 @@
   file = {/Users/sue/Zotero/storage/W4A8HBP4/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf;/Users/sue/Zotero/storage/XRTFKI4K/07069328X.html},
   journal = {SIAM Journal on Computing},
   number = {5}
+}
+
+@article{hammerJointTrackingMultiple2019b,
+  title = {Joint {{Tracking}} of {{Multiple Quantiles Through Conditional Quantiles}}},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis and Rue, H{\aa}vard},
+  year = {2019},
+  month = feb,
+  abstract = {Estimation of quantiles is one of the most fundamental real-time analysis tasks. Most real-time data streams vary dynamically with time and incremental quantile estimators document state-of-the art performance to track quantiles of such data streams. However, most are not able to make joint estimates of multiple quantiles in a consistent manner, and estimates may violate the monotone property of quantiles. In this paper we propose the general concept of *conditional quantiles* that can extend incremental estimators to jointly track multiple quantiles. We apply the concept to propose two new estimators. Extensive experimental results, on both synthetic and real-life data, show that the new estimators clearly outperform legacy state-of-the-art joint quantile tracking algorithm and achieve faster adaptivity in dynamically varying data streams.},
+  archivePrefix = {arXiv},
+  eprint = {1902.05428},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/BXK45LIW/Hammer et al. - 2019 - Joint Tracking of Multiple Quantiles Through Condi.pdf;/Users/sue/Zotero/storage/9K5L9PVA/1902.html},
+  journal = {arXiv:1902.05428 [stat]},
+  keywords = {Statistics - Methodology},
+  primaryClass = {stat}
+}
+
+@article{hammerNewQuantileTracking2019,
+  title = {A New Quantile Tracking Algorithm Using a Generalized Exponentially Weighted Average of Observations},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis and Rue, H{\aa}vard},
+  year = {2019},
+  month = apr,
+  volume = {49},
+  pages = {1406--1420},
+  issn = {0924-669X, 1573-7497},
+  doi = {10.1007/s10489-018-1335-7},
+  abstract = {The Exponentially Weighted Average (EWA) of observations is known to be a state-of-art estimator for tracking expectations of dynamically varying data stream distributions. However, how to devise an EWA estimator to track quantiles of data stream distributions is not obvious. In this paper, we present a lightweight quantile estimator using a generalized form of the EWA. To the best of our knowledge, this work represents the first reported quantile estimator of this form in the literature. An appealing property of the estimator is that the update step size is adjusted online proportionally to the difference between current observation and the current quantile estimate. Thus, if the estimator is off-track compared to the data stream, large steps will be taken to promptly get the estimator back on-track. The convergence of the estimator to the true quantile is proven using the theory of stochastic learning. Extensive experimental results using both synthetic and real-life data show that our estimator clearly outperforms legacy state-of-the-art quantile tracking estimators and achieves faster adaptivity in dynamic environments. The quantile estimator was further tested on real-life data where the objective is efficient in online control of indoor climate. We show that the estimator can be incorporated into a concept drift detector to efficiently decide when a machine learning model used to predict future indoor temperature should be retrained/updated.},
+  file = {/Users/sue/Zotero/storage/TWNJ7B4Z/Hammer et al. - 2019 - A new quantile tracking algorithm using a generali.pdf},
+  journal = {Applied Intelligence},
+  language = {en},
+  number = {4}
 }
 
 @article{hammerSmoothEstimatesMultiple2019,
