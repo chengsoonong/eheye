@@ -1,0 +1,44 @@
+\chapter{Stochastic Average Gradient}
+\label{ch: SAG}
+
+\section{Introduction}
+fafad 
+
+\section{Basic algorithm}
+
+\begin{algorithm}
+    \caption{Basic SAG method for minimizing $\frac{1}{n} \sum^n_{i=1}f_i(x)$ with step size $\alpha$}\label{alg:SAG_ori}
+        \begin{algorithmic}[1]
+            \Require{Dataset $X$, Dataset Size $n$, Step size $\alpha$}
+            \Ensure{$x$}
+            % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+            \State {$d = 0, y_i = 0$ for $i = 1, 2, ..., n$}           \Comment{Default initialization}
+            \For{$k = 0,1,...$ \textbf{do}}                  %\Comment{Parameter update for each input data point}
+                \State {Sample $i$ from {$1,2,...,n$}}
+                \State {$d=d - y_i + f^{\prime}_i(x))$}
+                \State {$y_i = f^{\prime}_i(x)$}
+                \State{$x = x - \frac{\alpha}{n}d$}
+            \EndFor
+            \State{\textbf{end for}}
+        \end{algorithmic}
+\end{algorithm}
+
+\section{Basic SAG Implementation on quantile estimation on  streamind data}
+The Basic SAG algorithm requires memory storage of a table of $y_i (i= 1, 2, ...,n)$, to keep the track of each $y_i$ in case they are re-visited after first update.
+To implement SAG on streaming data, it's worthwhile noticing that each input data point has one and only one pass. 
+
+\begin{algorithm}
+    \caption{Basic SAG method for streaming data $S$ for quantile estimation}\label{alg:SAG}
+        \begin{algorithmic}[1]
+            \Require{Data Stream $S$, Data Stream Size $n$, $\tau$, $\tau$-quantile estimate $\tilde{q}$, Step size $\alpha$}
+            \Ensure{$\tilde{q}$}
+            % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+            \State {Initialization $d = 0, \tilde{q}=0$}           \Comment{Default initialization $q_0=0$, $d_0=0$}
+            \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
+                \State {$d=d - 0 + l^{\prime}_{\tau}(s_i, \tilde{q})$}
+                % \State {\textbf{set} $\alpha_k$} \Comment{Set stepsize}
+                \State{$\tilde{q} = \tilde{q} - \frac{\alpha}{n}d$}
+            \EndFor
+            \State{\textbf{end for}}
+        \end{algorithmic}
+\end{algorithm}
