@@ -2,9 +2,46 @@
 \label{ch: SAG}
 
 \section{Introduction}
-fafad 
+The stochastic average gradient (SAG)\cite{schmidtMinimizingFiniteSums2016} is an convex optimization method that has a significant improvement of convergence rate than stochastic gradient (SG) methods. In general, the convergence rate is improved from $O(1/\sqrt{k})$ to $O(1/k)$, reaching the same level as the gradient descent method. Along with the rising convergence rate, it keeps a low computational cost for each iteration to be independent from the size of function sum.
 
-\section{Basic algorithm}
+\subsection{Machenism of SAG}
+Similar to SG methods, SAG methods aim for minimization of the sum of a finite number of smooth convex functions where $n$ is very large. The problem setting is
+$$
+\underset{x \in \mathbb{R}^p}{\text{minimize}} g(x) := \frac{1}{n}\sum^n_{i=1} f_i(x)
+$$
+where each $f_i$ is a smooth convex function.
+
+The standard (full) gradient (FG) method has each iteration in the form
+$$
+x_{k+1} = x_k - \alpha_k g\prime (x_k) = x_k - \frac{\alpha_k}{n}\sum^n_{i=1} f_i\prime(x_k)
+$$
+where $\alpha_k$ is the step size of iteration $k$. For each iteration, the computational cost is $O(n)$.
+
+To save the iteration cost, the stochastic gradient (SG) method has each iteration in the form
+$$
+x_{k+1} = x_k - \alpha_k f_{i_k}\prime (x_k)
+$$
+where $i_k$ is the index for the iteration that gets sampled from the range {$1, 2,...,n$}. It has an iteration cost of $O(1)$, but a much lower convergence rate.
+
+The stochastic average gradient (SAG) remembers the last update of a gradient value for each index $i$, which enables the improvement of convergence rate from SG methods. Its iteration takes the form
+$$
+x_{k+1} = x_k - \frac{\alpha_k}{n} \sum^n_{i=1}y_{i}^{k}
+$$
+where $y_{i}^{k}$ is used to keep the memory of recently updated gradient value of function $f_i$
+$$
+y_{i}^{k}:=\left\{\begin{array}{ll}
+    f_{i}^{\prime}\left(x_{k}\right) & \text { if } i=i_{k} \\
+    y_{i}^{k-1} & \text { otherwise }
+    \end{array}\right.
+$$
+The SAG algorithm, according to \citeauthor{schmidtMinimizingFiniteSums2016}, "like the FG method, the step incorporates a gradient with respect to each function". Meanwhile only one gradient computation is involved in the combination of gradients, such that the iteration cost is independent of $n$.
+
+\subsection{Convergence guarantee}
+
+Under the assumption that each $f_i$ is convex and the gradient $f_i\prime$ is \textit{Lipschitz continuous} with constant $L$, the SAG algorithm with constant step size $\alpha_k = \frac{1}{16L}$ reaches the convergence rate of $O(1/k)$. The convergence function differs when the $y_i^0$ is initialized differently, or when $f_i$ is strongly convex.
+
+
+\section{Basic SAG algorithm}
 
 \begin{algorithm}
     \caption{Basic SAG method for minimizing $\frac{1}{n} \sum^n_{i=1}f_i(x)$ with step size $\alpha$}\label{alg:SAG_ori}
@@ -23,10 +60,11 @@ fafad
         \end{algorithmic}
 \end{algorithm}
 
-\section{Basic SAG Implementation on quantile estimation on  streamind data}
 The Basic SAG algorithm requires memory storage of a table of $y_i (i= 1, 2, ...,n)$, to keep the track of each $y_i$ in case they are re-visited after first update.
-To implement SAG on streaming data, it's worthwhile noticing that each input data point has one and only one pass. 
 
+\section{Basic SAG Implementation on quantile estimation}
+
+The quantile estimation loss function is a convex function, and \textbf{we can use a smooth function for replacement}
 \begin{algorithm}
     \caption{Basic SAG method for streaming data $S$ for quantile estimation}\label{alg:SAG}
         \begin{algorithmic}[1]
@@ -35,10 +73,13 @@ To implement SAG on streaming data, it's worthwhile noticing that each input dat
             % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
             \State {Initialization $d = 0, \tilde{q}=0$}           \Comment{Default initialization $q_0=0$, $d_0=0$}
             \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
-                \State {$d=d - 0 + l^{\prime}_{\tau}(s_i, \tilde{q})$}
+                \State {$d=d - 0 + l^{\prime}_{\tau}(s_i, \tilde{q})$} \Comment{$0$ stands for $y_i^{k-1}$}
                 % \State {\textbf{set} $\alpha_k$} \Comment{Set stepsize}
                 \State{$\tilde{q} = \tilde{q} - \frac{\alpha}{n}d$}
             \EndFor
             \State{\textbf{end for}}
         \end{algorithmic}
 \end{algorithm}
+For streaming data, it's worthwhile noticing that each input data point has one and only one pass. Which means for the SAG implementation, the storage of updated $y_i^k$ is useless since it would not be revisited. Besides, if all $y_i^0$ are initialized as 0, the storage of $y^0$ initialization needs only one unit of memory instead of $n$ units of memory. in this way, we can keep the memory complexity of SAG quantile estimation to $O(1)$.
+
+
