@@ -45,6 +45,20 @@
   language = {en}
 }
 
+@article{bagulSMOOTHTRANSCENDENTALAPPROXIMATION2017,
+  title = {A {{SMOOTH TRANSCENDENTAL APPROXIMATION TO}} |x|},
+  author = {Bagul, Yogesh J. J},
+  year = {2017},
+  month = aug,
+  volume = {Vol. 11},
+  pages = {213--217},
+  abstract = {In this note we present a new simple and smooth transcendental approximation to f (x) = |x|, with sufficient accuracy. The proposed formula gives better approximation than x 2 + \textmu{} 2 in terms of accuracy.},
+  file = {/Users/sue/Zotero/storage/NRJSA2ZE/Bagul - 2017 - A SMOOTH TRANSCENDENTAL APPROXIMATION TO x.pdf},
+  journal = {International J. of Math. Sci. \& Engg. Appls. (IJMSEA)},
+  keywords = {Absolute value function,Hyperbolic function,Smooth transcendental approximation},
+  number = {II}
+}
+
 @article{ben-haimStreamingParallelDecision2010,
   title = {A {{Streaming Parallel Decision Tree Algorithm}}},
   author = {{Ben-Haim}, Yael and {Tom-Tov}, Elad},
@@ -96,6 +110,20 @@
   isbn = {978-1-60558-753-0},
   keywords = {cellular networks,quantile estimation,stochastic approximation},
   series = {{{MICNET}} '09}
+}
+
+@inproceedings{caoTrackingQuantilesNetwork2010,
+  title = {Tracking {{Quantiles}} of {{Network Data Streams}} with {{Dynamic Operations}}},
+  booktitle = {2010 {{Proceedings IEEE INFOCOM}}},
+  author = {Cao, Jin and Li, Li Erran and Chen, Aiyou and Bu, Tian},
+  year = {2010},
+  month = mar,
+  pages = {1--5},
+  issn = {0743-166X},
+  doi = {10.1109/INFCOM.2010.5462241},
+  abstract = {Quantiles are very useful in characterizing the data distribution of an evolving dataset in the process of data mining or network monitoring. The method of Stochastic Approximation (SA) tracks quantiles online by incrementally deriving and updating local approximations of the underly distribution function at the quantiles of interest. In this paper, we propose a generalization of the SA method for quantile estimation that allows not only data insertions, but also dynamic data operations such as deletions and updates.},
+  file = {/Users/sue/Zotero/storage/EMN2KBXX/Cao et al. - 2010 - Tracking Quantiles of Network Data Streams with Dy.pdf;/Users/sue/Zotero/storage/9GXUPZ9P/5462241.html},
+  keywords = {Approximation algorithms,Communications Society,data communication,data mining,Data mining,distribution function,Distribution functions,dynamic operations,High-speed networks,Linear approximation,Memory,Monitoring,network data streams,network monitoring,stochastic approximation,stochastic processes,Stochastic processes,telecommunication traffic,Telecommunication traffic}
 }
 
 @article{cormodeImprovedDataStream2005,
@@ -304,6 +332,37 @@
   file = {/Users/sue/Zotero/storage/W4A8HBP4/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf;/Users/sue/Zotero/storage/XRTFKI4K/07069328X.html},
   journal = {SIAM Journal on Computing},
   number = {5}
+}
+
+@article{hammerJointTrackingMultiple2019b,
+  title = {Joint {{Tracking}} of {{Multiple Quantiles Through Conditional Quantiles}}},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis and Rue, H{\aa}vard},
+  year = {2019},
+  month = feb,
+  abstract = {Estimation of quantiles is one of the most fundamental real-time analysis tasks. Most real-time data streams vary dynamically with time and incremental quantile estimators document state-of-the art performance to track quantiles of such data streams. However, most are not able to make joint estimates of multiple quantiles in a consistent manner, and estimates may violate the monotone property of quantiles. In this paper we propose the general concept of *conditional quantiles* that can extend incremental estimators to jointly track multiple quantiles. We apply the concept to propose two new estimators. Extensive experimental results, on both synthetic and real-life data, show that the new estimators clearly outperform legacy state-of-the-art joint quantile tracking algorithm and achieve faster adaptivity in dynamically varying data streams.},
+  archivePrefix = {arXiv},
+  eprint = {1902.05428},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/BXK45LIW/Hammer et al. - 2019 - Joint Tracking of Multiple Quantiles Through Condi.pdf;/Users/sue/Zotero/storage/9K5L9PVA/1902.html},
+  journal = {arXiv:1902.05428 [stat]},
+  keywords = {Statistics - Methodology},
+  primaryClass = {stat}
+}
+
+@article{hammerNewQuantileTracking2019,
+  title = {A New Quantile Tracking Algorithm Using a Generalized Exponentially Weighted Average of Observations},
+  author = {Hammer, Hugo Lewi and Yazidi, Anis and Rue, H{\aa}vard},
+  year = {2019},
+  month = apr,
+  volume = {49},
+  pages = {1406--1420},
+  issn = {0924-669X, 1573-7497},
+  doi = {10.1007/s10489-018-1335-7},
+  abstract = {The Exponentially Weighted Average (EWA) of observations is known to be a state-of-art estimator for tracking expectations of dynamically varying data stream distributions. However, how to devise an EWA estimator to track quantiles of data stream distributions is not obvious. In this paper, we present a lightweight quantile estimator using a generalized form of the EWA. To the best of our knowledge, this work represents the first reported quantile estimator of this form in the literature. An appealing property of the estimator is that the update step size is adjusted online proportionally to the difference between current observation and the current quantile estimate. Thus, if the estimator is off-track compared to the data stream, large steps will be taken to promptly get the estimator back on-track. The convergence of the estimator to the true quantile is proven using the theory of stochastic learning. Extensive experimental results using both synthetic and real-life data show that our estimator clearly outperforms legacy state-of-the-art quantile tracking estimators and achieves faster adaptivity in dynamic environments. The quantile estimator was further tested on real-life data where the objective is efficient in online control of indoor climate. We show that the estimator can be incorporated into a concept drift detector to efficiently decide when a machine learning model used to predict future indoor temperature should be retrained/updated.},
+  file = {/Users/sue/Zotero/storage/TWNJ7B4Z/Hammer et al. - 2019 - A new quantile tracking algorithm using a generali.pdf},
+  journal = {Applied Intelligence},
+  language = {en},
+  number = {4}
 }
 
 @article{hammerSmoothEstimatesMultiple2019,
@@ -555,6 +614,18 @@
   number = {2}
 }
 
+@article{naumovExponentiallyWeightedSimultaneous2007,
+  title = {Exponentially {{Weighted Simultaneous Estimation}} of {{Several Quantiles}}},
+  author = {Naumov, Valeriy and Martikainen, Olli},
+  year = {2007},
+  volume = {1},
+  pages = {6},
+  abstract = {In this paper we propose new method for simultaneous generating multiple quantiles corresponding to given probability levels from data streams and massive data sets. This method provides a basis for development of single-pass low-storage quantile estimation algorithms, which differ in complexity, storage requirement and accuracy. We demonstrate that such algorithms may perform well even for heavy-tailed data.},
+  file = {/Users/sue/Zotero/storage/258MJ79V/Naumov and Martikainen - 2007 - Exponentially Weighted Simultaneous Estimation of .pdf},
+  language = {en},
+  number = {8}
+}
+
 @article{ouyangStochasticSmoothingNonsmooth2012,
   title = {Stochastic {{Smoothing}} for {{Nonsmooth Minimizations}}: {{Accelerating SGD}} by {{Exploiting Structure}}},
   shorttitle = {Stochastic {{Smoothing}} for {{Nonsmooth Minimizations}}},
@@ -602,6 +673,21 @@
   language = {en}
 }
 
+@article{schmidtMinimizingFiniteSums2016,
+  title = {Minimizing {{Finite Sums}} with the {{Stochastic Average Gradient}}},
+  author = {Schmidt, Mark and Roux, Nicolas Le and Bach, Francis},
+  year = {2016},
+  month = may,
+  abstract = {We propose the stochastic average gradient (SAG) method for optimizing the sum of a finite number of smooth convex functions. Like stochastic gradient (SG) methods, the SAG method's iteration cost is independent of the number of terms in the sum. However, by incorporating a memory of previous gradient values the SAG method achieves a faster convergence rate than black-box SG methods. The convergence rate is improved from O(1/k\^\{1/2\}) to O(1/k) in general, and when the sum is strongly-convex the convergence rate is improved from the sub-linear O(1/k) to a linear convergence rate of the form O(p\^k) for p \textbackslash{}textless\{\} 1. Further, in many cases the convergence rate of the new method is also faster than black-box deterministic gradient methods, in terms of the number of gradient evaluations. Numerical experiments indicate that the new algorithm often dramatically outperforms existing SG and deterministic gradient methods, and that the performance may be further improved through the use of non-uniform sampling strategies.},
+  archivePrefix = {arXiv},
+  eprint = {1309.2388},
+  eprinttype = {arxiv},
+  file = {/Users/sue/Zotero/storage/4F4CU9K9/Schmidt et al. - 2016 - Minimizing Finite Sums with the Stochastic Average.pdf;/Users/sue/Zotero/storage/QKBCVKQP/1309.html},
+  journal = {arXiv:1309.2388 [cs, math, stat]},
+  keywords = {Computer Science - Machine Learning,Mathematics - Optimization and Control,Statistics - Computation,Statistics - Machine Learning},
+  primaryClass = {cs, math, stat}
+}
+
 @article{shamirStochasticGradientDescent,
   title = {Stochastic {{Gradient Descent}} for {{Non}}-Smooth {{Optimization}}: {{Convergence Results}} and {{Optimal Averaging Schemes}}},
   author = {Shamir, Ohad and Zhang, Tong},
@@ -647,6 +733,25 @@
   keywords = {Mathematics - Statistics Theory},
   language = {en},
   number = {1}
+}
+
+@article{stephanouSequentialQuantilesHermite2017,
+  title = {Sequential Quantiles via {{Hermite}} Series Density Estimation},
+  author = {Stephanou, Michael and Varughese, Melvin and Macdonald, Iain},
+  year = {2017},
+  volume = {11},
+  pages = {570--607},
+  publisher = {{The Institute of Mathematical Statistics and the Bernoulli Society}},
+  issn = {1935-7524},
+  doi = {10.1214/17-EJS1245},
+  abstract = {Sequential quantile estimation refers to incorporating observations into quantile estimates in an incremental fashion thus furnishing an online estimate of one or more quantiles at any given point in time. Sequential quantile estimation is also known as online quantile estimation. This area is relevant to the analysis of data streams and to the one-pass analysis of massive data sets. Applications include network traffic and latency analysis, real time fraud detection and high frequency trading. We introduce new techniques for online quantile estimation based on Hermite series estimators in the settings of static quantile estimation and dynamic quantile estimation. In the static quantile estimation setting we apply the existing Gauss-Hermite expansion in a novel manner. In particular, we exploit the fact that Gauss-Hermite coefficients can be updated in a sequential manner. To treat dynamic quantile estimation we introduce a novel expansion with an exponentially weighted estimator for the Gauss-Hermite coefficients which we term the Exponentially Weighted Gauss-Hermite (EWGH) expansion. These algorithms go beyond existing sequential quantile estimation algorithms in that they allow arbitrary quantiles (as opposed to pre-specified quantiles) to be estimated at any point in time. In doing so we provide a solution to online distribution function and online quantile function estimation on data streams. In particular we derive an analytical expression for the CDF and prove consistency results for the CDF under certain conditions. In addition we analyse the associated quantile estimator. Simulation studies and tests on real data reveal the Gauss-Hermite based algorithms to be competitive with a leading existing algorithm.},
+  file = {/Users/sue/Zotero/storage/CKTPVDK2/Stephanou et al. - 2017 - Sequential quantiles via Hermite series density es.pdf},
+  journal = {Electronic Journal of Statistics},
+  keywords = {online distribution function estimation,online quantile estimation,sequential distribution function estimation,Sequential quantile estimation},
+  language = {EN},
+  mrnumber = {MR3619317},
+  number = {1},
+  zmnumber = {1392.62243}
 }
 
 @article{tierneySpaceEfficientRecursiveProcedure1983,
