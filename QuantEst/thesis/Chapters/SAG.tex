@@ -38,7 +38,12 @@ The SAG algorithm, according to \citeauthor{schmidtMinimizingFiniteSums2016}, "l
 
 \subsection{Convergence guarantee}
 
-Under the assumption that each $f_i$ is convex and the gradient $f_i\prime$ is \textit{Lipschitz continuous} with constant $L$, the SAG algorithm with constant step size $\alpha_k = \frac{1}{16L}$ reaches the convergence rate of $O(1/k)$. The convergence function differs when the $y_i^0$ is initialized differently, or when $f_i$ is strongly convex.
+Under the assumption that each $f_i$ is convex and the gradient $f_i\prime$ is \textit{Lipschitz continuous} with constant $L$, which means
+$$
+|f_i\prime (a) - f_i\prime (b)| \leq L|a-b|
+$$
+for all $a,b \in \mathbb{R}^p$.
+The SAG algorithm with constant step size $\alpha_k = \frac{1}{16L}$ reaches the convergence rate of $O(1/k)$. The convergence function differs when the $y_i^0$ is initialized differently, or when $f_i$ is strongly convex.
 
 
 \section{Basic SAG algorithm}
