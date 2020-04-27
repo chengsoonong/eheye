@@ -1,8 +1,6 @@
 1. pinball loss
    1. explain pinball loss: math function and the picture.
    2. show the non-smoothness
-  
-
 2. The sqrt(x^2 + $\mu$)
 3. The smooth function for |x|
 4. (Optional) the thing derived from chapter 7
