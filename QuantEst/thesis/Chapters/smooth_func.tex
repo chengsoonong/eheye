@@ -1,6 +1,7 @@
 \chapter{Smooth Functions}
 \label{ch: smooth_func}
 
+\graphicspath{{Figures/Smooth_func/}{./}} 
 \textbf{This is a section not a chapter}
 
 
@@ -14,7 +15,12 @@ The pinball loss function evaluates the loss from a data point $x$ for estimatio
 \textbf{quote the equation of pinball loss function and it's derivative}
 
 The fact that the pinball loss function is not differentiable at $x= 0$ has became a problem for the stochastic gradient descent which uses derivatives of object functions.
-\\\\
+
+\begin{figure*}[h!]
+	\includegraphics[width=1\columnwidth]{abs_pinball.png}
+	\caption{Comparison between $|x|$ and the pinball loss function with different $\tau$ values}
+\end{figure*}
+
 The absolute function and the pinball loss function are obviously very much alike. In fact, with simple manipulation, the pinball loss function can be written in the form of absolute function as 
 \begin{equation}
     l_\tau(x) = 
@@ -34,9 +40,6 @@ In section \ref{subsec: smooth_sqrt} and \ref{subsec: smooth_new}, we show two a
 For $f = |x|$, a common and simple smooth approximation is $
     f = \sqrt{x^2 + \mu^2}
 $.
-
-\textbf{image here}
-
  The convergence towards the absolute function is then proved by \citeauthor{voroninConvolutionBasedSmooth2015a}\cite{voroninConvolutionBasedSmooth2015a} that 
 \begin{equation}
     ||x| - \sqrt{x^2 + \mu^2}| \leq \mu \text{  where } \mu > 0 \in \mathbb{R}
@@ -104,7 +107,15 @@ convexity.
     \item Approximation accuracy: \\
     The following plots show intuitively how fast the two smooth functions approach to $|x|$ for $\mu = 0.01$ and $\mu = 0.001$.
     
-    \textbf{plots}
+    \begin{figure*}[h!]
+        \includegraphics[width=1\columnwidth]{{mu_0.001}.png}
+        \caption{Comparison between the two smooth functions when $\mu = 0.001$}
+    \end{figure*}
+
+    \begin{figure*}[h!]
+        \includegraphics[width=1\columnwidth]{{mu_0.0001}.png}
+        \caption{Comparison between the two smooth functions when $\mu = 0.0001$}
+    \end{figure*}
 
     We can see $ x \cdot \tanh(x/\mu)$ has a better accuracy.
 
@@ -112,6 +123,7 @@ convexity.
     $f = \sqrt{x^2 + \mu^2}$ is convex and  $g(x) = x · \tanh(x/\mu)$ is not.
 \end{itemize}
 
-\textbf{Here we need conclusion}
+\textbf{Here we need a conclusion}
+\textbf{Picure position is not forced to go with text position :(}
 
 
