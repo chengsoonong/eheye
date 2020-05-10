@@ -2,9 +2,8 @@ import math
 import numpy as np
 
 distros = ['mix', 'gau_1', 'gau_2', 'exp']
-stepsizes = ['const', '2_div_sqrt_k', '0.002_div_sqrt_k']
-
 tau_vals = [0.1, 0.3, 0.5, 0.9, 0.99]
+
 N_g = 12 # N_generation
 N_s = 10 # N_shuffle
 
@@ -96,6 +95,7 @@ def get_q_true(distro, tau_lst):
                               2.302585092994045684018,
                               4.605170185988091368036])*6.5 - 20
     else:
+        print ("start calcuating q_true, it takes some time, please be patient")
         dataset = get_dataset(distro, 1000000, True)
         q_batches = get_q_batches(dataset,tau_lst)
         return np.mean(q_batches, 0)
