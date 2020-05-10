@@ -87,7 +87,7 @@ def plot_procs_error_bar(ax, tau_lst, q_true, q_procs, qlabel='SGD'):
                         proc_mean[i], 
                         yerr=err, ecolor = lighten_color(colorVal, 0.4),
                         color=colorVal, 
-                        label = str(tau_lst[i])+'-q'+qlabel)
+                        label = str(tau_lst[i])+'-q {}'.format(qlabel))
 
     ax.set_xlabel('Number of Samples')
 
