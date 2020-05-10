@@ -203,6 +203,7 @@ def plot_spectrum_stripes_data(folder_name):
     fig_res, lgd_res = plot_spectrum_stripes(ax_name, tau_lst, q_batches, sgd_res, qlabel)
     title = fig_res.suptitle('Batch vs {} quantile results'.format(qlabel))
     plt.savefig(file_name+"_res.png", bbox_extra_artists=[lgd_res, fig_res], bbox_inches='tight')
+    plt.close()
     
 def plot_procs_data(folder_name):
     ax_name, tau_lst, file_name, qlabel = get_folder_info(folder_name)
@@ -213,13 +214,14 @@ def plot_procs_data(folder_name):
     fig_proc, lgd_proc = plot_procs(ax_name, tau_lst, q_true, sgd_proc, qlabel, q_compare)
     fig_proc.suptitle('{} Quantile Estimation Processes'.format(qlabel))
     plt.savefig(file_name+"_proc.png", bbox_extra_artists=[lgd_proc, fig_proc], bbox_inches='tight')
-    
+    plt.close()
+
 def plot_E_res_data(folder_name):
     ax_name, tau_lst, file_name, qlabel = get_folder_info(folder_name)
     e = read_data_file(folder_name+"E"+".txt")
     fig_err = plot_E_res(ax_name, tau_lst, e, qlabel)
     plt.savefig(file_name+"_err.png")
-
+    plt.close()
 # -----------------------------------------------------------------------------------------------
 # ------------------------------- Draw plots from given folder ----------------------------------
 # -----------------------------------------------------------------------------------------------
