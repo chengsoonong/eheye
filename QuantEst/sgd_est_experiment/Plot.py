@@ -238,7 +238,7 @@ def plot_charts_one_setting(folder_name):
     plot_procs_data(folder_name)
 
     # error plots
-    # plot_E_res_data(folder_name)
+    plot_E_res_data(folder_name)
 
 # Main function
 # Plots data from a 1- or 2-level folder
