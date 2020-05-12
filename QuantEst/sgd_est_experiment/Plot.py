@@ -136,7 +136,11 @@ def plot_spectrum_stripes(ax_name, q_lst, q_batches, q_sgd_res, qlabel):
     ax_batch = fig.add_subplot(211)
     ax_sgd = fig.add_subplot(212, sharex = ax_batch)
     
-    
+    if q_batches.shape[1] ==1:
+        q_batches = q_batches.reshape((1,-1))
+    if q_sgd_res.shape[1] ==1:
+        q_sgd_res = q_sgd_res.reshape((1,-1))
+
     plt_stripe(q_lst, ax_batch, q_batches, styles[0], names[0], False)
     plt_stripe(q_lst, ax_sgd, q_sgd_res, styles[1], names[1], False)
 
@@ -234,7 +238,7 @@ def plot_charts_one_setting(folder_name):
     plot_procs_data(folder_name)
 
     # error plots
-    plot_E_res_data(folder_name)
+    # plot_E_res_data(folder_name)
 
 # Main function
 # Plots data from a 1- or 2-level folder
