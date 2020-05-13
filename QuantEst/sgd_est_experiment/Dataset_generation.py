@@ -48,6 +48,17 @@ def get_dataset(distro, datasize, g_test=False):
         dataset = get_one_dt(distro, datasize)
     return dataset
 
+def get_shuffled_dataset(dataset, datasize, s_test):
+    if not s_test: return dataset
+    
+    shuffled_dt = np.zeros((N_s, datasize))
+    for i in range(N_s):
+        np.random.shuffle(dataset)
+        shuffled_dt[i] = dataset
+    dataset = shuffled_dt
+            
+    return dataset
+
 def get_q_batch(dataset, tau_lst):
     if len(dataset.shape) != 1:
         raise Exception('Dataset for q_batch calculation of wrong shape: ' + str(dataset.shape))
