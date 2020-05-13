@@ -2,18 +2,19 @@ import numpy as np
 import os
 
 # Check if folder exists, if not, then create new empty folders
-def initialize_folders(fd_lst = ['Frugal_SGD', 'SGD'], main_fd = 'Experiment_results/'):
+# under the assumption that the main folder exists, create new folders in the main folder
+# for the folders needs more branches (sub_fd_lst), the branches are the subsub_fd_lst 
+def initialize_folders(main_fd, fd_lst, sub_fd_lst, subsub_fd_lst):
     
     for fd in fd_lst:
         if not os.path.exists(main_fd+fd):
             os.makedirs(main_fd+fd)
 
-    sgd_lst = ['distro', 'data_size', 'step_size', 'data_sequence']        
-    for fd in sgd_lst:
-        fd_name = main_fd+'SGD/'+fd
-        if not os.path.exists(fd_name):
-            os.makedirs(fd_name)
-
+    for ss_fd in subsub_fd_lst:
+        for s_fd in sub_fd_lst:
+            fd_name = main_fd+s_fd+ss_fd
+            if not os.path.exists(fd_name):
+                os.makedirs(fd_name)
 
 
 def get_settings(distro_lst, datasize_lst, stepsize_lst):
