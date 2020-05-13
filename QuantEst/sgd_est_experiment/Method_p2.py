@@ -141,17 +141,18 @@ def get_original_reco(ext_q_reco, N):
             q_reco[int(i/2)-1, N-ext_q_reco.shape[1]:] = ext_q_reco[i]
 
     return q_reco
+
 # ------------------------------------- Testing -------------------------------------
 
-def get_original_lst(ext_lst):
-    m = len(ext_lst)-2
-    k = int((m-1)/2)
-    lst = np.zeros(k)
-    for i in range (1, m):
-        if i % 2 == 0: 
-            lst[int(i/2)-1] = ext_lst[i]
+# def get_original_lst(ext_lst):
+#     m = len(ext_lst)-2
+#     k = int((m-1)/2)
+#     lst = np.zeros(k)
+#     for i in range (1, m):
+#         if i % 2 == 0: 
+#             lst[int(i/2)-1] = ext_lst[i]
             
-    return lst
+#     return lst
 
 # def test(tau_lst):
 #     print (extend_tau_lst(tau_lst))
