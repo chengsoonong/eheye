@@ -62,16 +62,17 @@ def write_data(data, filename, setting=None):
             outfile.write('\n')
 
 
-def write_data_overview(category, setting, tau_lst, file_name):
+def write_data_overview(category, setting, tau_lst, method_name, file_name):
     with open(file_name, 'w') as f:
         f.write("Tested on "+category+": "+str(setting)+"\n") 
-        f.write(str(tau_lst))
+        f.write(str(tau_lst)+'\n')
+        f.write(method_name)
     
 # write_data_overview('ca', 'se', tau_vals, "try.txt")
     
-def save_data(foldername, file_name, tau_lst, data_dict):
+def save_data(foldername, file_name, tau_lst, data_dict, method_name):
     category, setting = file_name[0], file_name[1]    
-    write_data_overview(category, setting, tau_lst, foldername+str(setting)+"_"+"overview.txt")
+    write_data_overview(category, setting, tau_lst, method_name, foldername+str(setting)+"_"+"overview.txt")
 
     for data_name in data_dict:
         print (foldername+str(setting)+"_"+data_name+'.txt')

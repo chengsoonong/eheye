@@ -126,7 +126,7 @@ def get_ext_p2_procs(dataset, tau_lst):
         ext_q_reco[i] = ext_q_lst
     return ext_q_reco
 
-def get_p2_procs(dataset, tau_lst):
+def get_p2_procs(dataset, tau_lst, **kwargs):
     # reshape the extended results to shape (m, N-m)
     ext_q_reco = get_ext_p2_procs(dataset, tau_lst).T
     q_reco = get_original_reco(ext_q_reco, len(dataset))

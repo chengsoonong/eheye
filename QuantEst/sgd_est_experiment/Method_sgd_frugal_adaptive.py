@@ -46,7 +46,7 @@ def get_sgd_procs(dataset, tau_lst, stepsize):
 
 # ---------------------------------------- get_frugal_procs ----------------------------------------
 
-def get_frugal_procs(dataset, tau_lst):
+def get_frugal_procs(dataset, tau_lst, **kwargs):
     procs = np.zeros((len(tau_lst), dataset.shape[0]))
     for idx, tau in enumerate(tau_lst):
         q = 0
@@ -68,7 +68,7 @@ def update_stepsize(alpha_arr, diff, step_size, update_size):
     return update_var
 
 def get_adaptive_procs(dataset, tau_lst, stepsize, update_size = 200):
-    print ("stepsize is {}".format(stepsize))
+    # print ("Adaptive: stepsize is {}".format(stepsize))
     if update_size*5 > dataset.shape[0]:
         print ("Warning!",
             "Cannot do the step size trick because the dataset of size {} is too small for the update size {}"

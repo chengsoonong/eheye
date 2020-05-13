@@ -46,8 +46,10 @@ def read_data_file(file):
 def read_overview(overview):
     with open(overview) as f:
         ax_name = f.readline()[:-1]
-        tau_lst = list(float(i) for i in f.readline()[1:-1].split(','))
-    return ax_name, tau_lst
+        tau_lst = list(float(i) for i in f.readline()[1:-2].split(','))
+        qlabel = f.readline()
+        print ("q label is ", qlabel)
+    return ax_name, tau_lst, qlabel
 
 # -----------------------------------------------------------------------------------------------
 # ------------------------------- Draw plots for different charts -------------------------------
@@ -190,9 +192,9 @@ def plot_E_res(ax_name, tau_lst, e, qlabel):
 
 # FIXME: qlabel is always 'SGD' here, need to change _overview.txt and then update it
 def get_folder_info(folder_name):
-    ax_name, tau_lst = read_overview(folder_name+"overview.txt")
+    ax_name, tau_lst, qlabel = read_overview(folder_name+"overview.txt")
     file_name = folder_name[:-1]
-    qlabel = 'SGD'
+    # qlabel = 'SGD'
     return ax_name, tau_lst, file_name, qlabel
 
 # FIXME: always return None, need to be changed when the Frugal vs SGD data is available
