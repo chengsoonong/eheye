@@ -6,7 +6,6 @@ from Method_p2 import get_p2_procs
 def get_procs(dataset, tau_lst, method_name, **kwargs):
     if len(dataset.shape)!= 1: 
         raise Exception('Dataset for get_procs() of wrong shape:' + str(dataset.shape)+ ', should be 1d array')
-    print ("get_procs() using method {}".format(method_name))
 
     print (method_name)
     method_dict = {
@@ -16,5 +15,3 @@ def get_procs(dataset, tau_lst, method_name, **kwargs):
         'p2': get_p2_procs(dataset, tau_lst),
     }
     return method_dict.get(method_name)
-
-get_procs(np.zeros((1000)), [0.1, 0.2], 'p2', stepsize='const')
