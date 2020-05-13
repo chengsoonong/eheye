@@ -37,7 +37,12 @@ def get_one_dt(distro, datasize):
         return get_mix_gauss(datasize)
     elif distro == 'exp':
         return np.random.exponential(scale=1, size=datasize)*6.5 - 20
-    else: raise Exception("distribution doesn't work!")
+    elif distro.split(' ')[0] == 'positive':
+        print (distro.split(' ')[1])
+        return np.abs(get_one_dt(distro.split(' ')[1], datasize))
+        
+    else: raise Exception("distribution {} doesn't work!".format(distro))
+
 
 def get_dataset(distro, datasize, g_test=False):
     if g_test:
@@ -47,6 +52,7 @@ def get_dataset(distro, datasize, g_test=False):
     else:
         dataset = get_one_dt(distro, datasize)
     return dataset
+
 
 def get_shuffled_dataset(dataset, datasize, s_test):
     if not s_test: return dataset
