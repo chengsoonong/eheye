@@ -129,7 +129,18 @@ def get_ext_p2_procs(dataset, tau_lst):
 def get_p2_procs(dataset, tau_lst):
     # reshape the extended results to shape (m, N-m)
     ext_q_reco = get_ext_p2_procs(dataset, tau_lst).T
+    q_reco = get_original_reco(ext_q_reco, len(dataset))
+    return q_reco
 
+def get_original_reco(ext_q_reco, N):
+    m = ext_q_reco.shape[0]-2
+    k = int((m-1)/2)
+    q_reco = np.zeros((k,N))
+    for i in range(1, m):
+        if i % 2 == 0:
+            q_reco[int(i/2)-1, N-ext_q_reco.shape[1]:] = ext_q_reco[i]
+
+    return q_reco
 # ------------------------------------- Testing -------------------------------------
 
 def get_original_lst(ext_lst):
