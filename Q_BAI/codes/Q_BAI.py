@@ -176,11 +176,13 @@ class Q_UGapE(ABC):
         for arm in sorted(self.sample_rewards.keys()):
             B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
             
-        S_idx = np.argsort(B)[:m]
+        self.S_idx = np.argsort(B)[:m]
         non_S_idx = np.argsort(B)[m:]
 
         u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
-        l_t = np.asarray[S_idx][np.argmin(np.asarray(lcb)[np.asarray[S_idx]])]
+        l_t = np.asarray[S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
+
+        self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
 
         if D_list[u_t] >= D_list[l_t]:
             return u_t
@@ -345,13 +347,32 @@ class Q_UGapEc(Q_UGapE):
 
     def simulate(self):
         """Simulate experiments. 
+
+        Return
+        ---------------------------------------------
+        t: int
+            number of round before stopping
+            i.e. sample complexity
+        S_idx: list
+            list of idx of recommended m arms
         """
         self.init_reward()
-        while 
+        t = self.num_arms + 1
+        while self.B_St >= self.epsilon:
+            self.select_arm(t)
+            t += 1
+        return t, self.S_idx
 
     def evaluate(self):
         """Evaluate the performance.
+
+        Return
+        ---------------------------------------
+        t: int
+            number of round before stopping
+            i.e. sample complexity
         """
-        [TODO]
+        t, rec_list = self.simulate()
+        return t
 
 class Q_SAR():
