@@ -103,17 +103,6 @@ class QBAI(ABC):
         self.init_L()
         # for test of sensitivity
         self.estimated_L_dict = {}
-    
-    
-    @abstractmethod
-    def confidence_interval(self,t):
-        """Compute the confidence interval D_i(t)
-
-        Return 
-        -----------------------------------
-        D_list: list
-            list of confidence intervals for arms of round t
-        """
 
     @abstractmethod
     def simulate(self):
@@ -224,8 +213,8 @@ class Q_UGapE(QBAI):
         int: selected arm idx
         --------------------------------
         """
-        ucb_list = []
-        lcb_list = []
+        ucb = []
+        lcb = []
         B = []
 
         for arm in sorted(self.sample_rewards.keys()):
@@ -238,11 +227,11 @@ class Q_UGapE(QBAI):
         for arm in sorted(self.sample_rewards.keys()):
             B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
             
-        self.S_idx = np.argsort(B)[:m]
-        non_S_idx = np.argsort(B)[m:]
+        self.S_idx = np.argsort(B)[:self.m]
+        non_S_idx = np.argsort(B)[self.m:]
 
         u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
-        l_t = np.asarray[S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
+        l_t = np.asarray[self.S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
 
         self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
 
@@ -286,7 +275,7 @@ class Q_UGapEb(Q_UGapE):
             t_i = len(reward)
             k_i = int(t_i * (1- self.tau))
             L_i = self.calcu_L(arm)
-            gamma_t = (t - self.num_arms)/ 
+            # gamma_t = (t - self.num_arms)/ 
 
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
@@ -361,7 +350,7 @@ class Q_UGapEc(Q_UGapE):
         self.init_reward()
         t = self.num_arms + 1
         while self.B_St >= self.epsilon:
-            self.select_arm(t)
+            self.select_arm(t, self.confidence_interval(t))
             t += 1
         return t, self.S_idx
 
@@ -393,15 +382,15 @@ class Q_SAR(QBAI):
         self.budget = budget
         
         self.barlogK = 0.5
-        for i in range(2, self.num_arms + 1)
+        for i in range(2, self.num_arms + 1):
             self.barlogK += 1.0/i
         
         # number of arms left to recommend
         self.l = self.m
         # recommendations
-        self.rec_set = {}
+        self.rec_set = set()
         # active arms with idx 0, 1, ... K-1
-        self.active_set = set{list(range(self.num_arms))}
+        self.active_set = set(list(range(self.num_arms)))
 
     def cal_n_p(self,p):
         """Calculate n_p, the number of samples of each arm for phase p
@@ -437,14 +426,16 @@ class Q_SAR(QBAI):
             # step 2
             quantiles = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            #print('active set: ', self.active_set)
             for i in self.active_set:
-                reward = self.sample_rewards[arm]
-                quantiles[i] = np.quantile(reward, self.tau)
-            argsort_quantiles = np.argsort(-1 * np.asarray(quantiles.values()))
+                reward = self.sample_rewards[i]
+                # not sure why returns an array of one element instead of a scalar
+                quantiles[i] = np.quantile(list(reward), self.tau)[0]
+            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
 
             for rank, idx in enumerate(argsort_quantiles):
                 rank_dict[list(quantiles.keys())[idx]] = rank
-                if rank == self.l # l_p + 1:
+                if rank == self.l: # l_p + 1
                     q_l_1 = list(quantiles.keys())[idx]
                 if rank == self.l -1: # l_p
                     q_l = list(quantiles.keys())[idx]
@@ -454,20 +445,32 @@ class Q_SAR(QBAI):
                 if rank <= self.l - 1: # i <= l_p, rank starts from 0, so l-1
                     empirical_gap_dict[idx] = quantiles[idx] - q_l_1
                 else:
-                    empirical_gap_dict[idx] = q_l = quantiles[idx]
-                assert empirical_gap_dict[idx] >= 0
+                    empirical_gap_dict[idx] = q_l - quantiles[idx]
+                # TODO: the assert does not satisfied, check.
+                #assert empirical_gap_dict[idx] >= 0
 
             # step 3: select arm with maximum empirical gap
             # assume only one arm has the maximum empirical gap
-            i_p = sorted(empirical_gap_dict.items(), key=lambda item: item[1])[-1][-1]
-            self.active_set = self.active_set - set(i_p)
+            i_p = sorted(empirical_gap_dict.items(), key=lambda item: item[1])[-1][0]
+            self.active_set.remove(i_p)
 
             # step 4
             if quantiles[i_p] > quantiles[q_l_1] - self.epsilon:
-                self.rec_set = self.rec_set + {i_p}
+                self.rec_set.add(i_p)
                 self.l -= 1
-
+        
+        # TODO: the assert can be broken for epsilon > 0
         assert len(self.rec_set) == self.m
 
 
-    
+    def evaluate(self):
+        """Evaluate the performance (probability of error).
+        """
+        print(self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return 1
+        else:
+            return 0

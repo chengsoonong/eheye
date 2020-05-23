@@ -15,6 +15,73 @@ from scipy.special import erf
 
 OUTLIER_CENTER = 20
 
+# ---------------------------------------------------------------------------------
+def setup_env(num_arms, envs_setting, tau =0.5, random_set = None):
+    """Setup environment for simulations.
+
+    Parameter:
+    --------------------------------------------------
+    num_arms: int
+        number of arms
+    envs_setting: list of env dict
+        keys: instance of environment class 
+            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
+        values: list of parameters
+        e.g.environments = [
+                {AbsGau: [0.5, 1.0, 1.5]}, 
+                {Exp:    [2.0, 1.0, 1.5]},
+                {AbsGau: [0.5], Exp: [1.0, 1.5]}
+               ]
+    tau: float (0,1)
+        level of quantile
+
+    Return:
+    --------------------------------------------------
+    results_env: dict of list
+        keys: name of environment 
+            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
+        values: list of env instances
+    tau-quantiles: dict of list for tau-quantiles
+        keys: name of environment 
+            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
+        values: list of medians
+    means: dict of list for means
+    mvs: dict of list for mean-variance
+    samples: dict of list for samples
+    """
+    
+    rewards_env = defaultdict(list)
+    quantiles = defaultdict(list)
+    samples = defaultdict(list)
+    means = defaultdict(list)
+    Ls = defaultdict(list)
+    num_samples = 50000
+
+    for envs_dict in envs_setting:
+        name = ''
+        for env, para_list in envs_dict.items():
+            env_name = str(env).split('.')[-1][:-2]
+            name += env_name + '_' + str(para_list)
+
+        for env, para_list in envs_dict.items(): 
+            for para in para_list:
+                if random_set == None:
+                    if type(para) is list:
+                        current_env = env(*para)
+                    else:
+                        current_env = env(para)
+                else:
+                    current_env = env(para, random_set)
+                rewards_env[name].append(current_env)
+                sample = current_env.sample(num_samples)
+                samples[name].append(sample)
+                quantiles[name].append(np.quantile(sample, tau))
+                Ls[name].append(current_env.hazard_rate(0))
+                means[name].append(np.mean(sample))
+    return rewards_env, quantiles, Ls, means, samples
+
+#------------------------------------------------------------------------------------
+
 class Base_env():
     def __init__(self, para):
         self.para = para
@@ -106,6 +173,9 @@ class Exp(Base_env):
 
     def cdf(self,x):
         return 1 - np.exp(- self.para * x)
+
+    def hazard_rate(self, x):
+        return self.pdf(x)/(1 - self.cdf(x))
 
     def sample(self, size = None):
         return np.random.exponential(1.0/self.para, size)
@@ -223,66 +293,3 @@ class Clinical_env():
         sorted_data = np.asarray(sorted(self.data))
         L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
         return L
-
-# ---------------------------------------------------------------------------------
-def setup_env(num_arms, envs_setting, random_set = None):
-    """Setup environment for simulations.
-
-    Parameter:
-    --------------------------------------------------
-    num_arms: int
-        number of arms
-    envs_setting: list of env dict
-        keys: instance of environment class 
-            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
-        values: list of parameters
-        e.g.environments = [
-                {AbsGau: [0.5, 1.0, 1.5]}, 
-                {Exp:    [2.0, 1.0, 1.5]},
-                {AbsGau: [0.5], Exp: [1.0, 1.5]}
-               ]
-
-    Return:
-    --------------------------------------------------
-    results_env: dict of list
-        keys: name of environment 
-            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
-        values: list of env instances
-    medians: dict of list for medians
-        keys: name of environment 
-            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
-        values: list of medians
-    means: dict of list for means
-    mvs: dict of list for mean-variance
-    samples: dict of list for samples
-    """
-    
-    rewards_env = defaultdict(list)
-    medians = defaultdict(list)
-    samples = defaultdict(list)
-    means = defaultdict(list)
-    mvs = defaultdict(list)
-    num_samples = 10000
-
-    for envs_dict in envs_setting:
-        name = ''
-        for env, para_list in envs_dict.items():
-            env_name = str(env).split('.')[-1][:-2]
-            name += env_name + '_' + str(para_list)
-
-        for env, para_list in envs_dict.items(): 
-            for para in para_list:
-                if random_set == None:
-                    if type(para) is list:
-                        current_env = env(*para)
-                    else:
-                        current_env = env(para)
-                else:
-                    current_env = env(para, random_set)
-                rewards_env[name].append(current_env)
-                sample = current_env.sample(num_samples)
-                samples[name].append(sample)
-                medians[name].append(np.median(sample))
-                means[name].append(np.mean(sample))
-                # mvs[name].append(np.var(sample) - paras[0] * np.mean(sample))
-    return rewards_env, medians, means, mvs, samples

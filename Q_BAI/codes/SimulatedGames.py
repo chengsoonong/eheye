@@ -3,9 +3,9 @@ import numpy as np
 # Version: Feb/2020
 # This file implements the simulated games for bandits algorithm. 
 
-def simulate(env, summary_stat, policy, num_expers, num_rounds,
-             est_var, hyperpara, fixed_L, p):
-    """Simulate bandit games. 
+def simulate_fixed_budget(env, summary_stat, policy, epsilon, tau, m, budget,
+             num_expers, est_var, hyperpara, fixed_L, p):
+    """Simulate fixed budget BAI. 
 
     Paramters
     --------------------------------------------------------
@@ -15,10 +15,17 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
         sequence of summary statistics of arms, e.g. median, mean, etc. 
     policy: instance of UCB_discrete 
         one of M_UCB, UCB1, UCB-V, MV-LCB, Exp3
+    epsilon: float
+        accuracy level
+    tau: float
+        quantile level
+    m: int
+        number of arms to recommend
+    budget: int
+        total number of rounds. 
     num_expers: int
         total number of experiments
-    num_rounds: int
-        total number of rounds. 
+   
     
     est_var: boolean, True indicates estimate parameters 
         e.g. lower bound of hazard rate L
@@ -30,21 +37,22 @@ def simulate(env, summary_stat, policy, num_expers, num_rounds,
     p: object of ipywidgets.IntProgress
         show process bar when running experiments
     """
-    sds = []
-    rs = []
+    result = [] # list, element: 1 if simple regret bigger than epsilon (indicates error occurs);
+                #                0 otherwise 
     estimated_L = []
 
     for i in range(num_expers):
         p.value += 1
-        agent = policy(env, summary_stat, num_rounds, hyperpara = hyperpara, est_flag = est_var, fixed_L = fixed_L)
-        agent.play()
-        sds.append(agent.suboptimalDraws)
-        rs.append(agent.cumulativeRegrets)
+        agent = policy(env, summary_stat, epsilon, tau, m, 
+                        hyperpara = hyperpara, est_flag = est_var, fixed_L = fixed_L, budget = budget)
+        agent.simulate()
+        result.append(agent.evaluate())
         if hasattr(agent, 'estimated_L_dict'):
             estimated_L.append(agent.estimated_L_dict)
 
-    eva_dict = evaluate(sds, rs, estimated_L)
-    return eva_dict
+    prob_error = np.mean(result)
+    std = np.std(result)
+    return prob_error, std
 
 
 def evaluate(sds, rs, estimated_L_dict):
