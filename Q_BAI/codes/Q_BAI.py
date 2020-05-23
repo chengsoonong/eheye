@@ -13,8 +13,8 @@ from collections import defaultdict
 #                   Max-Q (David and Shimkin 2016); QLUCB (Howard and Ramdas 2019)
 
 
-class Q_UGapE(ABC):
-    """Base class. Quantile unified gap based exploration (BAI) algorithm.
+class QBAI(ABC):
+    """Base class. Best arm identification for quantiels. 
 
     Attributes
     -------------------------------------------------------------------------
@@ -89,7 +89,7 @@ class Q_UGapE(ABC):
         
         self.num_arms = len(self.env)
         self.m_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m-1]
-        self.m_argmax_arm = np.argsort(self.true_quantile_list)[::-1][self.m-1]
+        self.m_argmax_arm = np.argsort(-1 * np.asarray(self.true_quantile_list))[self.m-1]
 
         self.sample_rewards = defaultdict(list)
         self.selectedActions = []
@@ -148,48 +148,6 @@ class Q_UGapE(ABC):
         self.sample_rewards[idx].append(reward)
         return reward
 
-    def select_arm(self, t, D_list):
-        """SELECT ARM Algorithm.
-
-        Parameters
-        --------------------------------
-        t: int
-            the number of current round
-        D_list: list
-            list of confidence intervals for arms of round t
-
-        Return:
-        int: selected arm idx
-        --------------------------------
-        """
-        ucb_list = []
-        lcb_list = []
-        B = []
-
-        for arm in sorted(self.sample_rewards.keys()):
-            reward = self.sample_rewards[arm]
-            emp_quantile = np.quantile(reward, self.tau)
-            D = D_list[arm]
-            ucb[arm] = emp_quantile + D
-            lcb[arm] = emp_quantile - D
-        
-        for arm in sorted(self.sample_rewards.keys()):
-            B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
-            
-        self.S_idx = np.argsort(B)[:m]
-        non_S_idx = np.argsort(B)[m:]
-
-        u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
-        l_t = np.asarray[S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
-
-        self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
-
-        if D_list[u_t] >= D_list[l_t]:
-            return u_t
-        else:
-            return l_t
-
-    
     def init_L(self):
         """Initialise the true_L_list for the use of true L,
         where L is the lower bound of hazard rate.
@@ -250,6 +208,49 @@ class Q_UGapE(ABC):
             return self.true_L_list[arm_idx]
     
 
+class Q_UGapE(QBAI):
+
+    def select_arm(self, t, D_list):
+        """SELECT ARM Algorithm.
+
+        Parameters
+        --------------------------------
+        t: int
+            the number of current round
+        D_list: list
+            list of confidence intervals for arms of round t
+
+        Return:
+        int: selected arm idx
+        --------------------------------
+        """
+        ucb_list = []
+        lcb_list = []
+        B = []
+
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            emp_quantile = np.quantile(reward, self.tau)
+            D = D_list[arm]
+            ucb[arm] = emp_quantile + D
+            lcb[arm] = emp_quantile - D
+        
+        for arm in sorted(self.sample_rewards.keys()):
+            B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
+            
+        self.S_idx = np.argsort(B)[:m]
+        non_S_idx = np.argsort(B)[m:]
+
+        u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
+        l_t = np.asarray[S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
+
+        self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
+
+        if D_list[u_t] >= D_list[l_t]:
+            return u_t
+        else:
+            return l_t
+
 class Q_UGapEb(Q_UGapE):
     """Fixed budget.
 
@@ -285,6 +286,7 @@ class Q_UGapEb(Q_UGapE):
             t_i = len(reward)
             k_i = int(t_i * (1- self.tau))
             L_i = self.calcu_L(arm)
+            gamma_t = (t - self.num_arms)/ 
 
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
@@ -375,4 +377,97 @@ class Q_UGapEc(Q_UGapE):
         t, rec_list = self.simulate()
         return t
 
-class Q_SAR():
+class Q_SAR(QBAI):
+    """Quantile Successive accepts and rejects algorithm.
+    """
+    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, budget):
+        """
+        Parameters
+        ----------------------------------------------------------
+        budget: int
+            number of total round/budget.
+        """
+        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L)
+        self.budget = budget
+        
+        self.barlogK = 0.5
+        for i in range(2, self.num_arms + 1)
+            self.barlogK += 1.0/i
+        
+        # number of arms left to recommend
+        self.l = self.m
+        # recommendations
+        self.rec_set = {}
+        # active arms with idx 0, 1, ... K-1
+        self.active_set = set{list(range(self.num_arms))}
+
+    def cal_n_p(self,p):
+        """Calculate n_p, the number of samples of each arm for phase p
+
+        Parameters
+        ----------------------------------------------------------------
+        p: int
+            current phase
+
+        Return
+        -----------------------------------------------------------------
+        n_p: int
+            the number of samples of each arm for phase p
+        """
+        n_p_float = 1.0/self.barlogK * (self.budget - self.num_arms)/ (self.num_arms + 1 - p)
+        if n_p_float - int(n_p_float) > 0:
+            n_p = int(n_p_float) + 1
+        else:
+            n_p = int(n_p_float)
+        return n_p
+
+    def simulate(self):
+        """Simulate experiments. 
+        """
+        n_last_phase = 0 # n_0
+        for p in range(1, self.num_arms): # for p = 1, ..., K-1
+            n_current_phase = self.cal_n_p(p)
+            num_samples =  n_current_phase - n_last_phase
+            # step 1
+            for i in self.active_set:
+                for j in range(num_samples):
+                    self.sample(i)
+            # step 2
+            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            for i in self.active_set:
+                reward = self.sample_rewards[arm]
+                quantiles[i] = np.quantile(reward, self.tau)
+            argsort_quantiles = np.argsort(-1 * np.asarray(quantiles.values()))
+
+            for rank, idx in enumerate(argsort_quantiles):
+                rank_dict[list(quantiles.keys())[idx]] = rank
+                if rank == self.l # l_p + 1:
+                    q_l_1 = list(quantiles.keys())[idx]
+                if rank == self.l -1: # l_p
+                    q_l = list(quantiles.keys())[idx]
+
+            empirical_gap_dict = {} # key: arm idx; value: empirical gap
+            for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
+                if rank <= self.l - 1: # i <= l_p, rank starts from 0, so l-1
+                    empirical_gap_dict[idx] = quantiles[idx] - q_l_1
+                else:
+                    empirical_gap_dict[idx] = q_l = quantiles[idx]
+                assert empirical_gap_dict[idx] >= 0
+
+            # step 3: select arm with maximum empirical gap
+            # assume only one arm has the maximum empirical gap
+            i_p = sorted(empirical_gap_dict.items(), key=lambda item: item[1])[-1][-1]
+            self.active_set = self.active_set - set(i_p)
+
+            # step 4
+            if quantiles[i_p] > quantiles[q_l_1] - self.epsilon:
+                self.rec_set = self.rec_set + {i_p}
+                self.l -= 1
+
+        assert len(self.rec_set) == self.m
+
+
+    
