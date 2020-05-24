@@ -39,8 +39,16 @@ class QBAI(ABC):
     hyperpara: list of  [TODO]
         L_est_thr: L estimate threshold 
     
+    S_idx_list: list
+        list of S_idx (set of m selected arms) for each round
+    B_St_list: list
+        list of B_St_set (upper bound for simple regret for set S_t) value 
+    rec_set: set
+        set of m recommended arms
     m_max_quantile: float
         max^m Q_i^{tau} 
+    m_plus_one_max_quantile: float
+        max^{m+1} Q_i^{tau}, for calculating gaps
     m_argmax_arm: int
         arm index: argmax^m Q_i^{tau}
     sample_rewards: dict 
@@ -89,10 +97,16 @@ class QBAI(ABC):
         
         self.num_arms = len(self.env)
         self.m_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m-1]
+        self.m_plus_one_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m]
         self.m_argmax_arm = np.argsort(-1 * np.asarray(self.true_quantile_list))[self.m-1]
 
         self.sample_rewards = defaultdict(list)
         self.selectedActions = []
+
+        self.S_idx_list = []
+        self.B_St_list = []
+        # recommendations
+        self.rec_set = set()
 
         self.hyperpara = hyperpara
         self.est_flag = est_flag
@@ -195,9 +209,51 @@ class QBAI(ABC):
         else:
             # true L = f(0)/ (1 - F(0))
             return self.true_L_list[arm_idx]
-    
 
+            
 class Q_UGapE(QBAI):
+
+    @abstractmethod
+    def cal_gamma(self,t):
+        """Calculate exploration factor in confidence interval.
+            Definition is different for the fixed budget and confidence setting.
+
+        Parameter
+        --------------------------------------
+        t: int
+            the current round
+
+        Return 
+        ----------------------------------------
+        gamma: float
+            exploration factor in confidence interval
+        """
+
+    def confidence_interval(self,t):
+        """Compute the confidence interval D_i(t)
+
+        Return 
+        -----------------------------------
+        D_list: list
+            list of confidence intervals for arms of round t
+        """
+        D_list = []
+
+        for arm in sorted(self.sample_rewards.keys()):
+            reward = self.sample_rewards[arm]
+            emp_quantile = np.quantile(reward, self.tau)
+            t_i = len(reward)
+            k_i = int(t_i * (1- self.tau))
+            L_i = self.calcu_L(arm)
+
+            v_i = 2.0/(k_i * L_i ** 2)
+            c_i = 2.0/(k_i * L_i)
+            gamma = self.cal_gamma(t)
+
+            D_i = np.sqrt(2 * v_i * gamma) + c_i * gamma
+            D_list.append(D_i)
+
+        return D_list
 
     def select_arm(self, t, D_list):
         """SELECT ARM Algorithm.
@@ -228,17 +284,39 @@ class Q_UGapE(QBAI):
             B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
             
         self.S_idx = np.argsort(B)[:self.m]
+        self.S_idx_list.append(self.S_idx)
         non_S_idx = np.argsort(B)[self.m:]
 
         u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
         l_t = np.asarray[self.S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
 
         self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
+        self.B_St_list.append(self.B_St)
 
         if D_list[u_t] >= D_list[l_t]:
             return u_t
         else:
             return l_t
+    
+    def cal_gap(self, idx):
+        """Calculate the (true) gap of arm idx.
+        """
+        if self.true_quantile_list[idx] >= self.m_plus_one_max_quantile: # idx in S_\star
+            return self.true_quantile_list[idx] - self.m_plus_one_max_quantile
+        else:
+            return self.m_max_quantile - self.true_quantile_list[idx] 
+
+
+    def cal_prob_complexity(self):
+        """Calculate the (true) probability complexity H for Q-UGapE algorithms
+        """
+        H = 0
+        for idx in range(self.num_arms):
+            omega_1 = (np.sqrt(self.epsilon * self.true_L_list[idx] + 1) - 1)/2.0 
+            omega_2 = np.sqrt(((self.cal_gap(idx) - self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
+            
+            H += 1.0/((1 - self.tau) * (np.max(omega_1, omega_2) ** 2))
+        return H
 
 class Q_UGapEb(Q_UGapE):
     """Fixed budget.
@@ -259,39 +337,45 @@ class Q_UGapEb(Q_UGapE):
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
                 hyperpara, est_flag, fixed_L)
         self.budget = budget
+        self.prob_complexity = self.cal_prob_complexity()
 
-    def confidence_interval(self,t):
-        """Compute the confidence interval D_i(t)
+    def cal_gamma(self,t):
+        """Calculate exploration factor in confidence interval.
+            Definition is different for the fixed budget and confidence setting.
+
+        Parameter
+        --------------------------------------
+        t: int
+            the current round
 
         Return 
-        -----------------------------------
-        D_list: list
-            list of confidence intervals for arms of round t
+        ----------------------------------------
+        gamma: float
+            exploration factor in confidence interval
         """
 
-        for arm in sorted(self.sample_rewards.keys()):
-            reward = self.sample_rewards[arm]
-            emp_quantile = np.quantile(reward, self.tau)
-            t_i = len(reward)
-            k_i = int(t_i * (1- self.tau))
-            L_i = self.calcu_L(arm)
-            # gamma_t = (t - self.num_arms)/ 
-
-            v_i = 2.0/(k_i * L_i ** 2)
-            c_i = 2.0/(k_i * L_i)
-            v_t = 4.0 /( t_i * L**2)
-
-            [TODO]
+        return (t - self.num_arms)/self.prob_complexity
 
     def simulate(self):
         """Simulate experiments. 
         """
-        [TODO]
+        self.init_reward()
+        for t in range(self.num_arms + 1, self.budget+1): # t = K + 1, ... N
+            self.select_arm(t, self.confidence_interval(t))
+
+        self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
+        assert len(self.rec_set) == self.m
 
     def evaluate(self):
-        """Evaluate the performance.
+        """Evaluate the performance (probability of error).
         """
-        [TODO]
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return 1
+        else:
+            return 0
     
 
 class Q_UGapEc(Q_UGapE):
@@ -305,36 +389,29 @@ class Q_UGapEc(Q_UGapE):
         ----------------------------------------------------------
         delta: float
             confidence level
+        sample_complexity: int
+            number of rounds needed, init as inf
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
                 hyperpara, est_flag, fixed_L)
         self.delta = delta
+        self.sample_complexity = np.inf
 
-    def confidence_interval(self,t):
-        """Compute the confidence interval D_i(t)
+    def cal_gamma(self,t):
+        """Calculate exploration factor in confidence interval.
+            Definition is different for the fixed budget and confidence setting.
+
+        Parameter
+        --------------------------------------
+        t: int
+            the current round
 
         Return 
-        -----------------------------------
-        D_list: list
-            list of confidence intervals for arms of round t
+        ----------------------------------------
+        gamma: float
+            exploration factor in confidence interval
         """
-        D_list = []
-
-        for arm in sorted(self.sample_rewards.keys()):
-            reward = self.sample_rewards[arm]
-            emp_quantile = np.quantile(reward, self.tau)
-            t_i = len(reward)
-            k_i = int(t_i * (1- self.tau))
-            L_i = self.calcu_L(arm)
-
-            v_i = 2.0/(k_i * L_i ** 2)
-            c_i = 2.0/(k_i * L_i)
-            gamma = 0.5 * np.log(4 * self.num_arms * t **3/self.delta)
-
-            D_i = np.sqrt(2 * v_i * gamma) + c_i * gamma
-            D_list.append(D_i)
-
-        return D_list
+        return 0.5 * np.log(4 * self.num_arms * t **3/self.delta)
 
     def simulate(self):
         """Simulate experiments. 
@@ -352,7 +429,11 @@ class Q_UGapEc(Q_UGapE):
         while self.B_St >= self.epsilon:
             self.select_arm(t, self.confidence_interval(t))
             t += 1
-        return t, self.S_idx
+            
+        self.sample_complexity = t
+        self.rec_set = set(self.S_idx)
+        
+        assert len(self.rec_set) == self.m
 
     def evaluate(self):
         """Evaluate the performance.
@@ -363,8 +444,7 @@ class Q_UGapEc(Q_UGapE):
             number of round before stopping
             i.e. sample complexity
         """
-        t, rec_list = self.simulate()
-        return t
+        return self.sample_complexity
 
 class Q_SAR(QBAI):
     """Quantile Successive accepts and rejects algorithm.
@@ -387,8 +467,7 @@ class Q_SAR(QBAI):
         
         # number of arms left to recommend
         self.l = self.m
-        # recommendations
-        self.rec_set = set()
+        
         # active arms with idx 0, 1, ... K-1
         self.active_set = set(list(range(self.num_arms)))
 
@@ -466,7 +545,7 @@ class Q_SAR(QBAI):
     def evaluate(self):
         """Evaluate the performance (probability of error).
         """
-        print(self.rec_set)
+        # print(self.rec_set)
         rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
         simple_regret_rec_set =  self.m_max_quantile - rec_set_min
         # the probability is calculated in terms of a large number of experiments
