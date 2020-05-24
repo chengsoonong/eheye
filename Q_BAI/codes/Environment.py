@@ -59,6 +59,7 @@ def setup_env(num_arms, envs_setting, tau =0.5, random_set = None):
 
     for envs_dict in envs_setting:
         name = ''
+        print(envs_dict)
         for env, para_list in envs_dict.items():
             env_name = str(env).split('.')[-1][:-2]
             name += env_name + '_' + str(para_list)

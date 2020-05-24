@@ -3,7 +3,7 @@ import numpy as np
 # Version: Feb/2020
 # This file implements the simulated games for bandits algorithm. 
 
-def simulate_fixed_budget(env, summary_stat, policy, epsilon, tau, m, budget,
+def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
              num_expers, est_var, hyperpara, fixed_L, p):
     """Simulate fixed budget BAI. 
 
@@ -21,8 +21,9 @@ def simulate_fixed_budget(env, summary_stat, policy, epsilon, tau, m, budget,
         quantile level
     m: int
         number of arms to recommend
-    budget: int
-        total number of rounds. 
+    budget_or_confi: int or float
+        for fixed budget setting, budget (total number of rounds) as input
+        for fixed confidence setting, confidence as input
     num_expers: int
         total number of experiments
    
@@ -44,7 +45,7 @@ def simulate_fixed_budget(env, summary_stat, policy, epsilon, tau, m, budget,
     for i in range(num_expers):
         p.value += 1
         agent = policy(env, summary_stat, epsilon, tau, m, 
-                        hyperpara = hyperpara, est_flag = est_var, fixed_L = fixed_L, budget = budget)
+                    hyperpara, est_var, fixed_L, budget_or_confi)
         agent.simulate()
         result.append(agent.evaluate())
         if hasattr(agent, 'estimated_L_dict'):
@@ -53,7 +54,6 @@ def simulate_fixed_budget(env, summary_stat, policy, epsilon, tau, m, budget,
     prob_error = np.mean(result)
     std = np.std(result)
     return prob_error, std
-
 
 def evaluate(sds, rs, estimated_L_dict):
     """Calculated expected evaluation metrics (suboptimal draws, regret)

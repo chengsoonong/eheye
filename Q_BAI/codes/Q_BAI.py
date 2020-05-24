@@ -238,21 +238,34 @@ class Q_UGapE(QBAI):
             list of confidence intervals for arms of round t
         """
         D_list = []
-
+        #print('t: ', t)
         for arm in sorted(self.sample_rewards.keys()):
+            
             reward = self.sample_rewards[arm]
-            emp_quantile = np.quantile(reward, self.tau)
             t_i = len(reward)
-            k_i = int(t_i * (1- self.tau))
+            # avoid k_i = 0
+            k_i = np.max([int(t_i * (1- self.tau)), 1])
             L_i = self.calcu_L(arm)
-
+    
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
+            
             gamma = self.cal_gamma(t)
 
             D_i = np.sqrt(2 * v_i * gamma) + c_i * gamma
             D_list.append(D_i)
 
+            # if t % 500 == 0:
+                # print('arm: ', arm)
+                # print('k_i: ', k_i)
+                # print('L_i: ', L_i)
+                # print('v_i: ', v_i)
+                # print('c_i: ', c_i)
+                # print('gamma: ', gamma)
+
+        
+        # print(D_list)
+        # print()
         return D_list
 
     def select_arm(self, t, D_list):
@@ -277,18 +290,22 @@ class Q_UGapE(QBAI):
             reward = self.sample_rewards[arm]
             emp_quantile = np.quantile(reward, self.tau)
             D = D_list[arm]
-            ucb[arm] = emp_quantile + D
-            lcb[arm] = emp_quantile - D
+            ucb.append(emp_quantile + D)
+            lcb.append(emp_quantile - D)
         
+        m_max_ucb = np.sort(ucb)[::-1][self.m - 1]
         for arm in sorted(self.sample_rewards.keys()):
-            B.append(np.max(ucb)[::-1][self.m] - lcb[arm])
+            if ucb[arm] > m_max_ucb: # if arm is in the first m, select m+1 
+                B.append(np.sort(ucb)[::-1][self.m] - lcb[arm])
+            else:
+                B.append(m_max_ucb - lcb[arm])
             
         self.S_idx = np.argsort(B)[:self.m]
         self.S_idx_list.append(self.S_idx)
         non_S_idx = np.argsort(B)[self.m:]
 
-        u_t = np.asarray[non_S_idx][np.argmax(np.asarray(ucb)[np.asarray[non_S_idx]])]
-        l_t = np.asarray[self.S_idx][np.argmin(np.asarray(lcb)[np.asarray[self.S_idx]])]
+        u_t = np.asarray(non_S_idx)[np.argmax(np.asarray(ucb)[np.asarray(non_S_idx)])]
+        l_t = np.asarray(self.S_idx)[np.argmin(np.asarray(lcb)[np.asarray(self.S_idx)])]
 
         self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
         self.B_St_list.append(self.B_St)
@@ -315,7 +332,8 @@ class Q_UGapE(QBAI):
             omega_1 = (np.sqrt(self.epsilon * self.true_L_list[idx] + 1) - 1)/2.0 
             omega_2 = np.sqrt(((self.cal_gap(idx) - self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
             
-            H += 1.0/((1 - self.tau) * (np.max(omega_1, omega_2) ** 2))
+            H += 1.0/((1 - self.tau) * (np.max([omega_1, omega_2]) ** 2))
+        # TODO: H can inf when L is too small.
         return H
 
 class Q_UGapEb(Q_UGapE):
@@ -353,15 +371,18 @@ class Q_UGapEb(Q_UGapE):
         gamma: float
             exploration factor in confidence interval
         """
-
-        return (t - self.num_arms)/self.prob_complexity
+        gamma = (t - self.num_arms)/self.prob_complexity
+        # gamma = t - self.num_arms
+        # print('gamma: ', gamma)
+        return gamma
 
     def simulate(self):
         """Simulate experiments. 
         """
         self.init_reward()
         for t in range(self.num_arms + 1, self.budget+1): # t = K + 1, ... N
-            self.select_arm(t, self.confidence_interval(t))
+            idx = self.select_arm(t, self.confidence_interval(t))
+            self.sample(idx)
 
         self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
         assert len(self.rec_set) == self.m
@@ -375,8 +396,7 @@ class Q_UGapEb(Q_UGapE):
         if simple_regret_rec_set > self.epsilon:
             return 1
         else:
-            return 0
-    
+            return 0  
 
 class Q_UGapEc(Q_UGapE):
     """Fixed confidence.
@@ -426,11 +446,16 @@ class Q_UGapEc(Q_UGapE):
         """
         self.init_reward()
         t = self.num_arms + 1
+        self.B_St = 1 # init B_St
         while self.B_St >= self.epsilon:
-            self.select_arm(t, self.confidence_interval(t))
+            #print('B_St: ', self.B_St)
+                
+            idx = self.select_arm(t, self.confidence_interval(t))
+            self.sample(idx)
             t += 1
-            
+
         self.sample_complexity = t
+        print(t)
         self.rec_set = set(self.S_idx)
         
         assert len(self.rec_set) == self.m
@@ -509,7 +534,7 @@ class Q_SAR(QBAI):
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.tau)[0]
+                quantiles[i] = np.quantile(list(reward), self.tau)
             argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
 
             for rank, idx in enumerate(argsort_quantiles):
@@ -537,9 +562,14 @@ class Q_SAR(QBAI):
             if quantiles[i_p] > quantiles[q_l_1] - self.epsilon:
                 self.rec_set.add(i_p)
                 self.l -= 1
+
+            # step 5:
+            if len(self.rec_set) == self.m:
+                break
         
         # TODO: the assert can be broken for epsilon > 0
-        assert len(self.rec_set) == self.m
+        # assert len(self.rec_set) == self.m
+        
 
 
     def evaluate(self):
@@ -553,3 +583,52 @@ class Q_SAR(QBAI):
             return 1
         else:
             return 0
+
+class uniform_sampling(QBAI):
+    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, budget):
+        """
+        Parameters
+        ----------------------------------------------------------
+        budget: int
+            number of total round/budget.
+        """
+        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L)
+        self.budget = budget
+
+    def simulate(self):
+        draw_each_arm = int(self.budget/self.num_arms)
+
+        for idx in range(self.num_arms):
+            for t in range(draw_each_arm):
+                self.sample(idx)
+        
+        if self.budget - draw_each_arm * self.num_arms > 0:
+            for t in range(self.budget - draw_each_arm * self.num_arms):
+                idx = int(np.random.uniform(0, self.num_arms - 1))
+                self.sample(idx)
+        
+        emp_quantile_list = []
+        for idx in range(self.num_arms):
+            reward = self.sample_rewards[idx]
+            emp_quantile = np.quantile(reward, self.tau)
+            emp_quantile_list.append(emp_quantile)
+
+        self.rec_set = set(np.argsort(emp_quantile_list)[::-1][:self.m])
+        
+
+    def evaluate(self):
+        """Evaluate the performance (probability of error).
+        """
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return 1
+        else:
+            return 0  
+
+
+        
+
