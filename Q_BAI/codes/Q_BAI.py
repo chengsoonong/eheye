@@ -118,6 +118,10 @@ class QBAI(ABC):
         # for test of sensitivity
         self.estimated_L_dict = {}
 
+        # For debug
+        self.print_flag = False
+        self.print_every = 100
+
     @abstractmethod
     def simulate(self):
         """Simulate experiments. 
@@ -238,7 +242,6 @@ class Q_UGapE(QBAI):
             list of confidence intervals for arms of round t
         """
         D_list = []
-        #print('t: ', t)
         for arm in sorted(self.sample_rewards.keys()):
             
             reward = self.sample_rewards[arm]
@@ -252,20 +255,22 @@ class Q_UGapE(QBAI):
             
             gamma = self.cal_gamma(t)
 
+            # TODO: hyperparameter
             D_i = np.sqrt(2 * v_i * gamma) + c_i * gamma
             D_list.append(D_i)
 
-            # if t % 500 == 0:
-                # print('arm: ', arm)
-                # print('k_i: ', k_i)
-                # print('L_i: ', L_i)
-                # print('v_i: ', v_i)
-                # print('c_i: ', c_i)
-                # print('gamma: ', gamma)
+            if self.print_flag and t % self.print_every == 0:
+                print('arm: ', arm)
+                print('k_i: ', k_i)
+                print('L_i: ', L_i)
+                print('v_i: ', v_i)
+                print('c_i: ', c_i)
+                print('gamma: ', gamma)
 
-        
-        # print(D_list)
-        # print()
+        if self.print_flag and t % self.print_every == 0:
+            print('t: ', t)
+            print(D_list)
+            print()
         return D_list
 
     def select_arm(self, t, D_list):
@@ -309,6 +314,13 @@ class Q_UGapE(QBAI):
 
         self.B_St = np.max(np.asarray(B)[np.asarray(self.S_idx)])
         self.B_St_list.append(self.B_St)
+
+        if self.print_flag and t % self.print_every == 0:
+            print('B: ', B)
+            print('S idx: ', self.S_idx)
+            print('u_t: ', u_t)
+            print('l_t: ', l_t)
+            print()
 
         if D_list[u_t] >= D_list[l_t]:
             return u_t
@@ -371,7 +383,8 @@ class Q_UGapEb(Q_UGapE):
         gamma: float
             exploration factor in confidence interval
         """
-        gamma = (t - self.num_arms)/self.prob_complexity
+        # TODO: hyperparameter
+        gamma = 5 * (t - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
         return gamma
