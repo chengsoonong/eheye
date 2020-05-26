@@ -79,7 +79,8 @@ class QBAI(ABC):
         m: int
             number of arms for recommendation set 
 
-        hyperpara: list of  [TODO]
+        hyperpara: list of hyperparameters
+            alpha (fixed budget)/beta (fixed confidence), hyperparameter in gamma
             L_est_thr: L estimate threshold 
         est_flag: boolean 
             indicate whether estimation the lower bound of hazard rate L
@@ -99,7 +100,6 @@ class QBAI(ABC):
         self.m_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m-1]
         self.m_plus_one_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m]
         self.m_argmax_arm = np.argsort(-1 * np.asarray(self.true_quantile_list))[self.m-1]
-
         self.sample_rewards = defaultdict(list)
         self.selectedActions = []
 
@@ -120,7 +120,7 @@ class QBAI(ABC):
 
         # For debug
         self.print_flag = False
-        self.print_every = 100
+        self.print_every = 1000
 
     @abstractmethod
     def simulate(self):
@@ -193,13 +193,15 @@ class QBAI(ABC):
             the lower bound of hazard rate for arm idx
         """
 
+        sample_reward = self.sample_rewards[arm_idx]
         if self.est_flag:
             if self.fixed_L == None:
                 # estimate L
-                sorted_data = np.asarray(sorted(self.sample_rewards[arm_idx]))
+                sorted_data = np.asarray(sorted(sample_reward))
                 L = len(sorted_data[sorted_data <= self.hyperpara[-1]])/len(sorted_data)
-                if L  == 0:
-                    L = 0.1
+                if len(self.sample_rewards) ==1 or L  == 0:
+                    # TODO: init value
+                    L = 0.01 
             else:
                 # use fixed L, for test of sensitivity
                 L = self.fixed_L[arm_idx]
@@ -247,7 +249,9 @@ class Q_UGapE(QBAI):
             reward = self.sample_rewards[arm]
             t_i = len(reward)
             # avoid k_i = 0
-            k_i = np.max([int(t_i * (1- self.tau)), 1])
+            # TODO: if k_i only takes integer, then D_i will increase after observe one sample 
+            # k_i = np.max([int(t_i * (1- self.tau)), 1])
+            k_i = t_i * (1- self.tau)
             L_i = self.calcu_L(arm)
     
             v_i = 2.0/(k_i * L_i ** 2)
@@ -256,7 +260,7 @@ class Q_UGapE(QBAI):
             gamma = self.cal_gamma(t)
 
             # TODO: hyperparameter
-            D_i = np.sqrt(2 * v_i * gamma) + c_i * gamma
+            D_i = (np.sqrt(2 * v_i * gamma) + c_i * gamma)
             D_list.append(D_i)
 
             if self.print_flag and t % self.print_every == 0:
@@ -268,9 +272,7 @@ class Q_UGapE(QBAI):
                 print('gamma: ', gamma)
 
         if self.print_flag and t % self.print_every == 0:
-            print('t: ', t)
-            print(D_list)
-            print()
+            print('D_list: ', D_list)
         return D_list
 
     def select_arm(self, t, D_list):
@@ -297,10 +299,11 @@ class Q_UGapE(QBAI):
             D = D_list[arm]
             ucb.append(emp_quantile + D)
             lcb.append(emp_quantile - D)
-        
+
         m_max_ucb = np.sort(ucb)[::-1][self.m - 1]
         for arm in sorted(self.sample_rewards.keys()):
-            if ucb[arm] > m_max_ucb: # if arm is in the first m, select m+1 
+            if ucb[arm] >= m_max_ucb: # if arm is in the first m, select m+1 
+                # TODO: this may lead to negative B 
                 B.append(np.sort(ucb)[::-1][self.m] - lcb[arm])
             else:
                 B.append(m_max_ucb - lcb[arm])
@@ -316,21 +319,31 @@ class Q_UGapE(QBAI):
         self.B_St_list.append(self.B_St)
 
         if self.print_flag and t % self.print_every == 0:
+            print('UCB: ', ucb)
+            print('LCB: ', lcb)
+            print('m_max_ucb: ', m_max_ucb)
             print('B: ', B)
             print('S idx: ', self.S_idx)
             print('u_t: ', u_t)
             print('l_t: ', l_t)
-            print()
+            print('B_St: ', self.B_St)
+            
 
-        if D_list[u_t] >= D_list[l_t]:
+        if D_list[u_t] > D_list[l_t]:
+            if self.print_flag and t % self.print_every == 0:
+                print('choose: ', u_t)
+                print()
             return u_t
         else:
+            if self.print_flag and t % self.print_every == 0:
+                print('choose: ', l_t)
+                print()
             return l_t
     
     def cal_gap(self, idx):
         """Calculate the (true) gap of arm idx.
         """
-        if self.true_quantile_list[idx] >= self.m_plus_one_max_quantile: # idx in S_\star
+        if self.true_quantile_list[idx] > self.m_plus_one_max_quantile: # idx in S_\star
             return self.true_quantile_list[idx] - self.m_plus_one_max_quantile
         else:
             return self.m_max_quantile - self.true_quantile_list[idx] 
@@ -341,11 +354,15 @@ class Q_UGapE(QBAI):
         """
         H = 0
         for idx in range(self.num_arms):
-            omega_1 = (np.sqrt(self.epsilon * self.true_L_list[idx] + 1) - 1)/2.0 
-            omega_2 = np.sqrt(((self.cal_gap(idx) - self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
+            omega_1 = np.sqrt(((self.cal_gap(idx) + self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
+            omega_2 = (np.sqrt(self.epsilon * self.true_L_list[idx] + 1) - 1)/2.0 
             
+            if self.print_flag:
+                print('arm ', idx)
+                print('omega_1: ', omega_1)
+                print('omega_2: ', omega_2)
+
             H += 1.0/((1 - self.tau) * (np.max([omega_1, omega_2]) ** 2))
-        # TODO: H can inf when L is too small.
         return H
 
 class Q_UGapEb(Q_UGapE):
@@ -368,6 +385,8 @@ class Q_UGapEb(Q_UGapE):
                 hyperpara, est_flag, fixed_L)
         self.budget = budget
         self.prob_complexity = self.cal_prob_complexity()
+        if self.print_flag:
+            print('prob complexity: ', self.prob_complexity)
 
     def cal_gamma(self,t):
         """Calculate exploration factor in confidence interval.
@@ -383,8 +402,9 @@ class Q_UGapEb(Q_UGapE):
         gamma: float
             exploration factor in confidence interval
         """
-        # TODO: hyperparameter
-        gamma = 5 * (t - self.num_arms)/self.prob_complexity
+        
+        # self.hyperpara[0]: alpha
+        gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
         return gamma
@@ -394,11 +414,18 @@ class Q_UGapEb(Q_UGapE):
         """
         self.init_reward()
         for t in range(self.num_arms + 1, self.budget+1): # t = K + 1, ... N
+            if self.print_flag and t % self.print_every == 0:
+                print('Round ', t)
             idx = self.select_arm(t, self.confidence_interval(t))
             self.sample(idx)
 
         self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
         assert len(self.rec_set) == self.m
+        if self.print_flag:
+            print('Return:')
+            print(self.rec_set)
+            print(np.min(self.B_St_list))
+            print(self.B_St_list)
 
     def evaluate(self):
         """Evaluate the performance (probability of error).
@@ -444,7 +471,8 @@ class Q_UGapEc(Q_UGapE):
         gamma: float
             exploration factor in confidence interval
         """
-        return 0.5 * np.log(4 * self.num_arms * t **3/self.delta)
+        # self.hyperpara[0]: beta
+        return self.hyperpara[0] * np.log(4 * self.num_arms * t **3/self.delta)
 
     def simulate(self):
         """Simulate experiments. 
@@ -468,7 +496,6 @@ class Q_UGapEc(Q_UGapE):
             t += 1
 
         self.sample_complexity = t
-        print(t)
         self.rec_set = set(self.S_idx)
         
         assert len(self.rec_set) == self.m
@@ -611,7 +638,7 @@ class Q_SAR(QBAI):
     def evaluate(self):
         """Evaluate the performance (probability of error).
         """
-        print(self.rec_set)
+        # print(self.rec_set)
         rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
         simple_regret_rec_set =  self.m_max_quantile - rec_set_min
         # the probability is calculated in terms of a large number of experiments

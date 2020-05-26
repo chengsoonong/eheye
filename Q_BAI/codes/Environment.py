@@ -16,13 +16,11 @@ from scipy.special import erf
 OUTLIER_CENTER = 20
 
 # ---------------------------------------------------------------------------------
-def setup_env(num_arms, envs_setting, tau =0.5, random_set = None):
+def setup_env(envs_setting, tau =0.5, random_set = None):
     """Setup environment for simulations.
 
     Parameter:
     --------------------------------------------------
-    num_arms: int
-        number of arms
     envs_setting: list of env dict
         keys: instance of environment class 
             (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)

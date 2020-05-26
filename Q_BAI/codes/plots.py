@@ -8,8 +8,8 @@ from collections import defaultdict
 # Version: Feb/2020
 # This file implements the plots methods for bandits algorithm. 
 
-ylabel_dict = {'sd': 'suboptimal draws',
-                'r': 'cumulative regrets',
+ylabel_dict = {'pe': 'probability of error',
+               'sc': 'sample complexity',
             }
 arm_name_dict = {
     0: 'A',
@@ -22,7 +22,8 @@ marker_list = ['o','s','v','^', '.', '>', '<']
 line_color_list = ['C0', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
 est_L_labels = ['Estimated L', 'L_at_10', 'L_at_200', 'True L']
 
-def plot_eva(results, eva_method, paper_flag = True, log_scale= True, plot_confi_interval = False, method = 'all', exper = 'all'):
+def plot_eva(results, eva_method, paper_flag = False, log_scale= False, 
+                plot_confi_interval = False, method = 'all', exper = 'all'):
     """Plot method for evaluations
 
     Parameters
@@ -32,10 +33,9 @@ def plot_eva(results, eva_method, paper_flag = True, log_scale= True, plot_confi
         values: dict
             keys: 'est_var + hyperpara' or 'bound'
             values: dict
-                keys: 'sd', 'r'
-                values: list of result  
+                list of result  
     eva_method: str
-        options ('sd', 'r')
+        options ('pe', 'sc')
     paper_flag: boolean
         indicates whether plotting for paper.
         True is for paper; False is not.
@@ -56,8 +56,8 @@ def plot_eva(results, eva_method, paper_flag = True, log_scale= True, plot_confi
         ax = fig.add_subplot(len(results.keys()),3, i+1)
         
         ax.set_title("Performance on simulated distributions")
-        ax.set_xlabel('Iteration')
-        ax.set_ylabel('Expected ' + ylabel_dict[eva_method])
+        ax.set_xlabel('Algorithms')
+        ax.set_ylabel(ylabel_dict[eva_method])
         
         for j, subname in enumerate(results[name].keys()):  
 
@@ -79,30 +79,10 @@ def plot_eva(results, eva_method, paper_flag = True, log_scale= True, plot_confi
 
             if method == 'all' or (method !='all' and subname == method):
 
-                mean = np.mean(results[name][subname][eva_method], axis = 0)
-                sigma = np.std(results[name][subname][eva_method], axis = 0)
-                ax.plot(range(results[name][subname][eva_method].shape[1]), 
-                        mean, 
-                        label = label, 
-                        color = line_color_list[j],  
-                        marker = marker_list[j], 
-                        markevery = 500,
-                        markersize = 5)
+                mean = np.mean(results[name][subname])
+                sigma = np.std(results[name][subname])
+                ax.bar([label], mean, yerr = sigma)
 
-                if plot_confi_interval:
-                    ax.fill_between(range(results[name][subname][eva_method].shape[1]), 
-                            mean + sigma, mean - sigma,
-                            color = line_color_list[j],  
-                            alpha = 0.5)
-             
-                
-            # control ylim, may need to adjust
-            if eva_method == 'sd':
-                #plt.ylim([-10, 330])
-                if log_scale:
-                    ax.set_yscale('log')
-
-        ax.legend(loc="lower right")
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
     # fig.savefig(file_name, bbox_inches='tight')
 

@@ -53,7 +53,7 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
 
     prob_error = np.mean(result)
     std = np.std(result)
-    return prob_error, std
+    return result, prob_error, std
 
 def evaluate(sds, rs, estimated_L_dict):
     """Calculated expected evaluation metrics (suboptimal draws, regret)
