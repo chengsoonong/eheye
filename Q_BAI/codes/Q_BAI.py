@@ -112,7 +112,7 @@ class QBAI(ABC):
         self.est_flag = est_flag
         self.fixed_L = fixed_L
 
-        # For lower boudn of hazard rate
+        # For lower bound of hazard rate
         self.true_L_list = []
         self.init_L()
         # for test of sensitivity
@@ -560,11 +560,20 @@ class Q_SAR(QBAI):
             empirical_gap_dict = {} # key: arm idx; value: empirical gap
             for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
                 if rank <= self.l - 1: # i <= l_p, rank starts from 0, so l-1
-                    empirical_gap_dict[idx] = quantiles[idx] - q_l_1
+                    empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1]
                 else:
-                    empirical_gap_dict[idx] = q_l - quantiles[idx]
+                    empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx]
                 # TODO: the assert does not satisfied, check.
-                #assert empirical_gap_dict[idx] >= 0
+                # assert empirical_gap_dict[idx] >= 0
+                if empirical_gap_dict[idx] < 0:
+                    print('ERROR: empirical gap small than 0')
+                    print('quantiles: ', quantiles)
+                    print('rank_dict: ', rank_dict)
+                    print('q_l_1: ', q_l_1)
+                    print('q_l: ', q_l)
+                    print('empirical_gap_dict: ', empirical_gap_dict)
+
+            
 
             # step 3: select arm with maximum empirical gap
             # assume only one arm has the maximum empirical gap
@@ -576,19 +585,33 @@ class Q_SAR(QBAI):
                 self.rec_set.add(i_p)
                 self.l -= 1
 
-            # step 5:
-            if len(self.rec_set) == self.m:
-                break
-        
+            n_last_phase = n_current_phase
+
+            if self.print_flag: # for debug
+                print('phase: ', p)
+                print('quantiles: ', quantiles)
+                print('rank_dict: ', rank_dict)
+                print('empirical_gap_dict: ', empirical_gap_dict)
+                print('active_Set: ', self.active_set)
+                print('rec_set: ', self.rec_set)
+                print('l: ', self.l)
+                print('q_l_1: ', q_l_1)
+                print('q_l: ', q_l)
+                print('i_p: ', i_p)
+                print()
+            
+        assert len(self.active_set) == 1
+        self.rec_set = self.rec_set.union(self.active_set)
+        # print('rec_set: ', self.rec_set)
         # TODO: the assert can be broken for epsilon > 0
-        # assert len(self.rec_set) == self.m
+        assert len(self.rec_set) == self.m
         
 
 
     def evaluate(self):
         """Evaluate the performance (probability of error).
         """
-        # print(self.rec_set)
+        print(self.rec_set)
         rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
         simple_regret_rec_set =  self.m_max_quantile - rec_set_min
         # the probability is calculated in terms of a large number of experiments
