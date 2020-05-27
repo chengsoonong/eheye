@@ -120,7 +120,7 @@ class QBAI(ABC):
 
         # For debug
         self.print_flag = False
-        self.print_every = 1000
+        self.print_every = 100
 
     @abstractmethod
     def simulate(self):
@@ -419,7 +419,11 @@ class Q_UGapEb(Q_UGapE):
             idx = self.select_arm(t, self.confidence_interval(t))
             self.sample(idx)
 
+        # TODO: B_St increases, so the choice seems not make sense
         self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
+        # Try to return the last run directly
+        self.rec_set = self.S_idx
+
         assert len(self.rec_set) == self.m
         if self.print_flag:
             print('Return:')
