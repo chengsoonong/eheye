@@ -80,7 +80,7 @@ def plot_eva(results, eva_method, paper_flag = False, log_scale= False,
             if method == 'all' or (method !='all' and subname == method):
 
                 mean = np.mean(results[name][subname])
-                sigma = np.std(results[name][subname])
+                sigma = 0.1 * np.std(results[name][subname])
                 ax.bar([label], mean, yerr = sigma)
 
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
