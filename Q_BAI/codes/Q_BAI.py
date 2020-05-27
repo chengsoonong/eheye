@@ -638,8 +638,10 @@ class Q_SAR(QBAI):
     def evaluate(self):
         """Evaluate the performance (probability of error).
         """
-        # print(self.rec_set)
+        #print('rec_Set: ', self.rec_set)
         rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
         simple_regret_rec_set =  self.m_max_quantile - rec_set_min
         # the probability is calculated in terms of a large number of experiments
         if simple_regret_rec_set > self.epsilon:
