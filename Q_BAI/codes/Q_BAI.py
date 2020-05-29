@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 # Version: May/2020
 # This file implements Quantile-based Best Arm Identification Algorithms, including
@@ -135,8 +136,11 @@ class QBAI(ABC):
     def init_reward(self):
         """pull each arm once and get the rewards as the initial reward 
         """
-        for i, p in enumerate(self.env):
-            self.sample_rewards[i].append(p.sample())
+        init_times = int(np.ceil(1.0/(1 - self.tau)))
+        assert init_times >= 1
+        for j in range(init_times):
+            for i, p in enumerate(self.env):
+                self.sample_rewards[i].append(p.sample())
 
     def sample(self, idx):
         """sample for arm specified by idx
@@ -387,6 +391,8 @@ class Q_UGapEb(Q_UGapE):
         self.prob_complexity = self.cal_prob_complexity()
         if self.print_flag:
             print('prob complexity: ', self.prob_complexity)
+        self.last_time_pulled = {} # record the round that each arm is pulled last time
+                                   # key: arm idx; value: round of arm idx last time pulled 
 
     def cal_gamma(self,t):
         """Calculate exploration factor in confidence interval.
@@ -413,17 +419,31 @@ class Q_UGapEb(Q_UGapE):
         """Simulate experiments. 
         """
         self.init_reward()
-        for t in range(self.num_arms + 1, self.budget+1): # t = K + 1, ... N
+        for i,t in enumerate(range(self.num_arms + 1, self.budget+1)): # t = K + 1, ... N
             if self.print_flag and t % self.print_every == 0:
                 print('Round ', t)
             idx = self.select_arm(t, self.confidence_interval(t))
             self.sample(idx)
+            self.last_time_pulled[idx] = i
+
 
         # TODO: B_St increases, so the choice seems not make sense
-        self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
-        # Try to return the last run directly
-        self.rec_set = self.S_idx
+        # self.rec_set = set(self.S_idx_list[np.argmin(self.B_St_list)])
 
+        # Try to return the last run directly
+        # self.rec_set = self.S_idx
+
+        # Try to return 
+        # $\mathcal{M}_N = \min_{i \in \mathcal{K}} B_{\mathcal{S}_{t_{i}}}\left(t_{i}\right)$, 
+        # where t_i is the last time arm i is pulled
+        last_time_pulled_list = np.asarray(list(self.last_time_pulled.values()))
+        B_St_last_time_pulled_list = np.asarray(self.B_St_list)[last_time_pulled_list]
+        S_idx_last_time_pulled_list = np.asarray(self.S_idx_list)[last_time_pulled_list]
+        # print(self.last_time_pulled)
+        # print(last_time_pulled_list)
+        # print(B_St_last_time_pulled_list)
+        self.rec_set = set(S_idx_last_time_pulled_list[np.argmin(B_St_last_time_pulled_list)])
+        # print(self.rec_set)
         assert len(self.rec_set) == self.m
         if self.print_flag:
             print('Return:')
@@ -652,6 +672,124 @@ class Q_SAR(QBAI):
             return 1
         else:
             return 0
+
+class Q_SAR_Simplified(QBAI):
+    """Quantile Successive accepts and rejects algorithm, a simplified version.
+    """
+    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, budget):
+        """
+        Parameters
+        ----------------------------------------------------------
+        budget: int
+            number of total round/budget.
+        """
+        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L)
+        self.budget = budget
+        
+        self.barlogK = 0.5
+        for i in range(2, self.num_arms + 1):
+            self.barlogK += 1.0/i
+        
+        # number of arms left to recommend
+        self.l = self.m
+        
+        # active arms with idx 0, 1, ... K-1
+        self.active_set = set(list(range(self.num_arms)))
+
+    def cal_n_p(self,p):
+        """Calculate n_p, the number of samples of each arm for phase p
+
+        Parameters
+        ----------------------------------------------------------------
+        p: int
+            current phase
+
+        Return
+        -----------------------------------------------------------------
+        n_p: int
+            the number of samples of each arm for phase p
+        """
+        n_p_float = 1.0/self.barlogK * (self.budget - self.num_arms)/ (self.num_arms + 1 - p)
+        if n_p_float - int(n_p_float) > 0:
+            n_p = int(n_p_float) + 1
+        else:
+            n_p = int(n_p_float)
+        return n_p
+
+    def simulate(self):
+        """Simulate experiments. 
+        """
+        n_last_phase = 0 # n_0
+        #p_list = []
+        for p in range(1, self.num_arms): # for p = 1, ..., K-1
+            n_current_phase = self.cal_n_p(p)
+            num_samples =  n_current_phase - n_last_phase
+            #p_list.append(num_samples)
+            # step 1
+            for i in self.active_set:
+                for j in range(num_samples):
+                    self.sample(i)
+            # step 2
+            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            #print('active set: ', self.active_set)
+            for i in self.active_set:
+                reward = self.sample_rewards[i]
+                # not sure why returns an array of one element instead of a scalar
+                quantiles[i] = np.quantile(list(reward), self.tau)
+            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+
+            for rank, idx in enumerate(argsort_quantiles):
+                arm_idx = list(quantiles.keys())[idx]
+                rank_dict[arm_idx] = rank
+                if rank == 0:
+                    a_best = arm_idx
+                if rank == self.l: # l_p + 1
+                    q_l_1 = arm_idx
+                if rank == self.l -1: # l_p
+                    q_l = arm_idx
+                if rank == len(argsort_quantiles) - 1:
+                    a_worst = arm_idx
+
+            gap_accept = quantiles[a_best] - q_l_1
+            gap_reject = q_l - quantiles[a_worst]
+        
+            if gap_accept > gap_reject:
+                self.rec_set.add(a_best)
+                self.active_set.remove(a_best)
+                self.l -= 1
+            else:
+                self.active_set.remove(a_worst)
+
+            n_last_phase = n_current_phase
+
+        assert len(self.active_set) == 1
+        self.rec_set = self.rec_set.union(self.active_set)
+        # print('rec_set: ', self.rec_set)
+        # TODO: the assert can be broken for epsilon > 0
+        assert len(self.rec_set) == self.m
+        #self.p_list = p_list
+        #plt.plot(list(range(len(self.p_list))), p_list, marker = '.')
+        #plt.show()
+        
+
+
+    def evaluate(self):
+        """Evaluate the performance (probability of error).
+        """
+        #print('rec_Set: ', self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return 1
+        else:
+            return 0
+
 
 class uniform_sampling(QBAI):
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
