@@ -15,6 +15,47 @@ from scipy.special import erf
 
 OUTLIER_CENTER = 20
 
+def generate_samples(envs_dict, tau =0.5, num_samples = 5000):
+    """Generate samples for each env. 
+
+    Parameter:
+    --------------------------------------------------
+    envs_dict: env dict
+        keys: instance of environment class 
+            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
+        values: list of parameters
+        e.g. {AbsGau: [[0.5, 1.0, 1.5]], Exp: [[1/4]]}, 
+               
+    tau: float (0,1)
+        level of quantile
+    num_samples: int
+        number of samples for each env.
+
+    Return:
+    --------------------------------------------------
+    samples: dict of list for samples
+        key: arm/env idx
+        value: list of sampes (size: num_sample) for arm idx
+    """
+    
+    
+    samples = defaultdict(list)
+
+    arm_idx = 0
+
+    for env, para_list in envs_dict.items(): 
+        for para in para_list: 
+            if type(para) is list:
+                current_env = env(*para)
+            else:
+                current_env = env(para)
+            
+            sample = current_env.sample(num_samples)
+            samples[arm_idx] = sample
+            arm_idx += 1
+    
+    return samples
+
 # ---------------------------------------------------------------------------------
 def setup_env(envs_setting, tau =0.5, random_set = None):
     """Setup environment for simulations.
@@ -131,7 +172,7 @@ class Mixture_AbsGau():
                     s = np.abs(np.random.normal(self.mu2, self.sigma2))  
                 samples.append(s)
             return np.asarray(samples)
-
+    
 class AbsGau_Arb_Outlier(Base_env):
     """Env for Absolute Gaussian Distribution with arbitrary outliers.
     """

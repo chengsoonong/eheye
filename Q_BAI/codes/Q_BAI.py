@@ -22,7 +22,7 @@ class QBAI(ABC):
     env: list
         sequence of instances of Environment (reward distribution of arms).
     true_quantile_list: list
-        sequence of tau-quantile of arms, i.e. {Q_i^\tau}_{i=1}^{K}
+        sequence of tau-quantile of arms, i.e. {Q_i^tau}_{i=1}^{K}
     epsilon: float (0,1)
         accuracy level
     tau: float (0,1)
@@ -65,7 +65,7 @@ class QBAI(ABC):
         values: list of estimated L (len is the current number of samples)
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L):
+                hyperpara, est_flag, fixed_L, fixed_samples = None):
         """
         Parameters
         ----------------------------------------------------------------------
@@ -89,6 +89,8 @@ class QBAI(ABC):
             False: use the true L = f(0)/ (1 - F(0)), where f is PDF and F is CDF
         fixed_L: list, default is None
             if not None, set L to fixed_L
+        fixed_samples: dict, default is None
+            key: arm_dix; values: list of fixed samples
         """
 
         self.env = env
@@ -122,6 +124,7 @@ class QBAI(ABC):
         # For debug
         self.print_flag = False
         self.print_every = 100
+        self.fixed_samples = fixed_samples
 
     @abstractmethod
     def simulate(self):
@@ -140,23 +143,36 @@ class QBAI(ABC):
         assert init_times >= 1
         for j in range(init_times):
             for i, p in enumerate(self.env):
-                self.sample_rewards[i].append(p.sample())
+                if self.fixed_samples != None:
+                    self.sample(i, len(self.sample_rewards[idx]))
+                else:
+                    self.sample(i)
 
-    def sample(self, idx):
+    def sample(self, arm_idx, sample_idx = None):
         """sample for arm specified by idx
 
         Parameters
         -----------------------------
-        idx: int
+        arm_idx: int
             the idx of arm with maximum ucb in the current round
+
+        sample_idx: int
+            sample from fixed sample list (for debug)
+            if None: sample from env
+            if int: sample as fixed_sample_list[sample_idx]
         
         Return
         ------------------------------
         reward: float
             sampled reward from idx arm
         """
-        reward = self.env[idx].sample()
-        self.sample_rewards[idx].append(reward)
+        if sample_idx == None:
+            reward = self.env[arm_idx].sample()
+        else:
+            #print('sample idx: ', sample_idx)
+            #print(self.fixed_samples[arm_idx])
+            reward = self.fixed_samples[arm_idx][sample_idx]
+        self.sample_rewards[arm_idx].append(reward)
         return reward
 
     def init_L(self):
@@ -378,7 +394,7 @@ class Q_UGapEb(Q_UGapE):
         probability of error (evaluation metric)
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, budget):
+                hyperpara, est_flag, fixed_L, fixed_samples, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -386,7 +402,7 @@ class Q_UGapEb(Q_UGapE):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L)
+                hyperpara, est_flag, fixed_L, fixed_samples)
         self.budget = budget
         self.prob_complexity = self.cal_prob_complexity()
         if self.print_flag:
@@ -423,7 +439,10 @@ class Q_UGapEb(Q_UGapE):
             if self.print_flag and t % self.print_every == 0:
                 print('Round ', t)
             idx = self.select_arm(t, self.confidence_interval(t))
-            self.sample(idx)
+            if self.fixed_samples != None:
+                self.sample(idx, len(self.sample_rewards[idx]))
+            else:
+                self.sample(idx)
             self.last_time_pulled[idx] = i
 
 
@@ -467,7 +486,7 @@ class Q_UGapEc(Q_UGapE):
     """
 
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, delta):
+                hyperpara, est_flag, fixed_L, fixed_samples, delta):
         """
         Parameters
         ----------------------------------------------------------
@@ -477,7 +496,7 @@ class Q_UGapEc(Q_UGapE):
             number of rounds needed, init as inf
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L)
+                hyperpara, est_flag, fixed_L, fixed_samples)
         self.delta = delta
         self.sample_complexity = np.inf
 
@@ -516,7 +535,10 @@ class Q_UGapEc(Q_UGapE):
             #print('B_St: ', self.B_St)
                 
             idx = self.select_arm(t, self.confidence_interval(t))
-            self.sample(idx)
+            if self.fixed_samples != None:
+                self.sample(idx, len(self.sample_rewards[idx]))
+            else:
+                self.sample(idx)
             t += 1
 
         self.sample_complexity = t
@@ -539,7 +561,7 @@ class Q_SAR(QBAI):
     """Quantile Successive accepts and rejects algorithm.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, budget):
+                hyperpara, est_flag, fixed_L, fixed_samples, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -547,7 +569,7 @@ class Q_SAR(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L)
+                hyperpara, est_flag, fixed_L, fixed_samples)
         self.budget = budget
         
         self.barlogK = 0.5
@@ -590,7 +612,10 @@ class Q_SAR(QBAI):
             # step 1
             for i in self.active_set:
                 for j in range(num_samples):
-                    self.sample(i)
+                    if self.fixed_samples != None:
+                        self.sample(i, len(self.sample_rewards[i]))
+                    else:
+                        self.sample(i)
             # step 2
             quantiles = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
@@ -677,7 +702,7 @@ class Q_SAR_Simplified(QBAI):
     """Quantile Successive accepts and rejects algorithm, a simplified version.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, budget):
+                hyperpara, est_flag, fixed_L, fixed_samples, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -685,7 +710,7 @@ class Q_SAR_Simplified(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L)
+                hyperpara, est_flag, fixed_L, fixed_samples)
         self.budget = budget
         
         self.barlogK = 0.5
@@ -730,7 +755,10 @@ class Q_SAR_Simplified(QBAI):
             # step 1
             for i in self.active_set:
                 for j in range(num_samples):
-                    self.sample(i)
+                    if self.fixed_samples != None:
+                        self.sample(i, len(self.sample_rewards[i]))
+                    else:
+                        self.sample(i)
             # step 2
             quantiles = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
@@ -793,7 +821,7 @@ class Q_SAR_Simplified(QBAI):
 
 class uniform_sampling(QBAI):
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, budget):
+                hyperpara, est_flag, fixed_L, fixed_samples, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -801,7 +829,7 @@ class uniform_sampling(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L)
+                hyperpara, est_flag, fixed_L, fixed_samples)
         self.budget = budget
 
     def simulate(self):
@@ -809,12 +837,18 @@ class uniform_sampling(QBAI):
 
         for idx in range(self.num_arms):
             for t in range(draw_each_arm):
-                self.sample(idx)
+                if self.fixed_samples != None:
+                    self.sample(idx, len(self.sample_rewards[idx]))
+                else:
+                    self.sample(idx)
         
         if self.budget - draw_each_arm * self.num_arms > 0:
             for t in range(self.budget - draw_each_arm * self.num_arms):
                 idx = int(np.random.uniform(0, self.num_arms - 1))
-                self.sample(idx)
+                if self.fixed_samples != None:
+                    self.sample(idx, len(self.sample_rewards[idx]))
+                else:
+                    self.sample(idx)
         
         emp_quantile_list = []
         for idx in range(self.num_arms):

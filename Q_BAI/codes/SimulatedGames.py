@@ -4,7 +4,7 @@ import numpy as np
 # This file implements the simulated games for bandits algorithm. 
 
 def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
-             num_expers, est_var, hyperpara, fixed_L, p):
+             num_expers, est_var, hyperpara, fixed_L, p, fixed_samples_list = None):
     """Simulate fixed budget BAI. 
 
     Paramters
@@ -37,6 +37,9 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
         otherwise, use fixed L (to test the sensitivity of the value of L)
     p: object of ipywidgets.IntProgress
         show process bar when running experiments
+    fixed_samples_list: list of dict, default is None
+            each element is the sample dict for one exper
+            key: arm_dix; values: list of fixed samples
     """
     result = [] # list, element: 1 if simple regret bigger than epsilon (indicates error occurs);
                 #                0 otherwise 
@@ -44,8 +47,12 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
 
     for i in range(num_expers):
         p.value += 1
-        agent = policy(env, summary_stat, epsilon, tau, m, 
-                    hyperpara, est_var, fixed_L, budget_or_confi)
+        if fixed_samples_list == None:
+            agent = policy(env, summary_stat, epsilon, tau, m, 
+                    hyperpara, est_var, fixed_L, fixed_samples_list, budget_or_confi)
+        else:
+            agent = policy(env, summary_stat, epsilon, tau, m, 
+                    hyperpara, est_var, fixed_L, fixed_samples_list[i], budget_or_confi)
         agent.simulate()
         result.append(agent.evaluate())
         if hasattr(agent, 'estimated_L_dict'):
