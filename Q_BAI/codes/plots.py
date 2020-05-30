@@ -87,7 +87,7 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, log_scal
 
                 if type == 'barplot':
                     ax.bar([label], mean, yerr = sigma)
-
+    plt.xticks(rotation=90)
     file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
     # fig.savefig(file_name, bbox_inches='tight')
 
