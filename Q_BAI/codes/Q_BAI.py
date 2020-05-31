@@ -143,9 +143,9 @@ class QBAI(ABC):
     def init_reward(self):
         """pull each arm once and get the rewards as the initial reward 
         """
-        init_times = int(np.ceil(1.0/(1 - self.tau)))
-        assert init_times >= 1
-        for j in range(init_times):
+        self.init_times = int(np.ceil(1.0/(1 - self.tau)))
+        assert self.init_times >= 1
+        for j in range(self.init_times):
             for i, p in enumerate(self.env):
                 if self.fixed_samples != None:
                     self.sample(i, len(self.sample_rewards[i]))
@@ -438,7 +438,7 @@ class Q_UGapEb(Q_UGapE):
         """Simulate experiments. 
         """
         self.init_reward()
-        for i,t in enumerate(range(self.num_arms + 1, self.budget+1)): # t = K + 1, ... N
+        for i,t in enumerate(range(self.num_arms * self.init_times + 1, self.budget+1)): # t = K + 1, ... N
             if self.print_flag and t % self.print_every == 0:
                 print('Round ', t)
             idx = self.select_arm(t, self.confidence_interval(t))
@@ -534,7 +534,7 @@ class Q_UGapEc(Q_UGapE):
             list of idx of recommended m arms
         """
         self.init_reward()
-        t = self.num_arms + 1
+        t = self.num_arms * self.init_times + 1
         self.B_St = 1 # init B_St
         while self.B_St >= self.epsilon:
             #print('B_St: ', self.B_St)
@@ -560,6 +560,7 @@ class Q_UGapEc(Q_UGapE):
             number of round before stopping
             i.e. sample complexity
         """
+        print(self.rec_set)
         return self.sample_complexity
 
 class Q_SAR(QBAI):
@@ -839,7 +840,7 @@ class Q_SAR_Simplified(QBAI):
 
 #-------------------------------------------------------------------------
 # Baseline Algorithms: Fixed budget
-# Including: uniform sampling;
+# Including: uniform sampling; batch_elimination
 # ------------------------------------------------------------------------
 
 class uniform_sampling(QBAI):
@@ -893,9 +894,86 @@ class uniform_sampling(QBAI):
         else:
             return 0  
 
+class batch_elimination(QBAI):
+    """Tran-Thanh and Yu 2018,
+       Functional Bandits, Algorithm 1.
+       Select x1 = ... = xL = 1. i.e. L = K-1. Functional as quantiles.
+    """
+    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+        """
+        Parameters
+        ----------------------------------------------------------
+        budget: int
+            number of total round/budget.
+        """
+        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, fixed_samples)
+        self.budget = budget
+
+        # number of arms left to recommend
+        self.l = self.m
+        
+        # active arms with idx 0, 1, ... K-1
+        self.active_set = set(list(range(self.num_arms)))
+
+    def simulate(self):
+
+        H = (self.num_arms - 1) * (1 + self.num_arms/2.0)                                                                                                                                                         
+        num_samples = int(self.budget/H)
+        print(num_samples)
+        for l in range(1, self.num_arms): # 1, ..., K - 1
+            for i in self.active_set:
+                for j in range(num_samples):
+                    if self.fixed_samples != None:
+                        self.sample(i, len(self.sample_rewards[i]))
+                    else:
+                        self.sample(i)
+
+            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            #print('active set: ', self.active_set)
+            for i in self.active_set:
+                reward = self.sample_rewards[i]
+                # not sure why returns an array of one element instead of a scalar
+                quantiles[i] = np.quantile(list(reward), self.tau)
+            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+
+            for rank, idx in enumerate(argsort_quantiles):
+                arm_idx = list(quantiles.keys())[idx]
+                rank_dict[arm_idx] = rank
+                if rank == 0:
+                    a_best = arm_idx
+                if rank == self.l: # l_p + 1
+                    q_l_1 = arm_idx
+                if rank == self.l -1: # l_p
+                    q_l = arm_idx
+                if rank == len(argsort_quantiles) - 1:
+                    a_worst = arm_idx
+
+            self.active_set.remove(a_worst)
+
+        self.rec_set = self.active_set
+        # only works for self.m = 1
+        assert len(self.rec_set) == self.m
+
+    def evaluate(self):
+        """Evaluate the performance (probability of error).
+        """
+        #print('rec_Set: ', self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return 1
+        else:
+            return 0
+
 #-------------------------------------------------------------------------
 # Baseline Algorithms: Fixed confidence
-# Including: QPAC
+# Including: QPAC, MaxQ
 # ------------------------------------------------------------------------
 
 class QPAC(QBAI):
@@ -923,15 +1001,18 @@ class QPAC(QBAI):
 
     def simulate(self):
         t = 1
-        while len(self.active_set) > 0 and len(self.rec_set) == 0:
+        while len(self.active_set) > 0:
             for i in self.active_set:
                 if self.fixed_samples != None:
                     self.sample(i, len(self.sample_rewards[i]))
                 else:
                     self.sample(i)
             
-            c_t = np.sqrt(1.0/(2 * t) * np.log((np.pi ** 2 * t ** 2)/(3 * self.delta)))
-
+            # TODO: c_t bigger than 1
+            c_t = np.sqrt(1.0/(2 * t) * np.log((np.pi ** 2 * t ** 2 * self.num_arms)/(3 * self.delta)))
+            if t % 10000 == 0:
+                print('t: ', t)
+            
             quantile_tau_plus_c = []
             quantile_tau_mins_c = []
 
@@ -941,22 +1022,44 @@ class QPAC(QBAI):
             for i in self.active_set:
                 rewards = self.sample_rewards[i]
 
+                if self.tau + c_t > 1 or self.tau - c_t < 0\
+                    or self.tau + c_t + self.epsilon > 1 or self.tau - c_t + self.epsilon < 0: 
+                    continue
+                #     tau_plus_c = 1
+                # if self.tau - c_t < 0:
+                #     tau_mins_c = 0
+
                 quantile_tau_plus_c.append(np.quantile(rewards, self.tau + c_t))
                 quantile_tau_mins_c.append(np.quantile(rewards, self.tau - c_t))
-
                 quantile_tau_plus_c_plus_epsilon.append(np.quantile(rewards, self.tau + c_t + self.epsilon))
                 quantile_tau_mins_c_plus_epsilon.append(np.quantile(rewards, self.tau - c_t + self.epsilon))
 
+            if len(quantile_tau_plus_c) < len(self.active_set) or len(quantile_tau_mins_c) < len(self.active_set)\
+                or len(quantile_tau_plus_c_plus_epsilon) < len(self.active_set) or len(quantile_tau_mins_c_plus_epsilon) < len(self.active_set):
+                if self.print_flag and t % self.print_every == 0:
+                    print('t: ' + str(t) + ' not enough samples.')
+                t += 1
+                continue
             x_plus = np.max(quantile_tau_plus_c)
             x_mins = np.max(quantile_tau_mins_c)
 
-            for i in self.active_set:
+            current_active_set = self.active_set.copy()
+            for i in range(len(current_active_set)):
                 if quantile_tau_plus_c_plus_epsilon[i] < x_mins:
-                    self.active_set.remove(i)
-                if x_plus <= quantile_tau_mins_c_plus_epsilon:
-                    self.rec_set = {i}
+                    self.active_set.remove(list(current_active_set)[i])
+                    if self.print_flag and t % self.print_every == 0:
+                        print('t: ', t)
+                        print('active set: ', self.active_set)
+                if x_plus <= quantile_tau_mins_c_plus_epsilon[i]:
+                    hat_i = list(current_active_set)[i]
+                    self.rec_set = {hat_i}
+                    if self.print_flag and t % self.print_every == 0:
+                        print('hat_i: ', hat_i)
                     break
             t += 1
+
+            if len(self.rec_set) > 0:
+                break
 
         self.sample_complexity = t
 
@@ -969,10 +1072,89 @@ class QPAC(QBAI):
             number of round before stopping
             i.e. sample complexity
         """
+        print(self.rec_set)
+        print(self.sample_complexity)
         return self.sample_complexity
         
         
+class MaxQ(QBAI):
+    """David and Shimkin 2016,
+    Pure Exploration for Max-Quantile Bandits.
+    Algorithm 1 Maximal Quantile (Max-Q) Algorithm.
+    """
+    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, fixed_samples, delta):
+        """
+        Parameters
+        ----------------------------------------------------------
+        delta: float
+            confidence level
+        sample_complexity: int
+            number of rounds needed, init as inf
+        """
+        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+                hyperpara, est_flag, fixed_L, fixed_samples)
+        self.delta = delta
+        self.sample_complexity = np.inf
 
+        # active arms with idx 0, 1, ... K-1
+        self.active_set = set(list(range(self.num_arms)))
 
+    def init_reward(self, L):
+        """pull each arm once and get the rewards as the initial reward 
+        """
+        self.init_times = int(3 * L/self.tau) + 1
+        assert self.init_times >= 1
+        for j in range(self.init_times):
+            for i, p in enumerate(self.env):
+                if self.fixed_samples != None:
+                    self.sample(i, len(self.sample_rewards[i]))
+                else:
+                    self.sample(i)
         
+    def simulate(self):
+        L = 6 * np.log(self.num_arms * (1 + (-10) * self.tau * np.log(self.delta)/(self.epsilon ** 2))) - np.log(self.delta)
+        self.init_reward(L)
+        t = self.num_arms * self.init_times
+       
+        while True:
+            vk_list = []
+            t += 1
+            if t % 1e4 == 0:
+                print(t)
+            for k in range(self.num_arms):
+                reward = self.sample_rewards[k]
+                t_k = len(reward) # C(k) in the paper
+                mk = int(self.tau * t_k - np.sqrt(3 * self.tau * t_k * L)) + 1
+                vk = np.sort(reward)[::-1][mk - 1] # mk=th largest reward
+                vk_list.append(vk)
+            
+            # TODO: ties need to be broken arbitrary
+            k_ast = np.argsort(vk_list)[::-1][0]
+
+            if len(self.sample_rewards[k_ast]) > 10 * self.tau * L / (self.epsilon ** 2):
+                self.rec_set = {k_ast}
+                self.sample_complexity = t
+                break
+            else:
+                if self.fixed_samples != None:
+                    self.sample(k_ast, len(self.sample_rewards[k_ast]))
+                else:
+                    self.sample(k_ast)
+                
+        
+    def evaluate(self):
+        """Evaluate the performance.
+
+        Return
+        ---------------------------------------
+        t: int
+            number of round before stopping
+            i.e. sample complexity
+        """
+        print(self.rec_set)
+        return self.sample_complexity
+
+
+
 
