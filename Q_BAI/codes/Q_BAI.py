@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------
 
 class QBAI(ABC):
-    """Base class. Best arm identification for quantiels. 
+    """Base class. Best arm identification for quantiles. 
 
     Attributes
     -------------------------------------------------------------------------
@@ -560,8 +560,16 @@ class Q_UGapEc(Q_UGapE):
             number of round before stopping
             i.e. sample complexity
         """
-        print(self.rec_set)
-        return self.sample_complexity
+        #print('rec_Set: ', self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return [1, self.sample_complexity]
+        else:
+            return [0, self.sample_complexity]
 
 class Q_SAR(QBAI):
     """Quantile Successive accepts and rejects algorithm.
@@ -1072,9 +1080,16 @@ class QPAC(QBAI):
             number of round before stopping
             i.e. sample complexity
         """
-        print(self.rec_set)
-        print(self.sample_complexity)
-        return self.sample_complexity
+        #print('rec_Set: ', self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return [1, self.sample_complexity]
+        else:
+            return [0, self.sample_complexity]
         
         
 class MaxQ(QBAI):
@@ -1152,8 +1167,16 @@ class MaxQ(QBAI):
             number of round before stopping
             i.e. sample complexity
         """
-        print(self.rec_set)
-        return self.sample_complexity
+        #print('rec_Set: ', self.rec_set)
+        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        #print('rec_set_min: ', rec_set_min)
+        #print('m_max_quantile: ', self.m_max_quantile )
+        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        # the probability is calculated in terms of a large number of experiments
+        if simple_regret_rec_set > self.epsilon:
+            return [1, self.sample_complexity]
+        else:
+            return [0, self.sample_complexity]
 
 
 

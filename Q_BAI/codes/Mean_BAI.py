@@ -276,8 +276,8 @@ class UGapEb(UGapE):
     prob_error: float
         probability of error (evaluation metric)
     """
-    def __init__(self, env, true_mean_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+    def __init__(self, env, true_mean_list, epsilon, m, 
+                hyperpara,  fixed_samples, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -453,8 +453,8 @@ class SAR_Simplified(MBAI):
         budget: int
             number of total round/budget.
         """
-        super().__init__(env, true_mean_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+        super().__init__(env, true_mean_list, epsilon, m, 
+                hyperpara, fixed_samples)
         self.budget = budget
         
         self.barlogK = 0.5
