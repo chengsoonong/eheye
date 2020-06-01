@@ -31,15 +31,22 @@ Section~\ref{sec: multi_discussion} list the comparison between the two methods,
 \section{The problem and opportunity of multi-quantile estimation}
 \label{sec: multi_intro}
 
-In real life implementations, quantile estimation usually do not focus on a single quantile value. For example, a common request is to show the median (the $0.5$-quantile) of the distribution, and at the same time show the outlier boundaries at ends of the distribution, like the $0.1$- and $0.9$- quantiles. It is also highly possible that more quantile estimates are required for the data distribution analysis.
+In real life implementations, quantile estimation usually do not focus on a single quantile value. For example, a common request is to show the median (the $0.5$-quantile) of the distribution, and at the same time show the outlier boundaries at ends of the distribution, like the $0.1$- and $0.9$- quantiles. It is also highly possible that multiple quantile estimates are required for a data distribution analysis.
 
-Under this circumstance, the estimation of multiple different quantiles also 
+A trivial solution for multi-quantile estimation is to run multiple single quantile estimation processes in parallel, such that each quantile is estimated by one process. The multi-process solution however, leads to two main problems:
+\begin{enumerate}
+    \item The parallel processing capacity of the implementation software/hardware.
+    \item The missing information from the monotone property of quantiles.
+\end{enumerate}
+
+The following two multi-quantile estimation methods can simultaneously estimate multiple quantile numbers in one process with the utilization of the non-decreasing feature. Both algorithms, \textit{shiftQ}\cite{hammerJointTrackingMultiple2019b} and \textit{extended $p^2$}\cite{raatikainenSequentialProcedureSimultaneous1993} utilize the monotone property by ensuring a positive distance between one quantile and its previous quantile, such that 
+$q_{i=} - q_{i-1} > 0$. The algorithm explanation of the shiftQ algorithm is described in section \ref{sec: multi_shiftQ}, and the next section \ref{sec: multi_{p2}} for the extended $p^2$ algorithm.
 
 % ----------------------------------- shiftQ ---------------------------------------
-\iffalse
 
 \section{The shiftQ methods}
 \label{sec: multi_shiftQ}
+the shiftQ section
 
 \subsection{Method Description}
 
@@ -87,14 +94,12 @@ $$
 	\caption{Comparison between shiftQ and SGD}
 \end{figure*}
 
-\fi
 % ----------------------------------- Extended P2 ---------------------------------------
-
 
 \section{The Extended $P^2$ Algorithm}
 \label{sec: multi_{p2}}
 
-The \textit{Extended $P^2$} algorithm uses exactly the same idea of the $P^2$ algorithm. So for a better understanding, we introduce the $P^2$ algorithm first in \ref{subsubsec: description_{p2}}, then the generation method for the extended $P^2$ algorithm.
+The \textit{Extended $P^2$} algorithm\cite{raatikainenSequentialProcedureSimultaneous1993} uses exactly the same idea of the $P^2$ algorithm\cite{jainP2AlgorithmDynamic1985}. So for a better understanding, we introduce the $P^2$ algorithm first in \ref{subsubsec: description_{p2}}, then the generation method for the extended $P^2$ algorithm.
 In section \ref{subsec: algo_extended_{p2}}, the detailed algorithm for extended $P^2$ is provided, followed by its experiment results in section \ref{subsec: exp_extended_{p2}}.
 
 \subsection{Method Description}
@@ -105,7 +110,7 @@ In section \ref{subsec: algo_extended_{p2}}, the detailed algorithm for extended
 The intuition of the $P^2$ method is the assumption that any three adjacent quantiles form a parabolic formula.
 Specifically, the method interprets quantile estimation as a relationship based on quantile values and their ordering positions, and applies either linear or parabolic adjustments based on the information from their neighbours.
 
-Suppose the straightforward quantile computation that sorts all observations from the dataset $X = \{x_i\}^N_1$. Let $x_i$ denote the $i$th smallest value of $X$, then we have $x_1 < x_2 < ... < x_N$. 
+Suppose the straightforward quantile computation for [$\tau_1, ..., \tau_M$] that sorts all observations from the dataset $X = \{x_i\}^N_1$. Let $x_i$ denote the $i$th smallest value of $X$, then we have $x_1 < x_2 < ... < x_N$. 
 To find the $\tau_i$-quantile of $X$, we need to find the data observation at \textit{marker position} $m_i = \tau_i \cdot N$. Given the marker position, we then retrieve the value of the marker, the corresponding \textit{quantile value} $q_i = x_{m_i}$. 
 For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile values can be independently computed in the same way, as shown in Figure \ref{fig: {multi_relationship_p2}}.
 
@@ -117,7 +122,7 @@ For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile val
 
 For quantile estimation, however, storing and sorting the entire dataset is infeasible. The $P^2$ method records only information only about demanding quantile values, and update them on the arrival of new observations. The update method, based on different conditions, is either a \textit{Piecewise-Parabolic} ($P^2$) formula, or a linear formula.
 
-The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $N$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
+The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $M$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
 
 \begin{figure*}[h!]
 	\includegraphics[width=1\columnwidth]{P2/parabola.png}
@@ -164,9 +169,10 @@ When a new observation comes,
 
 
 \subsubsection{The Extended $P^2$ Method}
-In $P^2$, the update of a quantile relies on its position relative to the neighbour markers, indicating the accuracy of neighbour marker positions is important.
-The extended $P^2$ algorithm attacks this problem by the introduction of "middle markers",  which nearly doubles the amount of markers in $P^2$. 
-It means, in the initialization part, there will be $2m+3$ markers for
+In $P^2$, the update of a quantile relies on its position relative to the neighbour markers, indicating the accuracy of neighbour marker positions is important. 
+It sets one marker for each quantile value, that is, a total of $M$ markers for [$\tau_1, ..., tau_m$].
+The extended $P^2$ algorithm improves the estimation accuracy by the introduction of "middle markers",  which nearly doubles the amount of markers in $P^2$. 
+It means, in the initialization part, there will be $2M+3$ markers for
 $$
 \tau = 0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_M+1}{2}, 1
 $$
@@ -177,8 +183,6 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
 
 \subsection{The Algorithm of Extended $P^2$}
 \label{subsec: algo_extended_{p2}}
-
-\section{Basic $P^2$ algorithm}
 
 \begin{algorithm}
     \caption{The $P^2$ Algorithm}\label{alg:multi_p2}
@@ -237,32 +241,33 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
         \end{algorithmic}
 \end{algorithm}
 
-% \begin{algorithm}
-%     \caption{Extended $P^2$ Algorithm}\label{alg:multi_ext_p2}
-%         \begin{algorithmic}[1]
-%             \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
-%             \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
+\begin{algorithm}
+    \caption{Extended $P^2$ Algorithm}\label{alg:multi_ext_p2}
+        \begin{algorithmic}[1]
+            \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
+            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
 
-%             \State
-%             \State {\textbf{Extend $N$ quantile values to $m$ quantile values}}
-%             \LineComment{Evenly fill the intervals between $0,1$ and each 2 quantile values}
-%             \State {$m = 2N + 3$}
-%             \State {\text{  } $\tau_1^{new}, tau_2^{new},tau_3^{new},tau_4^{new},$\hspace{18pt}$ ...$\hspace{6pt}$, tau_{m-1}^{new}, $\hspace{12pt}$tau_{m}^{new}$}
-%             \State {$ = 0, $ \hspace{12pt}$\tau_1/2, $ \hspace{15pt}$\tau_1, $\hspace{26pt}$(\tau_1 + \tau_2)/2, $\hspace{6pt}$...$\hspace{6pt}$, (\tau_M + 1)/2, 1$}
-            
-%             \State
-%             \State{\textbf{Feed the extended quantile values to a $P^2$ algorithm}}
-%             \State{extended quantile values = $[\tau_{1}^{new},\tau_{2}^{new},..., \tau_{m-1}^{new},\tau_{m}^{new} ]$}
-%             \State{$[q_0, q_1, ..., q_m] = P^2(\text{dataset X, )$}
+            \State
+            \State {\textbf{0.Extend number of markers from $M$ to $2M+3$}}
+            \LineComment{Evenly fill the intervals between $0,1$ and each 2 quantile values}
+            \State{$[\tau_1\prime, \tau_2\prime, ..., \tau_{2M+3} \prime] = [0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_M+1}{2}, 1]$}
 
-%             \State {Extract the quantile estimates for the original $N$ quantile values}
-%             \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_1, q_2, ..., q_M]$}
-%         \end{algorithmic}
-% \end{algorithm}
+            \State
+            \State{\textbf{1. Apply $P^2$ with the extended initialization}}
+            \LineComment{And returns an estimate of extended list}
+            \State{$[q_1\prime, ..., q_{2M+3}\prime] = P^2$ ($X$, $[\tau_1\prime, \tau_2\prime, ..., \tau_{2M+3} \prime]$)}
+            \State
+            \State {\textbf{2. Return quantile estimates} } 
+            \State {Extract the quantile estimates for the original $M$ quantile values}
+            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_3\prime, q_5\prime, ..., q_{2M+1}\prime]$}
+        \end{algorithmic}
+\end{algorithm}
 
-
+% 0, 0.5, 1, 1.5, 2, ..., M,    (M+1)/2, 1
+% 1, 2,   3, 4,   5, ..., 2M+1, 2M+2,   2M+3            
 
 \subsection{Experiment Results}
+Toy data experiment only
 \label{subsec: exp_extended_{p2}}
 
 % \begin{figure*}[h!]
