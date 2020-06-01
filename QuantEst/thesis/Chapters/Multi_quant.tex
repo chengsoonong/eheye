@@ -10,6 +10,8 @@
 \algtext*{EndSwitch}%
 \algtext*{EndCase}%
 
+% \graphicspath{{Figures/Multi/P2/}{./}} 
+
 \chapter{Simultaneous Multiple Quantile Estimation}
 \label{ch: multi_quant}
 
@@ -92,75 +94,176 @@ $$
 \section{The Extended $P^2$ Algorithm}
 \label{sec: multi_{p2}}
 
+The \textit{Extended $P^2$} algorithm uses exactly the same idea of the $P^2$ algorithm. So for a better understanding, we introduce the $P^2$ algorithm first in \ref{subsubsec: description_{p2}}, then the generation method for the extended $P^2$ algorithm.
+In section \ref{subsec: algo_extended_{p2}}, the detailed algorithm for extended $P^2$ is provided, followed by its experiment results in section \ref{subsec: exp_extended_{p2}}.
+
 \subsection{Method Description}
 
 \subsubsection{The $P^2$ Method}
+\label{subsubsec: description_{p2}}
+
+The intuition of the $P^2$ method is the assumption that any three adjacent quantiles form a parabolic formula.
+Specifically, the method interprets quantile estimation as a relationship based on quantile values and their ordering positions, and applies either linear or parabolic adjustments based on the information from their neighbours.
+
+Suppose the straightforward quantile computation that sorts all observations from the dataset $X = \{x_i\}^N_1$. Let $x_i$ denote the $i$th smallest value of $X$, then we have $x_1 < x_2 < ... < x_N$. 
+To find the $\tau_i$-quantile of $X$, we need to find the data observation at \textit{marker position} $m_i = \tau_i \cdot N$. Given the marker position, we then retrieve the value of the marker, the corresponding \textit{quantile value} $q_i = x_{m_i}$. 
+For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile values can be independently computed in the same way, as shown in Figure \ref{fig: {multi_relationship_p2}}.
+
+\begin{figure*}[h!]
+	\includegraphics[width=0.8\columnwidth]{P2/relationships.png}
+    \caption{Relationship between $\tau$ value, marker position and quantile values correspondingly for 3 adjacent quantiles}
+    \label{fig: {multi_relationship_p2}}
+\end{figure*}
+
+For quantile estimation, however, storing and sorting the entire dataset is infeasible. The $P^2$ method records only information only about demanding quantile values, and update them on the arrival of new observations. The update method, based on different conditions, is either a \textit{Piecewise-Parabolic} ($P^2$) formula, or a linear formula.
+
+The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $N$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
+
+\begin{figure*}[h!]
+	\includegraphics[width=1\columnwidth]{P2/parabola.png}
+    \caption{Quantile value update using the Piecewise-Parabolic($P^2$) formula}
+    \label{fig: {multi_parabolic_p2}}
+\end{figure*}
+
+The quantile value update is based on the Piecewise-Parabolic assumption that any three adjacent makers form a parabolic curve of the form $q_i = aq_i^2 + bq_i + c$.
+
+If a marker is moved $d$ positions to the right, the new quantile value is updated by:
+\begin{align}
+\begin{split}
+    q_{i} \leftarrow q_{i}+ & \frac{d}{n_{i+1}-n_{i-1}}\\
+    \cdot & { \bigg[ 
+        \left(n_{i}-n_{i-1}+d\right) \frac{\left(q_{i+1}-q_{i}\right)}{\left(n_{i+1}-n_{i}\right)}
+        +\left(n_{i+1}-n_{i}-d\right) \frac{\left(q_{i}-q_{i-1}\right)}{\left(n_{i}-n_{i-1}\right)}
+        } \bigg] \\
+    n_{i} \leftarrow n_{i}+&d \text{ where } d = \pm 1
+\end{split}
+\end{align}
+
+When the parabolic assumption cannot be applied to the quantile value update, the altherative update is a piecewise-linear formula:
+\begin{equation}
+    \begin{array}{l}
+    q_{i}=q_{i}+d \frac{\left(q_{i+d}-q_{i}\right)}{n_{i+d}-n_{i}} \\
+    n_{i}=n_{i}+d
+    \end{array}
+\end{equation}
+
+In short, the update method for $\tau_i$-quantile takes only 2 steps:\\
+When a new observation comes,
+\begin{enumerate}
+    \item Update marker position $m_i$ to approach the desired marker position $m_i \prime$.
+    \begin{enumerate}
+        \item If the quantile value is bigger than the coming observation, move the marker position by one position to the right.
+        \item Adjust the marker position again if it is more than one position away from the desired marker. The move $d$ is $1$ if the marker position moves right, and $-1$ for moving left.
+    \end{enumerate}
+    \item Update the quantile value
+    \begin{enumerate}
+        \item Try applying the parabolic update to the quantile value. Note it might change the non-decreasing order of quantiles, that is, $q_i \geq q_{i+1}$.
+        \item If the ordering of quantile values is changed by the parabolic update, try the linear update instead.
+    \end{enumerate}
+\end{enumerate}
+
+
 \subsubsection{The Extended $P^2$ Method}
+In $P^2$, the update of a quantile relies on its position relative to the neighbour markers, indicating the accuracy of neighbour marker positions is important.
+The extended $P^2$ algorithm attacks this problem by the introduction of "middle markers",  which nearly doubles the amount of markers in $P^2$. 
+It means, in the initialization part, there will be $2m+3$ markers for
+$$
+\tau = 0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_M+1}{2}, 1
+$$
+And the estimation update for all those markers follows the exact rule in the $P^2$ algorithm.
+
+The only difference between extended $P^2$ and $P^2$ is the extension of markers at the initialization stage. At a doubly expensive computation cost, the quantile estimation reaches a higher accuracy from the extra information, as shown in the work of \citeauthor{raatikainenSequentialProcedureSimultaneous1993}\cite{raatikainenSequentialProcedureSimultaneous1993}. Besides the extra information brought by the extra markers, the extended $P^2$ algorithm also benefits from a better initialization by a larger sampling. The larger sampling in extended $P^2$ reduces the possibility of severely unevenly distributed initializations, which becomes important for  $P^2$, as it is sensitive to the initialization of quantiles.
+% In $p^2$, only desired quantiles have their information recorded and used for 
 
 \subsection{The Algorithm of Extended $P^2$}
+\label{subsec: algo_extended_{p2}}
 
 \section{Basic $P^2$ algorithm}
 
 \begin{algorithm}
-    \caption{$P^2$ Algorithm}\label{alg:multi_ext_p2}
+    \caption{The $P^2$ Algorithm}\label{alg:multi_p2}
         \begin{algorithmic}[1]
-            \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_N]$}
-            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_N\text{-}q]$}
+            \Require{Dataset $X$, $M$ Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
+            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
             \State
             \State{\textbf{A. Initialization}}
-            \State {The first N observations (sorted): \{$x_1,x_2,...,x_N$\}}
-            \For{$(i = 1, ..., N-1)$}
+            \State {The first M observations (sorted): \{$x_1,x_2,...,x_M$\}}
+            \For{$(i = 1, ..., M-1)$}
                 \State {Marker height:    $q_i = x_i $}
-                \State {Marker position:   $n_i = i$}
-                \State {Desired Marker position:  $n_i\prime = (n-1)\tau_i + 1$}
+                \State {Marker position:   $m_i = i$}
+                \State {Desired Marker position:  $m_i\prime = (m-1)\tau_i + 1$}
             \EndFor
 
             \State
-            \State{\textbf{B. For each new observation $x_j$, $j \geq N+1$, perform the following}}
-            \LineComment {Find the cell $k$ such that $q_k \leq x_j < q_{k+1}$:}
-            \Switch{$s$}
+            \State{\textbf{B. For each new observation $x_j$, $j \geq M+1$, perform the following}}
+            \Switch{$s$}            \Comment {Find the cell $k$ such that $q_k \leq x_j < q_{k+1}$}
                 \Case{$x_j < q_1$}
                     \State{$q_1 = x_j, k = 1$}
                 \EndCase
                 \Case{$q_i \leq x_j < q_{i+1}$}
                     \State {$k = i$}
                 \EndCase
-                \Case{$q_N < x_j$}
-                    \State {$q_N = x_j, k = N-1$}
+                \Case{$q_M < x_j$}
+                    \State {$q_M = x_j, k = M-1$}
                 \EndCase
             \EndSwitch
             \State
-            \LineComment{Increment some marker positions:}
-            \State{$n_i = n_i + 1$; $i = k+1, ..., N$}
+            
+            \State{$m_i = m_i + 1$; $i = k+1, ..., M$}       \Comment{Increment some marker positions}
             % \Comment{Different from that on the $P^2$ paper}
-            \LineComment{Update all the desired positions:}
-            \State{$n_i\prime = n_i\prime + \tau_i$}
+            \State{$m_i\prime = m_i\prime + \tau_i$}            \Comment{Update all the desired positions}
 
             \State
-            \LineComment{Adjust marker heights $2$ to $N-1$ if necessary:}
-            \For{$i = 2, 3, ..., N-1$}
-                \State {$d_i = n_i\prime - n_i$}
-                \If {($ d_i \geq 1 \text{ and }  n_{i+1} - n_i > 1$) or 
-                     ($ d_i \leq -1 \text{ and }  n_{i-1} - n_i < -1$) }
+            \State{Adjust marker heights $2$ to $M-1$ if necessary:}
+            \For{$i = 2, 3, ..., M-1$}
+                \State {$d_i = m_i\prime - m_i$}
+                \If {($ d_i \geq 1 \text{ and }  m_{i+1} - m_i > 1$) or 
+                     ($ d_i \leq -1 \text{ and }  m_{i-1} - m_i < -1$) }
                     \State {$d_i = sign(d_i)$}
-                    \State {$q_i\prime = P^2(q_1)$}     \Comment{Try the $P^2$ formula}
+                    \State {$q_i\prime = \text{parabolic}(q_1)$}     \Comment{Try the $P^2$ update}
                     \If {$ q_{i-1} < q_i\prime < q_{i+1}$}
                         \State {$q_i = q_i\prime$}
                         \Else                           \Comment{Else use linear update}
                             \State{$q_i = \text{linear}(q_i)$}
                     \EndIf
-                    \State {$n_i = n_i + d_i$}          \Comment{Update marker position}
+                    \State {$m_i = m_i + d_i$}          \Comment{Update marker position}
                 \EndIf
             \EndFor
 
             \State
             \State {\textbf{C. Return quantile estimates} }     
             \LineComment{The result is available after any number of observations}
-            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_N\text{-}q] = [q_1, q_2, ..., q_N]$}
+            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_1, q_2, ..., q_M]$}
         \end{algorithmic}
 \end{algorithm}
 
+% \begin{algorithm}
+%     \caption{Extended $P^2$ Algorithm}\label{alg:multi_ext_p2}
+%         \begin{algorithmic}[1]
+%             \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
+%             \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
+
+%             \State
+%             \State {\textbf{Extend $N$ quantile values to $m$ quantile values}}
+%             \LineComment{Evenly fill the intervals between $0,1$ and each 2 quantile values}
+%             \State {$m = 2N + 3$}
+%             \State {\text{  } $\tau_1^{new}, tau_2^{new},tau_3^{new},tau_4^{new},$\hspace{18pt}$ ...$\hspace{6pt}$, tau_{m-1}^{new}, $\hspace{12pt}$tau_{m}^{new}$}
+%             \State {$ = 0, $ \hspace{12pt}$\tau_1/2, $ \hspace{15pt}$\tau_1, $\hspace{26pt}$(\tau_1 + \tau_2)/2, $\hspace{6pt}$...$\hspace{6pt}$, (\tau_M + 1)/2, 1$}
+            
+%             \State
+%             \State{\textbf{Feed the extended quantile values to a $P^2$ algorithm}}
+%             \State{extended quantile values = $[\tau_{1}^{new},\tau_{2}^{new},..., \tau_{m-1}^{new},\tau_{m}^{new} ]$}
+%             \State{$[q_0, q_1, ..., q_m] = P^2(\text{dataset X, )$}
+
+%             \State {Extract the quantile estimates for the original $N$ quantile values}
+%             \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_1, q_2, ..., q_M]$}
+%         \end{algorithmic}
+% \end{algorithm}
+
+
+
 \subsection{Experiment Results}
+\label{subsec: exp_extended_{p2}}
 
 % \begin{figure*}[h!]
 % 	\includegraphics[width=1\columnwidth]{P2/P2.png}

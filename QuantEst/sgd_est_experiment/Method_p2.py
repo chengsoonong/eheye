@@ -99,7 +99,7 @@ def get_ext_p2_procs(dataset, tau_lst):
         if marker_lst[-1] != i+1 + m or marker_lst[0] != 1: raise Exception("marker_lst wrong")
         desired_marker_lst = np.around(desired_marker_lst + ext_tau_lst, 4)
 
-        #adjust heights of the inbetween markers n_1 ~ n_(m-2) if necessary
+        #adjust heights of the in-between markers n_1 ~ n_(m-2) if necessary
         for idx in range(1, m-1):
             n_p, n, n_m = marker_lst[idx+1], marker_lst[idx], marker_lst[idx-1]
             n_desire = desired_marker_lst[idx]

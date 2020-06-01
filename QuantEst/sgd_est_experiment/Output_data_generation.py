@@ -6,6 +6,13 @@ import os
 # for the folders needs more branches (sub_fd_lst), the branches are the subsub_fd_lst 
 def initialize_folders(main_fd, fd_lst, sub_fd_lst, subsub_fd_lst):
     
+    # check list
+    input_lst = [fd_lst, sub_fd_lst, subsub_fd_lst]
+    for f in (input_lst):
+        if not isinstance(f, list):
+            raise Exception ("input {} should be a list!".format(f))
+    # print (fd_lst, sub_fd_lst, subsub_fd_lst)
+
     for fd in fd_lst:
         if not os.path.exists(main_fd+fd):
             os.makedirs(main_fd+fd)
