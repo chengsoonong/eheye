@@ -23,8 +23,9 @@ marker_list = ['o','s','v','^', '.', '>', '<']
 line_color_list = ['C0', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
 est_L_labels = ['Estimated L', 'L_at_10', 'L_at_200', 'True L']
 
-def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, log_scale= False, 
-                plot_confi_interval = False, method = 'all', exper = 'all'):
+def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_para = True, log_scale= False, 
+                plot_confi_interval = False, method = 'all', exper = 'all', 
+                title = 'Performance on simulated distributions'):
     """Plot method for evaluations
 
     Parameters
@@ -58,7 +59,7 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, log_scal
     for i, name in enumerate(results.keys()):
         ax = fig.add_subplot(len(results.keys()),3, i+1)
         
-        ax.set_title("Performance on simulated distributions")
+        ax.set_title(title.replace('_', ' '))
         ax.set_xlabel('Algorithms')
         ax.set_ylabel(ylabel_dict[eva_method])
         
@@ -67,6 +68,20 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, log_scal
             # setup label
             if paper_flag:
                 label = subname.split('-')[0] 
+                
+                # change presented names
+                if label == 'uniform_sampling':
+                    label = 'Q-Uniform'
+                if label == 'batch_elimination':
+                    label = 'Q-BS'
+                if label == 'Q_SAR_Simplified':
+                    label = 'Q_SAR'
+                
+                if with_para:
+                    para = subname.split('-')[-1]
+                    if ',' in  para:
+                        label = label +  '-' + para.split(',')[0] + ']'
+                    
                 label = label.replace('_', '-')
             else: 
                 label = subname
@@ -88,8 +103,8 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, log_scal
                 if type == 'barplot':
                     ax.bar([label], mean, yerr = sigma)
     plt.xticks(rotation=90)
-    file_name = 'Exper_' + str(eva_method) + '_' + name + '_' + subname + '.pdf'
-    # fig.savefig(file_name, bbox_inches='tight')
+    file_name = title + '.pdf'
+    fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_m(results, eva_method, type = 'lineplot', paper_flag = False, log_scale= False, 
                 plot_confi_interval = False, method = 'all', exper = 'all'):
@@ -246,7 +261,7 @@ def plot_hist(sample_dict):
         # plt.ylim([0, 0.4])
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
-    # plt.savefig(file_name, bbox_inches='tight')
+    plt.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_num_arms(results, eva_method, mean_at = 1000, paper_flag = True, log_scale= True, plot_confi_interval = False):
     """Plot method for evaluation of performance in terms of different number of arms

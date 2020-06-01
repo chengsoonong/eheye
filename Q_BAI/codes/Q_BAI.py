@@ -275,7 +275,9 @@ class Q_UGapE(QBAI):
             # TODO: if k_i only takes integer, then D_i will increase after observe one sample 
             # k_i = np.max([int(t_i * (1- self.tau)), 1])
             k_i = t_i * (1- self.tau)
+            # TODO: try Q-UGapE without L
             L_i = self.calcu_L(arm)
+            # L_i = 1
     
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
@@ -929,7 +931,6 @@ class batch_elimination(QBAI):
 
         H = (self.num_arms - 1) * (1 + self.num_arms/2.0)                                                                                                                                                         
         num_samples = int(self.budget/H)
-        print(num_samples)
         for l in range(1, self.num_arms): # 1, ..., K - 1
             for i in self.active_set:
                 for j in range(num_samples):
