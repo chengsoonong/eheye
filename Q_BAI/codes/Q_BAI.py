@@ -562,7 +562,7 @@ class Q_UGapEc(Q_UGapE):
             number of round before stopping
             i.e. sample complexity
         """
-        #print('rec_Set: ', self.rec_set)
+        print('rec_Set: ', self.rec_set)
         rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
         #print('rec_set_min: ', rec_set_min)
         #print('m_max_quantile: ', self.m_max_quantile )
