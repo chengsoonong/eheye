@@ -260,6 +260,7 @@ def plot_hist(sample_dict):
             sns.distplot(samples, ax = f, label = arm_name_dict[i], bins = 100, norm_hist=False) 
 
         plt.xlim([-1, 20])
+        plt.ylim([0,0.5])
         # plt.ylim([0, 0.4])
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
