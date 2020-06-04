@@ -40,35 +40,75 @@ A trivial solution for multi-quantile estimation is to run multiple single quant
 \end{enumerate}
 
 The following two multi-quantile estimation methods can simultaneously estimate multiple quantile numbers in one process with the utilization of the non-decreasing feature. Both algorithms, \textit{shiftQ}\cite{hammerJointTrackingMultiple2019b} and \textit{extended $p^2$}\cite{raatikainenSequentialProcedureSimultaneous1993} utilize the monotone property by ensuring a positive distance between one quantile and its previous quantile, such that 
-$q_{i=} - q_{i-1} > 0$. The algorithm explanation of the shiftQ algorithm is described in section \ref{sec: multi_shiftQ}, and the next section \ref{sec: multi_{p2}} for the extended $p^2$ algorithm.
+$q_{i} - q_{i-1} > 0$. The algorithm explanation of the shiftQ algorithm is described in section \ref{sec: multi_shiftQ}, and the next section \ref{sec: multi_{p2}} for the extended $p^2$ algorithm.
 
 % ----------------------------------- shiftQ ---------------------------------------
 
 \section{The shiftQ methods}
 \label{sec: multi_shiftQ}
-the shiftQ section
+
+In general, shiftQ estimates a central quantile point, and update other quantiles based on the central one. The independent update of the central point is based on the deterministic update-based multiplicative incremental quantile estimator (DUMIQE) algorithm\cite{yazidiMultiplicativeUpdateMethods2019}, and the update of other quantiles implement the idea of shifted distributions. In this section, we first briefly introduce the DUMIQE algorithm, followed by the explanation of shifted distribution and then the approach of the shiftQ algorithm in section \ref{subsec: multi_shiftQ_description}.
+
+The DUMIQE algorithm updates the quantile estimate upon the arrival of each new observation. It is a development on the work of \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, which applies a stochastic approximation on quantile estimation. The similarity between DUMIQE and SGD can be seen in the following algorithm pseudo-code:
+
+\begin{algorithm}
+    \caption{DUMIQE algorithm}\label{alg:DUMIQE}
+    \begin{algorithmic}[1]
+        \Require{Data Stream $X$, $\tau$, $1$ unit of memory $q$}
+        \Ensure{$q$}
+        % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+        \State {Initialize} $q$                 \Comment{Requires \textbf{positive initialization} $q$ > 0}
+            \For{$x_k$ in $X$}                  \Comment{Parameter update for each input data point}
+                \State \textbf{set} $\alpha_k$  \Comment{Set stepsize}
+                \If{$x_k > q$}                  
+                    \State{$q = q + \alpha_k \tau \cdot q$}
+                \Else                           
+                    \State{$q = q - \alpha_k (1-\tau)\cdot q$}
+                \EndIf
+            \EndFor
+        \State \textbf{return} $q$              \Comment{$q$ is the DUMIQE result of quantile estimate}
+    \end{algorithmic}
+\end{algorithm}
+
+The update of other quantiles are based on the the relationship with the central quantile. For example, if the central quantile is the median, the $0.25$-quantile is then estimated as the median of distribution below the estimate of median. To apply this idea, DUMIQE uses a shifted distribution $Y$ of the input $X$ such that $X = Y + \delta$, where $\delta$ is the shift constant. In the following method description, we use $Q_X(q)$ and  $Q_Y(q)$ to denote the estimate of $q$ on distribution $X$ and $Y$. In order to distinguish the quantile estimate on different distributions, the DUMIQE algorithm for the $\tau_k$-quantile on distribution $X$ at the observation of the $n$th sample $x_n$ is written as
+\begin{align}
+        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) + \alpha_k \tau_k \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) < x_n \\
+        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) - \alpha_k (1-\tau_k) \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) \geq x_n \nonumber
+\end{align}
 
 \subsection{Method Description}
+\label{subsec: multi_shiftQ_description}
 
-1. \textbf{Overall}: The basic idea is to estimate a central quantile point, and update other quantiles based on the central one. 
-
-2. \textbf{Motivation}: The difference $diff$ between the two quantiles for the $x_{n}$ observation is:
+\textbf{Motivation}: The difference between the two quantiles for the $x_{n}$ observation is:
 $$
-diff = |Q_x(q_{k+1}) - Q_x(q_k)|
+diff = |Q_{X,n}(q_{k+1}) - Q_{X,n}(q_k)|
 $$
-    Note that $diff > 0$ for all time, so different quantiles never cross each other. This property is guaranteed by the update function DUMIQE() and its restriction that the input quantile estimate must > 0.
+Note that $diff > 0$ for all $x_i, i \in \{1,...,N\}$, so different quantiles never cross each other. This property is guaranteed by the update function DUMIQE() and its restriction that the input quantile estimate must be positive.
+\\\\
+The quantile estimation procedure of shiftQ is:
+\begin{enumerate}
+    \item \textbf{Update the central quantile} Calculate $Q_{X,n+1}(q_k)$ by DUMIQE
+    \item  \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile estimate $q_{k+1}$ can be updated by implementation of shifting. At the arrival of $x_n$, the basic steps are:
+        \begin{itemize}
+            \item Calculate the shift constant $\delta = Q_{X,n}(q_k)$
+            \item Get shift observation $Y_{n,k+1} =  Q_{X,n}(q_k) - x_n$
+            \item Calculate the shifted quantile estimate $Q_{Y, n+1}(q_{k+1})$ by DUMIQE
+            \item Shift the quantile estimate back to $X$: $Q_{X,n+1}(q_{k+1}) = Q_{Y, n+1}(q_{k+1}) + \delta$
+        \end{itemize}
+    \item \textbf{Update the bigger quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c+1}, ..., q_{K}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{K-1}$
+    \item  \textbf{Update the smaller quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c-1}, ..., q_{1}$ are calculated similarly one based on another.
+\end{enumerate}
+% 3. \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile $q_{k+1}$ can be updated by implementation of shifting. The basic steps are:
+% \begin{itemize}
+%     \item Calculate $Q_x(q_k)$, which is the shift constant
+%     \item Get shift observation $y_{k+1} =  Q_x(q_k) - x$
+%     \item Calculate the new quantile $Q_y(q_{k+1})$ in $Y$
+%     \item Shift the change back to $X$: $Q_x(q_{k+1}) = Q_y(q_{k+1}) + \delta$
+% \end{itemize}
 
-3. \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile $q_{k+1}$ can be updated by implementation of shifting. The basic steps are:
-\begin{itemize}
-    \item Calculate $Q_x(q_k)$, which is the shift constant
-    \item Get shift observation $y_{k+1} =  Q_x(q_k) - x$
-    \item Calculate the new quantile $Q_y(q_{k+1})$ in $Y$
-    \item Shift the change back to $X$: $Q_x(q_{k+1}) = Q_y(q_{k+1}) + shiftConstant$
-\end{itemize}
+% 4. \textbf{Update the bigger quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c+1}, ..., q_{K}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{K-1}$
 
-4. \textbf{Update the bigger quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c+1}, ..., q_{K}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{K-1}$
-
-5. \textbf{Update the smaller quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c-1}, ..., q_{1}$ are calculated similarly one based on another.
+% 5. \textbf{Update the smaller quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c-1}, ..., q_{1}$ are calculated similarly one based on another.
 
 \subsection{The shiftQ Algorithm}
 \begin{algorithm}
