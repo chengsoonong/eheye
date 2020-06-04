@@ -48,32 +48,33 @@ $q_{i} - q_{i-1} > 0$. The algorithm explanation of the shiftQ algorithm is desc
 \label{sec: multi_shiftQ}
 
 In general, shiftQ estimates a central quantile point, and update other quantiles based on the central one. The independent update of the central point is based on the deterministic update-based multiplicative incremental quantile estimator (DUMIQE) algorithm\cite{yazidiMultiplicativeUpdateMethods2019}, and the update of other quantiles implement the idea of shifted distributions. In this section, we first briefly introduce the DUMIQE algorithm, followed by the explanation of shifted distribution and then the approach of the shiftQ algorithm in section \ref{subsec: multi_shiftQ_description}.
-
+\\\\
 The DUMIQE algorithm updates the quantile estimate upon the arrival of each new observation. It is a development on the work of \citeauthor{tierneySpaceEfficientRecursiveProcedure1983}\cite{tierneySpaceEfficientRecursiveProcedure1983}, which applies a stochastic approximation on quantile estimation. The similarity between DUMIQE and SGD can be seen in the following algorithm pseudo-code:
 
 \begin{algorithm}
     \caption{DUMIQE algorithm}\label{alg:DUMIQE}
     \begin{algorithmic}[1]
-        \Require{Data Stream $X$, $\tau$, $1$ unit of memory $q$}
+        \Require{Data Stream $X$, stepsize $\alpha$}, $\tau$, initial quantile estimate $q_0$ ($q_0 > 0$)
         \Ensure{$q$}
         % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
-        \State {Initialize} $q$                 \Comment{Requires \textbf{positive initialization} $q$ > 0}
+        % \State {Initialize} $q$                 \Comment{Requires \textbf{positive initialization} $q$ > 0}
+        \State{$q = q_0$}                         \Comment{\textbf{Positive} initialization }
             \For{$x_k$ in $X$}                  \Comment{Parameter update for each input data point}
-                \State \textbf{set} $\alpha_k$  \Comment{Set stepsize}
+                % \State \textbf{set} $\alpha_k$  \Comment{Set stepsize}
                 \If{$x_k > q$}                  
-                    \State{$q = q + \alpha_k \tau \cdot q$}
+                    \State{$q = q + \alpha \tau \cdot q$}
                 \Else                           
-                    \State{$q = q - \alpha_k (1-\tau)\cdot q$}
+                    \State{$q = q - \alpha (1-\tau)\cdot q$}
                 \EndIf
             \EndFor
-        \State \textbf{return} $q$              \Comment{$q$ is the DUMIQE result of quantile estimate}
+        \State \textbf{return} $q$              \Comment{$q$ is the DUMIQE estimation result}
     \end{algorithmic}
 \end{algorithm}
 
 The update of other quantiles are based on the the relationship with the central quantile. For example, if the central quantile is the median, the $0.25$-quantile is then estimated as the median of distribution below the estimate of median. To apply this idea, DUMIQE uses a shifted distribution $Y$ of the input $X$ such that $X = Y + \delta$, where $\delta$ is the shift constant. In the following method description, we use $Q_X(q)$ and  $Q_Y(q)$ to denote the estimate of $q$ on distribution $X$ and $Y$. In order to distinguish the quantile estimate on different distributions, the DUMIQE algorithm for the $\tau_k$-quantile on distribution $X$ at the observation of the $n$th sample $x_n$ is written as
 \begin{align}
-        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) + \alpha_k \tau_k \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) < x_n \\
-        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) - \alpha_k (1-\tau_k) \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) \geq x_n \nonumber
+        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) + \alpha \tau_k \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) < x_n \\
+        &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) - \alpha (1-\tau_k) \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) \geq x_n \nonumber
 \end{align}
 
 \subsection{Method Description}
@@ -85,46 +86,60 @@ diff = |Q_{X,n}(q_{k+1}) - Q_{X,n}(q_k)|
 $$
 Note that $diff > 0$ for all $x_i, i \in \{1,...,N\}$, so different quantiles never cross each other. This property is guaranteed by the update function DUMIQE() and its restriction that the input quantile estimate must be positive.
 \\\\
-The quantile estimation procedure of shiftQ is:
+At the arrival of observation $x_n$, the central quantile estimate $q_c$ is first updated. Denote $K$ as the number of quantiles for estimation. Then the larger quantile estimates are updated on the smaller one in the sequence $\{q_{c-1}, ..., q_1\}$, and similarly the bigger quantile estimates are updated in the order of {$q_{c+1}, ..., q_{K}$}. The steps are:
 \begin{enumerate}
-    \item \textbf{Update the central quantile} Calculate $Q_{X,n+1}(q_k)$ by DUMIQE
-    \item  \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile estimate $q_{k+1}$ can be updated by implementation of shifting. At the arrival of $x_n$, the basic steps are:
+    \item \textbf{Update the central quantile:} Calculate $q_c = Q_{X,n+1}(q_c)$ by DUMIQE
+    \item  \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile estimate $q_{k+1}$ can be updated by implementation of shifting. The basic steps are:
         \begin{itemize}
             \item Calculate the shift constant $\delta = Q_{X,n}(q_k)$
-            \item Get shift observation $Y_{n,k+1} =  Q_{X,n}(q_k) - x_n$
+            \item Get shift observation $y_{n,k+1} =  Q_{X,n}(q_k) - x_n$
             \item Calculate the shifted quantile estimate $Q_{Y, n+1}(q_{k+1})$ by DUMIQE
-            \item Shift the quantile estimate back to $X$: $Q_{X,n+1}(q_{k+1}) = Q_{Y, n+1}(q_{k+1}) + \delta$
+            \item Shift back to $X$: $Q_{X,n+1}(q_{k+1}) =  \delta  - Q_{Y, n+1}(q_{k+1})$
         \end{itemize}
-    \item \textbf{Update the bigger quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c+1}, ..., q_{K}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{K-1}$
-    \item  \textbf{Update the smaller quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c-1}, ..., q_{1}$ are calculated similarly one based on another.
+    \item \textbf{Update the smaller quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c-1}, ..., q_{1}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{2}$
+    \item  \textbf{Update the bigger quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c+1}, ..., q_{K}$ are calculated similarly one based on another.
 \end{enumerate}
-% 3. \textbf{Update one quantile}: The difference is calculated based on the idea of "shift distribution". Let $X$ denotes the original distribution of data stream, and let distribution $Y$ denotes a shifted version of $X$ such that $Y = X + constant$. In this way, the quantile $q_{k+1}$ can be updated by implementation of shifting. The basic steps are:
-% \begin{itemize}
-%     \item Calculate $Q_x(q_k)$, which is the shift constant
-%     \item Get shift observation $y_{k+1} =  Q_x(q_k) - x$
-%     \item Calculate the new quantile $Q_y(q_{k+1})$ in $Y$
-%     \item Shift the change back to $X$: $Q_x(q_{k+1}) = Q_y(q_{k+1}) + \delta$
-% \end{itemize}
-
-% 4. \textbf{Update the bigger quantiles:} Starting from central quantile $q_c$, the estimates for $q_{c+1}, ..., q_{K}$ are calculated one based on another. So each time step 2 is repeated from $q_c$ to $q_{K-1}$
-
-% 5. \textbf{Update the smaller quantiles:} Similar to step 3, for smaller quantiles, estimates for $q_{c-1}, ..., q_{1}$ are calculated similarly one based on another.
 
 \subsection{The shiftQ Algorithm}
 \begin{algorithm}
     \caption{The shiftQ Algorithm}\label{alg:multi_shiftQ}
         \begin{algorithmic}[1]
-            \Require{Dataset $X$ (with positive data points only), Demanding quantile values $[\tau_1, \tau_2, ..., \tau_P]$}
-            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_P\text{-}q]$}
-            % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
-            % \State {$d = 0, y_i = 0$ for $i = 1, 2, ..., n$}           \Comment{Default initialization}
-            % \For{$k = 0,1,...$ \textbf{do}}                  %\Comment{Parameter update for each input data point}
-            %     \State {Sample $i$ from {$1,2,...,n$}}
-            %     \State {$d=d - y_i + f^{\prime}_i(x))$}
-            %     \State {$y_i = f^{\prime}_i(x)$}
-            %     \State{$x = x - \frac{\alpha}{n}d$}
-            % \EndFor
-            % \State{\textbf{end for}}
+            \Require
+            \State{Dataset $X$ (with positive data points only)}
+            \State{Demanding quantile values $[\tau_1, \tau_2, ..., \tau_K]$}
+            \State{Centeral position $c$, Number of quantiles $K$}
+            \State{Stepsize $\alpha_X$, Stepsize $\alpha_Y$}
+            \State{Quantile Estimate Initialization on $X$: {$0 < Q_{X,0}(q_1) < ... < Q_{X,0}(q_K)$}}
+            \State{Quantile Estimate Initialization on $Y$: {$0 < Q_{Y,0}(q_1) < ... < Q_{Y,0}(q_K)$}}
+            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q]$}
+
+            \State
+            \For{$x_n \in X$}
+                \LineComment{Update central quantile}
+                \State{$q_c \leftarrow DUMIQE(q_c, x_n, \tau_c, \alpha_X)$}
+                \State{}
+
+                \For{$k \in \{c-1, ..., 1\}$}
+                \LineComment{Update smaller quantiles}
+                    \State{$\delta \leftarrow Q_{X,n+1}(q_{k+1})$}
+                    \State{$y_{n,k+1} \leftarrow Q_{X,n}(q_{k+1}) - x_n$}
+                    \State{$Q_{Y, n+1}(q_{k}) \leftarrow DUMIQE(Q_{Y, n}(q_{k}), y_{n,k+1}, q_k, \alpha_Y)$}
+                    \State{$Q_{X,n+1}(q_{k}) \leftarrow \delta - Q_{Y, n+1}(q_{k+1})$}
+                \EndFor
+                \State{}
+
+                \For{$k \in \{c+1, ..., K\}$}
+                \LineComment{Update bigger quantiles}
+                    \State{$\delta \leftarrow Q_{X,n+1}(q_{k-1})$}
+                    \State{$y_{n,k+1} \leftarrow  x_n - Q_{X,n}(q_{k-1})$}
+                    \State{$Q_{Y, n+1}(q_{k}) \leftarrow DUMIQE(Q_{Y, n}(q_{k}), y_{n,k-1}, q_k, \alpha_Y)$}
+                    \State{$Q_{X,n+1}(q_{k}) \leftarrow \delta + Q_{Y, n+1}(q_{k-1})$}
+                \EndFor
+            \EndFor
+
+            \State
+            \LineComment{Return final estimaton}
+            \State{$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q] \leftarrow [Q_{X,N}(q_1), ..., Q_{X,N}(q_K) ]$}
         \end{algorithmic}
 \end{algorithm}
 \subsection{Experiment Results}
