@@ -33,6 +33,12 @@ Section~\ref{sec: multi_discussion} list the comparison between the two methods,
 
 In real life implementations, quantile estimation usually do not focus on a single quantile value. For example, a common request is to show the median (the $0.5$-quantile) of the distribution, and at the same time show the outlier boundaries at ends of the distribution, like the $0.1$- and $0.9$- quantiles. It is also highly possible that multiple quantile estimates are required for a data distribution analysis.
 
+\begin{figure}[h]
+    \centering
+	\includegraphics[width=0.7\columnwidth]{Multi_img.png}
+	\caption{The update of multi-quantile estimation methods in general}
+\end{figure}
+
 A trivial solution for multi-quantile estimation is to run multiple single quantile estimation processes in parallel, such that each quantile is estimated by one process. The multi-process solution however, leads to two main problems:
 \begin{enumerate}
     \item The parallel processing capacity of the implementation software/hardware.
@@ -42,9 +48,11 @@ A trivial solution for multi-quantile estimation is to run multiple single quant
 The following two multi-quantile estimation methods can simultaneously estimate multiple quantile numbers in one process with the utilization of the non-decreasing feature. Both algorithms, \textit{shiftQ}\cite{hammerJointTrackingMultiple2019b} and \textit{extended $p^2$}\cite{raatikainenSequentialProcedureSimultaneous1993} utilize the monotone property by ensuring a positive distance between one quantile and its previous quantile, such that 
 $q_{i} - q_{i-1} > 0$. The algorithm explanation of the shiftQ algorithm is described in section \ref{sec: multi_shiftQ}, and the next section \ref{sec: multi_{p2}} for the extended $p^2$ algorithm.
 
+
+
 % ----------------------------------- shiftQ ---------------------------------------
 
-\section{The shiftQ methods}
+\section{The shiftQ method}
 \label{sec: multi_shiftQ}
 
 In general, shiftQ estimates a central quantile point, and update other quantiles based on the central one. The independent update of the central point is based on the deterministic update-based multiplicative incremental quantile estimator (DUMIQE) algorithm\cite{yazidiMultiplicativeUpdateMethods2019}, and the update of other quantiles implement the idea of shifted distributions. In this section, we first briefly introduce the DUMIQE algorithm, followed by the explanation of shifted distribution and then the approach of the shiftQ algorithm in section \ref{subsec: multi_shiftQ_description}.
@@ -144,10 +152,38 @@ At the arrival of observation $x_n$, the central quantile estimate $q_c$ is firs
 \end{algorithm}
 \subsection{Experiment Results}
 
-\begin{figure*}[h!]
+There are two experiments run on shiftQ algorithm. The first one is aim to check the effect on quantile crossing reduction, and the second one tests the performance of quantile estimation.
+
+In the first experiment, the experiment dataset is 5000 samples generated from a uniform distribution in range $(0,100)$. All data points are required to be positive as the pre-request of shiftQ algorithm. This experiment compares two algorithm, shiftQ and SGD, for the validation of crossing reduction of the shiftQ algorithm.
+
+\begin{figure}[h]
 	\includegraphics[width=1\columnwidth]{shiftQ/shiftQ_vs_SGD.png}
-	\caption{Comparison between shiftQ and SGD}
-\end{figure*}
+	\caption{The estimation comparison between shiftQ and SGD over a uniform distribution}
+\end{figure}
+
+In this experiment, $0$ crossing occurs in the shiftQ implementation, while 33 crossings happened over 5000 SGD estimation epochs. Over 100 experiments on the same data distribution over SGD, the average crossing number is 72.48, and the standard deviation is 66.23. The crossing in SGD has two interesting properties:
+    \begin{enumerate}
+        \item The crossings are likely to occur when two quantile values are close to each other. For example, in this example, only two pairs of quantiles ($0.15$, $0.16$) and ($0.16$, $0.17$) are detected to have crossings. The difference between two quantile values in the two crossing pairs are also 1, while the other adjacent quantile pairs are at least 8 away from each other. Given the setting of stepsize $\alpha = 0.45$ for SGD, the short distance between two adjacent quantile values are likely to be the main cause of crossings.
+        \item The crossings happen are likely to happen in a slot of concentrated continuous epochs. For example, among the 33 crossings, 11 of them are between $0.16$-q and $0.17$-q from epoch 2400 to 2410. The other 22 crossings are between $0.15$-q and $0.16$-q continuously from epoch 3489 to 3510.It is implied that once a crossing takes place, its impact is likely to continue for the following epochs until the crossing is fixed.
+    \end{enumerate}
+
+The second experiment aims to show the effectiveness of shiftQ algorithm. Here are the plots of shiftQ algorithm on the absolute value of 1000 samples from Gaussian 1 distribution.
+
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{shiftQ/1000_err.png}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{shiftQ/1000_proc.png}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the process graph)}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{shiftQ/1000_res.png}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution}
+\end{figure}
+
 
 % ----------------------------------- Extended P2 ---------------------------------------
 
@@ -169,21 +205,22 @@ Suppose the straightforward quantile computation for [$\tau_1, ..., \tau_M$] tha
 To find the $\tau_i$-quantile of $X$, we need to find the data observation at \textit{marker position} $m_i = \tau_i \cdot N$. Given the marker position, we then retrieve the value of the marker, the corresponding \textit{quantile value} $q_i = x_{m_i}$. 
 For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile values can be independently computed in the same way, as shown in Figure \ref{fig: {multi_relationship_p2}}.
 
-\begin{figure*}[h!]
+\begin{figure}[h]
 	\includegraphics[width=0.8\columnwidth]{P2/relationships.png}
     \caption{Relationship between $\tau$ value, marker position and quantile values correspondingly for 3 adjacent quantiles}
     \label{fig: {multi_relationship_p2}}
-\end{figure*}
+\end{figure}
 
 For quantile estimation, however, storing and sorting the entire dataset is infeasible. The $P^2$ method records only information only about demanding quantile values, and update them on the arrival of new observations. The update method, based on different conditions, is either a \textit{Piecewise-Parabolic} ($P^2$) formula, or a linear formula.
 
 The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $M$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
 
-\begin{figure*}[h!]
-	\includegraphics[width=1\columnwidth]{P2/parabola.png}
+\begin{figure}[h]
+    \centering
+	\includegraphics[width=0.7\columnwidth]{P2/parabola.png}
     \caption{Quantile value update using the Piecewise-Parabolic($P^2$) formula}
     \label{fig: {multi_parabolic_p2}}
-\end{figure*}
+\end{figure}
 
 The quantile value update is based on the Piecewise-Parabolic assumption that any three adjacent makers form a parabolic curve of the form $q_i = aq_i^2 + bq_i + c$.
 
@@ -225,7 +262,7 @@ When a new observation comes,
 
 \subsubsection{The Extended $P^2$ Method}
 In $P^2$, the update of a quantile relies on its position relative to the neighbour markers, indicating the accuracy of neighbour marker positions is important. 
-It sets one marker for each quantile value, that is, a total of $M$ markers for [$\tau_1, ..., tau_m$].
+It sets one marker for each quantile value, that is, a total of $M$ markers for [$\tau_1, ..., \tau_m$].
 The extended $P^2$ algorithm improves the estimation accuracy by the introduction of "middle markers",  which nearly doubles the amount of markers in $P^2$. 
 It means, in the initialization part, there will be $2M+3$ markers for
 $$
@@ -322,23 +359,26 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
 % 1, 2,   3, 4,   5, ..., 2M+1, 2M+2,   2M+3            
 
 \subsection{Experiment Results}
-Toy data experiment only
 \label{subsec: exp_extended_{p2}}
+The $P^2$ algorithm is tested on the Gaussian 1 distribution on 1000 samples. And the results are shown in the following plots:
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{P2/1000_err.png}
+	\caption{The P2 algorithm for Gaussian (mean = -20, std = 1)}
+\end{figure}
 
-% \begin{figure*}[h!]
-% 	\includegraphics[width=1\columnwidth]{P2/P2.png}
-% 	\caption{The P2 algorithm for Gaussian (mean = -20, std = 1)}
-% \end{figure*}
 
-% \begin{figure*}[h!]
-% 	\includegraphics[width=1\columnwidth]{P2/P2_std_20.png}
-% 	\caption{The P2 algorithm for Gaussian (mean = -20, std = 20)}
-% \end{figure*}
 
-% \begin{figure*}[h!]
-% 	\includegraphics[width=1\columnwidth]{P2/P2_std_001.png}
-% 	\caption{The P2 algorithm for Gaussian (mean = -20, std = $0.001$)}
-% \end{figure*}
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{P2/1000_proc.png}
+	\caption{The P2 algorithm for Gaussian (mean = -20, std = 20)}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=1\columnwidth]{P2/1000_res.png}
+	\caption{The P2 algorithm for Gaussian (mean = -20, std = $0.001$)}
+\end{figure}
 
 \section{Discussion and Conclusion}
 \label{sec: multi_discussion}
+
+From the experimental results we can see the two multi-quantile estimation methods can solve the crossing problem by introducing some mathematical relationship assumptions between adjacent quantiles. The following step will be doing nothing but to 
