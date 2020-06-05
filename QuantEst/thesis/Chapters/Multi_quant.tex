@@ -156,12 +156,13 @@ There are two experiments run on shiftQ algorithm. The first one is aim to check
 
 In the first experiment, the experiment dataset is 5000 samples generated from a uniform distribution in range $(0,100)$. All data points are required to be positive as the pre-request of shiftQ algorithm. This experiment compares two algorithm, shiftQ and SGD, for the validation of crossing reduction of the shiftQ algorithm.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 	\includegraphics[width=1\columnwidth]{shiftQ/shiftQ_vs_SGD.png}
-	\caption{The estimation comparison between shiftQ and SGD over a uniform distribution}
+    \caption{The estimation comparison between shiftQ and SGD over a uniform distribution}
+    \label{fig: shiftQ_SGD}
 \end{figure}
 
-In this experiment, $0$ crossing occurs in the shiftQ implementation, while 33 crossings happened over 5000 SGD estimation epochs. Over 100 experiments on the same data distribution over SGD, the average crossing number is 72.48, and the standard deviation is 66.23. The crossing in SGD has two interesting properties:
+In the experiment of Fig \ref{fig: shiftQ_SGD}, $0$ crossing occurs in the shiftQ implementation, while 33 crossings happened over 5000 SGD estimation epochs. Over 100 experiments on the same data distribution over SGD, the average crossing number is 72.48, and the standard deviation is 66.23. The crossing in SGD has two interesting properties:
     \begin{enumerate}
         \item The crossings are likely to occur when two quantile values are close to each other. For example, in this example, only two pairs of quantiles ($0.15$, $0.16$) and ($0.16$, $0.17$) are detected to have crossings. The difference between two quantile values in the two crossing pairs are also 1, while the other adjacent quantile pairs are at least 8 away from each other. Given the setting of stepsize $\alpha = 0.45$ for SGD, the short distance between two adjacent quantile values are likely to be the main cause of crossings.
         \item The crossings happen are likely to happen in a slot of concentrated continuous epochs. For example, among the 33 crossings, 11 of them are between $0.16$-q and $0.17$-q from epoch 2400 to 2410. The other 22 crossings are between $0.15$-q and $0.16$-q continuously from epoch 3489 to 3510.It is implied that once a crossing takes place, its impact is likely to continue for the following epochs until the crossing is fixed.
@@ -169,24 +170,35 @@ In this experiment, $0$ crossing occurs in the shiftQ implementation, while 33 c
 
 The second experiment aims to show the effectiveness of shiftQ algorithm. Here are the plots of shiftQ algorithm on the absolute value of 1000 samples from Gaussian 1 distribution.
 
-\begin{figure}[h]
-	\includegraphics[width=1\columnwidth]{shiftQ/1000_err.png}
-	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution}
-\end{figure}
-
-\begin{figure}[h]
+\begin{figure}[h!]
 	\includegraphics[width=1\columnwidth]{shiftQ/1000_proc.png}
 	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the process graph)}
+    \label{fig: shiftQ_proc}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[h!]
 	\includegraphics[width=1\columnwidth]{shiftQ/1000_res.png}
-	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the result graph)}
+    \label{fig: shiftQ_res}
 \end{figure}
 
+\begin{figure}[h!]
+	\includegraphics[width=1\columnwidth]{shiftQ/1000_err.png}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the error graph)}
+    \label{fig: shiftQ_err}
+\end{figure}
 
+\begin{figure}[h!]
+	\includegraphics[width=1\columnwidth]{shiftQ/10000_proc.png}
+	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the process graph)}
+    \label{fig: shiftQ_proc_10000}
+\end{figure}
+
+ From the process plot Fig \ref{fig: shiftQ_proc} it is clear that the big error is not cause by the initialization value of 0.1-q. Instead, the estimation of 0.1-q has barely changed during the 1000 epochs. The converging trend of 0.99-q is also too slow to reach the true 0.99-q quantile at a higher value position. The distance between the batch quanitles and shiftQ estimated quantiles in Fig \ref{fig: shiftQ_res} has shown that the quantile estimates at both ends are far away from the computation. It is shown in the Fig \ref{fig: shiftQ_err} that the shiftQ algorithm has a largely various performance on different quantiles. For example, the 0.5 and 0.9 quantiles has a much smaller and stable error distribution around 0, while the 0.1 quantile has a wide range of error values from less than -100 to more than 50. 
+ 
+ To test the convergence of end quantile values, a further experiment is done with a dataset of 10000 samples. Fig \ref{fig: shiftQ_proc_10000} shows that both 0.1-q and 0.99-q estimates finally converges when there are a sufficient amount of samples.
 % ----------------------------------- Extended P2 ---------------------------------------
-
+\pagebreak
 \section{The Extended $P^2$ Algorithm}
 \label{sec: multi_{p2}}
 
@@ -194,18 +206,18 @@ The \textit{Extended $P^2$} algorithm\cite{raatikainenSequentialProcedureSimulta
 In section \ref{subsec: algo_extended_{p2}}, the detailed algorithm for extended $P^2$ is provided, followed by its experiment results in section \ref{subsec: exp_extended_{p2}}.
 
 \subsection{Method Description}
-
 \subsubsection{The $P^2$ Method}
 \label{subsubsec: description_{p2}}
 
 The intuition of the $P^2$ method is the assumption that any three adjacent quantiles form a parabolic formula.
 Specifically, the method interprets quantile estimation as a relationship based on quantile values and their ordering positions, and applies either linear or parabolic adjustments based on the information from their neighbours.
 
-Suppose the straightforward quantile computation for [$\tau_1, ..., \tau_M$] that sorts all observations from the dataset $X = \{x_i\}^N_1$. Let $x_i$ denote the $i$th smallest value of $X$, then we have $x_1 < x_2 < ... < x_N$. 
+Suppose the straightforward quantile computation for [$\tau_1, ..., \tau_K$] that sorts all observations from the dataset $X = \{x_i\}^N_1$. Let $x_i$ denote the $i$th smallest value of $X$, then we have $x_1 < x_2 < ... < x_N$. 
 To find the $\tau_i$-quantile of $X$, we need to find the data observation at \textit{marker position} $m_i = \tau_i \cdot N$. Given the marker position, we then retrieve the value of the marker, the corresponding \textit{quantile value} $q_i = x_{m_i}$. 
 For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile values can be independently computed in the same way, as shown in Figure \ref{fig: {multi_relationship_p2}}.
 
 \begin{figure}[h]
+    \centering
 	\includegraphics[width=0.8\columnwidth]{P2/relationships.png}
     \caption{Relationship between $\tau$ value, marker position and quantile values correspondingly for 3 adjacent quantiles}
     \label{fig: {multi_relationship_p2}}
@@ -213,7 +225,7 @@ For 3 adjacent quantiles at $\tau_{i-1}, \tau_i, \tau_{i+1}$, their quantile val
 
 For quantile estimation, however, storing and sorting the entire dataset is infeasible. The $P^2$ method records only information only about demanding quantile values, and update them on the arrival of new observations. The update method, based on different conditions, is either a \textit{Piecewise-Parabolic} ($P^2$) formula, or a linear formula.
 
-The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $M$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
+The information recorded for each quantile contains 3 parts: the marker position, the desired marker position, and the quantile value. For quantile $\tau_i$ with current observation number $N$, the desired marker position is $m_i \prime = 1 + (N-1)\tau$. This algorithm aims at keeping the marker position $m_i$ close to its desired position $m_i \prime$ while new observation coming in. The quantile value estimation $q_i$ is then updated accordingly after the current marker position is fixed. Figure \ref{fig: {multi_parabolic_p2}} demonstrates the update.
 
 \begin{figure}[h]
     \centering
@@ -224,7 +236,7 @@ The information recorded for each quantile contains 3 parts: the marker position
 
 The quantile value update is based on the Piecewise-Parabolic assumption that any three adjacent makers form a parabolic curve of the form $q_i = aq_i^2 + bq_i + c$.
 
-If a marker is moved $d$ positions to the right, the new quantile value is updated by:
+If a marker is moved $d$ positions to the right, the new quantile value is updated by the \textit{parabolic formula}:
 \begin{align}
 \begin{split}
     q_{i} \leftarrow q_{i}+ & \frac{d}{n_{i+1}-n_{i-1}}\\
@@ -236,7 +248,7 @@ If a marker is moved $d$ positions to the right, the new quantile value is updat
 \end{split}
 \end{align}
 
-When the parabolic assumption cannot be applied to the quantile value update, the altherative update is a piecewise-linear formula:
+When the parabolic assumption cannot be applied to the quantile value update, the alternative update is a \textit{piecewise-linear formula}:
 \begin{equation}
     \begin{array}{l}
     q_{i}=q_{i}+d \frac{\left(q_{i+d}-q_{i}\right)}{n_{i+d}-n_{i}} \\
@@ -262,11 +274,11 @@ When a new observation comes,
 
 \subsubsection{The Extended $P^2$ Method}
 In $P^2$, the update of a quantile relies on its position relative to the neighbour markers, indicating the accuracy of neighbour marker positions is important. 
-It sets one marker for each quantile value, that is, a total of $M$ markers for [$\tau_1, ..., \tau_m$].
+It sets one marker for each quantile value, that is, a total of $K$ markers for [$\tau_1, ..., \tau_K$].
 The extended $P^2$ algorithm improves the estimation accuracy by the introduction of "middle markers",  which nearly doubles the amount of markers in $P^2$. 
-It means, in the initialization part, there will be $2M+3$ markers for
+It means, in the initialization part, there will be $2K+3$ markers for
 $$
-\tau = 0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_M+1}{2}, 1
+\tau = 0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{K}, \frac{\tau_K+1}{2}, 1
 $$
 And the estimation update for all those markers follows the exact rule in the $P^2$ algorithm.
 
@@ -275,23 +287,23 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
 
 \subsection{The Algorithm of Extended $P^2$}
 \label{subsec: algo_extended_{p2}}
-
+The extended $P^2$ algorithm is an extended version of the $P^2$ algorithm, so the algorithm \ref{alg:multi_p2} of $P^2$ is shown before the algorithm  \ref{alg:multi_ext_p2} of the extended $P^2$.
 \begin{algorithm}
     \caption{The $P^2$ Algorithm}\label{alg:multi_p2}
         \begin{algorithmic}[1]
-            \Require{Dataset $X$, $M$ Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
-            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
+            \Require{Dataset $X$, $K$ Demanding quantile values $[\tau_1, \tau_2, ..., \tau_K]$}
+            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q]$}
             \State
             \State{\textbf{A. Initialization}}
-            \State {The first M observations (sorted): \{$x_1,x_2,...,x_M$\}}
-            \For{$(i = 1, ..., M-1)$}
+            \State {The first $K$ observations (sorted): \{$x_1,x_2,...,x_K$\}}
+            \For{$(i = 1, ..., K-1)$}
                 \State {Marker height:    $q_i = x_i $}
                 \State {Marker position:   $m_i = i$}
-                \State {Desired Marker position:  $m_i\prime = (m-1)\tau_i + 1$}
+                \State {Desired Marker position:  $m_i\prime = (K-1)\tau_i + 1$}
             \EndFor
 
             \State
-            \State{\textbf{B. For each new observation $x_j$, $j \geq M+1$, perform the following}}
+            \State{\textbf{B. For each new observation $x_j$, $j \geq K+1$, perform the following}}
             \Switch{$s$}            \Comment {Find the cell $k$ such that $q_k \leq x_j < q_{k+1}$}
                 \Case{$x_j < q_1$}
                     \State{$q_1 = x_j, k = 1$}
@@ -299,19 +311,19 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
                 \Case{$q_i \leq x_j < q_{i+1}$}
                     \State {$k = i$}
                 \EndCase
-                \Case{$q_M < x_j$}
-                    \State {$q_M = x_j, k = M-1$}
+                \Case{$q_K < x_j$}
+                    \State {$q_K = x_j, k = K-1$}
                 \EndCase
             \EndSwitch
             \State
             
-            \State{$m_i = m_i + 1$; $i = k+1, ..., M$}       \Comment{Increment some marker positions}
+            \State{$m_i = m_i + 1$; $i = k+1, ..., K$}       \Comment{Increment some marker positions}
             % \Comment{Different from that on the $P^2$ paper}
             \State{$m_i\prime = m_i\prime + \tau_i$}            \Comment{Update all the desired positions}
 
             \State
-            \State{Adjust marker heights $2$ to $M-1$ if necessary:}
-            \For{$i = 2, 3, ..., M-1$}
+            \State{Adjust marker heights $2$ to $K-1$ if necessary:}
+            \For{$i = 2, 3, ..., K-1$}
                 \State {$d_i = m_i\prime - m_i$}
                 \If {($ d_i \geq 1 \text{ and }  m_{i+1} - m_i > 1$) or 
                      ($ d_i \leq -1 \text{ and }  m_{i-1} - m_i < -1$) }
@@ -329,53 +341,58 @@ The only difference between extended $P^2$ and $P^2$ is the extension of markers
             \State
             \State {\textbf{C. Return quantile estimates} }     
             \LineComment{The result is available after any number of observations}
-            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_1, q_2, ..., q_M]$}
+            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q] = [q_1, q_2, ..., q_K]$}
         \end{algorithmic}
 \end{algorithm}
+\\\\
+The extended $P^2$ extends the number of quantile markers of the $P^2$ algorithm at the initialization step, then follows $P^2$ in the next steps.
 
 \begin{algorithm}
     \caption{Extended $P^2$ Algorithm}\label{alg:multi_ext_p2}
         \begin{algorithmic}[1]
-            \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_M]$}
-            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q]$}
+            \Require{Dataset $X$, Demanding quantile values $[\tau_1, \tau_2, ..., \tau_K]$}
+            \Ensure{Demaning quantile estimates $[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q]$}
 
             \State
-            \State {\textbf{0.Extend number of markers from $M$ to $2M+3$}}
+            \State {\textbf{0.Extend number of markers from $K$ to $2K+3$}}
             \LineComment{Evenly fill the intervals between $0,1$ and each 2 quantile values}
-            \State{$[\tau_1\prime, \tau_2\prime, ..., \tau_{2M+3} \prime] = [0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_M+1}{2}, 1]$}
+            \State{$[\tau_1\prime, \tau_2\prime, ..., \tau_{2K+3} \prime] = [0, \frac{0+\tau_1}{2}, \tau_1, \frac{\tau_1 + \tau_2}{2}, \tau_2, ..., \tau_{M}, \frac{\tau_K+1}{2}, 1]$}
 
             \State
             \State{\textbf{1. Apply $P^2$ with the extended initialization}}
             \LineComment{And returns an estimate of extended list}
-            \State{$[q_1\prime, ..., q_{2M+3}\prime] = P^2$ ($X$, $[\tau_1\prime, \tau_2\prime, ..., \tau_{2M+3} \prime]$)}
+            \State{$[q_1\prime, ..., q_{2K+3}\prime] = P^2$ ($X$, $[\tau_1\prime, \tau_2\prime, ..., \tau_{2K+3} \prime]$)}
             \State
             \State {\textbf{2. Return quantile estimates} } 
             \State {Extract the quantile estimates for the original $M$ quantile values}
-            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_M\text{-}q] = [q_3\prime, q_5\prime, ..., q_{2M+1}\prime]$}
+            \State {$[\tau_1\text{-}q, \tau_2\text{-}q, ..., \tau_K\text{-}q] = [q_3\prime, q_5\prime, ..., q_{2K+1}\prime]$}
         \end{algorithmic}
 \end{algorithm}
 
 % 0, 0.5, 1, 1.5, 2, ..., M,    (M+1)/2, 1
-% 1, 2,   3, 4,   5, ..., 2M+1, 2M+2,   2M+3            
+% 1, 2,   3, 4,   5, ..., 2M+1, 2M+2,   2K+3            
 
 \subsection{Experiment Results}
 \label{subsec: exp_extended_{p2}}
-The $P^2$ algorithm is tested on the Gaussian 1 distribution on 1000 samples. And the results are shown in the following plots:
-\begin{figure}[h]
-	\includegraphics[width=1\columnwidth]{P2/1000_err.png}
-	\caption{The P2 algorithm for Gaussian (mean = -20, std = 1)}
+The $P^2$ algorithm is tested on the Gaussian 1 distribution on 1000 samples.The process plot Fig \ref{fig: p2_proc} shows the convergence of different quantiles have slightly different pace, in that the 0.9 and 0.99 are very close to the true quantile value while the other 3 have already stayed stable at the 1000th epoch. Fig \ref{fig: p2_res} shows the final results are close, which is evaluated in Fig \ref{fig: p2_err} that error values of extended $p^2$ estimates has limited error values between -20 and 10 for all quantiles except for one outlier at -80. 
+Overall the extended $P^2$ method has a really fast convergence rate.
+
+\begin{figure}[h!]
+	\includegraphics[width=1\columnwidth]{P2/gau_1_proc.png}
+    \caption{The extended $P^2$ algorithm for Gaussian 1 distribution (the process graph)}
+    \label{fig: p2_proc}
 \end{figure}
 
-
-
-\begin{figure}[h]
-	\includegraphics[width=1\columnwidth]{P2/1000_proc.png}
-	\caption{The P2 algorithm for Gaussian (mean = -20, std = 20)}
+\begin{figure}[h!]
+	\includegraphics[width=1\columnwidth]{P2/gau_1_res.png}
+	\caption{The extended $P^2$ algorithm for Gaussian 1 distribution (the result graph)}
+    \label{fig: p2_res}
 \end{figure}
 
-\begin{figure}[h]
-	\includegraphics[width=1\columnwidth]{P2/1000_res.png}
-	\caption{The P2 algorithm for Gaussian (mean = -20, std = $0.001$)}
+\begin{figure}[h!]
+	\includegraphics[width=1\columnwidth]{P2/gau_1_err.png}
+    \caption{The extended $P^2$ algorithm for Gaussian 1 distribution (the error graph)}
+    \label{fig: p2_err}
 \end{figure}
 
 \section{Discussion and Conclusion}
