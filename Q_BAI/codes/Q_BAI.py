@@ -364,6 +364,32 @@ class Q_UGapE(QBAI):
                 print('choose: ', l_t)
                 print()
             return l_t
+
+    def cal_empirical_gap(self):
+        # TODO: estimate lower bound of empirical gap
+        quantiles = {} # key: arm idx; value: empirical tau-quantile
+        rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+        #print('active set: ', self.active_set)
+        for i in range(self.num_arms):
+            reward = self.sample_rewards[i]
+            # not sure why returns an array of one element instead of a scalar
+            quantiles[i] = np.quantile(list(reward), self.tau)
+        argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+
+        for rank, idx in enumerate(argsort_quantiles):
+            rank_dict[list(quantiles.keys())[idx]] = rank
+            if rank == self.m: # m + 1
+                q_l_1 = list(quantiles.keys())[idx]
+            if rank == self.m -1: # m
+                q_l = list(quantiles.keys())[idx]
+
+        empirical_gap_dict = {} # key: arm idx; value: empirical gap
+        for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
+            if rank <= self.m - 1: # i <= m, rank starts from 0, so m-1
+                empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1]
+            else:
+                empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx]
+        return empirical_gap_dict
     
     def cal_gap(self, idx):
         """Calculate the (true) gap of arm idx.
@@ -377,9 +403,16 @@ class Q_UGapE(QBAI):
     def cal_prob_complexity(self):
         """Calculate the (true) probability complexity H for Q-UGapE algorithms
         """
+        if self.est_H_flag:
+            empirical_gap_dict = self.cal_empirical_gap()
+        
         H = 0
         for idx in range(self.num_arms):
-            omega_1 = np.sqrt(((self.cal_gap(idx) + self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
+            if self.est_H_flag:
+                gap = empirical_gap_dict[idx]
+            else:
+                gap = self.cal_gap(idx)
+            omega_1 = np.sqrt(((gap + self.epsilon) * self.true_L_list[idx] + 2)/8.0) - 0.5
             omega_2 = (np.sqrt(self.epsilon * self.true_L_list[idx] + 1) - 1)/2.0 
             
             if self.print_flag:
@@ -399,8 +432,9 @@ class Q_UGapEb(Q_UGapE):
         probability of error (evaluation metric)
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+                hyperpara, est_flag, fixed_L, fixed_samples, budget, est_H_flag = True):
         """
+        TODO: add est_H_flag to the simulation code.
         Parameters
         ----------------------------------------------------------
         budget: int
@@ -409,7 +443,10 @@ class Q_UGapEb(Q_UGapE):
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
                 hyperpara, est_flag, fixed_L, fixed_samples)
         self.budget = budget
-        self.prob_complexity = self.cal_prob_complexity()
+        self.est_H_flag = est_H_flag
+
+        if self.est_H_flag == False: # use true prob complexity
+            self.prob_complexity = self.cal_prob_complexity()
         if self.print_flag:
             print('prob complexity: ', self.prob_complexity)
         self.last_time_pulled = {} # record the round that each arm is pulled last time
@@ -431,6 +468,8 @@ class Q_UGapEb(Q_UGapE):
         """
         
         # self.hyperpara[0]: alpha
+        if self.est_H_flag:
+            self.prob_complexity = self.cal_prob_complexity()
         gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
@@ -831,8 +870,6 @@ class Q_SAR_Simplified(QBAI):
         #self.p_list = p_list
         #plt.plot(list(range(len(self.p_list))), p_list, marker = '.')
         #plt.show()
-        
-
 
     def evaluate(self):
         """Evaluate the performance (probability of error).

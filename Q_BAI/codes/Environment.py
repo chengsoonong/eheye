@@ -1,6 +1,8 @@
 import numpy as np
 from collections import defaultdict
 from scipy.special import erf
+from sklearn.neighbors import KernelDensity
+
 
 # Version: Feb/2020
 # This file implements the environment construction for bandits algorithm. 
@@ -120,6 +122,88 @@ def setup_env(envs_setting, tau =0.5, random_set = None):
                 means[name].append(np.mean(sample))
     return rewards_env, quantiles, Ls, means, samples
 
+def est_L_test(envs_setting, num_exper = 100, sample_size = 500, est_method = 'naive', bandwidth = 1):
+    """Test of convergence of estimation of L. 
+
+    Parameter:
+    --------------------------------------------------
+    envs_setting: list of env dict
+        keys: instance of environment class 
+            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
+        values: list of parameters
+        e.g.environments = [
+                {AbsGau: [0.5, 1.0, 1.5]}, 
+                {Exp:    [2.0, 1.0, 1.5]},
+                {AbsGau: [0.5], Exp: [1.0, 1.5]}
+               ]
+    sample_size: int
+        number of samples
+    est_method: str
+        can be one of the choice of 'kde', 'naive'
+        'kde': kernel density estimation
+        'naive': count the samples insides [0,dt]
+    bandwidth: float
+
+    Return:
+    --------------------------------------------------
+    est_Ls: dict 
+        keys: name of environment 
+            e.g. AbsGau_Outlier_[0.5, 1, 1.5]
+        values: list of est Ls for each round
+    """
+    
+    est_Ls = defaultdict(list)
+
+    for envs_dict in envs_setting:
+        #name = ''
+        #for env, para_list in envs_dict.items():
+            #env_name = str(env).split('.')[-1][:-2]
+            #name += env_name + '_' + str(para_list)
+
+        arm_idx = 0
+        for env, para_list in envs_dict.items(): 
+            for para in para_list:
+                if type(para) is list:
+                    current_env = env(*para)
+                else:
+                    current_env = env(para)
+
+                #est_Ls[arm_idx] = []
+                for exper in range(num_exper):
+                    current_samples = []
+                    current_est_Ls = []
+                    for t in range(sample_size):
+                        current_samples.append(current_env.sample())
+                        current_est_Ls.append(est_L(current_samples, est_method, bandwidth))
+                    est_Ls[arm_idx].append(current_est_Ls)
+                arm_idx +=1
+    return est_Ls
+
+def est_L(sample_list, est_method, bandwidth = 0.5):
+    """Estimate L from a list of samples.
+
+    Parameter
+    ------------------------------------------
+    sample_list: list
+        a list of samples for arm i at time t
+    est_method: str
+        can be one of the choice of 'kde', 'naive'
+        'kde': kernel density estimation
+        'naive': count the samples insides [0,dt]
+    """
+    if est_method == 'kde':
+        kde = KernelDensity(kernel='tophat', bandwidth=bandwidth).fit(np.asarray(sample_list)[:, np.newaxis])
+        log_den_0 = kde.score_samples(np.asarray([0])[:, np.newaxis])
+        estL = np.exp(log_den_0)[0]
+    elif est_method == 'naive':
+        sorted_data = np.asarray(sorted(sample_list))
+        estL = len(sorted_data[sorted_data <= bandwidth])/len(sorted_data)
+        #if len(sample_list) ==1 or estL  == 0:
+            # TODO: init value
+        #    L = 0.01 
+    else:
+        print('Unkown estimation method.')
+    return estL
 #------------------------------------------------------------------------------------
 
 class Base_env():
