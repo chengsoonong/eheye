@@ -102,9 +102,11 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
 
                 if type == 'barplot':
                     ax.bar([label], mean, yerr = sigma)
+
+            plt.xticks(rotation=90)
     if log_scale:
         ax.set_yscale('log')
-    plt.xticks(rotation=90)
+    
     file_name = title + '.pdf'
     fig.savefig(file_name, bbox_inches='tight')
 

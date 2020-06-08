@@ -35,7 +35,7 @@ class QBAI(ABC):
         totoal number of arms K
     m: int
         number of arms for recommendation set 
-    est_flag: boolean 
+    est_L_flag: boolean 
         indicate whether estimation the lower bound of hazard rate L
         True: estimate L
         False: use the true L = f(0)/ (1 - F(0)), where f is PDF and F is CDF
@@ -69,7 +69,7 @@ class QBAI(ABC):
         values: list of estimated L (len is the current number of samples)
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples = None):
+                hyperpara, est_L_flag, fixed_L, fixed_samples = None, est_H_flag = False):
         """
         Parameters
         ----------------------------------------------------------------------
@@ -87,7 +87,7 @@ class QBAI(ABC):
         hyperpara: list of hyperparameters
             alpha (fixed budget)/beta (fixed confidence), hyperparameter in gamma
             L_est_thr: L estimate threshold 
-        est_flag: boolean 
+        est_L_flag: boolean 
             indicate whether estimation the lower bound of hazard rate L
             True: estimate L
             False: use the true L = f(0)/ (1 - F(0)), where f is PDF and F is CDF
@@ -95,6 +95,10 @@ class QBAI(ABC):
             if not None, set L to fixed_L
         fixed_samples: dict, default is None
             key: arm_dix; values: list of fixed samples
+        est_H_flag: boolean
+            Only for QUGapEb
+            True: est H
+            False: use true H
         """
 
         self.env = env
@@ -116,7 +120,7 @@ class QBAI(ABC):
         self.rec_set = set()
 
         self.hyperpara = hyperpara
-        self.est_flag = est_flag
+        self.est_L_flag = est_L_flag
         self.fixed_L = fixed_L
 
         # For lower bound of hazard rate
@@ -129,6 +133,7 @@ class QBAI(ABC):
         self.print_flag = False
         self.print_every = 100
         self.fixed_samples = fixed_samples
+        self.est_H_flag = est_H_flag
 
     @abstractmethod
     def simulate(self):
@@ -218,7 +223,7 @@ class QBAI(ABC):
         """
 
         sample_reward = self.sample_rewards[arm_idx]
-        if self.est_flag:
+        if self.est_L_flag:
             if self.fixed_L == None:
                 # estimate L
                 sorted_data = np.asarray(sorted(sample_reward))
@@ -385,10 +390,13 @@ class Q_UGapE(QBAI):
 
         empirical_gap_dict = {} # key: arm idx; value: empirical gap
         for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
+            # estimate gap by its upper confidence bound, which gives the lower confidence bound for H 
+            gap_interval = 1.0/np.sqrt(2 * len(self.sample_rewards[idx]))
             if rank <= self.m - 1: # i <= m, rank starts from 0, so m-1
-                empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1]
+                empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1] + gap_interval
             else:
-                empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx]
+                empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx] + gap_interval
+
         return empirical_gap_dict
     
     def cal_gap(self, idx):
@@ -430,20 +438,20 @@ class Q_UGapEb(Q_UGapE):
     ---------------------------------------------------------------
     prob_error: float
         probability of error (evaluation metric)
+    est_H_list: list
+        list of estimated problem complexity for each time 1 <= t <= N
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget, est_H_flag = True):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, budget):
         """
-        TODO: add est_H_flag to the simulation code.
         Parameters
         ----------------------------------------------------------
         budget: int
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.budget = budget
-        self.est_H_flag = est_H_flag
 
         if self.est_H_flag == False: # use true prob complexity
             self.prob_complexity = self.cal_prob_complexity()
@@ -451,6 +459,7 @@ class Q_UGapEb(Q_UGapE):
             print('prob complexity: ', self.prob_complexity)
         self.last_time_pulled = {} # record the round that each arm is pulled last time
                                    # key: arm idx; value: round of arm idx last time pulled 
+        self.est_H_list = []
 
     def cal_gamma(self,t):
         """Calculate exploration factor in confidence interval.
@@ -470,6 +479,7 @@ class Q_UGapEb(Q_UGapE):
         # self.hyperpara[0]: alpha
         if self.est_H_flag:
             self.prob_complexity = self.cal_prob_complexity()
+            self.est_H_list.append(self.prob_complexity)
         gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
@@ -532,7 +542,7 @@ class Q_UGapEc(Q_UGapE):
     """
 
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, delta):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, delta):
         """
         Parameters
         ----------------------------------------------------------
@@ -542,7 +552,7 @@ class Q_UGapEc(Q_UGapE):
             number of rounds needed, init as inf
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.delta = delta
         self.sample_complexity = np.inf
 
@@ -577,7 +587,7 @@ class Q_UGapEc(Q_UGapE):
         self.init_reward()
         t = self.num_arms * self.init_times + 1
         self.B_St = 1 # init B_St
-        while self.B_St >= self.epsilon:
+        while self.B_St > self.epsilon:
             #print('B_St: ', self.B_St)
                 
             idx = self.select_arm(t, self.confidence_interval(t))
@@ -616,7 +626,7 @@ class Q_SAR(QBAI):
     """Quantile Successive accepts and rejects algorithm.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -624,7 +634,7 @@ class Q_SAR(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.budget = budget
         
         self.barlogK = 0.5
@@ -757,7 +767,7 @@ class Q_SAR_Simplified(QBAI):
     """Quantile Successive accepts and rejects algorithm, a simplified version.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -765,7 +775,7 @@ class Q_SAR_Simplified(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.budget = budget
         
         self.barlogK = 0.5
@@ -892,7 +902,7 @@ class Q_SAR_Simplified(QBAI):
 
 class uniform_sampling(QBAI):
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -900,7 +910,7 @@ class uniform_sampling(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.budget = budget
 
     def simulate(self):
@@ -947,7 +957,7 @@ class batch_elimination(QBAI):
        Select x1 = ... = xL = 1. i.e. L = K-1. Functional as quantiles.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, budget):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -955,7 +965,7 @@ class batch_elimination(QBAI):
             number of total round/budget.
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.budget = budget
 
         # number of arms left to recommend
@@ -1028,7 +1038,7 @@ class QPAC(QBAI):
        Algorithm 1 QPCA(delta, epsilon, tau)
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, delta):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, delta):
         """
         Parameters
         ----------------------------------------------------------
@@ -1038,7 +1048,7 @@ class QPAC(QBAI):
             number of rounds needed, init as inf
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.delta = delta
         self.sample_complexity = np.inf
 
@@ -1136,7 +1146,7 @@ class MaxQ(QBAI):
     Algorithm 1 Maximal Quantile (Max-Q) Algorithm.
     """
     def __init__(self, env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples, delta):
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag, delta):
         """
         Parameters
         ----------------------------------------------------------
@@ -1146,7 +1156,7 @@ class MaxQ(QBAI):
             number of rounds needed, init as inf
         """
         super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                hyperpara, est_flag, fixed_L, fixed_samples)
+                hyperpara, est_L_flag, fixed_L, fixed_samples, est_H_flag)
         self.delta = delta
         self.sample_complexity = np.inf
 

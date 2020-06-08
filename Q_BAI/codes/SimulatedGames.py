@@ -4,7 +4,7 @@ import numpy as np
 # This file implements the simulated games for bandits algorithm. 
 
 def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
-             num_expers, est_var, hyperpara, fixed_L, p, fixed_samples_list = None):
+             num_expers, est_L_flag, hyperpara, fixed_L, p, fixed_samples_list = None, est_H_flag = False):
     """Simulate fixed budget BAI. 
 
     Paramters
@@ -28,7 +28,7 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
         total number of experiments
    
     
-    est_var: boolean, True indicates estimate parameters 
+    est_L_flag: boolean, True indicates estimate parameters 
         e.g. lower bound of hazard rate L
     hyperpara: list of parameters
         parameters depending on different algorithms
@@ -40,27 +40,39 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
     fixed_samples_list: list of dict, default is None
             each element is the sample dict for one exper
             key: arm_dix; values: list of fixed samples
+    est_H_flag: boolean
+        Only for QUGapEb
+        True: est H
+        False: use true H
+        default is False
     """
     result = [] # list, element: 1 if simple regret bigger than epsilon (indicates error occurs);
                 #                0 otherwise 
     estimated_L = []
+    estimated_H = []
+
 
     for i in range(num_expers):
         p.value += 1
         if fixed_samples_list == None:
             agent = policy(env, summary_stat, epsilon, tau, m, 
-                    hyperpara, est_var, fixed_L, fixed_samples_list, budget_or_confi)
+                    hyperpara, est_L_flag, fixed_L, fixed_samples_list, est_H_flag, budget_or_confi)
         else:
             agent = policy(env, summary_stat, epsilon, tau, m, 
-                    hyperpara, est_var, fixed_L, fixed_samples_list[i], budget_or_confi)
+                    hyperpara, est_L_flag, fixed_L, fixed_samples_list[i], est_H_flag, budget_or_confi)
         agent.simulate()
         result.append(agent.evaluate())
         if hasattr(agent, 'estimated_L_dict'):
             estimated_L.append(agent.estimated_L_dict)
+        if est_H_flag:
+            estimated_H.append(agent.est_H_list)
 
     prob_error = np.mean(result)
     std = np.std(result)
-    return result
+    if est_H_flag:
+        return result, est_H_flag
+    else:
+        return result
 
 def simulate_mean(env, summary_stat, policy, epsilon, m, budget_or_confi,
              num_expers, hyperpara, p, fixed_samples_list = None):
