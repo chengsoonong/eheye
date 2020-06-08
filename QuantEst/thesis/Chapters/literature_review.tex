@@ -16,7 +16,7 @@
 The field of quantile estimation on data stream is big, and this thesis is incapable of covering all the topics.
 This chapter details some of the work that has been done in this field, and is organised as follows:
 
-Section~\ref{streamingdata} introduces the data stream phenomenon and some quantile estimation methods on it, and are classifies by algorithm types. We specially highlight the space complexity of those algorithms, to show the improvements of quantile estimation algorithms in an intuitive way.
+Section~\ref{streamingdata} introduces the data stream phenomenon and some quantile estimation methods on it, and are classified by algorithm type. We specially highlight the space complexity of those algorithms, to show the improvements of quantile estimation algorithms in an intuitive way.
 
 Section~\ref{singlequantile} focuses algorithms with extreme restriction: estimate a quantile in constant space complexity. Two methods are described in detail, followed by a brief comparison.
 
@@ -37,18 +37,19 @@ Transmission problem is difficult when there are frequent delays or data in comp
 while challenges in computation comes with high complexity programs. Also, the balance between long-term demanding and capable memory storage can be another tricky problem.
 In this research, we focus only on the latter two problems. The aim range is limited to programs with low computation complexity and restricted memory storage, under the assumption that the low-dimensional input data is transmitted at a not very high rate.
 \\\\
-A common assumption people make about data stream is that the data points are considered as independent individual samples from a certain statistic distribution. 
+A common assumption people make about data stream is that the data points are considered as independent individual samples from a certain statistical distribution. 
 Although access to the distribution is impossible, studies on the random samples can reveal some useful information. 
-Quantile is an important \textbf{feature (?)} for a distribution, which represents the cutting points which divides a data distribution by its ranking.
-At the first sight, the computation of quantile is relatively as long as the dataset is sorted.
-The data stream, however, is updated at the arrival of each single input, indicating quantile calculation then demands one sorting for every updates.
-For what's worse, the unknown size of data stream can cause a severe memory shortage problem for any system. 
-The conclusion now becomes clear that quantile calculation fail to be a feasible solution for data stream.
+A quantile is an important feature of a distribution, which represents the cutting points which divides a data distribution by its ranking.
+At the first sight, the computation of a quantile is relatively easy as long as the dataset is sorted.
+The data stream, however, is updated at the arrival of each single input, indicating quantile calculation then demands a new sorting for every update.
+What's worse, the unknown number of data points can cause a severe memory shortage problem for any system. 
+The conclusion now becomes clear that quantile calculation fails to be a feasible solution for data stream.
 
 Quantile estimation replaces calculation for data streams due to the computation and storage problems.
 The estimation works with limited computational power and memory storage.
+The batch algorithm for quantile computation takes $O(N)$ space.
 Generally, quantile estimation algorithms trade off accuracy for computation and storage.
-\citeauthor{munroSelectionSortingLimited1980} \cite{munroSelectionSortingLimited1980} has shown that, for any algorithm that computes the exact $\phi$-quantile from an $N$-element data stream with $p$ passes, requires at least $\Omega(N^{\frac{1}{p}})$ space.
+\citeauthor{munroSelectionSortingLimited1980} \cite{munroSelectionSortingLimited1980} has shown that, for any algorithm that computes the exact $\tau$-quantile from an $N$-element data stream with $p$ passes, requires at least $\Omega(N^{\frac{1}{p}})$ space.
 Therefore quantile estimation algorithms all necessarily aim for sub-linear space.
 In this chapter, we introduce other people's work on how improvements are made for higher estimation accuracy with lower computational and memory complexity, and that how the trade off is balanced in different situations. Section~\ref{deterministic}, ~\ref{randomised} and ~\ref{other} divide the algorithms by their types: deterministic, randomised and others. The classification is based on works from \citeauthor{buragohainQuantilesStreams2009}\cite{buragohainQuantilesStreams2009} and \citeauthor{wangQuantilesDataStreams2013}\cite{wangQuantilesDataStreams2013}.
 % Model: time series: each input $a_i$ equals $A[i]$ and appears in increasing order.
@@ -60,9 +61,12 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 \subsection{Deterministic algorithms}
 \label{deterministic}
 % Manku's work
-The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} (referred to as the MRL algorithm below), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\phi$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOther1998}, which describes the property of guaranteed accuracy on $\phi$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improvement algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}.
+\marginpar{{I dont know, cannot tell why the \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} method is deterministic, . Also confused about the Monte Carlo randomization mentioned in \citeauthor{wangQuantilesDataStreams2013}\cite{wangQuantilesDataStreams2013}}}
+\textbf{A deterministic algorithm for quantile estimation is}
 
-\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm below) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to 
+The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} (referred to as the MRL algorithm), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\tau$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOther1998}, which describes the property of guaranteed accuracy on $\tau$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute \textit{$\epsilon$-approximate quantile summary}. Building on this, two improved algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}.
+
+\citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity is then improved to 
 $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, who provide a mergeable sketch based on the GK algorithm.
 
 A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}. It deals with the quantile problem as a histogram problem using $O (\frac{1}{\epsilon}\log U)$ space, where $U$ is the size of the fixed universe from which the input is drawn.
@@ -71,8 +75,8 @@ A deterministic, fixed-universe algorithm \textit{Q-Digest} was designed by \cit
 \subsection{Randomised algorithms}
 \label{randomised}
 
-Estimating quantile from a random sample of data stream input is the basic idea for most randomized algorithms, and it reduces space usage to a considerable extend.
-A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} \log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\phi$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
+Estimating quantile from a random sample of data stream input is the basic idea for most randomized algorithms, and it reduces space usage to a considerable extent.
+A simple randomized algorithm designed by \citeauthor{floydExpectedTimeBounds1975}\cite{floydExpectedTimeBounds1975} uses $O(\frac{1}{\epsilon^2} \log \frac{1}{\epsilon \delta})$ space, for an $\epsilon$-approximate $\tau$-quantile of N elements with probability at least $1 - \delta$, where $0 < \delta < 1$.
 Later, \citeauthor{mankuRandomSamplingTechniques1999}\cite{mankuRandomSamplingTechniques1999} proposed a randomized quantile estimation algorithm based on their previous framework in \cite{mankuApproximateMediansOther1998}. The new method requires space of size 
 $O(
     \frac{1}{\epsilon} \log^2 
@@ -87,20 +91,20 @@ The \textit{turnstile model} was first taken into consideration by \citeauthor{g
 $O(\frac{1}{\epsilon^2} \log^2 U \log (\frac{\log U}{\epsilon}))$, where $U$ is the size of the universe. 
 The key idea is based on their findings that insertions or deletions of quantiles can be reduced to finding range sums.
 The space requirement is greatly improved by another algorithm for turnstile model -- the \textit{Count-Min sketch} designed by \citeauthor{cormodeImprovedDataStream2005}\cite{cormodeImprovedDataStream2005}. Only 
-$O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\phi \delta}))$ space is needed for an $\epsilon$-approximate $\phi$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest}, it has a noticeable advantage on dealing with both insertions and deletions to streams.
+$O(\frac{1}{\epsilon} \log^2 N \log (\frac{\log N}{\tau \delta}))$ space is needed for an $\epsilon$-approximate $\tau$-quantile. Although the space requirement is worse than the deterministic algorithms \textit{GK} and \textit{Q-Digest}, it has a noticeable advantage on dealing with both insertions and deletions to streams.
 
-Another significant improvement on randomised algorithms were made in 2017, when \citeauthor{felberRandomizedOnlineQuantile2017}\cite{felberRandomizedOnlineQuantile2017} developed an algorithm that uses $O(\frac{1}{\epsilon}\log \frac{1}{\epsilon})$ of memory space. The algorithm not only beats the previous best upper bound of $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, but it also beats the lower bound for any deterministic comparison-based algorithm, according to the work of \citeauthor{hungLogSpaceLower2010}\cite{hungLogSpaceLower2010}. The estimation ensures the return of the $\epsilon$-approximate quantile summary, with probability at least $1-e^{-poly(1/\epsilon)}$.
+Another significant improvement on randomised algorithms were made in 2017, when \citeauthor{felberRandomizedOnlineQuantile2017}\cite{felberRandomizedOnlineQuantile2017} developed an algorithm that uses $O(\frac{1}{\epsilon}\log \frac{1}{\epsilon})$ of memory space. The algorithm not only matches the previous best upper bound of $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$ by \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries2013}, but it also beats the lower bound for any deterministic comparison-based algorithm, according to the work of \citeauthor{hungLogSpaceLower2010}\cite{hungLogSpaceLower2010}. The estimation ensures the return of the $\epsilon$-approximate quantile summary, with probability at least $1-e^{-poly(1/\epsilon)}$.
 
 
 \subsection{Algorithms for other requirements}
 \label{other}
-Due to the large range of data streams and quantile application requirements, it is not surprising to have a considerable variety in quantile estimation algorithms attacking on specific requirements. We will introduce some interesting applications in the following, such as the methods for biased accuracy requirements and the parallel algorithm for distributed data streams.
+Due to the large range of data streams and quantile application requirements, it is not surprising to have a considerable variety in quantile estimation algorithms attacking specific requirements. We will introduce some interesting applications in the following, such as the methods for biased accuracy requirements and the parallel algorithm for distributed data streams.
 \\\\
-Although most quantile estimation work target at the \textit{uniform accuracy} problem on quantile estimation, many queries over data streams require differently. For example, the $0.99$-quantile is usually sparsely surrounded while the $0.5$-quantile is likely to locate in the center of a distribution where the data is much more dense. Thus comes the \textit{biased quantiles} problem which demands higher accuracy for more extreme quantile values.
-The first deterministic algorithms for the biased quantiles problem is proposed by \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} that takes only space $O(\frac{1}{\epsilon} \log {U} \cdot \log {\epsilon N})$, where $N$ is the size of the data stream and $U$ is the size of universe from which the samples are drawn. Besides, tha algorithms also apply for Other related problems like biased rank queries and targeted quantiles. 
+Although most quantile estimation work target at the \textit{uniform accuracy} problem on quantile estimation, many queries over data streams require different accuracy for different quantiles. For example, the $0.99$-quantile is usually sparsely surrounded while the $0.5$-quantile is likely to locate in the center of a distribution where the data is much more dense. Thus comes the \textit{biased quantiles} problem which demands higher accuracy for more extreme quantile values.
+The first deterministic algorithms for the biased quantiles problem is proposed by \citeauthor{cormodeSpaceTimeefficientDeterministic2006} \cite{cormodeSpaceTimeefficientDeterministic2006} that takes only space $O(\frac{1}{\epsilon} \log {U} \cdot \log {\epsilon N})$, where $N$ is the size of the data stream and $U$ is the size of universe from which the samples are drawn. Besides, the algorithms also apply to other related problems like biased rank queries and targeted quantiles. 
 
-There are also applications requiring algorithms work for distributed system where a big data stream is processed by different processors.
-The \citeauthor{ben-haimStreamingParallelDecision2010}\cite{ben-haimStreamingParallelDecision2010} introduces an on-line histogram building algorithm \textit{Streaming Parallel Decision Tree (SPDT)} in which the histogram boundaries can be seen as estimated quantile values.
+There are also applications that require algorithms to work for distributed systems where a big data stream is processed by different processors.
+\citeauthor{ben-haimStreamingParallelDecision2010}\cite{ben-haimStreamingParallelDecision2010} introduce an on-line histogram building algorithm \textit{Streaming Parallel Decision Tree (SPDT)} in which the histogram boundaries can be seen as estimated quantile values.
 In this method, multiple histograms are built from streaming data in parallel, which are then merged into a summary histogram of the entire dataset. The summary histogram is a set of sorted real numbers that represents the interval boundaries such that all the intervals have approximately the same size. Specifically, for a summary histogram with $N$ intervals, the set of real numbers is approximately the set of $\tau$-quantiles ($\tau = \frac{1}{N}, \frac{2}{N}, ..., \frac{N-1}{N}$) for the input data stream.
 Some quantiles estimation methods mentioned before are also available for distributed settings. To mention a few,
 {Q-Digest}\cite{shrivastavaMediansNewAggregation2004b} is a tree based algorithm which can be extended for distributed quantile processors by merging the quantile summaries across different nodes. The Count-Min sketch\cite{cormodeImprovedDataStream2005} is also suited for distributed applications too. Both adjustments do not get involved in change of space complexity.
@@ -109,7 +113,7 @@ It was \citeauthor{agarwalMergeableSummaries2013}\cite{agarwalMergeableSummaries
 $O(\frac{1}{\epsilon}\log^{\frac{3}{2}}\frac{1}{\epsilon})$
 and distributed setting capability.
 
-In the situation when old data get expired, the applications seek for quantile of only the most recent observations from a data stream.
+In the situation when old data get expired, the applications seek quantiles of only the most recent observations from a data stream.
 The \textit{sliding window} represents the most recent $W$ in a data stream. The types of sliding window can be classified as \textit{fixed-size} for $W$ is fixed and \textit{variable-size} when $W$ changes.
 In \cite{linContinuouslyMaintainingQuantile2004}, \citeauthor{linContinuouslyMaintainingQuantile2004} posed their algorithm for fixed-size sliding window problem with an 
 $O(\frac{1}{\epsilon} \log (\epsilon^2 W) + \frac{1}{\epsilon^2})$ space requirement.
@@ -134,7 +138,7 @@ Despite of a worse memory space usage, the work of \citeauthor{linContinuouslyMa
 The brief history above has shown a clear path for quantile estimation algorithm development: keeping a relatively accurate result while using as little memory as possible. This triggers another interesting question: what if only a constant unit of memory is allowed and how would it affect the accuracy on quantile estimation? In the following part, we introduce two similar algorithms that estimate a single quantile with a $O(1)$ space requirement.
 % \textbf{Online algorithms: Data stream algorithms have an online component where input is revealed in steps, but they have resource constraints that are not typically incorporated in competitive analysis of online algorithms. \cite{muthukrishnanDataStreamsAlgorithms2005}}
 \\\\
-\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming (referred to as Frugal below) that require only one or two units of memory. This algorithm does not need a prior knowledge of the size of input data or the universe, and the query of quantile estimation can be made after the arrival of any item.
+\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014} introduce the randomized algorithms frugal streaming (referred to as Frugal) that require only one or two units of memory. This algorithm does not need prior knowledge of the size of input data or the universe, and the query of quantile estimation can be made after the arrival of any item.
 It is worth noticing that Frugal is significantly different from the randomized algorithms introduced before.
 As mentioned before, the key idea of randomized algorithms is the maintenance of a random set of samplings from the data stream. Frugal, however, is not able to keep such a samplings with its extremely limited space, its randomness is caused by another design of the algorithm.
 
@@ -144,16 +148,16 @@ The pseudo code of the algorithm is shown below.
 \begin{algorithm}
     \caption{Frugal-1U}\label{alg:frugal_1U}
         \begin{algorithmic}[1]
-            \Require{Data Stream $S$, $\phi$, $1$ unit of memory $\tilde{q}$}
+            \Require{Data Stream $S$, $\tau$, $1$ unit of memory $\tilde{q}$}
             \Ensure{$\tilde{q}$}
             % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
             \State {Initialization $\tilde{q} = 0$}               %\Comment{Default initialization $q_0$ = 0}
                 \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
                     \State{$rand$ = random(0,1); //get a random value in $[0,1]$}
                     % \State {\textbf{set} $\alpha_k$} \Comment{Set stepsize}
-                    \If{$s_i > \tilde{q}$ \textbf{and} $rand > 1-\phi$} %\Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
+                    \If{$s_i > \tilde{q}$ \textbf{and} $rand > 1-\tau$} %\Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
                         \State{$\tilde{q} = \tilde{q} + 1$;}
-                    \Else { \textbf{if} $s_i < \tilde{q}$ \textbf{and} $rand > \phi$}  %\Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
+                    \Else { \textbf{if} $s_i < \tilde{q}$ \textbf{and} $rand > \tau$}  %\Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
                         \State{$\tilde{q} = \tilde{q} - 1$;}
                     \EndIf
                 \State{\textbf{end if}}
@@ -163,8 +167,8 @@ The pseudo code of the algorithm is shown below.
             % \EndProcedure
         \end{algorithmic}
     \end{algorithm}
-Specifically, the output $\tilde{q}$ is the estimate of the $\phi$-quantile for a given data stream $S$.
-In line 3\textasciitilde 8 of the pseudo code, the algorithm get randomness in its estimate update procedure, for the update is done by probability compared with $1- \phi$ or $\phi$.
+Specifically, the output $\tilde{q}$ is the estimate of the $\tau$-quantile for a given data stream $S$.
+In line 3\textasciitilde 8 of the pseudo code, the algorithm get randomness in its estimate update procedure, for the update is done by probability compared with $1- \tau$ or $\tau$.
 % An improved version is Frugal-2U, which needs another memory unit for a better convergence rate. 
 \\\\
 \marginpar{needs to be extended}
@@ -187,20 +191,18 @@ For only a few quantiles, this problem can be solved by running parallel single 
 The algorithm which estimates several quantile values in one process, as a general solution to this problem, is then brought forward.
 Multiple quantile estimation, or the quantile summary estimation, is the simultaneous estimation on different quantile values from streaming data. 
 In general, it is the estimator that estimates $k$ quantiles (the $\tau_1$-, $\tau_2$-, $...$, $\tau_k$-quantiles) at the same time.
-Given the relationship between 
 It has been an issue targeted by different algorithms.
 
 
 
 \subsection{Other Method and Advantages of simultaneous estimation}
-\marginpar{Not sure if I should keep this part}
+% \marginpar{Not sure if I should keep this part}
 
 Another single-pass low-memory methods for simultaneous multi-quantile estimation is the Data Skeleton(DS)\cite{mcdermottDataSkeletonsSimultaneous2007} algorithm, which is derived from the method proposed by \citeauthor{liechtySinglepassLowstorageArbitrary} \cite{liechtySinglepassLowstorageArbitrary}. For an estimation of $k$ quantiles, the algorithm requires the first $km$ data points($m$ is a constant) being sorted, and updates this tracking array on each new observation. Instead of the $k$ estimates of quantiles, it returns a total of $km$ estimates due to the redundancy of computation. This feature is considered an advantage for certain applications like density estimation, when extra quantile estimates is useful in accuracy improvement.
 
 
-Over the comparison with \citeauthor{liechtySinglepassLowstorageArbitrary}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the save in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
+Over the comparison with \citeauthor{liechtySinglepassLowstorageArbitrary}'s algorithm, \citeauthor{mcdermottDataSkeletonsSimultaneous2007}\cite{mcdermottDataSkeletonsSimultaneous2007} find simultaneous estimation on multiple quantiles has two main advantages over single quantile estimation methods. First is the reduction in computation time as it does not need to estimate quantiles separately. The second advantage, according to the experiments, is the accuracy improvement in simultaneous quantile estimation.  
 
- And need to mention: {P2 algorithm and latter algorithms that based on it}
-
+\textit{$P^2$} is another multi-quantile estimation method proposed by \citeauthor{jainP2AlgorithmDynamic1985}\cite{jainP2AlgorithmDynamic1985}. It assumes a pairwise-parabolic relationship between every three adjacent quantiles, and update quantile estimates based on their relative positions with the neighbour quantiles. Later, an extension version \textit{Extended $p^2$} is developed by \citeauthor{raatikainenSequentialProcedureSimultaneous1993}\cite{raatikainenSequentialProcedureSimultaneous1993}, which changes the initialization of the algorithm for a better performance.
 
 % \section{Anomaly Detection and Outlier}
