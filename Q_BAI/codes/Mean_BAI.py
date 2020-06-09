@@ -48,7 +48,7 @@ class MBAI(ABC):
         sequence of pulled arm ID 
     """
 
-    def __init__(self, env, true_mean_list, epsilon,  m, hyperpara, fixed_samples = None):
+    def __init__(self, env, true_mean_list, epsilon,  m, hyperpara, fixed_samples = None, est_H_flag = False):
         """
         Parameters
         ----------------------------------------------------------------------
@@ -92,6 +92,7 @@ class MBAI(ABC):
         self.print_flag = False
         self.print_every = 100
         self.fixed_samples = fixed_samples
+        self.est_H_flag = est_H_flag
 
     @abstractmethod
     def simulate(self):
@@ -249,7 +250,35 @@ class UGapE(MBAI):
                 print('choose: ', l_t)
                 print()
             return l_t
-    
+
+    def cal_empirical_gap(self):
+        means = {} # key: arm idx; value: empirical tau-mean
+        rank_dict = {} # key: arm idx; value: rank according to empirical tau-mean
+        #print('active set: ', self.active_set)
+        for i in range(self.num_arms):
+            reward = self.sample_rewards[i]
+            # not sure why returns an array of one element instead of a scalar
+            means[i] = np.mean(list(reward))
+        argsort_means = np.argsort(list(means.values()))[::-1]
+
+        for rank, idx in enumerate(argsort_means):
+            rank_dict[list(means.keys())[idx]] = rank
+            if rank == self.m: # m + 1
+                q_l_1 = list(means.keys())[idx]
+            if rank == self.m -1: # m
+                q_l = list(means.keys())[idx]
+
+        empirical_gap_dict = {} # key: arm idx; value: empirical gap
+        for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
+            # estimate gap by its upper confidence bound, which gives the lower confidence bound for H 
+            gap_interval = 1.0/np.sqrt(2 * len(self.sample_rewards[idx]))
+            if rank <= self.m - 1: # i <= m, rank starts from 0, so m-1
+                empirical_gap_dict[idx] = means[idx] - means[q_l_1] + gap_interval
+            else:
+                empirical_gap_dict[idx] = means[q_l] - means[idx] + gap_interval
+
+        return empirical_gap_dict
+
     def cal_gap(self, idx):
         """Calculate the (true) gap of arm idx.
         """
@@ -277,20 +306,22 @@ class UGapEb(UGapE):
         probability of error (evaluation metric)
     """
     def __init__(self, env, true_mean_list, epsilon, m, 
-                hyperpara,  fixed_samples, budget):
+                hyperpara,  fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
         budget: int
             number of total round/budget.
         """
-        super().__init__(env, true_mean_list, epsilon, m, hyperpara, fixed_samples)
+        super().__init__(env, true_mean_list, epsilon, m, hyperpara, fixed_samples, est_H_flag = False)
         self.budget = budget
-        self.prob_complexity = self.cal_prob_complexity()
+        if self.est_H_flag == False: # use true prob complexity
+            self.prob_complexity = self.cal_prob_complexity()
         if self.print_flag:
             print('prob complexity: ', self.prob_complexity)
         self.last_time_pulled = {} # record the round that each arm is pulled last time
                                    # key: arm idx; value: round of arm idx last time pulled 
+        self.est_H_list = []
 
     def cal_gamma(self,t):
         """Calculate exploration factor in confidence interval.
@@ -306,7 +337,9 @@ class UGapEb(UGapE):
         gamma: float
             exploration factor in confidence interval
         """
-        
+        if self.est_H_flag:
+            self.prob_complexity = self.cal_prob_complexity()
+            self.est_H_list.append(self.prob_complexity)
         # self.hyperpara[0]: alpha
         gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
@@ -370,7 +403,7 @@ class UGapEc(UGapE):
     """
 
     def __init__(self, env, true_mean_list, epsilon, m, 
-                hyperpara, fixed_samples, delta):
+                hyperpara, fixed_samples, est_H_flag, delta):
         """
         Parameters
         ----------------------------------------------------------
@@ -379,7 +412,7 @@ class UGapEc(UGapE):
         sample_complexity: int
             number of rounds needed, init as inf
         """
-        super().__init__(env, true_mean_list, epsilon, m, hyperpara, fixed_samples)
+        super().__init__(env, true_mean_list, epsilon, m, hyperpara, fixed_samples, est_H_flag = False)
         self.delta = delta
         self.sample_complexity = np.inf
 
@@ -446,7 +479,7 @@ class SAR_Simplified(MBAI):
     """Successive accepts and rejects algorithm, a simplified version.
     """
     def __init__(self, env, true_mean_list, epsilon, m, 
-                hyperpara, fixed_samples, budget):
+                hyperpara, fixed_samples, est_H_flag, budget):
         """
         Parameters
         ----------------------------------------------------------
@@ -454,7 +487,7 @@ class SAR_Simplified(MBAI):
             number of total round/budget.
         """
         super().__init__(env, true_mean_list, epsilon, m, 
-                hyperpara, fixed_samples)
+                hyperpara, fixed_samples, est_H_flag = False)
         self.budget = budget
         
         self.barlogK = 0.5

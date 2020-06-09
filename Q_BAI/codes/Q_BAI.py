@@ -371,7 +371,6 @@ class Q_UGapE(QBAI):
             return l_t
 
     def cal_empirical_gap(self):
-        # TODO: estimate lower bound of empirical gap
         quantiles = {} # key: arm idx; value: empirical tau-quantile
         rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
         #print('active set: ', self.active_set)

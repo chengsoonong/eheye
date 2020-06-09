@@ -64,10 +64,10 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
         ax.set_ylabel(ylabel_dict[eva_method])
         
         for j, subname in enumerate(results[name].keys()):  
-
+            
             # setup label
             if paper_flag:
-                label = subname.split('-')[0] 
+                label = subname.replace('Adp-Q', 'Adp_Q').split('-')[0] 
                 
                 # change presented names
                 if label == 'uniform_sampling':
@@ -76,6 +76,8 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
                     label = 'Q-BS'
                 if label == 'Q_SAR_Simplified':
                     label = 'Q_SAR'
+                if label == 'SAR_Simplified':
+                    label = 'SAR'
                 
                 if with_para:
                     para = subname.split('-')[-1]
@@ -101,13 +103,17 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
                 sigma = 0.1 * np.std(results[name][subname])
 
                 if type == 'barplot':
-                    ax.bar([label], mean, yerr = sigma)
+                    if eva_method == 'pe':
+                        width = 0.8
+                    else:
+                        width = 0.6
+                    ax.bar([label], mean, width=width, yerr = sigma)
 
             plt.xticks(rotation=90)
     if log_scale:
         ax.set_yscale('log')
     
-    file_name = title + '.pdf'
+    file_name = '../plots/' + title + '.pdf'
     fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_m(results, eva_method, type = 'lineplot', paper_flag = False, log_scale= False, 

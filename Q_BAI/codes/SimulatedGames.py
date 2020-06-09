@@ -70,12 +70,12 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
     prob_error = np.mean(result)
     std = np.std(result)
     if est_H_flag:
-        return result, est_H_flag
+        return result, estimated_H
     else:
         return result
 
 def simulate_mean(env, summary_stat, policy, epsilon, m, budget_or_confi,
-             num_expers, hyperpara, p, fixed_samples_list = None):
+             num_expers, hyperpara, p, fixed_samples_list = None, est_H_flag = False):
     """Simulate fixed budget BAI. 
 
     Paramters
@@ -111,10 +111,10 @@ def simulate_mean(env, summary_stat, policy, epsilon, m, budget_or_confi,
         p.value += 1
         if fixed_samples_list == None:
             agent = policy(env, summary_stat, epsilon, m, 
-                    hyperpara, fixed_samples_list, budget_or_confi)
+                    hyperpara, fixed_samples_list, est_H_flag, budget_or_confi)
         else:
             agent = policy(env, summary_stat, epsilon, m, 
-                    hyperpara, fixed_samples_list[i], budget_or_confi)
+                    hyperpara, fixed_samples_list[i], est_H_flag, budget_or_confi)
         agent.simulate()
         result.append(agent.evaluate())
 
