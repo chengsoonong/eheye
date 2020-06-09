@@ -1,4 +1,4 @@
-\chapter{Proof of Algorithm Equivalence}
+\chapter{Equivalence of SGD and Frugal1U}
 \label{ch: algo_equal}
 % --------------------------------------------------------------------------------
 %                                Quantile Estimation
@@ -6,34 +6,11 @@
             
 \section{Quantile Estimation}
 
-\subsection{Quantile}
 
-In statistics, quantiles are the points that divide a probability distribution into even intervals.
-The $q$-quantiles divide the distribution into $q$ intervals each with the same amount of data points.
-And there are $q$ quantile points of the $q-$quantiles.
-For example, the $2$-quantile has only one quantile point, which is the middle point of the distribution
-and it divides the distribution into two even parts. This $2$-quantile point is called the median.
-
-
-\subsubsection{Definition} \label{tau-quantile-def}
-Generally, the $q$-quantiles have $q-1$ quantile points, and the $k$th $q$-quantile for a 
-distribution $X$ is the data value such that
-
-\begin{equation}
-    Pr(X \leq x) \geq \frac{k}{q}
-\end{equation}
-
-and
-
-\begin{equation}
-    Pr(X \geq x) \geq 1 - \frac{k}{q}
-\end{equation}
-
-where $x \in X$
 
 \subsection{Quantile Estimation and Pinball Loss}
 In this paper, the estimation for $\tau$-quantile 
-($\tau =  \frac{1}{q}, \frac{2}{q}, \cdots, \frac{q-1}{q}$)
+($\tau \in (0,1)$)
 is applied.
 Pinball loss function is one of the approaches for the estimation for a statistical population.
 \\\\
@@ -99,7 +76,7 @@ introduced the following algorithm \ref{alg:frugal_1U} which
         \State {Initialization $\tilde{m} = 0$}               %\Comment{Default initialization $q_0$ = 0}
             \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
                 \State{$rand$ = random(0,1); //get a random value in $[0,1]$}
-                % \State {\textbf{set} $\alpha_k$} \Comment{Set stepsize}
+                % \State {\textbf{set} $\alpha_k$} \Comment{Set step size}
                 \If{$s_i > \tilde{m}$ \textbf{and} $rand > 1-\frac{h}{k}$} %\Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
                     \State{$\tilde{m} = \tilde{m} + 1$;}
                 \Else { \textbf{if} $s_i < \tilde{m}$ \textbf{and} $rand > \frac{h}{k}$}  %\Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
@@ -169,7 +146,7 @@ By SGD, the estimate is updated each step with a data point from the distributio
     q_{k+1} = q_k - \alpha_k g_k
 \end{equation}
 
-where $ \alpha_k $ is a suitable stepsize and 
+where $ \alpha_k $ is a suitable step size and 
 
 \begin{equation}
     g_k = \partial L_{\tau}^{(k)}(q_k) \in \frac{\partial l_\tau(x_k - q_k)}{\partial q_k}
@@ -197,7 +174,7 @@ Then we have
         % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
         \State {Initialize} $q$                 \Comment{Default initialization $q_0$ = 0}
             \For{$x_k$ in $X$}                  \Comment{Parameter update for each input data point}
-                \State \textbf{set} $\alpha_k$  \Comment{Set stepsize}
+                \State \textbf{set} $\alpha_k$  \Comment{Set step size}
                 \If{$x_k > q$}                  \Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
                     \State{$q = q + \alpha_k \tau$}
                 \Else                           \Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
@@ -219,11 +196,11 @@ Besides the replacements mentioned in section \ref{replacements},
 the notations have changed: 
 $X$ is applied for the data stream, and $q$ instead of $\tilde{m}$
 to represent quantile estimate.
-The introduction of changable stepsize $\alpha_k$ for each data point $x_k$
-is the highlight of the SGD algorithm. The flexibility of stepsize can help
-with achieving a better convergence rate when stepsizes are chosen wisely.
+The introduction of changable step size $\alpha_k$ for each data point $x_k$
+is the highlight of the SGD algorithm. The flexibility of step size can help
+with achieving a better convergence rate when step sizes are chosen wisely.
 Specifically, the setpsize is not mentioned in Frugal-1U 
-because it is fixed as $1$. In SGD the stepsize might change for every step.
+because it is fixed as $1$. In SGD the step size might change for every step.
 
 \marginpar{
 {\color{red} \textbf{Problem}}
