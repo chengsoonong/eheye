@@ -1,23 +1,18 @@
-\chapter{Equivalence of SGD and Frugal1U}
+\chapter{Equivalence of SGD and Frugal-1U}
 \label{ch: algo_equal}
 % --------------------------------------------------------------------------------
 %                                Quantile Estimation
 % --------------------------------------------------------------------------------
-            
-\section{Quantile Estimation}
+           
+In 1978, the \textit{pinball loss} function was proposed by \citeauthor{koenkerRegressionQuantiles1978}\cite{koenkerRegressionQuantiles1978}, which is well-known for quantile estimation in both statistics and machine learning. In this chapter, we present the implementation of SGD approach with pinball loss on quantile estimation. We also illustrate that, in some degree, there is an equivalence relationship between our algorithm and the state-of-the-art Frugal-1U\cite{maFrugalStreamingEstimating2014} by both theoretical analysis and experimental results. After the introduction of pinball loss in section\ref{sec: pinball_loss}, section \ref{sec: derive_sgd} introduces the SGD methods and at the same time shows the equivalence to Frugal-1U by algorithm rephrasing. In addition, we offer some complementary explanation, supporting experiment results and further discussion for the proof of algorithm equivalence in section \ref{sec: algo_equivalence}.
 
-
-
-\subsection{Quantile Estimation and Pinball Loss}
-In this paper, the estimation for $\tau$-quantile 
-($\tau \in (0,1)$)
-is applied.
-Pinball loss function is one of the approaches for the estimation for a statistical population.
-\\\\
-For a one-dimensional data set $X = \{x_1, x_2, \cdots, x_N\}$, 
-now consider the loss function for a single data point $x$ $(i \in {1, \cdots, N})$.
+\section{Pinball Loss for Quantile Estimation}
+\label{sec: pinball_loss}
+The pinball function is a convex loss function for estimation on a quantile value.
+For a one-dimensional dataset $X = \{x_1, x_2, \cdots, x_N\}$, 
+now consider the loss function for a single data point $x$ $(i \in {1, \cdots, N})$ on the $\tau$-quantile ($\tau \in (0,1)$).
 Let $t := x - q$ be the difference between the real value $x$ and the estimate of quantile $q$.
-$l_{\tau}(\cdot): \R \to \R_{\geq 0}$ is the loss function on $t$ such that
+The pinball loss function $l_{\tau}(\cdot): \R \to \R_{\geq 0}$ on $t$ is defined by
 
 \begin{equation}
     l_\tau(t)= 
@@ -29,6 +24,7 @@ $l_{\tau}(\cdot): \R \to \R_{\geq 0}$ is the loss function on $t$ such that
 
 
 And the $\tau$-quantile loss has the {\color{red} subgradient}:
+\marginpar{Not sure to use subgradient or gradient and not mention 0}
 
 \begin{equation}
     \frac {\partial l_\tau(t)}{\partial t}= 
@@ -59,14 +55,14 @@ Let $q^\ast$ be the best estimate, then we have
 % --------------------------------------------------------------------------------
 %                                SGD for Quantile Estimation
 % --------------------------------------------------------------------------------
-\section{Algorithm Equivalence}
+\section{Deriving the SGD approach from Frugal}
+\label{sec: derive_sgd}
+Inspired by Frugal-1U\cite{maFrugalStreamingEstimating2014}, we propose a quantile estimation method using the SGD approach with implementation of the pinball loss. Here this algorithm is introduced by the transformation of the Frugal-1U, which also provides an intuitive presentation of the algorithm equivalence. 
 
 \subsection{Pseudo Code for the Frugal-1U Algorithm}
 
-\citeauthor{maFrugalStreamingEstimating2014}\cite{maFrugalStreamingEstimating2014}
-introduced the following algorithm \ref{alg:frugal_1U} which 
-"uses only one unit of memory per group to compute a quantile for each group"\cite{maFrugalStreamingEstimating2014}.
-
+As a quantile estimation algorithm using constant memory storage, Frugal-1U reaches the extreme of memory usage for it "uses only one unit of memory per group to compute a quantile for each group"\cite{maFrugalStreamingEstimating2014}. Besides the minimal memory usage, the update methods is also computationally simple. Here is the pseudo code of Frugal-1U
+\marginpar{the pseudo code has already been mentioned in literature review}
 \begin{algorithm}
 \caption{Frugal-1U}\label{alg:frugal_1U}
     \begin{algorithmic}[1]
@@ -75,7 +71,8 @@ introduced the following algorithm \ref{alg:frugal_1U} which
         % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
         \State {Initialization $\tilde{m} = 0$}               %\Comment{Default initialization $q_0$ = 0}
             \For{\textbf{each} $s_i$ in $S$}                  %\Comment{Parameter update for each input data point}
-                \State{$rand$ = random(0,1); //get a random value in $[0,1]$}
+                \State{$rand$ = random(0,1)}
+                \Comment{get a random value in $[0,1]$}
                 % \State {\textbf{set} $\alpha_k$} \Comment{Set step size}
                 \If{$s_i > \tilde{m}$ \textbf{and} $rand > 1-\frac{h}{k}$} %\Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
                     \State{$\tilde{m} = \tilde{m} + 1$;}
@@ -96,7 +93,7 @@ its equilalence to an SGD algorithm for quantile estimation will be shown in the
 \textbf{Rephrasing of the Algorithm} \label{replacements}
 \begin{enumerate}
     \item The constant $\frac{h}{k}$ is replaced by $\tau$, since the $\tau$-quantile is defined
-     as the $h$th $k$-quantile point in section \ref{tau-quantile-def}.
+     as the $h$th $k$-quantile point in chapter \ref{ch: background}.
     % \item The quantile estimate $\tilde{m}$ is replaced by $q$, as it stands for estimate of quantile.
     \item The generation of random number and it's comparison with $1-\frac{h}{k}$ or $\frac{h}{k}$
     in line 3 to 7 is replaced by the following algorithm.
@@ -151,9 +148,7 @@ where $ \alpha_k $ is a suitable step size and
 \begin{equation}
     g_k = \partial L_{\tau}^{(k)}(q_k) \in \frac{\partial l_\tau(x_k - q_k)}{\partial q_k}
 \end{equation}
- 
-\textbf{Notice: partial is taken because the gradient of a single variable function
-euqals the partial of it}
+{Notice here partial is taken because the gradient of a single variable function equals the partial of it.}
 \\\\
 Then we have
 \begin{equation*}
@@ -165,7 +160,11 @@ Then we have
     \end{cases}
 \end{equation*}
 
-
+\marginpar{
+{\color{red} \textbf{Problem}}
+In Frugal-1U the quantile estimate $q$ does not change when $x_k = q$, but in SGD 
+the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as different
+} 
 \begin{algorithm}
     \caption{SGD algorithm}\label{alg:SGD}
     \begin{algorithmic}[1]
@@ -174,7 +173,7 @@ Then we have
         % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
         \State {Initialize} $q$                 \Comment{Default initialization $q_0$ = 0}
             \For{$x_k$ in $X$}                  \Comment{Parameter update for each input data point}
-                \State \textbf{set} $\alpha_k$  \Comment{Set step size}
+                \State \textbf{set} $\alpha_k = 1$  \Comment{Set step size}
                 \If{$x_k > q$}                  \Comment{$q_{k+1} = q_k + \alpha_k \tau$ when $x_k - q_k > 0$}
                     \State{$q = q + \alpha_k \tau$}
                 \Else                           \Comment{$q_{k+1} = q_k - \alpha_k (1-\tau)$ otherwise}
@@ -185,29 +184,20 @@ Then we have
         % \EndProcedure
     \end{algorithmic}
 \end{algorithm}
+Besides the replacements mentioned in section \ref{replacements}, the notations have changed from Frugal-1U to SGD: 
+$X$ is applied for the data stream, and $q$ instead of $\tilde{m}$ to represent quantile estimate. The other important potential change is the introduction of step size. Specifically, the step size is not mentioned in Frugal-1U because it is fixed as constant $1$. While the highlight of SGD algorithm is the choice of constant or variable step size $\alpha_k$ for each data point $x_k$. The flexibility of step size can be contributing for a better convergence rate when appropriate step sizes are chosen.
+
+
+\textbf{subgradient} values for $l_\tau(x_k - q_k)$ 
+{\color{red} \textbf{but then I need to explain subgradient descent}} 
 % --------------------------------------------------------------------------------
 %                              Equality of two algorithms 
 % --------------------------------------------------------------------------------
 \section{Equivalence of Algorithms}
-In this section we'll show the equilalence of algorithm Frugal-1U 
-and SGD.
-\\\\
-Besides the replacements mentioned in section \ref{replacements},
-the notations have changed: 
-$X$ is applied for the data stream, and $q$ instead of $\tilde{m}$
-to represent quantile estimate.
-The introduction of changable step size $\alpha_k$ for each data point $x_k$
-is the highlight of the SGD algorithm. The flexibility of step size can help
-with achieving a better convergence rate when step sizes are chosen wisely.
-Specifically, the setpsize is not mentioned in Frugal-1U 
-because it is fixed as $1$. In SGD the step size might change for every step.
+\label{sec: algo_equivalence}
 
-\marginpar{
-{\color{red} \textbf{Problem}}
-In Frugal-1U the quantile estimate $q$ does not change when $x_k > q$, but in SGD 
-the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as different
-} 
+The derivation of the SGD algorithm from Frugal-1U has roughly shown the evident similarity between them. In this section we investigate the similarity of algorithm Frugal-1U which leads to the proof of equivalence by experimental performances with additional discussion.
 
-\textbf{subgradient} values for $l_\tau(x_k - q_k)$ 
-{\color{red} \textbf{but then I need to explain subgradient descent}} 
+
+
 
