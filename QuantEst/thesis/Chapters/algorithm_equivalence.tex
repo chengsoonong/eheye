@@ -24,7 +24,7 @@ The pinball loss function $l_{\tau}(\cdot): \R \to \R_{\geq 0}$ on $t$ is define
 
 
 And the $\tau$-quantile loss has the {\color{red} subgradient}:
-\marginpar{Not sure to use subgradient or gradient and not mention 0}
+\marginpar{Not sure to use subgradient or gradient and not mention $0$}
 
 \begin{equation}
     \frac {\partial l_\tau(t)}{\partial t}= 
@@ -197,6 +197,11 @@ $X$ is applied for the data stream, and $q$ instead of $\tilde{m}$ to represent 
 \label{sec: algo_equivalence}
 
 The derivation of the SGD algorithm from Frugal-1U has roughly shown the evident similarity between them. In this section we investigate the similarity of algorithm Frugal-1U which leads to the proof of equivalence by experimental performances with additional discussion.
+
+\subsection{Comparison experiments between SGD and Frugal-1U}
+
+\subsection{Discussion about the equivalence}
+Although it is claimed in this paper that the SGD algorithm and the Frugal-1U is equivalent to some extent, \citeauthor{blassWhenAreTwo2008}\cite{blassWhenAreTwo2008} have already pointed that there is no such relation as equivalence between any two algorithms. 
 
 
 
