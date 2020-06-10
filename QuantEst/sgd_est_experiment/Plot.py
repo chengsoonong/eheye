@@ -127,7 +127,7 @@ def plt_stripe(tau_lst, ax, q_lst, pattern, name, hist_on):
             line = ax.plot([q,q], [0,1], pattern, color=colorVal)
             line[0].set_label(lb)
         else:
-            bins = 10
+            bins = 10 
             line = ax.hist(q.reshape(-1), bins, color=colorVal, label=lb)
 
 def plot_spectrum_stripes(ax_name, q_lst, q_batches, q_sgd_res, qlabel):
@@ -177,7 +177,21 @@ def plot_E_res(ax_name, tau_lst, e, qlabel):
         if i==0: ax.set_title(ax_name)
         if i==len(tau_lst)-1: ax.set_title('Error value', y=-0.5)
         colorVal = scalarMap.to_rgba(tau_lst[i])
-        ax.hist(e[i], weights=np.ones(len(e[i]))/len(e[i]), bins=10, color=colorVal)
+
+        bins = np.exp2(np.arange(0,11))
+        bins = np.append(-bins[::-1],bins)
+
+        # ax.set_xticklabels(['{} - {}'.format(bins[i],bins[i+1]) for i in range(len(bins)-1)])
+
+
+        # ax.hist(e[i], weights=np.ones(len(e[i]))/len(e[i]), bins = bins, color=colorVal)
+
+        hist, bin_edges = np.histogram(e[i], bins, weights=np.ones(len(e[i]))/len(e[i]))
+        bar_labels = [ (bins[i] + bins[i+1])/2 for i in range(len(bins)-1)]
+        bar_width = [(bins[i+1]-bins[i]) for i in range(len(bins)-1)]
+        ax.bar(bar_labels, hist, width = bar_width, color = colorVal)
+        ax.set_xticks(bins)
+        ax.set_xscale('symlog', basex=2)
         ax.plot([e[i].mean(), e[i].mean()], [0,1], color='black')
         ax.set_xlabel((str(tau_lst[i])+'-quantile'))
         ax.xaxis.set_label_coords(0.95, 0.97)
@@ -215,7 +229,9 @@ def plot_procs_data(folder_name):
     ax_name, tau_lst, file_name, qlabel = get_folder_info(folder_name)
     q_true = read_data_file(folder_name+"q_true"+".txt")
     sgd_proc = read_data_file(folder_name+"q_est_proc"+".txt")
-    q_compare = read_data_file(folder_name+"q_compare"+".txt")
+    q_compare = None
+    if os.path.exists(folder_name+"q_compare"+".txt"):
+        q_compare = read_data_file(folder_name+"q_compare"+".txt")
     
     fig_proc, lgd_proc = plot_procs(ax_name, tau_lst, q_true, sgd_proc, qlabel, q_compare)
     fig_proc.suptitle('{} Quantile Estimation Processes'.format(qlabel))
