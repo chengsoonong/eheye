@@ -29,3 +29,10 @@ def get_procs(dataset, tau_lst, method_name, **kwargs):
     #     raise Exception ("Method name {} is wrong! Please check the avaliable ones {}"
     #                     .format(method_name,
     #                     method_dict.keys()))
+
+
+
+# get final quantile estimation results
+def get_res(procs):
+    if len(procs.shape)!=2:raise Exception('Procs of wrong shape:' + str(procs.shape)+ ', should be 2d array')
+    return procs[:, -1]

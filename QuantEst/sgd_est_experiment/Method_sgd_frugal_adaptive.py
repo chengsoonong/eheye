@@ -34,14 +34,14 @@ def get_sgd_procs(dataset, tau_lst, stepsize):
         q = 0
         q_sgd_proc = procs[idx]
         # change stepsize
-        if stepsize != 'frugal':
-            for k, x in enumerate(dataset):
-                alpha = set_sgd_stepsize(k+1, stepsize)
-                if x > q:
-                    q = q + alpha*tau
-                else:
-                    q = q - alpha*(1-tau)
-                q_sgd_proc[k] = q
+        # if stepsize != 'frugal':
+        for k, x in enumerate(dataset):
+            alpha = set_sgd_stepsize(k+1, stepsize)
+            if x > q:
+                q = q + alpha*tau
+            else:
+                q = q - alpha*(1-tau)
+            q_sgd_proc[k] = q
     return procs
 
 # ---------------------------------------- get_frugal_procs ----------------------------------------
@@ -52,7 +52,12 @@ def get_frugal_procs(dataset, tau_lst, **kwargs):
         q = 0
         q_frugal_proc = procs[idx]
         for k, x in enumerate(dataset):
-            q_frugal_proc[k] = frugal(q,x,tau)
+            rdn = np.random.uniform()
+            if x > q and rdn > 1-tau:
+                q += 1
+            elif x < q and rdn > tau:
+                q -= 1
+            q_frugal_proc[k] = q
     return procs
 
 
