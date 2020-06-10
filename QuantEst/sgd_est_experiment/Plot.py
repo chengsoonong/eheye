@@ -197,9 +197,9 @@ def get_folder_info(folder_name):
     # qlabel = 'SGD'
     return ax_name, tau_lst, file_name, qlabel
 
-# FIXME: always return None, need to be changed when the Frugal vs SGD data is available
-def get_q_compare(folder_name):
-    return None
+# # FIXME: always return None, need to be changed when the Frugal vs SGD data is available
+# def get_q_compare(folder_name):
+#     return None
 
 def plot_spectrum_stripes_data(folder_name):
     ax_name, tau_lst, file_name, qlabel = get_folder_info(folder_name)
@@ -215,7 +215,7 @@ def plot_procs_data(folder_name):
     ax_name, tau_lst, file_name, qlabel = get_folder_info(folder_name)
     q_true = read_data_file(folder_name+"q_true"+".txt")
     sgd_proc = read_data_file(folder_name+"q_est_proc"+".txt")
-    q_compare = get_q_compare(folder_name)
+    q_compare = read_data_file(folder_name+"q_compare"+".txt")
     
     fig_proc, lgd_proc = plot_procs(ax_name, tau_lst, q_true, sgd_proc, qlabel, q_compare)
     fig_proc.suptitle('{} Quantile Estimation Processes'.format(qlabel))
