@@ -25,7 +25,7 @@ est_L_labels = ['Estimated L', 'L_at_10', 'L_at_200', 'True L']
 
 def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_para = True, log_scale= False, 
                 plot_confi_interval = False, method = 'all', exper = 'all', 
-                title = 'Performance on simulated distributions'):
+                title = 'Performance on simulated distributions', save_flag = True):
     """Plot method for evaluations
 
     Parameters
@@ -53,6 +53,8 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
     exper: string
         if 'all', plot for general uses
         otherwise, plot for specific format, e.g. 'est_L', 'hyperpara'
+    save_flag: boolean
+        True: save fig
     """
     fig = plt.figure(figsize=(4 * 3, 3* len(results.keys())))
     
@@ -112,9 +114,9 @@ def plot_eva(results, eva_method, type = 'barplot', paper_flag = False, with_par
             plt.xticks(rotation=90)
     if log_scale:
         ax.set_yscale('log')
-    
-    file_name = '../plots/' + title + '.pdf'
-    fig.savefig(file_name, bbox_inches='tight')
+    if save_flag:
+        file_name = '../plots/' + title + '.pdf'
+        fig.savefig(file_name, bbox_inches='tight')
 
 def plot_eva_m(results, eva_method, type = 'lineplot', paper_flag = False, log_scale= False, 
                 plot_confi_interval = False, method = 'all', exper = 'all'):

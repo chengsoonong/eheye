@@ -1,10 +1,10 @@
 import numpy as np
 
-# Version: Feb/2020
+# Version: June/2020
 # This file implements the simulated games for bandits algorithm. 
 
-def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
-             num_expers, est_L_flag, hyperpara, fixed_L, p, fixed_samples_list = None, est_H_flag = False):
+def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi, num_expers, 
+             est_L_flag, hyperpara, fixed_L, p, fixed_samples_list = None, est_H_flag = False):
     """Simulate fixed budget BAI. 
 
     Paramters
@@ -67,8 +67,6 @@ def simulate(env, summary_stat, policy, epsilon, tau, m, budget_or_confi,
         if est_H_flag:
             estimated_H.append(agent.est_H_list)
 
-    prob_error = np.mean(result)
-    std = np.std(result)
     if est_H_flag:
         return result, estimated_H
     else:
@@ -118,40 +116,4 @@ def simulate_mean(env, summary_stat, policy, epsilon, m, budget_or_confi,
         agent.simulate()
         result.append(agent.evaluate())
 
-    prob_error = np.mean(result)
-    std = np.std(result)
-    return result
-
-def evaluate(sds, rs, estimated_L_dict):
-    """Calculated expected evaluation metrics (suboptimal draws, regret)
-
-    Parameters
-    ----------------------------------------------------
-    sds: list 
-        len: num_exper; list of sub-optimal draws for each experiment
-    rs: list
-        len: num_exper; list of cumulative regrets for each experiment
-
-    Returns
-    ----------------------------------------------------
-    eva_dict: dict
-        key: name of evaluation metrics
-            one of 'sd' and 'r'
-        value: array with shape 1 * num_rounds
-    """
-    eva_dict =  {}
-    if len(sds) > 0:
-        sds = np.asarray(sds)
-        #eva_sd = np.mean(sds, axis = 0)
-        #eva_dict['sd'] = eva_sd
-        eva_dict['sd'] = sds # pass the whole list 
-    if len(rs) > 0:
-        rs = np.asarray(rs)
-        #eva_r = np.mean(rs, axis = 0)
-        #eva_dict['r'] = eva_r
-        eva_dict['r'] = rs
-    if len(estimated_L_dict) > 0:
-        L = np.asarray(estimated_L_dict)
-        eva_dict['estimated_L'] = L
-    return eva_dict
-    
+    return result   

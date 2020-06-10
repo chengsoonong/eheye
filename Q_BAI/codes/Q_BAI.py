@@ -272,6 +272,7 @@ class Q_UGapE(QBAI):
             list of confidence intervals for arms of round t
         """
         D_list = []
+        gamma = self.cal_gamma(t)
         for arm in sorted(self.sample_rewards.keys()):
             
             reward = self.sample_rewards[arm]
@@ -286,8 +287,6 @@ class Q_UGapE(QBAI):
     
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
-            
-            gamma = self.cal_gamma(t)
 
             # TODO: hyperparameter
             D_i = (np.sqrt(2 * v_i * gamma) + c_i * gamma)
