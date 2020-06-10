@@ -4,61 +4,18 @@ from scipy.special import erf
 from sklearn.neighbors import KernelDensity
 
 
-# Version: Feb/2020
-# This file implements the environment construction for bandits algorithm. 
-# The environments include: 
-#   Simulated environments:
-#       Light tailed distributions: absolute Gaussian, Exponential
-#       Heavy tailed distributions: log normal 
-#       Outliers include two types: 
-#           distributional outlier (centered absolute Gaussian); 
-#           arbitrary outlier (uniformly sampled from random set).
-#   Clinical environment: sample from data
+# Version: June/2020
+# This file implements the environment construction for bandits algorithm.
+# Functions: 
+#   setup_env:  Setup environment for simulations.
+#   generate_samples: Generate samples for each env (creating fixed sample list for debug)
+#   est_L_test: Test of convergence of estimation of L.
 
-OUTLIER_CENTER = 20
-
-def generate_samples(envs_dict, tau =0.5, num_samples = 5000):
-    """Generate samples for each env. 
-
-    Parameter:
-    --------------------------------------------------
-    envs_dict: env dict
-        keys: instance of environment class 
-            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
-        values: list of parameters
-        e.g. {AbsGau: [[0.5, 1.0, 1.5]], Exp: [[1/4]]}, 
-               
-    tau: float (0,1)
-        level of quantile
-    num_samples: int
-        number of samples for each env.
-
-    Return:
-    --------------------------------------------------
-    samples: dict of list for samples
-        key: arm/env idx
-        value: list of sampes (size: num_sample) for arm idx
-    """
-    
-    
-    samples = defaultdict(list)
-
-    arm_idx = 0
-
-    for env, para_list in envs_dict.items(): 
-        for para in para_list: 
-            if type(para) is list:
-                current_env = env(*para)
-            else:
-                current_env = env(para)
-            
-            sample = current_env.sample(num_samples)
-            samples[arm_idx] = sample
-            arm_idx += 1
-    
-    return samples
+# Simulated environments:
+# mixture absolute Gaussian, Exponential
 
 # ---------------------------------------------------------------------------------
+
 def setup_env(envs_setting, tau =0.5, random_set = None):
     """Setup environment for simulations.
 
@@ -121,6 +78,46 @@ def setup_env(envs_setting, tau =0.5, random_set = None):
                 Ls[name].append(current_env.hazard_rate(0))
                 means[name].append(np.mean(sample))
     return rewards_env, quantiles, Ls, means, samples
+
+def generate_samples(envs_dict, tau =0.5, num_samples = 5000):
+    """Generate samples for each env. 
+
+    Parameter:
+    --------------------------------------------------
+    envs_dict: env dict
+        keys: instance of environment class 
+            (AbsGau, Exp, AbsGau_Outlier, Exp_Outlier)
+        values: list of parameters
+        e.g. {AbsGau: [[0.5, 1.0, 1.5]], Exp: [[1/4]]}, 
+               
+    tau: float (0,1)
+        level of quantile
+    num_samples: int
+        number of samples for each env.
+
+    Return:
+    --------------------------------------------------
+    samples: dict of list for samples
+        key: arm/env idx
+        value: list of sampes (size: num_sample) for arm idx
+    """
+    
+    samples = defaultdict(list)
+
+    arm_idx = 0
+
+    for env, para_list in envs_dict.items(): 
+        for para in para_list: 
+            if type(para) is list:
+                current_env = env(*para)
+            else:
+                current_env = env(para)
+            
+            sample = current_env.sample(num_samples)
+            samples[arm_idx] = sample
+            arm_idx += 1
+    
+    return samples
 
 def est_L_test(envs_setting, num_exper = 100, sample_size = 500, est_method = 'naive', bandwidth = 1):
     """Test of convergence of estimation of L. 
@@ -204,6 +201,7 @@ def est_L(sample_list, est_method, bandwidth = 0.5):
     else:
         print('Unkown estimation method.')
     return estL
+
 #------------------------------------------------------------------------------------
 
 class Base_env():
@@ -256,36 +254,7 @@ class Mixture_AbsGau():
                     s = np.abs(np.random.normal(self.mu2, self.sigma2))  
                 samples.append(s)
             return np.asarray(samples)
-    
-class AbsGau_Arb_Outlier(Base_env):
-    """Env for Absolute Gaussian Distribution with arbitrary outliers.
-    """
-    def __init__(self, para, random_set):
-        super().__init__(para) 
-        self.random_set = random_set
-
-    def pdf(self, x):
-        return 2.0/(self.para * np.sqrt(2 * np.pi)) * np.exp(- x ** 2/ (2 * self.para)) 
-
-    def cdf(self, x):
-        return erf(x/ (self.para * np.sqrt(2)))
-
-    def sample(self, size = None):
-        if size == None:
-            if np.random.uniform() <= 0.95:
-                return np.abs(np.random.normal(0, self.para, size)) 
-            else:
-                return np.random.choice(self.random_set)
-        else:
-            samples = []
-            for i in range(size):
-                if np.random.uniform() <= 0.95:
-                    s = np.abs(np.random.normal(0, self.para)) 
-                else:
-                    s = np.random.choice(self.random_set)
-                samples.append(s)
-            return np.asarray(samples)
-                
+                  
 class Exp(Base_env):
     """Env for Exponential Distribution.
     """
@@ -303,117 +272,3 @@ class Exp(Base_env):
 
     def sample(self, size = None):
         return np.random.exponential(1.0/self.para, size)
-
-class Exp_Outlier(Base_env):
-    """Env for Exponential Distribution with outliers.
-    """
-    def __init__(self, para):
-        super().__init__(para) 
-
-    def pdf(self, x):
-        return self.para * np.exp(- self.para * x)
-
-    def cdf(self,x):
-        return 1 - np.exp(- self.para * x)
-
-    def sample(self, size = None):
-        if size == None:
-            if np.random.uniform() <= 0.95:
-                return np.random.exponential(1.0/self.para, size)
-            else:
-                return np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
-        else:
-            samples = []
-            for i in range(size):
-                if np.random.uniform() <= 0.95:
-                    s = np.random.exponential(1.0/self.para) 
-                else:
-                    s = np.abs(np.random.normal(OUTLIER_CENTER,0.1)) 
-                samples.append(s)
-            return np.asarray(samples)
-
-class Exp_Arb_Outlier(Base_env):
-    """Env for Exponential Distribution with arbitrary outliers.
-    """
-    def __init__(self, para, random_set):
-        super().__init__(para)
-        self.random_set = random_set 
-
-    def pdf(self, x):
-        return self.para * np.exp(- self.para * x)
-
-    def cdf(self,x):
-        return 1 - np.exp(- self.para * x)
-
-    def sample(self, size = None):
-        if size == None:
-            if np.random.uniform() <= 0.95:
-                return np.random.exponential(1.0/self.para, size)
-            else:
-                return np.random.choice(self.random_set)
-        else:
-            samples = []
-            for i in range(size):
-                if np.random.uniform() <= 0.95:
-                    s = np.random.exponential(1.0/self.para) 
-                else:
-                    s = np.random.choice(self.random_set)
-                samples.append(s)
-            return np.asarray(samples)
-
-# ---------------------------------------------------------------------------
-# Heavy tail environments (For comparison)
-
-from scipy.stats import pareto
-
-class Weibull():
-    def __init__(self, shape):
-        """
-        shape: float
-            shape of the distribution. should be greater than zero
-
-        scale is default as 1. 
-        """
-        self.shape = shape
-
-    def pdf(self, x):
-        if x == 0:
-            return 0
-        return self.shape * (x ** (self.shape - 1)) * np.exp((- x) ** self.shape)
-
-    def cdf(self,x):
-        if x == 0:
-            return 0
-        return 1 - np.exp((- x) ** self.shape)
-
-    def sample(self, size = None):
-        return np.random.weibull(self.shape, size)
-
-# -----------------------------------------------------------------------------------
-# Clinical environment
-
-class Clinical_env():
-    """Environment class for clinical data.
-    """
-    def __init__(self, data):
-        """
-        Parameters:
-        ------------------------------------------
-        data: sequence of samples 
-        """
-        self.data = data
-    
-    def sample(self):
-        return np.random.choice(self.data)
-
-    def L_estimate(self, thr):
-        """Estimation of lower bound of hazard rate (L).
-
-        Parameters
-        ------------------------------------------------
-        thr: float
-            threshold of estimation.
-        """
-        sorted_data = np.asarray(sorted(self.data))
-        L = len(sorted_data[sorted_data <= thr])/len(sorted_data)
-        return L

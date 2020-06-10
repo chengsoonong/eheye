@@ -3,7 +3,7 @@ import numpy as np
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
-# Version: May/2020
+# Version: June/2020
 # This file implements Mean-based Best Arm Identification baseline algorithms, including
 # Fixed budget: UGapEb; SAR
 # Fixed confidence: UGapEc
@@ -214,7 +214,6 @@ class UGapE(MBAI):
         m_max_ucb = np.sort(ucb)[::-1][self.m - 1]
         for arm in sorted(self.sample_rewards.keys()):
             if ucb[arm] >= m_max_ucb: # if arm is in the first m, select m+1 
-                # TODO: this may lead to negative B 
                 B.append(np.sort(ucb)[::-1][self.m] - lcb[arm])
             else:
                 B.append(m_max_ucb - lcb[arm])
@@ -473,7 +472,6 @@ class UGapEc(UGapE):
         """
         print(self.rec_set)
         return self.sample_complexity
-
 
 class SAR_Simplified(MBAI):
     """Successive accepts and rejects algorithm, a simplified version.

@@ -3,7 +3,7 @@ import numpy as np
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
-# Version: May/2020
+# Version: June/2020
 # This file implements Quantile-based Best Arm Identification Algorithms, including
 # Fixed budget: Q-UGapEb; Q-SAR
 # Fixed confidence: Q-UGapEc
@@ -278,17 +278,14 @@ class Q_UGapE(QBAI):
             reward = self.sample_rewards[arm]
             t_i = len(reward)
             # avoid k_i = 0
-            # TODO: if k_i only takes integer, then D_i will increase after observe one sample 
             # k_i = np.max([int(t_i * (1- self.tau)), 1])
             k_i = t_i * (1- self.tau)
-            # TODO: try Q-UGapE without L
             L_i = self.calcu_L(arm)
             # L_i = 1
     
             v_i = 2.0/(k_i * L_i ** 2)
             c_i = 2.0/(k_i * L_i)
 
-            # TODO: hyperparameter
             D_i = (np.sqrt(2 * v_i * gamma) + c_i * gamma)
             D_list.append(D_i)
 
@@ -332,7 +329,6 @@ class Q_UGapE(QBAI):
         m_max_ucb = np.sort(ucb)[::-1][self.m - 1]
         for arm in sorted(self.sample_rewards.keys()):
             if ucb[arm] >= m_max_ucb: # if arm is in the first m, select m+1 
-                # TODO: this may lead to negative B 
                 B.append(np.sort(ucb)[::-1][self.m] - lcb[arm])
             else:
                 B.append(m_max_ucb - lcb[arm])
@@ -702,8 +698,7 @@ class Q_SAR(QBAI):
                     empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1]
                 else:
                     empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx]
-                # TODO: the assert does not satisfied, check.
-                # assert empirical_gap_dict[idx] >= 0
+                
                 if empirical_gap_dict[idx] < 0:
                     print('ERROR: empirical gap small than 0')
                     print('quantiles: ', quantiles)
@@ -1136,8 +1131,7 @@ class QPAC(QBAI):
             return [1, self.sample_complexity]
         else:
             return [0, self.sample_complexity]
-        
-        
+           
 class MaxQ(QBAI):
     """David and Shimkin 2016,
     Pure Exploration for Max-Quantile Bandits.
