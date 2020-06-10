@@ -619,7 +619,6 @@ class Q_UGapEc(Q_UGapE):
         '''
         return self.sample_complexity
 
-
 class Q_SAR(QBAI):
     """Quantile Successive accepts and rejects algorithm.
     """
@@ -1063,8 +1062,8 @@ class QPAC(QBAI):
             
             # TODO: c_t bigger than 1
             c_t = np.sqrt(1.0/(2 * t) * np.log((np.pi ** 2 * t ** 2 * self.num_arms)/(3 * self.delta)))
-            if t % 10000 == 0:
-                print('t: ', t)
+            #if t % 10000 == 0:
+            #    print('t: ', t)
             
             quantile_tau_plus_c = []
             quantile_tau_mins_c = []
@@ -1179,8 +1178,8 @@ class MaxQ(QBAI):
         while True:
             vk_list = []
             t += 1
-            if t % 1e4 == 0:
-                print(t)
+            #if t % 1e4 == 0:
+            #    print(t)
             for k in range(self.num_arms):
                 reward = self.sample_rewards[k]
                 t_k = len(reward) # C(k) in the paper
