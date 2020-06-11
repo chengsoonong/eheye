@@ -206,7 +206,7 @@ The derivation of the SGD algorithm from Frugal-1U has roughly shown the evident
 We investigate various aspects of the similarity between the SGD algorithm and the Frugal-1U algorithm: behaviours and results of different data distributions. The behavioural similarity is inspired by the \textit{behavioural equivalence} \cite{gurevichSequentialAbstractstateMachines2000}, which requires sequential algorithms to have same states, same initial states, and the same transition function for abstract state machine (ASM). The quantile estimation results are compared base on the final output results of the algorithms.
 
 \subsubsection{Data distributions and algorithm settins}
-
+\label{subsubsec: distro_and_setting}
 For comprehensiveness, we evaluate the algorithms using data generated from three distributions:
     \begin{enumerate}
         \item a gaussian distribution with mean 2 and standard derivation 18 (\textit{gau-1})
@@ -221,66 +221,76 @@ For comprehensiveness, we evaluate the algorithms using data generated from thre
             \item a exponential distribution with \textit{np.random.exponential(scale=1, size=datasize)*6.5 - 20} (\textit{mix})
             \marginpar{How to discribe the exponential distro?}
     \end{enumerate}
-Each data stream contains 1000 randomly ordered samples from the corresponding distribution with a fixed sequence. The algorithms initialization both set their starting point of quantile estimate to $0$ for any quantile values. The step size of the SGD algorithm is set as constant 1.
+The algorithms initialization both set their starting point of quantile estimate to $0$ for any quantile values. The step size of the SGD algorithm is set as constant 1. Each data stream contains 1000 randomly ordered samples from the corresponding distribution with a fixed sequence. The estimation on the $0.1, 0.3. 0.5, 0.9, 0.99$ quantiles are checked.
 
 \subsubsection{Evaluation methods}
 
-For each simulation setup, we run the Frugal1U 100 times and SGD once. Since the data stream is fixed on both data points and sequence, the behaviour and result of SGD are also fixed, while Frugal1U is likely to perform differently given its randomness in each update steps. For a quantile probability $\tau$, let $\tau$-$q_{\text{batch}}$ be the computation results of the batch quantile, $\tau$-$q_{\text{SGD}}$ and $\tau$-$q_{\text{Frugal}}$ be the results respectively of SGD and Frugal1U algorithm. The similarity of the two estimates $S_\tau$ is measured by
+For each simulation setup, we run the Frugal1U 100 times and SGD once. Since the data stream is fixed on both data points and sequence, the behaviour and result of SGD are also fixed, while Frugal1U is likely to perform differently given its randomness in each update steps. For a quantile probability $\tau$, let $\tau$-$q_{\text{batch}}$ be the computation results of the batch quantile, $\tau$-$q_{\text{SGD}}$ and $\tau$-$q_{\text{frugal}}$ be the results respectively of SGD and Frugal1U algorithm. The similarity of the two estimates $S_\tau$ is measured by
 \begin{equation}
-    S_\tau = \frac{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{Frugal}} }{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{batch}} }
+    S_\tau = \frac{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{frugal}} }{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{batch}} }
+    \label{eq: frugal_err}
 \end{equation}
+where a smaller $|S_\tau|$ means a higher similarity, and $|S_\tau| = 0$ means the two quantile estimates are the same.
 
-And the behavioural similarity is measured by comparing the mean value of each Frugal step with each SGD step.
-
+Both algorithms start the quantile estimate at $0$. When a new observation arrives, Frugal1U updates the value by $1$ or $0$ according to probability, while the update is a deterministic floating number for SGD. The behavioural similarity is compared at each update step. For Frugal1U, we take the mean value of the quantile estimate update over 100 runs, and it is compared with the one fixed SGD value at the same epoch. 
 
 \subsubsection{Results for similarity comparisons}
+
+The mechanism for data generation is as follows. First, generate a dataset from 1000 samples according to one of the three distributions specified in section\ref{subsubsec: distro_and_setting}. For one distribution, we also compute the true quantiles. The sequence of the dataset is fixed for all the experiments, including one computation for the batch quantiles, one for the SGD quantiles, and 100 for the Frugal1U quantiles. The process of quantile estimation are shown in the process plots (fig \ref{fig: exp_proc}, \ref{fig: gau_1_proc}, \ref{fig: mix_proc}), in which we can see the comparison in algorithm behaviours. The true quantiles are also shown in these plots, as a reference to the algorithm performances.
+Figure \ref{fig: exp_err}, \ref{fig: gau_1_err}, \ref{fig: mix_err} show the similarity values of the final results only.
+
+It is also worthwhile to point out that 1000 is not a large size for data streams, it is enough to evaluate the similarity between the two algorithms as it does not need to show the convergence to the true quantile. In fact, the convergence of most quantile probabilities over the three datasets are already reached by the 1000 epochs.
 
 \marginpar{I think more data is required, for example the mean and variance comparison on processes?}
 \begin{figure}[h!]
     \centering
 	\includegraphics[width=1\columnwidth]{gau_1_err.png}
-    \caption{Quantile estimation similarity comparison on dataset from gau-1}
+    \caption{Quantile estimation result similarity between Frugal1U and SGD on the \textit{gau-1} dataset.
+    Each of the 5 stripes represents the distribution of Frugal1U similarity values for a specific quantile. The similarity values are compared by function \eqref{eq: frugal_err}. Take the top one ($0.1$-quantile) for example, the distribution of 100 similarity values are shown in the bright blue histogram. The mean similarity value is also in the form of the horizontal black line.}
     \label{fig: gau_1_err}
 \end{figure}
+\marginpar{Is the explanation of the plot too long? Should I put it in the paragraphs?}
 
 \begin{figure}[h!]
     \centering
-	\includegraphics[width=1\columnwidth]{gau_1_proc.png}
-    \caption{Quantile estimation similarity comparison on dataset from gau-1}
+    \includegraphics[width=1\columnwidth]{gau_1_proc.png}
+    \caption{Quantile estimation behaviour similarity between Frugal1U and SGD on the \textit{gau-1} dataset. The straight dot lines are the true quantiles, the dark solid colour lines are SGD quantiles, and the lighter solid colour lines are the mean value of Frugal1U quantiles. The light coloured shadows around the range of Frugal1U steps over the 100 runs. For epoch, the top and the bottom margin of the shadow are positioned respectively on the maximum and minimum value of the 100 experiments. The shadow of a quantile is an indicator of how much the Frugal1U estimate varies around the mean value. Unfortunately the shadows from different quantiles sometimes cover each other, so the it can only be used as a rough visual reference of changes in Frugal1U.}
     \label{fig: gau_1_proc}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
 	\includegraphics[width=1\columnwidth]{mix_err.png}
-    \caption{Quantile estimation similarity comparison on dataset from mix}
+    \caption{Quantile estimation result similarity between Frugal1U and SGD on the \textit{mix} dataset}
     \label{fig: mix_err}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
 	\includegraphics[width=1\columnwidth]{mix_proc.png}
-    \caption{Quantile estimation similarity comparison on dataset from mix}
+    \caption{Quantile estimation behaviour similarity between Frugal1U and SGD on the \textit{mix} dataset}
     \label{fig: mix_proc}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
 	\includegraphics[width=1\columnwidth]{exp_err.png}
-    \caption{Quantile estimation similarity comparison on dataset from exp}
+    \caption{Quantile estimation result similarity between Frugal1U and SGD on the \textit{exp} dataset}
     \label{fig: exp_err}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
 	\includegraphics[width=1\columnwidth]{exp_proc.png}
-    \caption{Quantile estimation similarity comparison on dataset from exp}
+    \caption{Quantile estimation behaviour similarity between Frugal1U and SGD on the \textit{exp} dataset}
     \label{fig: exp_proc}
 \end{figure}
 
 \subsection{Discussion about the equivalence}
 Although it is claimed in this paper that the SGD algorithm and the Frugal-1U is equivalent to some extent, \citeauthor{blassWhenAreTwo2008}\cite{blassWhenAreTwo2008} have already pointed that there is no such relation as equivalence between any two algorithms. 
 
-
-
-
+\section{Conclusion}
+The SGD algorithm is proposed by the derivation of Frugal1U algorithm. We performed an empirical comparison between Frugal and SGD over 3 different distributions. In addition, we had a theoretical discussion about the equivalence between them. The two algorithms are proved to be equal to some extent. As Frugal1U is a valid quantile estimation method, the equivalence SGD is also supposed to be a valid solution by definition.
+The main difference is that SGD is overall more stable than Frugal1U.
+Although SGD cannot enjoy randomness over a fixed sequence of data stream, its hidden flexibility can be revealed by the changing of variables (e.g. step size).
+In the next chapter we look into SGD with some further investigation.
