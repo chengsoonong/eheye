@@ -1,5 +1,8 @@
 \chapter{Equivalence of SGD and Frugal-1U}
 \label{ch: algo_equal}
+
+\graphicspath{{Figures/Frugal_SGD/}{./}} 
+
 % --------------------------------------------------------------------------------
 %                                Quantile Estimation
 % --------------------------------------------------------------------------------
@@ -196,9 +199,84 @@ $X$ is applied for the data stream, and $q$ instead of $\tilde{m}$ to represent 
 \section{Equivalence of Algorithms}
 \label{sec: algo_equivalence}
 
-The derivation of the SGD algorithm from Frugal-1U has roughly shown the evident similarity between them. In this section we investigate the similarity of algorithm Frugal-1U which leads to the proof of equivalence by experimental performances with additional discussion.
+The derivation of the SGD algorithm from Frugal-1U has roughly shown the evident similarity between them. In this section, we investigate the similarity between our approach, that we refer to as SGD algorithm, and Frugal-1U, which leads to the proof of equivalence by experimental performances with additional discussion.
 
 \subsection{Comparison experiments between SGD and Frugal-1U}
+
+We investigate various aspects of the similarity between the SGD algorithm and the Frugal-1U algorithm: behaviours and results of different data distributions. The behavioural similarity is inspired by the \textit{behavioural equivalence} \cite{gurevichSequentialAbstractstateMachines2000}, which requires sequential algorithms to have same states, same initial states, and the same transition function for abstract state machine (ASM). The quantile estimation results are compared base on the final output results of the algorithms.
+
+\subsubsection{Data distributions and algorithm settins}
+
+For comprehensiveness, we evaluate the algorithms using data generated from three distributions:
+    \begin{enumerate}
+        \item a gaussian distribution with mean 2 and standard derivation 18 (\textit{gau-1})
+        \item a mixed gaussian distribution composed of 5 gaussian distributions (\textit{mix}):
+            \begin{enumerate}
+                \item weight = 0.3, mean = 2, standard derivation = 7
+                \item weight = 0.2, mean = 0, standard derivation = 0.7
+                \item weight = 0.1, mean = 36, standard derivation = 26
+                \item weight = 0.15, mean = 5, standard derivation = 77
+                \item weight = 0.25, mean = -77, standard derivation = 7
+            \end{enumerate}
+            \item a exponential distribution with \textit{np.random.exponential(scale=1, size=datasize)*6.5 - 20} (\textit{mix})
+            \marginpar{How to discribe the exponential distro?}
+    \end{enumerate}
+Each data stream contains 1000 randomly ordered samples from the corresponding distribution with a fixed sequence. The algorithms initialization both set their starting point of quantile estimate to $0$ for any quantile values. The step size of the SGD algorithm is set as constant 1.
+
+\subsubsection{Evaluation methods}
+
+For each simulation setup, we run the Frugal1U 100 times and SGD once. Since the data stream is fixed on both data points and sequence, the behaviour and result of SGD are also fixed, while Frugal1U is likely to perform differently given its randomness in each update steps. For a quantile probability $\tau$, let $\tau$-$q_{\text{batch}}$ be the computation results of the batch quantile, $\tau$-$q_{\text{SGD}}$ and $\tau$-$q_{\text{Frugal}}$ be the results respectively of SGD and Frugal1U algorithm. The similarity of the two estimates $S_\tau$ is measured by
+\begin{equation}
+    S_\tau = \frac{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{Frugal}} }{ \tau\text{-}q_{\text{SGD}} - \tau\text{-}q_{\text{batch}} }
+\end{equation}
+
+And the behavioural similarity is measured by comparing the mean value of each Frugal step with each SGD step.
+
+
+\subsubsection{Results for similarity comparisons}
+
+\marginpar{I think more data is required, for example the mean and variance comparison on processes?}
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{gau_1_err.png}
+    \caption{Quantile estimation similarity comparison on dataset from gau-1}
+    \label{fig: gau_1_err}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{gau_1_proc.png}
+    \caption{Quantile estimation similarity comparison on dataset from gau-1}
+    \label{fig: gau_1_proc}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{mix_err.png}
+    \caption{Quantile estimation similarity comparison on dataset from mix}
+    \label{fig: mix_err}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{mix_proc.png}
+    \caption{Quantile estimation similarity comparison on dataset from mix}
+    \label{fig: mix_proc}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{exp_err.png}
+    \caption{Quantile estimation similarity comparison on dataset from exp}
+    \label{fig: exp_err}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+	\includegraphics[width=1\columnwidth]{exp_proc.png}
+    \caption{Quantile estimation similarity comparison on dataset from exp}
+    \label{fig: exp_proc}
+\end{figure}
 
 \subsection{Discussion about the equivalence}
 Although it is claimed in this paper that the SGD algorithm and the Frugal-1U is equivalent to some extent, \citeauthor{blassWhenAreTwo2008}\cite{blassWhenAreTwo2008} have already pointed that there is no such relation as equivalence between any two algorithms. 
