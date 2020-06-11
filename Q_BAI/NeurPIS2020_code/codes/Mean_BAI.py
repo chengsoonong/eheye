@@ -470,7 +470,7 @@ class UGapEc(UGapE):
             number of round before stopping
             i.e. sample complexity
         """
-        print(self.rec_set)
+        #print(self.rec_set)
         return self.sample_complexity
 
 class SAR_Simplified(MBAI):

@@ -474,7 +474,7 @@ class Q_UGapEb(Q_UGapE):
         if self.est_H_flag:
             self.prob_complexity = self.cal_prob_complexity()
             self.est_H_list.append(self.prob_complexity)
-        gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
+        gamma = self.hyperpara[0] * (self.budget - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
         return gamma

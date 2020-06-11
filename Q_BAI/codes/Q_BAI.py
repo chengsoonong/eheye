@@ -279,7 +279,8 @@ class Q_UGapE(QBAI):
             t_i = len(reward)
             # avoid k_i = 0
             # k_i = np.max([int(t_i * (1- self.tau)), 1])
-            k_i = t_i * (1- self.tau)
+            tilde_tau = self.tau + 1.0/t_i
+            k_i = t_i * (1- tilde_tau)
             L_i = self.calcu_L(arm)
             # L_i = 1
     
@@ -474,7 +475,8 @@ class Q_UGapEb(Q_UGapE):
         if self.est_H_flag:
             self.prob_complexity = self.cal_prob_complexity()
             self.est_H_list.append(self.prob_complexity)
-        gamma = self.hyperpara[0] * (t - self.num_arms)/self.prob_complexity
+        # ! gamma depends on budget, not t
+        gamma = self.hyperpara[0] * (self.budget - self.num_arms)/self.prob_complexity
         # gamma = t - self.num_arms
         # print('gamma: ', gamma)
         return gamma
