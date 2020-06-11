@@ -52,6 +52,131 @@ Fig \ref{fig: SGD_quant} shows how SGD is used to estimate quantiles on the same
     \label{fig: SGD_quant}
 \end{figure*}
 
+
+\section{Background}
+In this section, the essential background knowledge of the usage of stochastic gradient descent and definition of quantiles are introduced respectively in subsection\ref{subsec: sgd} and\ref{subsec: quant}. Stochastic gradient descent (SGD) is a convex optimization approach commonly applied in machine learning, and quantiles are the dividing points of a distribution or a dataset.
+
+\subsection{Gradient descent and Stochastic Gradient Descent}
+\label{subsec: sgd}
+    Stochastic gradient descent (often abbreviated SGD) is an optimization algorithm developed from gradient descent. 
+    In this section, gradient descent is introduced as the first part of the explanation of SGD.
+
+    \subsubsection{Gradient Descent}
+        For convex optimization problems, gradient descent is a first-order optimization algorithm 
+        to find the local minimum of a function.
+        \\\\
+        To solve the minimization problem 
+        \begin{equation}
+            % E
+            \min_{\x} L(\x) 
+        \end{equation} 
+        
+        where $L : \R^d \to \R$ is convex, differentiable and its gradient is Lipschitz continuous with constant
+        $L > 0$.
+        \\\\
+        Geometrically, the gradient $\nabla L(\x_0)$ points to the direction of the steepest ascent on $L(\cdot)$ 
+        from the point $\x_0$. 
+        By taking a small step in the direction of the negative gradient, the function value is decreased in the 
+        direction of the steepest descent. That is,
+        \begin{equation}
+            \x_1  = \x_0 - \alpha \nabla L(\x_0)
+        \end{equation}
+    
+        for a small enough step size $\alpha \in \R_{+}$, then $L(\x_1) \leq L(\x_0)$. 
+        That means, compared with $L(\x_0)$, $L(\x_1)$ is closer to the local minimum.
+        \\\\
+        With this observation comes the idea of gradient descent: an iterative "tour" on $L(\cdot)$ from a point towards the 
+        local minimum by following small steps of negative gradient. 
+        Let $\x_0$ be the guess of a starting point, then if
+        \begin{equation}
+            \x_{k+1} = \x_{k} - \alpha_k \nabla L(\x_k), k \geq 0
+        \end{equation}
+        
+        
+        Then we have $ L(\x_0) \geq L(\x_1) \geq L(\x_2) \geq \cdots$ with suitable $\alpha_k$. The convergence rate of the 
+        sequence $(\x_n)$ with certain step size settings is linear in terms of the number of iterations.
+        Gradient descent, however, requires access to all the data points for the computation of a the moving direction, which is infeasible for data stream situations.
+
+
+    \subsubsection{Stochastic Gradient Descent (SGD)}
+        Stochastic gradient descent is the choice for data streams, for the computation of the moving direction relies only on the most recent coming data point.
+        It can be considered as a stochastic approximation of gradient descent optimization, 
+        when the objective function $L(\cdot)$ can be written as a sum of differentiable functions.
+        Consider the objective function is in the form:
+        \begin{equation}
+            L(\x) =\frac{1}{K} \sum_{k=1}^{K} L_k (\x)
+        \end{equation}
+
+        where the \textit{summand function} $L_k$ is usually the loss function of the $k$th observation among
+        $K$ data points.
+        \\\\
+        Then by following the idea of gradient descent, the $\x$ is updated according to
+        
+        \begin{equation}
+           \x_{k+1} = \x_{k} -\alpha_k \nabla L(\x_k) = \x_{k} -\alpha_k \frac{1}{K}\sum_{k=1}^{K} \nabla L_k(\x_k) 
+        \end{equation}
+        
+        
+        where each $\alpha_k$ is a suitable step size. The calculation of $\sum_{k=1}^{K} \nabla L_k(\x_k)$ can be
+        expensive, especially when the amount of summand functions is huge, or when the individual gradients are hard to
+        compute. 
+        \\\\
+        To reduce the consumption of calculation, an estimation of the true gradient of $L(\x)$ is taken: 
+        the true gradient $\frac{1}{K} \sum_{k=1}^{K} \nabla L_k(\x_k)$ is replaced by the gradient of a single observation $\nabla L_k(\x_k)$. 
+        So the update of the parameter $\x$ becomes
+        
+        \begin{equation}
+            \x_{k+1} = \x_{k} - \alpha_k \nabla L_k(\x_k)
+        \end{equation}
+        
+        where $\alpha_k$ is a suitable step size. 
+        \\\\
+        While the cost of per update computation is decreased by $N$ times, the tradeoff lies in the convergence rate such that SGD does not enjoy the linear convergence rate like gradient descent.
+
+\subsubsection{Discussion}
+\marginpar{Not sure how I should mention this non-differentiable issue}
+Since the each SGD update requires only the coming data instead of the entire data, it becomes a great alternative for quantile estimation if the corresponding loss function meets the requirement.
+However, SGD cannot handle non-differentiable functions. This is an issue with the quantile estimation loss function in the following chapter.
+
+
+\subsection{Quantile}
+\label{subsec: quant}
+
+In statistics, quantiles are the points that divide a probability distribution into even intervals.
+The $q$-quantiles ($q = 2,3,4,...$) divide the distribution into $q$ intervals each with the same amount of data points.
+And there are $q$ quantile points of the $q-$quantiles.
+For example, the $2$-quantile has only one quantile point, which is the middle point of the distribution
+and it divides the distribution into two even parts. This $2$-quantile point is called the median.
+        \\\\
+    \textbf{Definition with notation $q$} \\
+    Generally, the $q$-quantiles have $q-1$ quantile points, and the $k$th $q$-quantile for a 
+    distribution $X$ is the data value such that
+    
+    \begin{equation}
+        Pr(X \leq x) \geq \frac{k}{q}
+    \end{equation}
+    
+    and
+    
+    \begin{equation}
+        Pr(X \geq x) \geq 1 - \frac{k}{q}
+    \end{equation}
+    where $x \in X$.
+    \\\\
+    \textbf{Definition with notation $\tau$}\\
+    Since $k < q$, we have $0 < \frac{k}{q} < 1$ for all ($k$,$q$) pairs. And the infinite number of ($k$,$q$) pairs can reach any point in interval $(0,1)$. For a general representation, we use the notation $\tau$-quantile ($0 < \tau < 1$) for a quantile value in the distribution $X$ that satisfies
+
+    \begin{equation}
+        Pr(X \leq x) \geq \tau
+    \end{equation}
+    
+    and
+    
+    \begin{equation}
+        Pr(X \geq x) \geq 1 - \tau
+    \end{equation}
+    where $x \in X$.
+
 \section{Thesis overview}
 \label{sec: intro_overview}
 In the final part of the introduction, we give a brief tour of the material in this paper.
