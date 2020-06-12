@@ -47,6 +47,7 @@ def read_overview(overview):
     with open(overview) as f:
         ax_name = f.readline()[:-1]
         tau_lst = list(float(i) for i in f.readline()[1:-2].split(','))
+        print (tau_lst)
         qlabel = f.readline()
         print ("q label is ", qlabel)
     return ax_name, tau_lst, qlabel

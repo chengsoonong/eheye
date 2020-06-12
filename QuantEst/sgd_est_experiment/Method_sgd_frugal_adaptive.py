@@ -9,7 +9,7 @@ def set_sgd_stepsize(k, stepsize, length=None):
         return 2/math.sqrt(k)* np.ones(length) if not length else 2/math.sqrt(k)
     elif stepsize=='0.002_div_sqrt_k':
         return 0.002/math.sqrt(k) * np.ones(length) if not length else 0.002/math.sqrt(k)
-    raise Exception('stepsize parameter is wrong')
+    raise Exception('stepsize parameter is wrong', stepsize)
     
 def sgd(q, x, tau, alpha):
     if x > q:
@@ -28,7 +28,7 @@ def frugal(q, x, tau):
 
 # ---------------------------------------- get_sgd_procs ----------------------------------------
 
-def get_sgd_procs(dataset, tau_lst, stepsize):
+def get_sgd_procs(dataset, tau_lst, stepsize='const'):
     procs = np.zeros((len(tau_lst), dataset.shape[0]))
     for idx, tau in enumerate(tau_lst):
         q = 0
@@ -37,6 +37,7 @@ def get_sgd_procs(dataset, tau_lst, stepsize):
         # if stepsize != 'frugal':
         for k, x in enumerate(dataset):
             alpha = set_sgd_stepsize(k+1, stepsize)
+            # print (alpha)
             if x > q:
                 q = q + alpha*tau
             else:
