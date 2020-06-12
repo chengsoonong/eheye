@@ -209,8 +209,8 @@ We investigate various aspects of the similarity between the SGD algorithm and t
 \label{subsubsec: distro_and_setting}
 For comprehensiveness, we evaluate the algorithms using data generated from three distributions:
     \begin{enumerate}
-        \item a gaussian distribution with mean 2 and standard derivation 18 (\textit{gau-1})
-        \item a mixed gaussian distribution composed of 5 gaussian distributions (\textit{mix}):
+        \item a Gaussian distribution with mean 2 and standard derivation 18 (\textit{gau-1})
+        \item a mixed Gaussian distribution composed of 5 Gaussian distributions (\textit{mix}):
             \begin{enumerate}
                 \item weight = 0.3, mean = 2, standard derivation = 7
                 \item weight = 0.2, mean = 0, standard derivation = 0.7
@@ -236,17 +236,17 @@ Both algorithms start the quantile estimate at $0$. When a new observation arriv
 
 \subsubsection{Results for similarity comparisons}
 
-The mechanism for data generation is as follows. First, generate a dataset from 1000 samples according to one of the three distributions specified in section\ref{subsubsec: distro_and_setting}. For one distribution, we also compute the true quantiles. The sequence of the dataset is fixed for all the experiments, including one computation for the batch quantiles, one for the SGD quantiles, and 100 for the Frugal1U quantiles. The process of quantile estimation are shown in the process plots (fig \ref{fig: gau_1_proc}, \ref{fig: mix_proc}, \ref{fig: exp_proc}), in which we can see the comparison in algorithm behaviours. The true quantiles are also shown in these plots, as a reference to the algorithm performances.
-Figure \ref{fig: gau_1_err}, \ref{fig: mix_err}, \ref{fig: exp_err} show the similarity error values of the final results only.
+The mechanism for data generation is as follows. First, generate a dataset from 1000 samples according to one of the three distributions specified in section\ref{subsubsec: distro_and_setting}. For one distribution, we also compute the true quantiles. The sequence of the dataset is fixed for all the experiments, including one computation for the batch quantiles, one for the SGD quantiles, and 100 for the Frugal1U quantiles. The process of quantile estimation are shown in the process plots (fig \ref{fig: gau_1_proc_explanation}, \ref{fig: mix_proc}, \ref{fig: exp_proc}), in which we can see the comparison in algorithm behaviours. The true quantiles are also shown in these plots, as a reference to the algorithm performances.
+Figure \ref{fig: gau_1_err_explanation}, \ref{fig: mix_err}, \ref{fig: exp_err} show the similarity error values of the final results only.
 
 It is also worthwhile to point out that 1000 is not a large size for data streams, it is enough to evaluate the similarity between the two algorithms as it does not need to show the convergence to the true quantile. In fact, the convergence of most quantile probabilities over the three datasets are already reached by the 1000 epochs.
 
-The running experiment of Frugal1U and SGD in fig\ref{fig: gau_1_proc} has shown that the mean of Frugal1U steps and the SGD functions are largely overlapped. Take the $0.1$-quantile for example, the two algorithms start at the same point, and the mean Frugal1U line shares similar trends and close quantile estimate position with SGD. They even overlap in many intervals (where the dark blue line is covered by the light blue line).
-Irrespective of the data distribution and the quantile probabilities, it is clearly shown in figure fig \ref{fig: gau_1_proc}, \ref{fig: mix_proc}, \ref{fig: exp_proc} that the quantile estimation behaviours of mean Frugal1U and SGD are very similar. However, it is not safe to claim the close similarity yet because the randomness of Frugal1U might lead to a large variety in behaviours.
+The running experiment of Frugal1U and SGD in fig\ref{fig: gau_1_proc_explanation} has shown that the mean of Frugal1U steps and the SGD functions are largely overlapped. Take the $0.1$-quantile for example, the two algorithms start at the same point, and the mean Frugal1U line shares similar trends and close quantile estimate position with SGD. They even overlap in many intervals (where the dark blue line is covered by the light blue line).
+Irrespective of the data distribution and the quantile probabilities, it is clearly shown in figure fig \ref{fig: gau_1_proc_explanation}, \ref{fig: mix_proc}, \ref{fig: exp_proc} that the quantile estimation behaviours of mean Frugal1U and SGD are very similar. However, it is not safe to claim the close similarity yet because the randomness of Frugal1U might lead to a large variety in behaviours.
 
-For a closer examination, the similarity error values of the quantiles are checked at the result states. Figure \ref{fig: gau_1_err} illustrate the distributions of similarity error values between the 100 runs of Frugal1U and the one SGD result on \textit{gau-1}. Take the 0$.1$-quantile for example, the similarity error values are distributed in the range $(-2^4, 2^3)$, which means $|S_\tau| < 2^6$ for all 100 runs. Also the mean of the similarity error (the centred black line) has an absolute value less than 1, indicating the mean Frugal1U result and the SGD result is nearly the same. The results from the three figures (fig \ref{fig: gau_1_err}, \ref{fig: mix_err}, \ref{fig: exp_err}) also implies the high similarity of Frugal1U and SGD works for all three distributions and all five quantiles checked in the experiment.
+For a closer examination, the similarity error values of the quantiles are checked at the result states. Figure \ref{fig: gau_1_err_explanation} illustrate the distributions of similarity error values between the 100 runs of Frugal1U and the one SGD result on \textit{gau-1}. Take the 0$.1$-quantile for example, the similarity error values are distributed in the range $(-2^4, 2^3)$, which means $|S_\tau| < 2^6$ for all 100 runs. Also the mean of the similarity error (the centred black line) has an absolute value less than 1, indicating the mean Frugal1U result and the SGD result is nearly the same. The results from the three figures (fig \ref{fig: gau_1_err_explanation}, \ref{fig: mix_err}, \ref{fig: exp_err}) also implies the high similarity of Frugal1U and SGD works for all three distributions and all five quantiles checked in the experiment.
 
-Results from the experiments (fig \ref{fig: gau_1_proc} to \ref{fig: exp_err}) support our theoretical conjecture that the two algorithms are highly similar in both behaviours and results regardless of distributions or quantile probability values. The similarity is high enough to meet our requirement for the equivalence (absolute similarity error value less than or equal to 64).
+Results from the experiments (fig \ref{fig: gau_1_proc_explanation} to \ref{fig: exp_err}) support our theoretical conjecture that the two algorithms are highly similar in both behaviours and results regardless of distributions or quantile probability values. The similarity is high enough to meet our requirement for the equivalence (absolute similarity error value less than or equal to 64).
 
 \marginpar{I think more data is required, for example the mean and variance comparison on processes?}
 
@@ -254,7 +254,7 @@ Results from the experiments (fig \ref{fig: gau_1_proc} to \ref{fig: exp_err}) s
     \centering
     \includegraphics[width=1\columnwidth]{gau_1_proc.png}
     \caption{Quantile estimation behaviour similarity between Frugal1U and SGD on the \textit{gau-1} dataset. The straight dot lines are the true quantiles, the dark solid colour lines are SGD quantiles, and the lighter solid colour lines are the mean value of Frugal1U quantiles. The light coloured shadows around the range of Frugal1U steps over the 100 runs. For epoch, the top and the bottom margin of the shadow are positioned respectively on the maximum and minimum value of the 100 experiments. The shadow of a quantile is an indicator of how much the Frugal1U estimate varies around the mean value. Unfortunately the shadows from different quantiles sometimes cover each other, so the it can only be used as a rough visual reference of changes in Frugal1U.}
-    \label{fig: gau_1_proc}
+    \label{fig: gau_1_proc_explanation}
 \end{figure}
 
 \marginpar{Is the explanation of the plot too long? Should I put it in the paragraphs?}
@@ -264,7 +264,7 @@ Results from the experiments (fig \ref{fig: gau_1_proc} to \ref{fig: exp_err}) s
 	\includegraphics[width=1\columnwidth]{gau_1_err.png}
     \caption{Quantile estimation result similarity between Frugal1U and SGD on the \textit{gau-1} dataset.
     Each of the 5 stripes represents the distribution of Frugal1U similarity error values for a specific quantile. The similarity error values are compared by function \eqref{eq: frugal_err}. Take the top one ($0.1$-quantile) for example, the distribution of 100 similarity error values are shown in the bright blue histogram. The mean similarity error value is also in the form of the horizontal black line.}
-    \label{fig: gau_1_err}
+    \label{fig: gau_1_err_explanation}
 \end{figure}
 
 \begin{figure}[h!]

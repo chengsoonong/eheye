@@ -6,25 +6,18 @@
 \captionsetup[figure]{font=scriptsize,labelfont=bf}
 
 
-\chapter{SGD Quantile Estimation Experiment}
+\chapter{Experiments on SGD}
 \label{ch: experiments}
 
-% \begin{document}
-% \maketitle
-
 \section{Introduction}
+\label{sec: exp_intro}
+As the previous chapter has shown the equivalence between Frugal1U and SGD, which means the SGD is a valid alternative for quantile estimation.
+In this chapter, we take a further step on the SGD algorithm with more experiments.
+The experiments have two general purposes. The first is to explore if the SGD quantile estimation works.
+The second is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution (section \ref{}), data size, data ordering, quantile property value and step size.
 
-% \subsection{Aims}
-This experiment has two purposes. The first is to show quantile estimation with SGD works \textcolor{blue}{ under some circimstances (?)}.
-The second aim is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile value and sgd step size.
 In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
-\\\\
-\textcolor{blue}{
-\textbf{I think this is another experiment?}
-\\    
-This experiment also aims at the comparison between Frugal algorithm and SGD algorithm, by which we want to show that those two algorithms are ``equivalent". 
-\\
-(Does it mean SGD estimation works?)}
+
 % To test the SGD quantile estimation as a valid alternative for quantile estimation, this experiment computes both estimated and calculated values for quantiles, and evaluates whether the difference between the results is acceptable.
 % \\\\
 % Do I explain the second goal...?
@@ -53,12 +46,17 @@ The benchmarking setting of the SGD quantile estimate is:
     \begin{enumerate}
         \item Data stream:
             \begin{itemize}
-                \item Distribution: Gaussian distribution: mean = 2, standard deviation = 18
-                \item Data size: 1000 i.i.d. (independent and individual distributed) random samples
-                \item Multiple generations: true. 10 data streams of the same setting are generated
+                \item Distribution: Gaussian distribution (\textit{gau-1}): mean = 2, standard deviation = 18
+                \item Data size: 1000 independent and individual distributed random samples
+                \item Multiple generations: true. $10$ data streams of the same setting are generated
                 \item Multiple shuffles: false. No data streams are generated as a shuffled version of another
             \end{itemize}
-        \item Step size: constant value 1
+        \item SGD settings:
+        \begin{enumerate}
+            \item Step size: constant value $1$
+            \item Quantile estimate initialization: $0$ for all $\tau \in (0,1)$
+        \end{enumerate}
+            
     \end{enumerate}
 \textcolor{blue}{
 Reason to choose it as a benchmark: not quite sure about this
@@ -69,11 +67,15 @@ multiple generations: to compare with the same generation but different sequence
 \\
 step size: the most trivial one, derived from Frugal method}
 \\
-A detailed description of the benchmarking estimate generation is shown in the subsection 2.2.
+A detailed description of the benchmarking estimate generation is shown in section \ref{subsec: exp_generation}.
 
 \subsection{SGD Quantile Estimate Generation}
+\label{subsec: exp_generation}
+
 To ensure the consistency of quantile estimate construction, the generation methods for a specific setting are restricted.
+The experiment generation here is very similar to the equivalence experiments between Frugal1U and SGD, but some details are different, for example, the Introduction of a new distribution. 
 In this section, we will introduce the rules and steps for generation in details.
+This series of settings are also of importance for the next chapters, as they are repeatedly used for their experiments.
 
 \subsubsection{Data Stream Set Generation}
 A total of 4 distributions are used in this experiment.
@@ -84,10 +86,17 @@ Each data stream set is composed of a number of data streams. For a statisticall
 \begin{itemize}
     \item Distribution: 4 statistical distributions. The 4 distributions are:
         \begin{itemize}
-            \item Gaussian distribution 1: mean = 2, standard deviation = 18
-            \item Gaussian distribution 2: mean = 0, standard deviation = 0.001
-            \item Exponential distribution: rate = 1
-            \item Mixed Gaussian distribution: a mix of five different gaussian distributions
+            \item Gaussian distribution 1 (\textit{gau-1}): mean = 2, standard deviation = 18
+            \item Gaussian distribution 2 (\textit{gau-2}): mean = 0, standard deviation = 0.001
+            \item Exponential distribution (\textit{exp}): rate = 1
+            \item Mixed Gaussian distribution (\textit{mix}): a mix of five different Gaussian distributions, 
+            \begin{itemize}
+                \item weight = 0.3, mean = 2, standard derivation = 7
+                \item weight = 0.2, mean = 0, standard derivation = 0.7
+                \item weight = 0.1, mean = 36, standard derivation = 26
+                \item weight = 0.15, mean = 5, standard derivation = 77
+                \item weight = 0.25, mean = -77, standard derivation = 7
+            \end{itemize}
         \end{itemize}
     \item Data size: 100, 1000, 100000
     \item Multiple generations: True or false. Generate 10 data streams for the set if true.
@@ -95,10 +104,11 @@ Each data stream set is composed of a number of data streams. For a statisticall
 \end{itemize}
 
 
-\subsubsection{True and Empirical Quantile Calculation}
-The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the empirical quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
+\subsubsection{True and Batch Quantile Calculation}
+
+The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed Gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the batch quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
 \\\\
-The empirical quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering is, there is only one empirical quantile value for one data stream, but there can be multiple quantile values for one distribution.
+The batch quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering of the data stream is, there is only one batch quantile value for one data stream, but there can be multiple quantile values for one distribution.
 
 \subsubsection{SGD Quantile Estimation}
 
@@ -116,11 +126,12 @@ Frugal algorithm is proposed for quantile estimation as well. In this experiment
 
 \subsubsection{Error Computation}
 
-An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between empirical and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for empirical quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of same size and distribution, we take the mean of the error value $\overline{E^{(\tau)}}$, where 
-    
-    \begin{equation*}
+An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between empirical and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for batch quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of same size and distribution, we take the mean of the error value $\overline{E^{(\tau)}}$, where 
+\marginpar{The inconsistency in notations will be modified next time}
+
+    \begin{equation}
         \overline{E^{(\tau)}} = \frac{1}{n}\sum_{i=1}^{n} E^{(\tau)}_{i}
-    \end{equation*}
+    \end{equation}
         
     
 where $E^{(\tau)}_{i}$ is the error value of $\tau$-quantile for the $i$th data stream. To compare the performance of different settings of SGD estimation, we can now compare the $\overline{E^{(\tau)}}$ value for each setting.
@@ -129,43 +140,109 @@ where $E^{(\tau)}_{i}$ is the error value of $\tau$-quantile for the $i$th data 
 % distribution
  First, the limitation of data distribution. The comparison is only available for data streams generated from the same distribution, since a different distribution has difference density of data points for the same $\tau$ value, leading to a failure of error comparison. For example, a data stream generated from uniform distribution $\mathcal{U}(0,1)$, the error value $\overline{E^{(0.1)}} = 2$ is a bad estimation, because 2 is even greater than the difference between the minimal and maximal value of the distribution ($2 > |0-1|$). However, for a data stream sampled from uniform distribution $\mathcal{U}(0,10^{10})$, $\overline{E^{(0.1)}} = 2$ might be a really accurate result, given how low the density is around its 0.1-quantile. 
 % tau
- Second, the limitation of $\tau$ value. Similarly with the distribution problem, different $\tau$ values in the same distribution may have varied density. For example, for a gaussian distribution, $\overline{E^{(0.01)}} = \overline{E^{(0.5)}}$ means that the estimation is better for 0.01-quantile than 0.5-quantile, since the distribution is denser around the middle than its outlier.
+ Second, the limitation of $\tau$ value. Similarly with the distribution problem, different $\tau$ values in the same distribution may have varied density. For example, for a Gaussian distribution, $\overline{E^{(0.01)}} = \overline{E^{(0.5)}}$ means that the estimation is better for 0.01-quantile than 0.5-quantile, since the distribution is denser around the middle than its outlier.
 % how it works
  Third and more importantly, it is incapable of showing if the estimation "works". Specifically, for some number $x$, we cannot find a reasonable explanation for the statement ``the estimate is accurate enough because we have $\overline{E^{(\tau)}} \leq x$''. Since for any $x$, we could find an example from the first two issues as a counter example. To solve those problems, a more general comparison of accuracy should be enabled by the new error measurement.
 \\\\
 In the new version of error value calculation, true quantile value of a data distribution $q_{true}^{(\tau)}$ is involved, so that $E^{(\tau)}$ is normalized by $|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|$. It is now defined as
 
-\begin{equation*}
+\begin{equation}
     E^{(\tau)} = \frac{|q_{batch}^{(\tau)} - q_{sgd}^{(\tau)}|}
                       {|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|}
-\end{equation*}
+\end{equation}
     
 
 So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{batch}^{(\tau)}$. The above problem is solved because 
-\textcolor{blue}{(I am not sure about this part)\\
+\marginpar{I am not sure about this part}
+\textcolor{blue}{
     $
     q_{batch} - q_{true}
     $
-    is the normalizer which reduces the effect of unevenly distributed density among different distributions and different quantile values.
+    is the normalization scaler which reduces the effect of unevenly distributed density among different distributions and different quantile values.
 }
 
 \subsection{Performance Comparison}
 Plots that shows the performance of quantile estimate results, processes and its error values.
 
-Result plot: shows the estimate results of $q_{batch}$ and $q_{sgd}$. The clustering of both values are obvious
-
-Process plot: shows the processes.
-
-Error plot: shows the normalized error value for every data stream of this setting.
+\begin{itemize}
+    \item Process plot: shows the processes of the SGD algorithm. (See explanation under fig \ref{fig: gau_1_proc_explanation} for more details)
+    \item Result plot: shows the estimate results of $q_{batch}$ and $q_{sgd}$ over multiple runs, provides an obvious visualization of the clustering of both values.
+    \item Error plot: shows the normalized error value for every data stream of this setting.(See explanation under fig \ref{fig: gau_1_err_explanation} for more details)
+\end{itemize}
 
 All of them show the summarized visualization of multiple generation of estimate values.
 
 
 \pagebreak
 \section{Observations}
+\label{sec: observations}
+
+The investigation of SGD performances focuses on the setting change in the following 4 areas:
+    \begin{enumerate}
+        \item Data distribution of data streams (subsection \ref{subsec: sgd_exp_distro})
+        \item Data size of the data streams (subsection \ref{subsec: sgd_exp_dt_size})
+        \item Data sequence of the the data streams  (subsection \ref{subsec: sgd_exp_dt_ordering})
+        \item Step size of the SGD algorithm (subsection \ref{subsec: sgd_exp_step_size})
+    \end{enumerate}
+In each of the subsections we show the 3 performance plots for every setting, and make analysis based on the the observations and comparisons. The plots for each experiment are arranged in the order of processes, results then error values. This is because the processes show the trend of overall convergence, then the results show the detailed version of final output of the algorithm and in the end the error values provide a quantitative evaluation of performances. 
 
 \subsection{Distribution}
-Except for default setting of gaussian 1 distribution, two other distributions are included: the mix gaussian distribution and the exponential distribution.
+\label{subsec: sgd_exp_distro}
+The experiment compares the SGD algorithm performance in 4 different data distribution settings: \textit{gau-1}, \textit{gau-2}, \textit{mix} and \textit{exp}. In each setting, 10 data streams of size 1000 are generated from the according distribution, and the SGD is run on each of the data streams. The SGD algorithm is set at initialization quantile estimate 0 and the step size is constant 1. That is, the performance of one distribution setting is evaluated on the collection of SGD implementations on its 10 data streams.
+
+The process plots for distributions (fig \ref{fig: sgd_exp_distro_gau_1_proc} ~ \ref{fig: sgd_exp_distro_exp_proc}) leads to the following interesting observations:
+\begin{itemize}
+    \item  The convergence of SGD is illustrated by all the valid experiments (all but \textit{gau-2}). Figure \ref{fig: sgd_exp_distro_gau_1_proc}, \ref{fig: sgd_exp_distro_mix_proc} and \ref{fig: sgd_exp_distro_exp_proc} show the clear trend that the average SGD quantile estimate of each quantile are approaching to the true quantile values. Figure \ref{fig: sgd_exp_distro_gau_2_proc} is too messy to be used as a illustration on the convergence performance of SGD, for the quantile estimates frequently cross each other. Specifically, the information in figure \ref{fig: sgd_exp_distro_gau_2_proc} shows the quantile values are all within the range $(-2, 2)$, but it cannot imply if any SGD quantile is converging.
+    \item The overall SGD convergence rate for different distributions are different. Specifically, the ratio of quantiles that achieves stay stable around the convergence value is different. For example, we can see from figure \ref{fig: sgd_exp_distro_mix_proc} that only 2 of 5 SGD quantiles($0.5$-q and $0.1$-q) have converged, while in figure \ref{fig: sgd_exp_distro_gau_1_proc} there are 4 quantile estimates have already converged and the last one ($0.99$-q) is very close to reach the convergence value.
+    \item The convergence rate for different quantiles in the same distribution are different. Take the \textit{exp} distribution for example, in figure \ref{fig: sgd_exp_distro_exp_proc}, the $0.1, 0.3, 0.5$-$q_{SGD}$ estimates reach their convergence value within the first 100 epochs, while it takes the $0.9$-$q_{SGD}$ around 300 epochs and $0.9$-$q_{SGD}$ over 1000 epochs. This happens even though the $0.1$-$q_{True}$ (distance $> |-20-0| = 20$) is further away from the initialization point $0$ than $0.99$-$q_{True}$ (distance $< |10-0| = 10$).
+    \item For distribution \textit{gau-2}, the default setting SGD is not an ideal quantile estimation approach no matter if it converges or not. Although all the SGD quantiles are stable within range $(-2, 2)$ centering at $0$, the true quantiles are in a much smaller range around $0$. The big changes of SGD update at each step is not able to adjust for such small differences between different quantiles. To make it worse, it is clear that at the end of the 1000 epochs, the $0.9$-$q_{SGD}$ and $0.99$-$q_{SGD}$ still frequently go cross each other.
+\end{itemize}
+
+\subsubsection{Estimate processes on different distributions}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_1_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from \textit{gau-1} Distribution
+    }
+    \label{fig: sgd_exp_distro_gau_1_proc}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_2_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from \textit{gau-2} Distribution
+    }
+    \label{fig: sgd_exp_distro_gau_2_proc}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/mix_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from \textit{mix} Distribution
+    }
+    \label{fig: sgd_exp_distro_mix_proc}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/exp_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from \textit{exp} Distribution
+    }
+    \label{fig: sgd_exp_distro_exp_proc}
+\end{figure}
+
 
 \subsubsection{Estimate results on different distributions}
 \begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
@@ -174,7 +251,17 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/gau_1_res.png} % Example image
 	\caption{
-		SGD Estimate Results from Gaussian 1 Distribution
+		SGD Estimate Results from \textit{gau-1} Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_2_res.png} % Example image
+	\caption{
+		SGD Estimate Results from \textit{gau-2} Distribution
 	}
 \end{figure}
 
@@ -184,7 +271,7 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/mix_res.png} % Example image
 	\caption{
-		SGD Estimate Results from Mix Distribution
+		SGD Estimate Results from \textit{mix}  Distribution
 	}
 \end{figure}
 
@@ -194,40 +281,7 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/exp_res.png} % Example image
 	\caption{
-		SGD Estimate Results from Exponential Distribution
-	}
-\end{figure}
-
-
-
-\subsubsection{Estimate processes on different distributions}
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {distro/gau_1_proc.png} % Example image
-	\caption{
-		SGD Estimate Process from Gaussian 1 Distribution
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {distro/mix_proc.png} % Example image
-	\caption{
-		SGD Estimate Process from Mix Distribution
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {distro/exp_proc.png} % Example image
-	\caption{
-		SGD Estimate Process from Exponential Distribution
+		SGD Estimate Results from \textit{exp}  Distribution
 	}
 \end{figure}
 
@@ -238,7 +292,17 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/gau_1_err.png} % Example image
 	\caption{
-		SGD Estimate Error from Gaussian 1 Distribution
+		SGD Estimate Error from \textit{gau-1} Distribution
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {distro/gau_2_err.png} % Example image
+	\caption{
+		SGD Estimate Error from \textit{gau-2} Distribution
 	}
 \end{figure}
 
@@ -248,7 +312,7 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/mix_err.png} % Example image
 	\caption{
-		SGD Estimate Error from Mix Distribution
+		SGD Estimate Error from \textit{mix}  Distribution
 	}
 \end{figure}
 
@@ -258,43 +322,13 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     [width=1\columnwidth]
     {distro/exp_err.png} % Example image
 	\caption{
-		SGD Estimate Error from Exponential Distribution
+		SGD Estimate Error from \textit{exp}  Distribution
 	}
 \end{figure}
 
 \pagebreak
 \subsection{Data Size}
-
-\subsubsection{Estimate Results on Different Data Size}
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_size/100_res.png} % Example image
-	\caption{
-		SGD Estimate Results from 100 Samples
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_size/1000_res.png} % Example image
-	\caption{
-		SGD Estimate Results from 1000 Samples
-	}
-\end{figure}
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_size/100000_res.png} % Example image
-	\caption{
-		SGD Estimate Results from 100000 Samples
-	}
-\end{figure}
-
+\label{subsec: sgd_exp_dt_size}
 
 \subsubsection{Estimate Processes on Different Data Size}
 
@@ -327,6 +361,38 @@ Except for default setting of gaussian 1 distribution, two other distributions a
 	}
 \end{figure}
 
+\subsubsection{Estimate Results on Different Data Size}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 100 Samples
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/1000_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 1000 Samples
+	}
+\end{figure}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_size/100000_res.png} % Example image
+	\caption{
+		SGD Estimate Results from 100000 Samples
+	}
+\end{figure}
+
+
+
 \subsubsection{Estimate Error Values on Different Data Size}
 \begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
 	\centering
@@ -358,38 +424,41 @@ Except for default setting of gaussian 1 distribution, two other distributions a
 \end{figure}
 
 \pagebreak
+\subsection{Ordering of Data Stream}
+\label{subsec: sgd_exp_dt_ordering}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/shuffle_res.png} % Example image
+	\caption{
+		SGD Estimate Result from Shuffled Data Stream
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/shuffle_proc.png} % Example image
+	\caption{
+		SGD Estimate Process from Shuffled Data Stream
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {data_sequence/shuffle_err.png} % Example image
+	\caption{
+		SGD Estimate Error from Shuffled Data Stream
+	}
+\end{figure}
+
 \subsection{SGD Step Size}
-
-\subsubsection{Estimate Results on Different SGD Step sizes}
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {step_size/const_res.png} % Example image
-	\caption{
-		SGD Estimate Results from step size $\alpha_k =1 $
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {step_size/2_div_sqrt_k_res.png} % Example image
-	\caption{
-		SGD Estimate Results from step size $ \alpha_k = \frac{2}{\sqrt{k}}$
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {step_size/{0.002_div_sqrt_k_res}.png} % Example image
-	\caption{
-		SGD Estimate Results from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
-	}
-\end{figure}
+\label{subsec: sgd_exp_step_size}
 
 \subsubsection{Estimate Processes on Different SGD Step sizes}
 \begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
@@ -419,6 +488,37 @@ Except for default setting of gaussian 1 distribution, two other distributions a
     {step_size/{0.002_div_sqrt_k_proc}.png} % Example image
 	\caption{
 		SGD Estimate Process from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
+	}
+\end{figure}
+
+\subsubsection{Estimate Results on Different SGD Step sizes}
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/const_res.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $\alpha_k =1 $
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/2_div_sqrt_k_res.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $ \alpha_k = \frac{2}{\sqrt{k}}$
+	}
+\end{figure}
+
+\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+	\centering
+    \includegraphics
+    [width=1\columnwidth]
+    {step_size/{0.002_div_sqrt_k_res}.png} % Example image
+	\caption{
+		SGD Estimate Results from step size $ \alpha_k = \frac{0.002}{\sqrt{k}}$
 	}
 \end{figure}
 
@@ -454,38 +554,6 @@ Except for default setting of gaussian 1 distribution, two other distributions a
 \end{figure}
 
 \pagebreak
-\subsection{Ordering of Data Stream}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_sequence/True_res.png} % Example image
-	\caption{
-		SGD Estimate Result from Shuffled Data Stream
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_sequence/True_proc.png} % Example image
-	\caption{
-		SGD Estimate Process from Shuffled Data Stream
-	}
-\end{figure}
-
-\begin{figure}[H] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
-	\centering
-    \includegraphics
-    [width=1\columnwidth]
-    {data_sequence/True_err.png} % Example image
-	\caption{
-		SGD Estimate Error from Shuffled Data Stream
-	}
-\end{figure}
-
 \section{Discussion}
 \subsection{Failure on Newton's Method}
 Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
