@@ -1,0 +1,73 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {american}{}
+\defcounter {refsection}{0}\relax 
+\deactivateaddvspace 
+\babel@toc {american}{}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces SGD Estimate Process from \textit {gau-1} Distribution \relax }}{7}{figure.caption.3}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2}{\ignorespaces SGD Estimate Process from \textit {gau-2} Distribution \relax }}{8}{figure.caption.4}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3}{\ignorespaces SGD Estimate Process from \textit {mix} Distribution \relax }}{8}{figure.caption.5}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4}{\ignorespaces SGD Estimate Process from \textit {exp} Distribution \relax }}{9}{figure.caption.6}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5}{\ignorespaces SGD Estimate Results from \textit {gau-1} Distribution \relax }}{9}{figure.caption.7}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6}{\ignorespaces SGD Estimate Results from \textit {gau-2} Distribution \relax }}{9}{figure.caption.8}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {7}{\ignorespaces SGD Estimate Results from \textit {mix} Distribution \relax }}{10}{figure.caption.9}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {8}{\ignorespaces SGD Estimate Results from \textit {exp} Distribution \relax }}{10}{figure.caption.10}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9}{\ignorespaces SGD Estimate Error from \textit {gau-1} Distribution \relax }}{10}{figure.caption.11}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {10}{\ignorespaces SGD Estimate Error from \textit {gau-2} Distribution \relax }}{11}{figure.caption.12}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {11}{\ignorespaces SGD Estimate Error from \textit {mix} Distribution \relax }}{11}{figure.caption.13}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {12}{\ignorespaces SGD Estimate Error from \textit {exp} Distribution \relax }}{12}{figure.caption.14}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {13}{\ignorespaces SGD Estimate Process from 100 Samples \relax }}{13}{figure.caption.15}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {14}{\ignorespaces SGD Estimate Process from 1000 Samples \relax }}{13}{figure.caption.16}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {15}{\ignorespaces SGD Estimate Process from 100000 Samples \relax }}{14}{figure.caption.17}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {16}{\ignorespaces SGD Estimate Results from 100 Samples \relax }}{14}{figure.caption.18}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {17}{\ignorespaces SGD Estimate Results from 1000 Samples \relax }}{14}{figure.caption.19}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {18}{\ignorespaces SGD Estimate Results from 100000 Samples \relax }}{15}{figure.caption.20}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {19}{\ignorespaces SGD Estimate Error from 100 Samples \relax }}{15}{figure.caption.21}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {20}{\ignorespaces SGD Estimate Error from 1000 Samples \relax }}{16}{figure.caption.22}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {21}{\ignorespaces SGD Estimate Error from 100000 Samples \relax }}{16}{figure.caption.23}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {22}{\ignorespaces SGD Estimate Process from Shuffled Data Stream \relax }}{17}{figure.caption.24}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {23}{\ignorespaces SGD Estimate Result from Shuffled Data Stream \relax }}{17}{figure.caption.25}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {24}{\ignorespaces SGD Estimate Error from Shuffled Data Stream \relax }}{18}{figure.caption.26}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {25}{\ignorespaces SGD Estimate Process from step size $\alpha _k =1 $ \relax }}{18}{figure.caption.27}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {26}{\ignorespaces SGD Estimate Process from step size $ \alpha _k = \frac {2}{\sqrt {k}}$ \relax }}{19}{figure.caption.28}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {27}{\ignorespaces SGD Estimate Process from step size $ \alpha _k = \frac {0.002}{\sqrt {k}}$ \relax }}{19}{figure.caption.29}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {28}{\ignorespaces SGD Estimate Results from step size $\alpha _k =1 $ \relax }}{20}{figure.caption.30}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {29}{\ignorespaces SGD Estimate Results from step size $ \alpha _k = \frac {2}{\sqrt {k}}$ \relax }}{20}{figure.caption.31}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {30}{\ignorespaces SGD Estimate Results from step size $ \alpha _k = \frac {0.002}{\sqrt {k}}$ \relax }}{20}{figure.caption.32}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {31}{\ignorespaces SGD Estimate Error from step size $\alpha _k =1 $ \relax }}{21}{figure.caption.33}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {32}{\ignorespaces SGD Estimate Error from step size $ \alpha _k = \frac {2}{\sqrt {k}}$ \relax }}{21}{figure.caption.34}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {33}{\ignorespaces SGD Estimate Error from step size $ \alpha _k = \frac {0.002}{\sqrt {k}}$ \relax }}{22}{figure.caption.35}

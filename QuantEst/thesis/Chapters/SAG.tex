@@ -88,3 +88,26 @@ The quantile estimation loss function is a convex function, and \textbf{we can u
 For streaming data, it's worthwhile noticing that each input data point has one and only one pass. Which means for the SAG implementation, the storage of updated $y_i^k$ is useless since it would not be revisited. Besides, if all $y_i^0$ are initialized as 0, the storage of $y^0$ initialization needs only one unit of memory instead of $n$ units of memory. in this way, we can keep the memory complexity of SAG quantile estimation to $O(1)$.
 
 
+\section{Failure on Newton's Method}
+Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
+
+\begin{equation}
+    l_\tau(t)= 
+        \begin{cases}
+            \tau t & t > 0\\
+            -(1-\tau) t & otherwise
+        \end{cases}
+\end{equation}
+
+
+is a linear function of $t$, which doesn't have any second derivative. 
+\\\\
+Though the method cannot be applied, it is easy to reach the goal of Newton's method: to find the critical points of a function. Instead of stationary point, the loss function has a critical point where it is not differentiable and the derivative changes sign. For any $\tau \in (0,1)$, when $t=0$, the loss function reaches it's critical points at $\ell_\tau(0) = 0$. Taking the critical point for every step, however, does not contribute to any improvement in quantile estimation. To be at a critical point, the quantile estimate is set to have the equal value of input data $x$, and only in this way we could have $t = x-q = x-x = 0$. Regardless of $\tau$, the quantile estimate is always equal to the value of the latest data point. So far this method has totally failed its goal to estimate a quantile value based on $\tau$ and the entire data stream.
+\\\\
+From another perspective, the failure of Newton's method is the result of applying large step size for the last input data for a SGD method. In this way, the minimal of current loss function $\ell_\tau(t)$ is reached, while the total loss function for the input data stream $X$
+
+\begin{equation}
+    L_{\tau}(t) = \sum_{x \in X} \ell_{\tau}(t)
+\end{equation}
+
+is entirely ignored.
