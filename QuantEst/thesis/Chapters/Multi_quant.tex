@@ -413,8 +413,18 @@ Overall the extended $P^2$ method has a really fast convergence rate.
     \label{fig: p2_err}
 \end{figure}
 
-\marginline{this will be edited later}
+\marginpar{this will be edited later}
+\section{Discussion}
+\marginpar{why extended p2 better than shiftQ}
+\begin{enumerate}
+    \item  P2 has a better initialization point of quantiles, while the initialization of shiftQ is very random. The initialization of quantile estimation methods are very important.
+    \item shiftQ is sensitive to its initialization of the relative position between original distribution $Q_X$ and shifted distribution $Q_Y$, which makes is double messy.
+    \item Extra information from extended p2: 2K+3 quantiles are used, instead of only K
+    \item The mechanism of extended P2 is to insert every new observation into an interval between corresponding markers, which is pretty accurate. shiftQ, however, do not even have a correct update function (should've been the pinball loss function)
+\end{enumerate}
+
 \section{Conclusion}
 \label{sec: multi_discussion}
 
+\marginpar{to be finished}
 From the experimental results we can see the two multi-quantile estimation methods can solve the crossing problem by introducing some mathematical relationship assumptions between adjacent quantiles. The following step will be doing nothing but to 
