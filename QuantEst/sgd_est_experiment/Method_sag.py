@@ -27,9 +27,7 @@ def update_q_lst(q_lst, tau_lst, y_lst, x, N, changing_alpha = True):
 
 def get_SAG_procs(dt, tau_lst, changing_alpha = True):
     N = dt.shape[0]
-    print ("--- SAG", changing_alpha)
     q_procs = np.zeros((N, len(tau_lst)))
-    print (q_procs.shape)
     q_lst = np.zeros(len(tau_lst))
     y_lst = np.zeros(len(tau_lst))
     for i, x in enumerate(dt):
