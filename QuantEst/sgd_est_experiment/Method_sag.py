@@ -9,12 +9,10 @@ def update_q(q, x, y, tau, N, alpha = 1):
     return q, y
 
 
-
 def update_q_lst(q_lst, tau_lst, y_lst, x, N, changing_alpha = True):
-#     print (y_lst)
-#     alpha_lst = np.ones(5)
-    alpha_lst = np.round([tau if tau<= 0.5 else 1-tau for tau in tau_lst], 4)
-    if not changing_alpha: alpha_lst = np.ones(len(tau_lst)) * 0.5
+
+    alpha_lst = np.round([tau if tau<= 0.5 else 1-tau for tau in tau_lst], 4)*16
+    if not changing_alpha: alpha_lst = np.ones(len(tau_lst)) * 0.5 *16
 #     alpha_lst = np.ones(len(tau_lst)) * 0.5
     for i, q in enumerate(q_lst):
         tau = tau_lst[i]
@@ -29,7 +27,9 @@ def update_q_lst(q_lst, tau_lst, y_lst, x, N, changing_alpha = True):
 
 def get_SAG_procs(dt, tau_lst, changing_alpha = True):
     N = dt.shape[0]
+    print ("--- SAG", changing_alpha)
     q_procs = np.zeros((N, len(tau_lst)))
+    print (q_procs.shape)
     q_lst = np.zeros(len(tau_lst))
     y_lst = np.zeros(len(tau_lst))
     for i, x in enumerate(dt):
