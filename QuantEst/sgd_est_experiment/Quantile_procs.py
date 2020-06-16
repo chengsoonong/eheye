@@ -8,12 +8,11 @@ from Method_sag import get_SAG_procs
 def get_procs(dataset, tau_lst, method_name, *args):
     if len(dataset.shape)!= 1: 
         raise Exception('Dataset for get_procs() of wrong shape:' + str(dataset.shape)+ ', should be 1d array')
-    print (tau_lst, method_name)
-    # print (method_name)
+        
     method_dict = {
         'SGD' : get_sgd_procs,
         'Frugal': get_frugal_procs,
-        'Adaptive': get_adaptive_procs,
+        'Adaptive_stepsize': get_adaptive_procs,
         'P2': get_p2_procs,
         'shiftQ': get_shiftQ_procs,
         'SAG': get_SAG_procs,
