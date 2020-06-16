@@ -9,6 +9,7 @@
 \algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
 \algtext*{EndSwitch}%
 \algtext*{EndCase}%
+\captionsetup[table]{position=bottom} 
 
 % \graphicspath{{Figures/Multi/P2/}{./}} 
 
@@ -42,14 +43,49 @@ In real life implementations, quantile estimation usually does not focus on a si
 A trivial solution for multi-quantile estimation is to run multiple single quantile estimation processes in parallel, such that each quantile is estimated by one process. The multi-process solution however, leads to two main problems:
 \begin{enumerate}
     \item The application software/hardware might not have sufficient parallel processing capacity for the algorithm.
-    \item Estimating the quantiles independently means the monotone property of quantiles is not taken into account. That is, $\tau_1$-$q > \tau_2$-$q$ if and only if $\tau_1 > \tau_2.$
+    \item Estimating the quantiles independently means the monotone property of quantiles is not taken into account. That is, $\tau_1$-$q > \tau_2$-$q$ if and only if $\tau_1 > \tau_2.$. Moreover, in section~\ref{subsec: crossing_SGD}, we conduct an experiment on SGD on the crossing problem.
+
 \end{enumerate}
 
 The following two multi-quantile estimation methods can simultaneously estimate multiple quantile values in one process while utilising the monotonic property. Both algorithms, \textit{shiftQ}\cite{hammerJointTrackingMultiple2019b} and \textit{extended $P^2$}\cite{raatikainenSequentialProcedureSimultaneous1993} utilize the monotone property by ensuring a positive distance between one quantile and its previous quantile, i.e.,
 $q_{i} - q_{i-1} > 0$. The shiftQ algorithm is described in section \ref{sec: multi_shiftQ}, and the next section \ref{sec: multi_{p2}} for the extended $P^2$ algorithm.
 
+\subsection{The crossing problem of SGD}
+\label{subsec: crossing_SGD}
 
+In chapter~\ref{ch: sgd_exp}, it is mentioned that impact of crossing on SGD appear in some experimental settings. Given the fact that the distribution of a data stream is previously unknown, the purpose of the following experiment is to briefly show the what the problem of crossing looks like and how it is affected by the settings of SGD.
 
+Specifically, the frequency of crossing can be affected by the changes in step size. Figure~\ref{fig: SGD_SGD} shows the how different step size settings of SGD affect the performance in quantile crossing. In this experiment, the data stream is consisted of 5000 samples from a uniform distribution $\mathcal{U}(0,100)$, and the three SGD methods use constant step size of $5, 1$, and $0.45$ respectively. 
+    \begin{figure}[h!]
+        \includegraphics[width=1\columnwidth]{shiftQ/SGD_vs_SGD.png}
+        \caption{Three process plots comparing the estimation of quantiles 0.15-q, 0.16-q, 0.17-q, 0.25-q, 0.8-q and 0.9-q with SGDs over a uniform distribution. The step size of the SGD algorithms are $5, 1$, and $0.45$. In this experiment, each of them respectively has 2882, 659 and 33 epochs with crossing quantiles.}
+        \label{fig: SGD_SGD}
+    \end{figure}
+
+    \begin{table}[h!]
+        \centering
+        \caption{The mean and standard deviation (std) of crossings for different step sizes with 100 experiments}
+        \begin{tabular}{cccc}
+        \toprule
+        Step size & Mean of crossings   & Std of crossings              & Proportion of crossings\\ 
+        5         & 2820.1              & 129.95                        & 56.4\%                 \\
+        1         & 676.77              & 177.18                        & 13.5\%                 \\
+        0.45      & 114.07              & 80.86                         & 2.3\%      \\
+        \bottomrule
+        \end{tabular}
+        \label{tab: SGD_SGD}
+    \end{table}
+
+The crossing problem in SGD has three interesting properties:
+\begin{enumerate}
+
+    \item The number of crossings are highly sensitive to the step size. We can see from the process plots that the crossing issue is more severe when the step size is big, which match the data from 100 repeated experiments that 56.4\% epochs have crossings with step size = 5, while only 2.3\% for step size = 0.45 (table~\ref{tab: SGD_SGD}).
+
+    \item The crossings are likely to occur when two quantile values are close to each other compared with the SGD step size. For example, in this example, only two pairs of quantiles ($0.15$, $0.16$) and ($0.16$, $0.17$) are detected to have crossings. The difference between the true quantile values of these pairs is 1, while the other adjacent quantile pairs are at least 8 away from each other. Given the stepsize was set to $\alpha = 0.45$ for SGD, the short distance between two adjacent quantile values are likely to be the main cause of crossings.
+    
+    \item The crossings likely to happen in a slot of concentrated continuous epochs (i.e. step size = $0.45$ in this situation). For example, among the 33 crossings, 11 of them are between $0.16$-q and $0.17$-q from epoch 2400 to 2410. The other 22 crossings are between $0.15$-q and $0.16$-q continuously from epoch 3489 to 3510. This suggests that once a crossing takes place, its impact is likely to continue for the following epochs until the crossing is fixed. On the other side, when the step size is big, the crossing are distributed in a more random and even way (i.e. step size = $5$ in this situation).
+    
+\end{enumerate}
 % ----------------------------------- shiftQ ---------------------------------------
 
 \section{The shiftQ method}
@@ -163,7 +199,7 @@ Pseudocode for the shiftQ algorithm is included as algorithm \ref{alg:multi_shif
 
 There are two experiments run on shiftQ algorithm. Refer to \textcolor{blue}{insert chapter reference here} for the details of the experiment settings. The first one aims to compare the quantile crossing behaviour of shiftQ and SGD, and the second one tests shiftQ's performance on quantile estimation.
 
-In the first experiment, the experiment dataset is 5000 samples generated from a uniform distribution over the range $(0,100)$. All data points are required to be positive as the prerequisite of the shiftQ algorithm. This experiment compares two algorithms, shiftQ and SGD, and examines the quantile crossing behaviour of each algorithm.
+In the first experiment, the experiment dataset is 5000 samples generated from a uniform distribution over the range $(0,100)$. All data points are required to be positive as the prerequisite of the shiftQ algorithm. This experiment compares two algorithms, shiftQ and SGD (step size = $0.45$ beacause the behaviour of SGD is clearer for it), and examines the quantile crossing behaviour of each algorithm. 
 
 \marginpar{Fig \ref{fig: shiftQ_SGD} graphic needs axis labels}
 \begin{figure}[h!]
@@ -173,28 +209,24 @@ In the first experiment, the experiment dataset is 5000 samples generated from a
 \end{figure}
 
 \marginpar{``epoch'' terminology under review}
-Figure \ref{fig: shiftQ_SGD} shows the estimates by shiftQ and SGD over 5000 epochs in the first experiment. In this experiment, $0$ crossings occurred in the shiftQ implementation, while SGD caused 33 crossings. Over 100 repetitions of this experiment, the average number of crossings by SGD is 72.48, with a standard deviation of 66.23. The crossings in SGD have two interesting properties:
-    \begin{enumerate}
-        \item The crossings are likely to occur when two quantile values are close to each other. For example, in this example, only two pairs of quantiles ($0.15$, $0.16$) and ($0.16$, $0.17$) are detected to have crossings. The difference between the true quantile values of these pairs is 1, while the other adjacent quantile pairs are at least 8 away from each other. Given the stepsize was set to $\alpha = 0.45$ for SGD, the short distance between two adjacent quantile values are likely to be the main cause of crossings.
-        \item The crossings happen are likely to happen in a slot of concentrated continuous epochs. For example, among the 33 crossings, 11 of them are between $0.16$-q and $0.17$-q from epoch 2400 to 2410. The other 22 crossings are between $0.15$-q and $0.16$-q continuously from epoch 3489 to 3510. This suggests that once a crossing takes place, its impact is likely to continue for the following epochs until the crossing is fixed.
-    \end{enumerate}
-
-The second experiment aims to investigate the effectiveness of shiftQ algorithm. Figures \ref{fig: shiftQ_proc}, \ref{fig: shiftQ_res} and \ref{fig: shiftQ_err} show process plots for the shiftQ algorithm run on the absolute value of 1000 samples from \textit{gau-1}.
+Figure \ref{fig: shiftQ_SGD} shows the estimates by shiftQ and SGD over 5000 epochs in the first experiment. In this experiment, $0$ crossings occurred in the shiftQ implementation, while SGD caused 25 crossings. Over 100 repetitions of this experiments, only 3 SGD experiments had 0 crossings, while all of the shiftQ algorithms ensured 0 crossings. The empirical experimental results have illustrated the effectiveness of crossing prevention on quantile estimation.
+\\\\
+The second experiment aims to investigate the effectiveness of shiftQ algorithm. Figures \ref{fig: shiftQ_proc}, \ref{fig: shiftQ_res} and \ref{fig: shiftQ_err} show process plots for the shiftQ algorithm run on the absolute value of 1000 samples from \textit{positive gau-1}.
 
 \begin{figure}[h!]
-	\includegraphics[width=1\columnwidth]{shiftQ/1000_proc.png}
+	\includegraphics[width=1\columnwidth]{{"shiftQ/positive gau_1_proc"}.png}
 	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the process graph)}
     \label{fig: shiftQ_proc}
 \end{figure}
 
 \begin{figure}[h!]
-	\includegraphics[width=1\columnwidth]{shiftQ/1000_res.png}
+	\includegraphics[width=1\columnwidth]{{"shiftQ/positive gau_1_res"}.png}
 	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the result graph)}
     \label{fig: shiftQ_res}
 \end{figure}
 
 \begin{figure}[h!]
-	\includegraphics[width=1\columnwidth]{shiftQ/1000_err.png}
+	\includegraphics[width=1\columnwidth]{{"shiftQ/positive gau_1_err"}.png}
 	\caption{The shiftQ algorithm for Positive Gaussian 1 distribution (the error graph)}
     \label{fig: shiftQ_err}
 \end{figure}
@@ -423,8 +455,18 @@ Overall the extended $P^2$ method has a really fast convergence rate.
     \item The mechanism of extended P2 is to insert every new observation into an interval between corresponding markers, which is pretty accurate. shiftQ, however, do not even have a correct update function (should've been the pinball loss function)
 \end{enumerate}
 
-\section{Conclusion}
+\section{Discussion and Conclusion}
 \label{sec: multi_discussion}
 
 \marginpar{to be finished}
 From the experimental results we can see the two multi-quantile estimation methods can solve the crossing problem by introducing some mathematical relationship assumptions between adjacent quantiles. The following step will be doing nothing but to 
+
+\textbf{Comparison between shiftQ, SGD and P2}
+
+1. prevention of crossings - sometimes it's a big issue but sometimes no
+
+2. convergence rate distributions
+    compare gau-1 among all 3
+
+3. Improvement on step size vs distribution probelm
+    compare gau-2 among all 3
