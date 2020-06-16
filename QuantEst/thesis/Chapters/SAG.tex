@@ -1,9 +1,10 @@
 \chapter{Step Size Adaptation}
-\label{ch: SAG}
+\label{ch: stepsize_adaptation}
 
 \graphicspath{{Figures/Stepsize_adapt/}{./}} 
 
 \section{Failure on Newton's Method}
+\label{sec: newton}
 Newton's method is an iterative method to find the stationary points (where the function's derivative is zero) of a twice-differentiable function $f$. The application of Newton's method failed for our SGD quantile methods, since the loss function of the quantile estimation function is not twice-differentiable. For a specific $\tau$, and $t := x - q$ be the difference between the input data value $x$ and the estimate of quantile $q$, the loss function 
 
 \begin{equation}
@@ -32,10 +33,11 @@ is entirely ignored.
 \graphicspath{{Figures/Smooth_func/}{./}} 
 
 
-\section{Stochastic Average Gradient}
+\section{Stochastic Average Gradient (SAG)}
+\label{sec: sag}
 One approach on step size adaptation is to use the stochastic average gradient (SAG)\cite{schmidtMinimizingFiniteSums2016} algorithm. It is an convex optimization method that has a significant improvement of convergence rate than stochastic gradient (SG) methods. In general, the convergence rate is improved from $O(1/\sqrt{k})$ to $O(1/k)$ for a total of $k$ epochs, reaching the same level as the gradient descent method. Along with the rising convergence rate, it keeps a low computational cost for each iteration to be independent from the size of function sum.
 
-\subsection{Machenism of SAG}
+\subsection{Mechanism of SAG}
 Similar to SG methods, SAG methods aim for minimization of the sum of a finite number of smooth convex functions where $N$ is very large. The problem setting is
 \begin{equation}
 \underset{x \in \mathbb{R}^p}{\text{minimize}} g(x) := \frac{1}{N}\sum^N_{n=1} \ell_n(x)
@@ -98,7 +100,7 @@ The SAG algorithm with constant step size $\alpha_i = \frac{1}{16L}$ reaches the
 
 The Basic SAG algorithm requires memory storage of a table of $y_m (m= 1, 2, ...,N)$, to keep the track of each $y_m$ in case they are re-visited after first update.
 
-\subsection{Basic SAG Implementation on quantile estimation}
+\subsection{SAG Implementation for quantile estimation}
 
 The quantile estimation loss function is a convex function, and \textbf{we can use a smooth function for replacement}
 \begin{algorithm}
@@ -120,32 +122,56 @@ For streaming data, it's worthwhile noticing that each input data point has exac
 
 \subsection{Experiments on SAG}
 
-Here we conduct some experiments on SAG
+In this section, we explore how SAG
 
 \graphicspath{{Figures/Stepsize_adapt/SAG/}{./}} 
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/gau_1_proc.png}
-	\caption{The process experiment on \textit{gau-1}}
+	\caption{SAG Process from \textit{gau-1} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/gau_2_proc.png}
-	\caption{The process experiment on \textit{gau-2}}
+	\caption{SAG Process from  \textit{gau-2} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/mix_proc.png}
-	\caption{The process experiment on \textit{mix}}
+	\caption{SAG Process from \textit{mix} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/exp_proc.png}
-	\caption{The process experiment on \textit{exp}}
+	\caption{SAG Process from \textit{exp} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/gau_1_err.png}
+	\caption{SAG Error from \textit{gau-1} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/gau_2_err.png}
+	\caption{SAG Error from  \textit{gau-2} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/mix_err.png}
+	\caption{SAG Error from \textit{mix} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/exp_err.png}
+	\caption{SAG Error from \textit{exp} Distribution}
 \end{figure}
 
 \subsection{Smooth Functions}
@@ -179,7 +205,7 @@ If the derivative of the smooth function for $|x|$ at $x=0$ is $0$, we can also 
 \\\\
 In section \ref{subsec: smooth_sqrt} and \ref{subsec: smooth_new}, we show two approximation functions with regards to the absolute function $f = |x|$, along with the application of the approximations on the pinball loss function.
 
-\subsubsection{Smooth function 1: a simple approximation}
+\subsubsection{Smooth function 1: a simple approxitmation}
 \label{subsec: smooth_sqrt}
 
 For $f = |x|$, a common and simple smooth approximation is $
@@ -272,43 +298,169 @@ The form of smooth function \textbf{does not really matter for SAG}. It is impor
 \begin{equation}
     L \leq min(|\tau|, |1-\tau|)
 \end{equation}
-So that no matter which smooth function is used, we can simply take $min(|\tau|, |1-\tau|)$ to compute the step size $\alpha$ for SAG. However, we can still implement those smooth functions for SGD. Further research can be done to conduct more experiments for different smooth function implementation on SGD.
+So that no matter which smooth function is used, we can simply take $min(|\tau|, |1-\tau|)$ to compute the step size $\alpha$ for SAG. However, we can still implement those smooth functions for SGD. Further researches can be done on different smooth function implementation on SGD.
 
 
-\section{Doubling and Halving SGD}
+\section{Doubling and Halving SGD (DH-SGD)}
+\label{sec: DH_SGD}
 
+Although SAG has a faster convergence rate than SGD, it is clear that the fluctuation problem after convergence still exists. Is it possible that a step size adaptation of SGD can minify the fluctuation after the convergence, and at the same time have an improved convergence rate? In this section, we propose a simple algorithm called Doubling and Halving Stochastic Gradient Descent (DH-SGD), which empirically improve those two problems.
+
+\subsection{Method Description}
+
+The idea of the DH-SGD method is trivial - increase the step size if it is too big, and decrease the step size if it is too small. We choose the change of step sizes to be exponential, specifically, increasing it to double size or decrease it to half size. The evaluation of the scale of step size can be vague.  
+
+The psedu-code is shown here
+
+\marginpar{THe step size scaler is different for different quantiles}
+\begin{algorithm}
+    \caption{DH-SGD algorithm}\label{alg:DH_SGD}
+    \begin{algorithmic}[1]
+        \Require{Data Stream $X$, $\tau$, $1$ unit of memory $q$, epoch check size $c$}
+        \Ensure{$q$}
+        % \Procedure{frugal}{$X,\tau$}            \Comment{X is the dataset}
+        \State{epochCount $ec = 0$}                       \Comment{The counter for epochs}
+        \State{directionCount $dc = 0$}                   \Comment{The accumulation of directions}
+        \State{scaler $s = 1$}                    \Comment{The scaler for step size}
+        \State {Initialize} $q$                 \Comment{Default initialization $q_0$ = 0}
+        \State{}
+            \For{$x_i$ in $X$}                  \Comment{Parameter update for each input data point}
+                \State{}
+                \State{$ec = ec+ 1$}   
+                \If{$ec$ \textit{mod} $c = 0$}            \Comment{Change scaler for every $c$ epochs}
+                    \If{$|dc| > 0.25c$ }               
+                        \State{$s = 2s$}               \Comment{Double $s$ if the update is mostly in one direction}         
+                    \Else {\textbf{if} $|dc| < 0.02c$ \textbf{then}}  
+                        \State{$s = 0.5s$}             \Comment{Halve $s$ if the update direction barely changes}
+                    \EndIf
+                
+                \EndIf
+                \State{}
+                \State{\textbf{set} $\alpha_i = 1$}             \Comment{$\alpha_i$ can use other settings}
+                \State{$\alpha_i = \alpha_i \cdot s$}        \Comment{Scale original step size with $s$}
+                \If{$x_i > q$}                  
+                    \State{$q = q + \alpha_i \tau$}
+                    \State{$dc = dc + 1$}                   \Comment{Direction count $+1$ if updated upwards}
+                \Else {\textbf{if} $x_i < q$ \textbf{then}}                     
+                    \State{$q = q - \alpha_i (1-\tau)$}
+                    \State{$dc = dc -1$}                    \Comment{Direction count $-1$ if updated downwards}
+
+                \EndIf
+            \EndFor
+        \State{}
+        \State \textbf{return} $q$
+        % \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Experiments}
 \graphicspath{{Figures/Stepsize_adapt/Adaptive_stepsize/}{./}} 
 
+Interesting Observations:
+
+\begin{enumerate}
+    \item The change of step size "does not always work". Works: other, \textit{gau-2} obvious but still not quite working, not work: $0.99$-q \textit{exp}
+    \item Fluctuation does change, but is sometimes worse (\textit{gau-1} $0.1$-q $0.3$-q Error outlier) No guarantee of convergence? a really big problem
+\end{enumerate}
+\subsubsection{DH-SGD on Different Distributions}
+\label{subsubsec: DH_SGD_exp_distro}
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/gau_1_proc.png}
-	\caption{The process experiment on \textit{gau-1}}
+	\caption{DH-SGD Process from \textit{gau-1} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/gau_2_proc.png}
-	\caption{The process experiment on \textit{gau-2}}
+	\caption{DH-SGD Process from  \textit{gau-2} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/mix_proc.png}
-	\caption{The process experiment on \textit{mix}}
+	\caption{DH-SGD Process from \textit{mix} Distribution}
 \end{figure}
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\columnwidth]{distro/exp_proc.png}
-	\caption{The process experiment on \textit{exp}}
+	\caption{DH-SGD Process from \textit{exp} Distribution}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/gau_1_err.png}
+	\caption{DH-SGD Error from \textit{gau-1} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/gau_2_err.png}
+	\caption{DH-SGD Error from  \textit{gau-2} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/mix_err.png}
+	\caption{DH-SGD Error from \textit{mix} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{distro/exp_err.png}
+	\caption{DH-SGD Error from \textit{exp} Distribution}
+\end{figure}
+
+\subsubsection{DH-SGD on Different Data Size}
+\label{subsubsec: DH_SGD_exp_data_size}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{data_size/1000_res.png}
+	\caption{DH-SGD Results from 1000 samples from \textit{gau-2} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{data_size/10000_proc.png}
+	\caption{DH-SGD Process from 10000 samples from\textit{gau-2} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{data_size/10000_res.png}
+	\caption{DH-SGD Results from 10000 samples from \textit{gau-2} Distribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\columnwidth]{data_size/10000_err.png}
+	\caption{DH-SGD Error from 10000 samples from \textit{gau-2} Distribution}
+\end{figure}
+
+\subsection{Discussion}
+
+Choice on \textbf{step size check}:
+    If step size check to be small: easier to have gau-2 converge within 1000 epochs, but not enough data for epoch checking
+    If step size check large: the other way around
+    Since we assume the data stream is big, maybe try with more than 200 epochs
+
+    (try a different way) Can actually get easily solved by sorting the first F (F = 100 for example) quantiles and set the initialization and step size according to that
+
+The judgement of\textbf{ "too small/big"} step size: 
+    binomial distro for different quantiles The possibility that there are exactly $x$ epochs  going up in the total of $n$ epochs for $\tau$ when the quantile has converged.
+    The distribution is different for different $\tau$ and different $n$, but $n$ does not matter that much as $\tau$ in this situation. It means the distance between of \textbf{dfa} should be different for different $\tau$.
+
 
 \section{Discussion and conclusion}
 
 Compare SAG, Doubling-and-Halving SGD and SGD
 
-1. Convergence rate
+Conclusion: both are good methods lol
 
-2. Problem of really faraway/close quantiles
+1. Convergence rate:
 
-3. Further improvement: SAG + DH SGD?
+2. Fluctuation after convergence
+
+5. Further improvement: SAG + DH SGD?

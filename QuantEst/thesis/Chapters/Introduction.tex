@@ -55,7 +55,7 @@ Fig \ref{fig: SGD_quant} shows how SGD is used to estimate quantiles on the same
 
 \section{Background}
 
-In this chapter, the essential backgound knowledge assumed throughout the rest of this thesis is defined. Subsection~\ref{subsec: sgd}introduces Stochastic Gradient Descent (SGD), which is a convex optimisation approach commonly found in machine learning, and subsection~\ref{subsec: quant} provides a definition for quantiles.
+In this chapter, the essential background knowledge assumed throughout the rest of this thesis is defined. Subsection~\ref{subsec: sgd}introduces Stochastic Gradient Descent (SGD), which is a convex optimisation approach commonly found in machine learning, and subsection~\ref{subsec: quant} provides a definition for quantiles.
 Stochastic gradient descent (SGD) is a convex optimization approach commonly applied in machine learning, and quantiles are the dividing points of a distribution or a dataset.
 
     \subsection{Gradient descent and stochastic gradient descent}
@@ -184,9 +184,9 @@ and it divides the distribution into two even parts. This $2$-quantile point is 
 In the final part of the introduction, we give a brief tour of the material in this paper.
 The main focus of the paper is to explore how stochastic gradient descent method can be used for quantile estimation on data streams.
 In chapter \ref{ch: literature_review}, a very brief discussion of quantile estimation algorithms is presented, with a special mention for space-efficient algorithms (e.g., SGD-like methods). 
-Chapter \ref{ch: sgd_equivalence} compares the SGD methods with the \textit{Frugal1U} algorithm\cite{maFrugalStreamingEstimating2014}, showing how the two similar methods are "equivalent" to some extent.
-Chapter \ref{ch: sgd_experiment} which presents experiments to illustrate the relationship between setting for SGD and its performance.
-Next, chapter \ref{ch: stepsize} and \ref{ch: multi_quant} explore the two extensions of the vanilla SGD algorithm: the step size adaptation of SGD and the simultaneous multi-quantile estimation. Finally, the work of the paper is summed up in the conclusion chapter \ref{ch: conclusion}.
+Chapter \ref{ch: algo_equal} compares the SGD methods with the \textit{Frugal1U} algorithm\cite{maFrugalStreamingEstimating2014}, showing how the two similar methods are "equivalent" to some extent.
+Chapter \ref{ch: sgd_exp} which presents experiments to illustrate the relationship between setting for SGD and its performance.
+Next, chapter \ref{ch: SAG} and \ref{ch: multi_quant} explore the two extensions of the vanilla SGD algorithm: the step size adaptation of SGD and the simultaneous multi-quantile estimation. Finally, the work of the paper is summed up in the conclusion chapter \ref{ch: conclusion}.
 \\\\
 Fig \ref{fig: structure} is the layout of the contents of the paper.
 

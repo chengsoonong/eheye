@@ -6,15 +6,15 @@
 \captionsetup[figure]{font=scriptsize,labelfont=bf}
 
 
-\chapter{Experiments on SGD}
-\label{ch: experiments}
+\chapter{Empirical investigation of SGD convergence}
+\label{ch: sgd_exp}
 
 \section{Introduction}
 \label{sec: exp_intro}
 As the previous chapter has shown the equivalence between Frugal1U and SGD, which means the SGD is a valid alternative for quantile estimation.
 In this chapter, we take a further step on the SGD algorithm with more experiments.
 The experiments have two general purposes. The first is to explore if the SGD quantile estimation works.
-The second is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution (section \ref{}), data size, data ordering, quantile property value and step size.
+The second is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile property value and step size.
 
 In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
 
@@ -106,6 +106,7 @@ Each data stream set is composed of a number of data streams. For a statisticall
 
 \subsubsection{True and Batch Quantile Calculation}
 
+\marginpar{Refer to Intro on the Similarity calculation}
 The true quantile values are the quantile values for the distributions which the data streams are derived from. They are calculated by the maths functions for quantile computation. All except the mixed Gaussian distribution has a relatively easy function for quantile calculation. For the mixed distribution, the batch quantile value from a large amount of sampling is taken for the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
 \\\\
 The batch quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering of the data stream is, there is only one batch quantile value for one data stream, but there can be multiple quantile values for one distribution.
@@ -213,7 +214,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_1_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from \textit{gau-1} Distribution
+		SGD Process from \textit{gau-1} Distribution
     }
     \label{fig: sgd_exp_distro_gau_1_proc}
 \end{figure}
@@ -224,7 +225,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_2_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from \textit{gau-2} Distribution
+		SGD Process from \textit{gau-2} Distribution
     }
     \label{fig: sgd_exp_distro_gau_2_proc}
 \end{figure}
@@ -235,7 +236,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/mix_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from \textit{mix} Distribution
+		SGD Process from \textit{mix} Distribution
     }
     \label{fig: sgd_exp_distro_mix_proc}
 \end{figure}
@@ -246,7 +247,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/exp_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from \textit{exp} Distribution
+		SGD Process from \textit{exp} Distribution
     }
     \label{fig: sgd_exp_distro_exp_proc}
 \end{figure}
@@ -259,7 +260,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_1_res.png} % Example image
 	\caption{
-		SGD Estimate Results from \textit{gau-1} Distribution
+		SGD Results from \textit{gau-1} Distribution
     }
     \label{fig: sgd_exp_distro_gau_1_res}
 \end{figure}
@@ -270,7 +271,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_2_res.png} % Example image
 	\caption{
-		SGD Estimate Results from \textit{gau-2} Distribution
+		SGD Results from \textit{gau-2} Distribution
     }
     \label{fig: sgd_exp_distro_gau_2_res}
 
@@ -282,7 +283,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/mix_res.png} % Example image
 	\caption{
-		SGD Estimate Results from \textit{mix}  Distribution
+		SGD Results from \textit{mix}  Distribution
 	}
     \label{fig: sgd_exp_distro_mix_res}
 \end{figure}
@@ -293,7 +294,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/exp_res.png} % Example image
 	\caption{
-		SGD Estimate Results from \textit{exp}  Distribution
+		SGD Results from \textit{exp}  Distribution
 	}
     \label{fig: sgd_exp_distro_exp_res}
 \end{figure}
@@ -305,7 +306,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_1_err.png} % Example image
 	\caption{
-		SGD Estimate Error from \textit{gau-1} Distribution
+		SGD Error from \textit{gau-1} Distribution
 	}
     \label{fig: sgd_exp_distro_gau_1_err}
 \end{figure}
@@ -316,7 +317,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/gau_2_err.png} % Example image
 	\caption{
-		SGD Estimate Error from \textit{gau-2} Distribution
+		SGD Error from \textit{gau-2} Distribution
 	}
     \label{fig: sgd_exp_distro_gau_2_err}
 \end{figure}
@@ -327,7 +328,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/mix_err.png} % Example image
 	\caption{
-		SGD Estimate Error from \textit{mix}  Distribution
+		SGD Error from \textit{mix}  Distribution
 	}
     \label{fig: sgd_exp_distro_mix_err}
 \end{figure}
@@ -338,7 +339,7 @@ The process, result and error plots for distributions (figure~\ref{fig: sgd_exp_
     [width=1\columnwidth]
     {distro/exp_err.png} % Example image
 	\caption{
-		SGD Estimate Error from \textit{exp}  Distribution
+		SGD Error from \textit{exp}  Distribution
 	}
     \label{fig: sgd_exp_distro_exp_err}
 \end{figure}
@@ -350,7 +351,7 @@ The experiment compares the SGD algorithm performance in 3 different data size s
 
 The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_size_100_proc} to \ref{fig: sgd_exp_dt_size_100000_err}) lead to the following interesting observations:
 \begin{enumerate}
-    \item Bigger data size leads to better convergence for all quantiles. When data size is 100, the $0.1, 0.9, 0.99$-q SGDs are not converged to the true quantiles (figure~\ref{fig: sgd_exp_dt_size_100_proc} and \ref{fig: sgd_exp_dt_size_100_proc}), but when the size is 10 times bigger, the $0.1$ and $0.9$ quantile estimates are converged around the true values (figure~\ref{fig: sgd_exp_dt_size_1000_proc} and \ref{fig: sgd_exp_dt_size_1000_proc}) and the $0.99$-q SGD is very close to converge. When the data size reaches 100000, it is clear from figure~\ref{fig: sgd_exp_dt_size_100000_proc} that all the quantiles have converged around their corresponding true values.
+    \item Bigger data size leads to better convergence for all quantiles. When data size is 100, the $0.1, 0.9, 0.99$-q SGD are not converged to the true quantiles (figure~\ref{fig: sgd_exp_dt_size_100_proc} and \ref{fig: sgd_exp_dt_size_100_proc}), but when the size is 10 times bigger, the $0.1$ and $0.9$ quantile estimates are converged around the true values (figure~\ref{fig: sgd_exp_dt_size_1000_proc} and \ref{fig: sgd_exp_dt_size_1000_proc}) and the $0.99$-q SGD is very close to converge. When the data size reaches 100000, it is clear from figure~\ref{fig: sgd_exp_dt_size_100000_proc} that all the quantiles have converged around their corresponding true values.
     
     \item After the SGD estimates converge around the true quantiles, the fluctuation rate does not change. The "better" convergence in the last observation point refers to the stable fluctuation of quantile estimates around the true values. However, the fluctuation does not shrink after the estimate is converged. From figure \ref{fig: sgd_exp_dt_size_100000_proc} we can see the fluctuation of SGD quantile are not changed from the $20000$th epoch to the $100000$th epoch.
     
@@ -364,7 +365,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from 100 Samples
+		SGD Process from 100 Samples
     }
     \label{fig: sgd_exp_dt_size_100_proc}
 \end{figure}
@@ -375,7 +376,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/1000_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from 1000 Samples
+		SGD Process from 1000 Samples
     }
     \label{fig: sgd_exp_dt_size_1000_proc}
 \end{figure}
@@ -385,7 +386,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100000_proc.png} % Example image
 	\caption{
-		SGD Estimate Process from 100000 Samples
+		SGD Process from 100000 Samples
     }
     \label{fig: sgd_exp_dt_size_100000_proc}
 \end{figure}
@@ -397,7 +398,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100_res.png} % Example image
 	\caption{
-		SGD Estimate Results from 100 Samples
+		SGD Results from 100 Samples
     }
     \label{fig: sgd_exp_dt_size_100_res}
 \end{figure}
@@ -408,7 +409,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/1000_res.png} % Example image
 	\caption{
-		SGD Estimate Results from 1000 Samples
+		SGD Results from 1000 Samples
 	}
     \label{fig: sgd_exp_dt_size_1000_res}
 \end{figure}
@@ -418,7 +419,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100000_res.png} % Example image
 	\caption{
-		SGD Estimate Results from 100000 Samples
+		SGD Results from 100000 Samples
 	}
     \label{fig: sgd_exp_dt_size_100000_res}
 \end{figure}
@@ -432,7 +433,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100_err.png} % Example image
 	\caption{
-		SGD Estimate Error from 100 Samples
+		SGD Error from 100 Samples
 	}
     \label{fig: sgd_exp_dt_size_100_err}
 \end{figure}
@@ -443,7 +444,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/1000_err.png} % Example image
 	\caption{
-		SGD Estimate Error from 1000 Samples
+		SGD Error from 1000 Samples
 	}
     \label{fig: sgd_exp_dt_size_1000_err}
 \end{figure}
@@ -453,7 +454,7 @@ The process, result and error plots for data sizes (figure~\ref{fig: sgd_exp_dt_
     [width=1\columnwidth]
     {data_size/100000_err.png} % Example image
 	\caption{
-		SGD Estimate Error from 100000 Samples
+		SGD Error from 100000 Samples
 	}
     \label{fig: sgd_exp_dt_size_100000_err}
 \end{figure}

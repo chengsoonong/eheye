@@ -91,12 +91,12 @@ As a quantile estimation algorithm using constant memory storage, Frugal-1U reac
 \end{algorithm}
 The output $\tilde{m}$ is the estimate of the $h$th $k$-quantile for a given data stream $S$. 
 By rephrasing of some steps of Frugal-1U, 
-its equilalence to an SGD algorithm for quantile estimation will be shown in the follwing part.
+its equivalence to an SGD algorithm for quantile estimation will be shown in the following part.
 \\\\
 \textbf{Rephrasing of the Algorithm} \label{replacements}
 \begin{enumerate}
     \item The constant $\frac{h}{k}$ is replaced by $\tau$, since the $\tau$-quantile is defined
-     as the $h$th $k$-quantile point in chapter \ref{ch: background}.
+     as the $h$th $k$-quantile point in chapter \ref{ch: intro}.
     % \item The quantile estimate $\tilde{m}$ is replaced by $q$, as it stands for estimate of quantile.
     \item The generation of random number and it's comparison with $1-\frac{h}{k}$ or $\frac{h}{k}$
     in line 3 to 7 is replaced by the following algorithm.
@@ -117,14 +117,14 @@ its equilalence to an SGD algorithm for quantile estimation will be shown in the
     % Here the probability $P((rand > p) \mid rand \in \mathcal{U}(0,1))$ is the simplification
     % for the generation of random number $rand$ and it's comparison to a constant $p$ $(0 < p < 1)$.
     
-    To understand this replacement, let's consider the serie of the 3 steps: 
+    To understand this replacement, let's consider the series of the 3 steps: 
     (i) generate a random number $rand$, 
     (ii) compare it with a constant $p$, and
     (iii) take action if $rand > p$. 
     It can be interpreted as take the action with probability 
     $P((rand > p) \mid rand \in \mathcal{U}(0,1))$. 
 
-    Mathmatically, the replacement works because the expected change of
+    Mathematically, the replacement works because the expected change of
     $\tilde{m}$ in both methods are the same. 
     For example when $s_i > \tilde{m}$, 
     the expected change of $\tilde{m}$ is
