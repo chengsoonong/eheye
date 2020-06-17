@@ -9,21 +9,22 @@
 \chapter{Empirical investigation of SGD convergence}
 \label{ch: sgd_exp}
 
-\section{Introduction}
-\label{sec: exp_intro}
 As the previous chapter has shown the equivalence between Frugal1U and SGD, which means the SGD is a valid alternative for quantile estimation.
 In this chapter, we take a further step on the SGD algorithm with more experiments.
 The experiments have two general purposes. The first is to explore if the SGD quantile estimation works.
-The second is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile property value and step size.
+The second is to investigate how different settings of the problem effect the estimation performance. Specifically, we are interested in the following aspects: data distribution, data size, data ordering, quantile property value and step size. The content of the chapter is listed as follows:
 
-In the experiment, multiple ordered datasets are generated as input data streams, based on which the calculated and estimated quantile values are computed. Results of both quantiles are compared after processing. We want to compare the performance of quantile estimation over different settings.
+Section~\ref{sec: methodology} introduces the basic settings of the experiments, including the generation of various input data streams and SGD with different step size settings.
 
-% To test the SGD quantile estimation as a valid alternative for quantile estimation, this experiment computes both estimated and calculated values for quantiles, and evaluates whether the difference between the results is acceptable.
-% \\\\
-% Do I explain the second goal...?
+Section~\ref{sec: evaluation} explains the evaluation methods for the experiments, with a detailed reasoning of error evaluation and a brief mentioning of plots.
+
+Section~\ref{sec: observations} illustrates the experimental results on 4 different aspects with plots, and analyses the causes of variance in performances.
+
+Section~\ref{sec: discussion} provides further insights into the influential factors of SGD convergence, which leads to the conclusion in \ref{sec: conclusion} on SGD improvements.
 
 
 \section{Methodology}
+\label{sec: methodology}
 The process by which we experiment on SGD quantile estimation can be briefly outlined as follows:
 \begin{enumerate}
     \item Generate an SGD quantile estimate of benchmarking setting.
@@ -121,11 +122,11 @@ The parameter of SGD quantile estimation is important.The current settings for s
 \end{itemize}
 where $i$ is the index of step count.
 
-\section{Frugal and SGD algorithm}
-
+\section{Evaluation methods}
+\label{sec: evaluation}
 Frugal algorithm is proposed for quantile estimation as well. In this experiment, we want to compare the two algorithms and show they have similar performance for same data streams. In this experiment, data streams are generated from all 4 distributions, and the step size for SGD quantile estimation is set to constant 1.
 
-\subsubsection{Error Computation}
+\subsection{Error Computation}
 
 An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between empirical and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for batch quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of same size and distribution, we take the mean of the error value $\overline{E^{(\tau)}}$, where 
 \marginpar{The inconsistency in notations will be modified next time}
@@ -163,8 +164,8 @@ So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{
 }
 
 \subsection{Performance Comparison}
-Plots that shows the performance of quantile estimate results, processes and its error values.
-
+The performance comparison between different settings in this thesis are shown in three plots, which respectively represent
+the quantile estimate processes, results and the error values.
 \begin{itemize}
     \item Process plot: shows the processes of the SGD algorithm. (See explanation under figure~\ref{fig: gau_1_proc_explanation} for more details)
     \item Result plot: shows the estimate results of $q_{batch}$ and $q_{sgd}$ over multiple runs, provides an obvious visualization of the clustering of both values.
@@ -175,7 +176,7 @@ All of them show the summarized visualization of multiple generation of estimate
 
 
 \pagebreak
-\section{Observations}
+\section{Experiment Observations}
 \label{sec: observations}
 
 The investigation of SGD performances focuses on the setting change in the following 4 areas:
@@ -629,7 +630,7 @@ The selection of appropriate step sizes for different distributions is of great 
 
 The uncommon performance of it is reflected in all the three aspects of process, results and error values. For example, we notice the regular sawtooth update line of the $0.99$-q SGD in figure~\ref{fig: sgd_exp_distro_gau_2_proc}. The mechanism of $0.99$-q SGD is that it increase by $0.99$ when observe a data greater than the current estimate, and decrease by $0.01$ otherwise. Note in \textit{gau-2}, the probability of sampling a data outside $(-0.01, 0.01)$ is close to 0. This means, the initialization estimate at 0 is highly likely to lead to an increase of $0.99$ in the first or the second epoch. Once the quantile estimate is beyond the range $(-0.01, 0.01)$, the next data is nearly impossible to be a bigger one, so the estimate decreases with possibility close to 1. Which is why the $0.99$-q SGD decrease by $0.01$ until it reaches 0 again. The round of "start from 0, (maybe decrease a bit,) increase for one iteration, then decrease back to 0" takes exactly 100 epochs. So the results of the $0.99$-q SGD nearly always ends up at 0 after 1000 epochs. The other quantiles face with the similar problem, so they are also very likely to reach exactly 0 after 1000 epochs. This explains why in figure~\ref{fig: sgd_exp_distro_gau_2_res} all SGD estimates are in the same value $0$. 
 
-The choice of step size is not only important for SGD on quantile estimation, but is also a popular topic for general SGD methods in machine learning. In chapter~\ref{ch: SAG}, we provide some further discussions on the adaptation of step size for different data streams inspired by the current machine learning methods.
+The choice of step size is not only important for SGD on quantile estimation, but is also a popular topic for general SGD methods in machine learning. In chapter~\ref{ch: stepsize_adaptation}, we provide some further discussions on the adaptation of step size for different data streams inspired by the current machine learning methods.
 
 \subsection{SGD step size and data size}
 
@@ -644,6 +645,7 @@ The starting point of SGD is another interesting variable of SGD algorithm, but 
 An optimal choice of initialization is obviously the true quantile. And a feasible good option is to have the initialization quantile estimate at the position close to the true quantile. An easy solution is to sort the first few data points and use the batch quantile of this group of small samples as initialization. This is a potential further improvement direction for our SGD quantile estimation research.
 
 \section{Conclusion}
+\label{sec: conclusion}
 In this chapter, we conduct experiments on SGD for quantile estimation. We find that the performance of the algorithm are affected by the input data stream as well as the variable setting in SGD. For data streams, the changes in data distribution, data size and data sequence all affect the performances of SGD. Specifically, the SGD works well when
 \begin{itemize}
     \item The true quantiles in the data distribution are well-distributed. If it is too far from the initial quantile estimate, the convergence cannot be reached by SGD within the given number of epochs (e.g., the $0.99$-q for \textit{gau-1}).
@@ -659,6 +661,6 @@ In this chapter, we conduct experiments on SGD for quantile estimation. We find 
 
 Besides these observations, we believe the combination effect of different settings can also work together. For example, the problem of small step size can sometimes be solved by a double size of the data stream. It is also mentioned that the initialization of SGD quantiles can be another contributing variable for the estimation performance. 
 
-Since the properties of data stream is unknown to the algorithm, the only improvement direction for SGD is to change its settings so it works better in different conditions. In the following chapters, we explore the improvement of SGD on two problems: the crossing quantile estimates and the adaptation of step size. In chapter~\ref{ch: multi_quant} we look into potential solutions to keep the monotone properties, and in chapter~\ref{ch: SAG} we introduce our new method for step size adaptation.
+Since the properties of data stream is unknown to the algorithm, the only improvement direction for SGD is to change its settings so it works better in different conditions. In the following chapters, we explore the improvement of SGD on two problems: the crossing quantile estimates and the adaptation of step size. In chapter~\ref{ch: multi_quant} we look into potential solutions to keep the monotone properties, and in chapter~\ref{ch: stepsize_adaptation} we introduce our new method for step size adaptation.
 % \end{document}
 % \end(documentclass)
