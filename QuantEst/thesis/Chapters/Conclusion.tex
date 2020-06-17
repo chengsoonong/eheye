@@ -18,7 +18,7 @@ We derive the SGD algorithm by implementing the SGD approach for quantile estima
 The convergence of SGD was empirically found to depend on several factors,
 namely data distribution, data size and SGD step size settings. Data ordering was not found to have a significant impact on convergence. Of all applications, the only factor under the control of the user is the SGD setting step size. 
 
-The newly proposed adaptation approaches of SGD step size, SAG and DB-SGD, are found to have improvement effects on convergence rate. Specifically, the SAG is theoretically proved to have a faster convergence rate while the DB-SGD convergence is tested only empirically. 
+The newly proposed adaptation approaches of SGD step size, SAG and DH-SGD, are found to have improvement effects on convergence rate. Specifically, the SAG is theoretically proved to have a faster convergence rate while the DH-SGD convergence is tested only empirically. 
 We discussed 2 smooth loss function approximations for SAG, but neither completely resolves the issue of convexity and continuity.
 % Explore the extension on multi-quantile estimation. Compared two algorithms shiftQ and P2.
 
@@ -26,7 +26,7 @@ We discussed 2 smooth loss function approximations for SAG, but neither complete
 
 Step size is not the only SGD setting that affects the quantile estimation performance. As is mentioned before, other SGD settings like initialization of quantile estimates are also potentially influential factors. In the current setting of SGD, the initialization of any $\tau$-quantile ($\tau \in (0,1)$), the initialization is always $0$. The study on estimate initialization methods, for example using the first few sorted observations as starting points, is a possible direction for future work.
 
-Another research direction is to explore more on our two current step size adaptation algorithms. Both SAG and DB-SGD are shown to have empirical acceleration effects on convergence, but they both have the unstable fluctuation problem after convergence as well as other limitation. Especially, we are concerned about the lack of convergence guarantee from DB-SGD although it provides significant improvements in some situations. It is worthwhile to consider a new algorithm that combine the idea of both SAG and DB-SGD in step size adaptation such that the convergence is guaranteed and the step size is improved.
+Another research direction is to explore more on our two current step size adaptation algorithms. Both SAG and DH-SGD are shown to have empirical acceleration effects on convergence, but they both have the unstable fluctuation problem after convergence as well as other limitation. Especially, we are concerned about the lack of convergence guarantee from DH-SGD although it provides significant improvements in some situations. It is worthwhile to consider a new algorithm that combine the idea of both SAG and DH-SGD in step size adaptation such that the convergence is guaranteed and the step size is improved.
 
 In addition to step size adaptation, another alternative improvement direction called simultaneous multi-quantile estimation is illustrated in chapter~\ref{ch: multi_quant}. 
 The shiftQ and $P^2$ algorithms introduce different ways of keeping positive distance between each adjacent quantiles at each update iteration. It is possible that some future SGD method can implement their ideas to guarantee the monotone property of a sequence of quantile estimates.
