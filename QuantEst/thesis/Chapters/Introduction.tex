@@ -130,6 +130,7 @@ Stochastic gradient descent (SGD) is a convex optimization approach commonly app
         So the update of the parameter $\x$ becomes%
         \begin{equation}
             \x_{i+1} = \x_i - \alpha_i \nabla \ell_m(\x_i)
+            \label{eq: intro_SGD}
         \end{equation}
         
         Generally, each time $m$ is randomly selected from $N$. In this paper, we use $m = i$ for quantile estimation on data streams.
@@ -138,7 +139,7 @@ Stochastic gradient descent (SGD) is a convex optimization approach commonly app
 \marginpar{Not sure how I should mention this non-differentiable issue}
 Since each SGD update requires only a single data point instead of the entire dataset, it becomes a great alternative for quantile estimation.
 However, neither GD nor SGD can handle non-differentiable functions. This is an issue for the quantile estimation loss function in the following chapter.
-Furthermore, while the computation per update is decreased $N$ times, the tradeoff lies in the convergence rate. SGD does not enjoy the same linear convergence rate as gradient descent. Both of these issues are discussed in chapter~\ref{ch: SAG}.
+Furthermore, while the computation per update is decreased $N$ times, the tradeoff lies in the convergence rate. SGD does not enjoy the same linear convergence rate as gradient descent. Both of these issues are discussed in chapter~\ref{ch: stepsize_adaptation}.
 
 
 \subsection{Quantile}
@@ -179,14 +180,30 @@ and it divides the distribution into two even parts. This $2$-quantile point is 
     where $x \in X$.
 
 
+
 \section{Thesis overview}
 \label{sec: intro_overview}
-In the final part of the introduction, we give a brief tour of the material in this paper.
-The main focus of the paper is to explore how stochastic gradient descent method can be used for quantile estimation on data streams.
+
+This thesis aims to thoroughly answer the following question:
+\begin{quote}
+\emph{Can SGD be used for effective quantile estimation?}
+\end{quote}
+
+In investigating the above research question, this thesis includes the following contributions:
+\begin{enumerate}
+    \item Proposal of the SGD algorithm for quantile estimation which implements the SGD approach.
+    \item SGD algorithm performance comparison with the state-of-the-art Frugal1U.
+    \item Identification of some contributing factors on SGD performance.
+    \item Improved SGD methods with quicker convergence rate to the true quantile value.
+    \marginpar{This is not counted as a contribution I think?}
+    \item Experiments on other people's methods that simultaneously estimate different quantiles at the same time, which is a potential improvement direction for SGD too.
+\end{enumerate}
+
+In the final part of the introduction, we give a brief tour of the material in this paper. The main focus of the paper is to explore how stochastic gradient descent method can be used for quantile estimation on data streams.
 In chapter \ref{ch: literature_review}, a very brief discussion of quantile estimation algorithms is presented, with a special mention for space-efficient algorithms (e.g., SGD-like methods). 
 Chapter \ref{ch: algo_equal} compares the SGD methods with the \textit{Frugal1U} algorithm\cite{maFrugalStreamingEstimating2014}, showing how the two similar methods are "equivalent" to some extent.
 Chapter \ref{ch: sgd_exp} which presents experiments to illustrate the relationship between setting for SGD and its performance.
-Next, chapter \ref{ch: SAG} and \ref{ch: multi_quant} explore the two extensions of the vanilla SGD algorithm: the step size adaptation of SGD and the simultaneous multi-quantile estimation. Finally, the work of the paper is summed up in the conclusion chapter \ref{ch: conclusion}.
+Next, chapter \ref{ch: stepsize_adaptation} and \ref{ch: multi_quant} explore the two extensions of the vanilla SGD algorithm: the step size adaptation of SGD and the simultaneous multi-quantile estimation. Finally, the work of the paper is summed up in the conclusion chapter \ref{ch: conclusion}.
 \\\\
 Fig \ref{fig: structure} is the layout of the contents of the paper.
 
