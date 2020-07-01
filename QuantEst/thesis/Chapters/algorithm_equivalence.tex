@@ -13,37 +13,37 @@ In 1978, the \textit{pinball loss} function was proposed by \citeauthor{koenkerR
 \label{sec: pinball_loss}
 The pinball function is a convex loss function for estimation of a quantile value.
 For a one-dimensional dataset $X = \{x_1, x_2, \cdots, x_N\}$, 
-consider the loss function for a single data point $x_i$ $(i \in {1, \cdots, N})$ on the $\tau$-quantile ($\tau \in (0,1)$).
+consider the loss function for a single data point $x_i$ $(i \in {1, \cdots, N})$ of the $\tau$-quantile ($\tau \in (0,1)$).
 Let $t := x - q$ be the difference between the real value $x$ and the estimate of quantile $q$.
-The pinball loss function $l_{\tau}(\cdot): \R \to \R_{\geq 0}$ on $t$ is defined by%
+The pinball loss function $\ell_{\tau}(\cdot): \R \to \R_{\geq 0}$ on $t$ is defined by%
 %
 \begin{equation}
-    l_\tau(t)= 
+    \ell_\tau(t)= 
         \begin{cases}
             \tau t & t > 0\\
-            -(1-\tau) t & otherwise
+            -(1-\tau) t & t < 0
         \end{cases}
 \end{equation}
 
 
-And the $\tau$-quantile loss has the {\color{red} subgradient}:
-\marginpar{Not sure to use subgradient or gradient and not mention $0$}%
+And the $\tau$-quantile loss has the {\color{black} subgradient}:
+% \marginpar{Not sure to use subgradient or gradient and not mention $0$}%
 %
 \begin{equation}
-    \frac {\partial l_\tau(t)}{\partial t}= 
+    \frac {\partial \ell_\tau(t)}{\partial t}= 
         \begin{cases}
             \tau                & t > 0\\
-            -(1-\tau)           & t < 0\\
-            [\tau, -(1 - \tau)] & t = 0
+            [\tau, -(1-\tau)]                   & t = 0\\
+            -(1-\tau)           & t < 0
         \end{cases}
 \end{equation}
 
-
+Note here we use subgradient instead of gradient, because the pinball loss function is not differentiable at $0$. In the practical implementation of SGD, we choose the the subgradient at $0$ to be $0$. Since the possibility of reaching the $0$ point is $0$, the choice of replacement would not influence the final results. Empirically it is acceptable in this thesis that we ignore the breaking point at $0$ and take this subgradient function as the gradient of pinball loss function.
 
 The overall loss for distribution $X$ with quantile estimation $q$ is%
 %
 \begin{equation}
-    L_{\tau}(q) = \sum_{x \in X} l_{\tau}(x - q)
+    L_{\tau}(q) = \sum_{x \in X} \ell_{\tau}(x - q)
 \end{equation}
 
 
@@ -65,7 +65,7 @@ Inspired by Frugal-1U\cite{maFrugalStreamingEstimating2014}, we propose a quanti
 \subsection{Pseudo Code for the Frugal-1U Algorithm}
 
 As a quantile estimation algorithm using constant memory storage, Frugal-1U reaches the extreme minimum of memory usage, as it "uses only one unit of memory per group to compute a quantile for each group"\cite{maFrugalStreamingEstimating2014}. Besides the minimal memory usage, the update method is also computationally simple. The pseudo-code of Frugal-1U is presented as algorithm~\ref{alg:frugal_1U}.
-\marginpar{the pseudo code has already been mentioned in literature review}
+% \marginpar{the pseudo code has already been mentioned in literature review}
 \begin{algorithm}
 \caption{Frugal-1U}\label{alg:frugal_1U}
     \begin{algorithmic}[1]
@@ -95,7 +95,7 @@ By rephrasing of some steps of Frugal-1U,
 its equivalence to an SGD algorithm for quantile estimation will be shown in the following part.
 \\\\
 \textbf{Rephrasing of the Algorithm} \label{replacements}
-\marginpar{this should be removed, just change the notations}
+% \marginpar{this should be removed, just change the notations}
 \begin{enumerate}
     \item The constant $\frac{h}{k}$ is replaced by $\tau$, since the $\tau$-quantile is defined
      as the $h$th $k$-quantile point in chapter \ref{ch: intro}.
@@ -142,7 +142,7 @@ its equivalence to an SGD algorithm for quantile estimation will be shown in the
 
 
 \subsection{SGD for pinball loss function}
-\marginpar{change $q_k$ to $q_i$}
+% \marginpar{change $q_k$ to $q_i$}
 Let $q_0$ be the initial guess of the quantile estimate. 
 By SGD, the estimate is updated each step with a data point from the distribution.
 \begin{equation}
@@ -161,17 +161,17 @@ Then we have
     q_{k+1} = 
     \begin{cases}
         q_k + \alpha_k \tau               & x_k - q_k > 0\\
-        q_k                               & x_k          \\
+        q_k                               & x_k - q_k = 0         \\
         q_k - \alpha_k (1-\tau)           & x_k - q_k < 0\\
         % [\tau, -(1 - \tau)] & t = 0
     \end{cases}
 \end{equation*}
 
-\marginpar{
-{\color{red} \textbf{Problem}}
-In Frugal-1U the quantile estimate $q$ does not change when $x_k = q$, but in SGD 
-the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as different
-} 
+% \marginpar{
+% {\color{red} \textbf{Problem}}
+% In Frugal-1U the quantile estimate $q$ does not change when $x_k = q$, but in SGD 
+% % the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as different
+% } 
 \begin{algorithm}
     \caption{SGD algorithm}\label{alg:SGD}
     \begin{algorithmic}[1]
@@ -192,11 +192,11 @@ the quantile estimate is updated: $q = q-\alpha_k (1-\tau)$. This can be seen as
     \end{algorithmic}
 \end{algorithm}
 Besides the replacements mentioned in section \ref{replacements}, the notation has changed from Frugal-1U to SGD: 
-$X$ is used instead of $S$ for the data stream. The other important change is the introduction of step size. Specifically, the step size is not mentioned in Frugal-1U because it is fixed as constant $1$. On the other hand, the choice of constant or variable step size $\alpha_i$ is an important feature of the SGD algorithm. The flexibility of step size can contribute to a better convergence rate when appropriate step sizes are chosen.
+$X$ is used instead of $S$ for the data stream. The other important change is the introduction of step size. Specifically, the step size $\alpha$ is not mentioned in Frugal-1U because it is fixed as constant $1$. On the other hand, the choice of constant or variable step size $\alpha_i$ is an important feature of the SGD algorithm. The flexibility of step size can contribute to a better convergence rate when appropriate step sizes are chosen.
 
 
-\textbf{subgradient} values for $l_\tau(x_k - q_k)$ 
-{\color{red} \textbf{but then I need to explain subgradient descent}} 
+% \textbf{subgradient} values for $l_\tau(x_k - q_k)$ 
+% {\color{red} \textbf{but then I need to explain subgradient descent}} 
 % --------------------------------------------------------------------------------
 %                              Equality of two algorithms 
 % --------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ The derivation of the SGD algorithm from Frugal-1U has intuitively shown the evi
 
 We investigate various aspects of the similarity between the SGD algorithm and the Frugal-1U algorithm: behaviours and results on different data distributions. The behavioural similarity is inspired by the \textit{behavioural equivalence} \cite{gurevichSequentialAbstractstateMachines2000}, which requires sequential algorithms to have same states, same initial states, and the same transition function when converted to an abstract state machine (ASM). The quantile estimation results are compared based on the final output results of the algorithms.
 
-\subsubsection{Data distributions and algorithm settins}
+\subsubsection{Data distributions and algorithm settings}
 \label{subsubsec: distro_and_setting}
 For comprehensiveness, we evaluate the algorithms using data generated from three distributions:
     \begin{enumerate}
@@ -222,8 +222,7 @@ For comprehensiveness, we evaluate the algorithms using data generated from thre
                 \item weight = 0.15, mean = 5, standard derivation = 77
                 \item weight = 0.25, mean = -77, standard derivation = 7
             \end{enumerate}
-            \item a exponential distribution with \textit{np.random.exponential(scale=1, size=datasize)*6.5 - 20} (\textit{exp})
-            \marginpar{How to discribe the exponential distro?}
+            \item a exponential distribution of rate 1, and is scaled by $6.5$ and shifted by $-20$
     \end{enumerate}
 The algorithms are initialised with the starting estimate for any quantile value at $0$. The step size of the SGD algorithm is set as constant 1 to match the implicit step size of Frugal-1U. Each data stream contains 1000 randomly ordered samples from the corresponding distribution with a fixed sequence. The estimation on the $0.1, 0.3, 0.5, 0.9,$ and $0.99$ quantiles are checked.
 
@@ -240,7 +239,7 @@ Both algorithms start the quantile estimate at $0$. When a new observation arriv
 
 \subsubsection{Results for similarity comparisons}
 
-The mechanism for data generation is as follows. First, generate a dataset from 1000 samples according to one of the three distributions specified in section~\ref{subsubsec: distro_and_setting}. For one distribution, we also compute the true quantiles. The sequence of the dataset is fixed for all the experiments, including one computation for the batch quantiles, one for the SGD quantiles, and 100 for the Frugal-1U quantiles. The process of quantile estimation is shown in the process plots (fig \ref{fig: gau_1_proc_explanation}, \ref{fig: mix_proc}, and \ref{fig: exp_proc}), in which we can see the comparison in algorithm behaviours. The true quantiles are also shown in these plots, as a reference to the algorithm performances.
+The mechanism for data generation is as follows. First, generate a dataset with 1000 samples according to one of the three distributions specified in section~\ref{subsubsec: distro_and_setting}. For each distribution, we also compute the true quantiles. The sequence of the dataset is fixed for all the experiments, including one computation for the batch quantiles, one for the SGD quantiles, and 100 for the Frugal-1U quantiles. The process of quantile estimation is shown in the process plots (fig \ref{fig: gau_1_proc_explanation}, \ref{fig: mix_proc}, and \ref{fig: exp_proc}), in which we can see the comparison in algorithm behaviours. The true quantiles are also shown in these plots, as a reference to the algorithm performances.
 Figure \ref{fig: gau_1_err_explanation}, \ref{fig: mix_err}, and \ref{fig: exp_err} show the similarity error values of the final results only.
 
 It is also worthwhile to point out that while 1000 is not a large size for data streams, it is sufficient to evaluate the similarity between the two algorithms as it does not need to show the convergence to the true quantile. In fact, the convergence of most quantile probabilities over the three datasets are already reached by the 1000 epochs.
@@ -252,7 +251,7 @@ For a closer examination, the similarity error values of the quantiles are check
 
 Results from the experiments (fig \ref{fig: gau_1_proc_explanation} to \ref{fig: exp_err}) support our theoretical conjecture that the two algorithms are highly similar in both behaviours and results regardless of distributions or quantile probability values. The similarity is high enough to meet our requirement for the equivalence (absolute similarity error value less than or equal to 64).
 
-\marginpar{I think more data is required, for example the mean and variance comparison on processes?}
+% \marginpar{I think more data is required, for example the mean and variance comparison on processes?}
 
 \begin{figure}[h!]
     \centering

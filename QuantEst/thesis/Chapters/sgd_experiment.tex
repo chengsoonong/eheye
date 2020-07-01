@@ -60,16 +60,16 @@ The benchmarking setting for the SGD quantile estimate is:
             
     \end{enumerate}
 We will also refer to this as default settings for SGD.
-\textcolor{blue}{
-Reason to choose it as a benchmark: not quite sure about this
-\\    
-distribution: easy to compare with different "shaped" distribution (e.g. gau 2), 
-\\
-multiple generations: to compare with the same generation but different sequence of data stream. 
-\\
-step size: the most trivial one, derived from Frugal method}
-\\
-A detailed description of the benchmarking estimate generation is given in section \ref{subsec: exp_generation}.
+% \textcolor{blue}{
+% Reason to choose it as a benchmark: not quite sure about this
+% \\    
+% distribution: easy to compare with different "shaped" distribution (e.g. gau 2), 
+% \\
+% multiple generations: to compare with the same generation but different sequence of data stream. 
+% \\
+% step size: the most trivial one, derived from Frugal method}
+% \\
+% A detailed description of the benchmarking estimate generation is given in section \ref{subsec: exp_generation}.
 
 \subsection{SGD Quantile Estimate Generation}
 \label{subsec: exp_generation}
@@ -108,8 +108,8 @@ Each data stream set is composed of a number of data streams. For a statisticall
 
 \subsubsection{True and Batch Quantile Calculation}
 
-\marginpar{Refer to Intro on the Similarity calculation}
-The true quantile values are the quantile values for the distributions which the data streams are derived from. The true quantile values can easily be calculated analytically for each distribution except the Gaussian mixture distribution. For the mixture distribution, the batch quantile value from a large number of samples is taken as a reasonable approximation of the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected \textcolor{blue}{(needs more justification?)}. In this experiment, a total of 100,000,000 samples are generated for the true quantile calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
+% \marginpar{Refer to Intro on the Similarity calculation}
+The true quantile values are the quantile values for the distributions which the data streams are derived from. The true quantile values can easily be calculated analytically for each distribution except the Gaussian mixture distribution. For the mixture distribution, the batch quantile value from a large number of samples is taken as a reasonable approximation of the true value. By this means, the empirical value is expected to be close enough to the true quantile value such that the evaluation of results is not much affected. In this experiment, a total of 100,000,000 samples are generated for the true quantile calculation. For a certain $\tau$, there is only one true quantile value for one distribution.
 \\\\
 The batch quantile value is the quantile value calculated from the data steam instead of the distribution. For a certain $\tau$, no matter what the ordering of the data stream is, there is only one batch quantile value for one data stream, but there can be multiple quantile values for one distribution.
 
@@ -131,7 +131,7 @@ In our experments, we evaluate the effectiveness of SGD on various settings by c
 \subsection{Error Computation}
 
 An error measurement is proposed in order to evaluate the performance of quantile estimation. The error value represents the difference between the batch quantile and estimated quantile value. For one data stream, the error function for its $\tau$-quantile is first defined as $E^{(\tau)} = | q_{batch}^{(\tau)} - q_{sgd}^{(\tau)} |$, where $E^{(\tau)}$ stands for the error, $q_{batch}^{(\tau)}$ for batch quantile value and $q_{sgd}^{(\tau)}$ for SGD estimate value. For a specific data stream, a smaller $E^{(\tau)}$ means the estimation for the $\tau$-quantile has a better accuracy. Generally, for $n$ data streams of the same size and distribution, we take the mean of the error value: 
-\marginpar{The inconsistency in notations will be modified next time}
+% \marginpar{The inconsistency in notations will be modified next time}
 
     \begin{equation}
         \overline{E^{(\tau)}} = \frac{1}{n}\sum_{i=1}^{n} E^{(\tau)}_{i}
@@ -148,17 +148,17 @@ First, the limitation of data distribution. The comparison is only available for
 % how it works
  Third and more importantly, it is incapable of showing if the estimation "works". Specifically, for some number $x$, we cannot find a reasonable explanation for the statement ``the estimate is accurate enough because we have $\overline{E^{(\tau)}} \leq x$''. Since for any $x$, we could find an example from the first two issues as a counter example. To solve those problems, we provide another error measurement which gives a more general accuracy comparison.
 \\\\
-In the new version of error value calculation, true quantile value of a data distribution $q_{true}^{(\tau)}$ is involved, so that $E^{(\tau)}$ is normalized by $|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|$. It is now defined as
+In the new version of error value calculation, true quantile value of a data distribution $q_{true}^{(\tau)}$ is involved, so that $E^{(\tau)}$ is normalized by $q_{batch}^{(\tau)} - q_{true}^{(\tau)}$. It is now defined as
 
 \begin{equation}
-    E^{(\tau)} = \frac{|q_{batch}^{(\tau)} - q_{sgd}^{(\tau)}|}
-                      {|q_{batch}^{(\tau)} - q_{true}^{(\tau)}|}
+    E^{(\tau)} = \frac{q_{batch}^{(\tau)} - q_{sgd}^{(\tau)}}
+                      {q_{batch}^{(\tau)} - q_{true}^{(\tau)}}
 \end{equation}
     
 
 So that the accuracy of $q_{sgd}^{(\tau)}$ is compared with the accuracy of $q_{batch}^{(\tau)}$. The above problem is solved because 
-\marginpar{I am not sure about this part}
-\textcolor{blue}{
+% \marginpar{I am not sure about this part}
+\textcolor{black}{
     $
     q_{batch} - q_{true}
     $

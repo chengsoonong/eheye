@@ -97,7 +97,7 @@ The basic SAG algorithm requires memory storage of a table of $y_m (m= 1, 2, ...
 
 \subsection{SAG Implementation for quantile estimation}
 
-The quantile estimation loss function is a convex function, and \textbf{we can use a smooth function for replacement}
+The quantile estimation loss function is a convex function, and \text{we can use a smooth function for replacement}
 \begin{algorithm}
     \caption{Basic SAG method for streaming data $S$ for quantile estimation}\label{alg:SAG}
         \begin{algorithmic}[1]
@@ -165,7 +165,7 @@ Theoretically, however, both SGD and SAG methods need smoothness for the guarant
 
 The pinball loss function evaluates the loss from a data point $x$ for estimation of the $\tau$-quantile.
 
-\textbf{quote the equation of pinball loss function and it's derivative}
+% \textbf{quote the equation of pinball loss function and it's derivative}
 
 The fact that the pinball loss function is not differentiable at $x= 0$ is a problem for the stochastic gradient descent which uses the derivative of the objective function.
 

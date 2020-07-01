@@ -62,8 +62,8 @@ It is worth noting that since quantiles are related with ranking, a quantile est
 \subsection{Deterministic algorithms}
 \label{deterministic}
 % Manku's work
-\marginpar{{I dont know why the \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} method is deterministic. Also confused about the Monte Carlo randomization mentioned in \citeauthor{wangQuantilesDataStreams2013}\cite{wangQuantilesDataStreams2013}}}
-\textbf{A deterministic algorithm for quantile estimation is (to be finished).}
+% \marginpar{{I dont know why the \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} method is deterministic. Also confused about the Monte Carlo randomization mentioned in \citeauthor{wangQuantilesDataStreams2013}\cite{wangQuantilesDataStreams2013}}}
+% \textbf{A deterministic algorithm for quantile estimation is (to be finished).}
 The first deterministic algorithm on quantile estimation was proposed by \citeauthor{mankuApproximateMediansOther1998}\cite{mankuApproximateMediansOther1998} (referred to as the MRL algorithm), based on the work by \citeauthor{munroSelectionSortingLimited1980}\cite{munroSelectionSortingLimited1980}. Along with the algorithm, the notation \textit{$\epsilon$-approximate $\tau$-quantile} is first introduced for accuracy measurement by \citeauthor{mankuApproximateMediansOther1998}, which describes the property of guaranteed accuracy on $\tau$-quantile within a pre-specified precision $\epsilon$. The algorithm has a space complexity $O(\frac{1}{\epsilon}\log^2 (\epsilon N))$ to compute an \textit{$\epsilon$-approximate quantile summary}. Building on this, two improved algorithms have been proposed by \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} and \citeauthor{shrivastavaMediansNewAggregation2004b}\cite{shrivastavaMediansNewAggregation2004b}.
 
 \citeauthor{greenwaldQuantilesEquidepthHistograms2016a}\cite{greenwaldQuantilesEquidepthHistograms2016a} propose an algorithm (referred to as the GK algorithm) that has a worst-case space requirement of $O(\frac{1}{\epsilon}\log(\epsilon N))$, surpassing the MRL algorithm both theoretically and empirically. The general idea of GK algorithm maintains a sorted subset of data input by the combine and prune operations which keep the precision in control. The space complexity was then improved to 
@@ -189,7 +189,7 @@ Multiple quantile estimation, or quantile summary estimation, is the simultaneou
 In general, it estimates $K$ quantiles (the $\tau_1$-, $\tau_2$-, $...$, $\tau_K$-quantiles) at the same time.
 This is a problem targeted by several different algorithms.
 
-\marginpar{Want to include the work of \citeauthor{hammerJointTrackingMultiple2019b}\cite{hammerJointTrackingMultiple2019b}: Multiplicative Update Methods for Incremental Quantile Estimation}
+% \marginpar{Want to include the work of \citeauthor{hammerJointTrackingMultiple2019b}\cite{hammerJointTrackingMultiple2019b}: Multiplicative Update Methods for Incremental Quantile Estimation}
 
 \textit{$P^2$} is another multi-quantile estimation method proposed by \citeauthor{jainP2AlgorithmDynamic1985}\cite{jainP2AlgorithmDynamic1985}. It assumes a pairwise-parabolic relationship between every three adjacent quantiles, and update quantile estimates based on their relative positions with the neighbour quantiles. Later, an extension version \textit{Extended $P^2$} was developed by \citeauthor{raatikainenSequentialProcedureSimultaneous1993}\cite{raatikainenSequentialProcedureSimultaneous1993}, which changed the initialization of the algorithm to improve the accuracy.
 

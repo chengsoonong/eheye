@@ -18,7 +18,8 @@
 
 \graphicspath{{Figures/Multi/}{./}} 
 
-The previously introduced methods estimate only a single quantile. For applications which need multiple quantiles, these methods are not sufficient.\marginpar{This opening phrase is still not very good.}
+The previously introduced methods estimate only a single quantile. For applications which need multiple quantiles, these methods are not sufficient.
+% \marginpar{This opening phrase is still not very good.}
 In this chapter we introduce the problem of simultaneous multi-quantile estimation and two related methods. The structure is organised as follow:
 
 Section~\ref{sec: multi_intro} introduces the multi-quantile estimation for streaming data, followed by a discussion on the basic ideas to approach this problem. The next two sections will show how it is solved by methods focusing on different aspects.
@@ -116,7 +117,8 @@ The DUMIQE algorithm updates the quantile estimate upon the arrival of each new 
     \end{algorithmic}
 \end{algorithm}
 
-The update of other quantiles are based on the the relationship with the central quantile. For example, if the central quantile is the median, the $0.25$-quantile is then estimated as the median of distribution below the estimate of median. To apply this idea, DUMIQE uses a shifted distribution $Y$ of the input $X$ such that $X = Y + \delta$, where $\delta$ is the shift constant. In the following method description, we use $Q_X(q)$ and  $Q_Y(q)$ to denote the estimate of $q$ on distribution $X$ and $Y$. In order to distinguish the quantile estimate on different distributions, the DUMIQE algorithm for the $\tau_k$-quantile on distribution $X$ at the observation of the $n$th sample $x_n$ is written as \marginpar{cases to be added to equation}
+The update of other quantiles are based on the the relationship with the central quantile. For example, if the central quantile is the median, the $0.25$-quantile is then estimated as the median of distribution below the estimate of median. To apply this idea, DUMIQE uses a shifted distribution $Y$ of the input $X$ such that $X = Y + \delta$, where $\delta$ is the shift constant. In the following method description, we use $Q_X(q)$ and  $Q_Y(q)$ to denote the estimate of $q$ on distribution $X$ and $Y$. In order to distinguish the quantile estimate on different distributions, the DUMIQE algorithm for the $\tau_k$-quantile on distribution $X$ at the observation of the $n$th sample $x_n$ is written as 
+% \marginpar{cases to be added to equation}
 \begin{align}
         &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) + \alpha \tau_k \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) < x_n \\
         &Q_{X, n+1}(q_k) \leftarrow Q_{X, n}(q_k) - \alpha (1-\tau_k) \cdot Q_{X, n}(q_k)  & \text{if } Q_{X, n}(q_k) \geq x_n \nonumber
@@ -198,18 +200,18 @@ Pseudo-code for the shiftQ algorithm is included as algorithm \ref{alg:multi_shi
 \end{algorithm}
 \subsection{Experiment Results}
 
-There are two experiments run on shiftQ algorithm. Refer to \textcolor{blue}{insert chapter reference here} for the details of the experiment settings. The first one aims to compare the quantile crossing behaviour of shiftQ and SGD, and the second one tests shiftQ's performance on quantile estimation.
+There are two experiments run on shiftQ algorithm. The first one aims to compare the quantile crossing behaviour of shiftQ and SGD, and the second one tests shiftQ's performance on quantile estimation.
 
 In the first experiment, the experiment dataset is 5000 samples generated from a uniform distribution over the range $(0,100)$. All data points are required to be positive as the prerequisite of the shiftQ algorithm. This experiment compares two algorithms, shiftQ and SGD (step size = $0.45$ because the behaviour of SGD is clearer for it), and examines the quantile crossing behaviour of each algorithm. 
 
-\marginpar{Fig \ref{fig: shiftQ_SGD} graphic needs axis labels}
+% \marginpar{Fig \ref{fig: shiftQ_SGD} graphic needs axis labels}
 \begin{figure}[h!]
 	\includegraphics[width=1\columnwidth]{shiftQ/shiftQ_vs_SGD.png}
     \caption{Two process plots comparing the estimation of quantiles 0.15-q, 0.16-q, 0.17-q, 0.25-q, 0.8-q and 0.9-q with shiftQ and SGD over a uniform distribution.}
     \label{fig: shiftQ_SGD}
 \end{figure}
 
-\marginpar{``epoch'' terminology under review}
+% \marginpar{``epoch'' terminology under review}
 Figure \ref{fig: shiftQ_SGD} shows the estimates by shiftQ and SGD over 5000 epochs in the first experiment. In this experiment, $0$ crossings occurred in the shiftQ implementation, while SGD caused 25 crossings. Over 100 repetitions of this experiments, only 3 SGD experiments had 0 crossings, while all of the shiftQ algorithms ensured 0 crossings. The empirical experimental results have illustrated the effectiveness of crossing prevention on quantile estimation.
 \\\\
 The second experiment aims to investigate the effectiveness of shiftQ algorithm. Figures \ref{fig: shiftQ_proc}, \ref{fig: shiftQ_res} and \ref{fig: shiftQ_err} show process plots for the shiftQ algorithm run on the absolute value of 1000 samples from \textit{positive gau-1}.
@@ -447,7 +449,7 @@ Overall the extended $P^2$ method has a really fast convergence rate.
     \label{fig: p2_err}
 \end{figure}
 
-\marginpar{this will be edited later}
+% \marginpar{this will be edited later}
 \newpage
 \section{Discussion and Conclusion}
 \label{sec: multi_discussion}
@@ -460,16 +462,6 @@ It is clear that the extended $P^2$ algorithm has a better performance than shif
     \item shiftQ mskes use of less information than extended $P^2$ when performing updates, updating quantiles based only on the nearest neighbour towards the center. Extended $P^2$ on the other hand updates quantiles based on both neighbours.
 \end{enumerate}
 
+As previously mentioned at the beginning of the chapter, there are two aspects of multi-quantile estimation: reducing the crossings and using extra information from the monotone property. Both shiftQ and extended $P^2$ achieve the former. It is shown by repeated empirical experiments that their quantile estimates do not cross each other at any time. The latter is implemented more by extended $P^2$ than shiftQ, as extended $P^2$ uses the quantile estimate information from neighbours on both sides, while shiftQ focuses on only one side at a time. This might also partially result in the advantage of extended $P^2$ over shiftQ in convergence rate.
 
-\marginpar{to be finished}
-From the experimental results we can see the two multi-quantile estimation methods can solve the crossing problem by introducing some mathematical relationship assumptions between adjacent quantiles. The following step will be doing nothing but to 
-
-\textbf{Comparison between shiftQ, SGD and P2}
-
-1. prevention of crossings - sometimes it's a big issue but sometimes no
-
-2. convergence rate distributions
-    compare gau-1 among all 3
-
-3. Improvement on step size vs distribution problem
-    compare gau-2 among all 3
+SGD is not completely appropriate for multi-quantile estimation, but by adapting these algorithms it may be. One potential future work is to implement the SGD update as a replacement of DUMIQE in shiftQ. The combination of extended $P^2$ and SGD is another interesting topic to investigate, as it is likely to have a better convergence rate, though whether $P^2$ can be adapted in this way is not clear.

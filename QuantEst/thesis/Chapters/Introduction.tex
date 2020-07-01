@@ -61,8 +61,8 @@ Stochastic gradient descent (SGD) is a convex optimization approach commonly app
     \subsection{Gradient descent and stochastic gradient descent}
     \label{subsec: sgd}
     Stochastic gradient descent is an optimization algorithm developed from gradient descent. 
-    \marginpar{References to be added here}
-    Gradient descent was introduced by \textcolor{blue}{someone}, and is commonly used in \textcolor{blue}{something}
+    % \marginpar{References to be added here}
+    % Gradient descent was introduced by \textcolor{blue}{someone}, and is commonly used in \textcolor{blue}{something}
 
     \subsubsection{Gradient Descent}
         For convex optimization problems, gradient descent is a first-order optimization algorithm 
@@ -118,7 +118,7 @@ Stochastic gradient descent (SGD) is a convex optimization approach commonly app
 
 
     \subsubsection{Stochastic Gradient Descent (SGD)}
-        Stochastic gradient descent was \textcolor{blue}{introduced by who because blabla, and commonly used bla}
+        % Stochastic gradient descent was \textcolor{blue}{introduced by who because blabla, and commonly used bla}
         It is the choice for data streams, because the computation of the movement direction relies only on the most recent data point.
         It can be considered as a stochastic approximation of gradient descent optimization.
         \\\\
@@ -136,7 +136,7 @@ Stochastic gradient descent (SGD) is a convex optimization approach commonly app
         Generally, each time $m$ is randomly selected from $N$. In this paper, we use $m = i$ for quantile estimation on data streams.
 
 \subsubsection{Limitations}
-\marginpar{Not sure how I should mention this non-differentiable issue}
+% \marginpar{Not sure how I should mention this non-differentiable issue}
 Since each SGD update requires only a single data point instead of the entire dataset, it becomes a great alternative for quantile estimation.
 However, neither GD nor SGD can handle non-differentiable functions. This is an issue for the quantile estimation loss function in the following chapter.
 Furthermore, while the computation per update is decreased $N$ times, the tradeoff lies in the convergence rate. SGD does not enjoy the same linear convergence rate as gradient descent. Both of these issues are discussed in chapter~\ref{ch: stepsize_adaptation}.
@@ -195,7 +195,7 @@ In investigating the above research question, this thesis includes the following
     \item SGD algorithm performance comparison with the state-of-the-art Frugal1U.
     \item Identification of some contributing factors on SGD performance.
     \item Improved SGD methods with quicker convergence rate to the true quantile value.
-    \marginpar{This is not counted as a contribution I think?}
+    % \marginpar{This is not counted as a contribution I think?}
     \item Experiments on other people's methods that simultaneously estimate different quantiles at the same time, which is a potential improvement direction for SGD too.
 \end{enumerate}
 
@@ -214,4 +214,4 @@ Fig \ref{fig: structure} is the layout of the contents of the paper.
     \label{fig: structure}
 \end{figure*}
 
-\marginpar{My contributions to be added here}
+% \marginpar{My contributions to be added here}
