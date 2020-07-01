@@ -29,10 +29,10 @@ This folder contains experiment code and presentation code. The description of e
 The quantile estimation files and the plots files will be saved in the following way:
 ```
 /Experiment_results
-|
+│
 ├── SGD                             // Method SGD
 │   ├── distro                      // different distributions
-|   |   |
+│   │   │
 │   │   ├── exp_overview.txt        // distro is exp
 │   │   ├── exp_q_batches.txt
 │   │   ├── exp_q_true.txt
@@ -40,11 +40,11 @@ The quantile estimation files and the plots files will be saved in the following
 │   │   ├── exp_q_est_res.txt
 │   │   ├── exp_q_est_proc.txt
 │   │   ├── exp_q_E.txt
-|   |   |
+│   │   │
 │   │   ├── exp_proc.png
 │   │   ├── exp_res.png
 │   │   ├── exp_error.png
-|   |   |
+│   │   │
 │   │   ├── mix_overview.txt        // distro is mix
 │   │   ├── mix_q_batches.txt
 │   │   ├── mix_q_true.txt
@@ -52,23 +52,23 @@ The quantile estimation files and the plots files will be saved in the following
 │   │   ├── mix_q_est_res.txt
 │   │   ├── mix_q_est_proc.txt
 │   │   ├── mix_q_E.txt
-|   |   |
+│   │   │
 │   │   ├── mix_proc.png
 │   │   ├── mix_res.png
 │   │   ├── mix_error.png
-|   |   |
+│   │   │
 │   │   └─ ...                      // other distributions
-|   |
+│   │   
 │   └── data_size                   // different data sizes
 │   │   ├── 100_overview.txt        // data size is 100
-│   |   ├── ...
-│   |   ├── 1000_overview.txt
-│   |   └── ...
-|   |
+│   │   ├── ...
+│   │   ├── 1000_overview.txt
+│   │   └── ...
+│   │
 ├── SAG                             // Method SAG
 │   ├── distro
 │   └-- ...
-|
+│
 ├── ...
 ```
 ---
