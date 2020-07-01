@@ -1,7 +1,8 @@
 ## The thesis
 
 ### Thesis structure
-![structure](./assets/structure.png)
+
+<img src="./assets/structure.png" width="600">
 
 ### File compilation
 
