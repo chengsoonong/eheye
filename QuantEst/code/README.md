@@ -65,8 +65,11 @@ The quantile estimation files and the plots files will be saved in the following
 │   │   ├── 1000_overview.txt
 │   │   └── ...
 │   │
+│   └── ...                         // different other settings
+│
 ├── SAG                             // Method SAG
 │   ├── distro
+│   ├── data size
 │   └-- ...
 │
 ├── ...
