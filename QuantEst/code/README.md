@@ -1,6 +1,8 @@
 ## Code for the experiments
 
-### Descriptions
+---
+
+### File Descriptions
 
 This folder contains experiment code and presentation code. The description of each files are:
 
@@ -22,10 +24,15 @@ This folder contains experiment code and presentation code. The description of e
 - `Output_data_generation.py`: save the quantile estimation results into `.txt` files
 - `Plot.py`: Draw figures from quantile estimation records.
 
+---
+
 ### Run the code
 
 Run all the cells in `Experiment_final.ipynb`, which includes:
-    - creates empty folders
-    - generates input data streams
-    - creates quantiles estimation record files
-    - plots from the quantile estimation records
+
+- creates empty folders
+- generates input data streams
+- creates quantiles estimation record files
+- plots from the quantile estimation records
+
+You can change the settings of `main_folder` to generate results from different algorithms.
