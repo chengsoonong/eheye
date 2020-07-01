@@ -59,7 +59,7 @@ The quantile estimation files and the plots files will be saved in the following
 │   │   │
 │   │   └─ ...                      // other distributions
 │   │   
-│   └── data_size                   // different data sizes
+│   ├── data_size                   // different data sizes
 │   │   ├── 100_overview.txt        // data size is 100
 │   │   ├── ...
 │   │   ├── 1000_overview.txt
