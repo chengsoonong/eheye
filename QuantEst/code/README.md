@@ -1,7 +1,5 @@
 ## Code for the experiments
 
----
-
 ### File Descriptions
 
 This folder contains experiment code and presentation code. The description of each files are:
