@@ -5,7 +5,6 @@
 *.fls
 *.log
 *.synctex.gz
-*.pdf
 *.zip
 *.DS_Store
 *.csv
