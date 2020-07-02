@@ -10,11 +10,13 @@
 \let\cleardoublepage\relax
 
 \chapter*{Abstract}
-Short summary of the contents\dots a great guide by 
-Kent Beck how to write good abstracts can be found here:  
-\begin{center}
-\url{https://plg.uwaterloo.ca/~migod/research/beckOOPSLA.html}
-\end{center}
+
+Finding the quantiles of an unknown distribution is a good way of characterising the distribution, but for large amounts of streaming data, this is infeasible. Instead, methods for estimation of quantiles of streaming data have been developed for decades but are rarely related with the rapidly growing topic machine learning.
+Stochastic gradient descent is a common machine learning method, which we apply in our quantile estimation algorithm SGD. This simple SGD algorithm is shown to be equivalent in some sense to the state-of-the-art Frugal-1U. 
+In an effort to understand the convergence of SGD, we empirically compare the SGD performance under different settings of data distribution, data size, data ordering and SGD step size. Our experiments show that SGD is sensitive to the distribution and size of the data, as well as the step size.
+As the only such parameter we can control, we propose two step size adaptation approaches, which improve the convergence rate of SGD on our test data.
+Finally, we explore two algorithms for simultaneous estimation of multiple quantiles, and briefly discuss how their optimisations might be applied to our SGD algorithm.
+Despite its simplicity, SGD converges to the true quantile with only O(1) space complexity, making it a very efficient quantile estimation algorithm.
 
 \endgroup			
 

@@ -136,7 +136,7 @@
   pages = {58--75},
   issn = {01966774},
   doi = {10.1016/j.jalgor.2003.12.001},
-  abstract = {We introduce a new sublinear space data structure\textemdash{}the count-min sketch\textemdash{}for summarizing data streams. Our sketch allows fundamental queries in data stream summarization such as point, range, and inner product queries to be approximately answered very quickly; in addition, it can be applied to solve several important problems in data streams such as finding quantiles, frequent items, etc. The time and space bounds we show for using the CM sketch to solve these problems significantly improve those previously known\textemdash{}typically from 1/{$\epsilon$}2 to 1/{$\epsilon$} in factor.},
+  abstract = {We introduce a new sublinear space data structure\textemdash the count-min sketch\textemdash for summarizing data streams. Our sketch allows fundamental queries in data stream summarization such as point, range, and inner product queries to be approximately answered very quickly; in addition, it can be applied to solve several important problems in data streams such as finding quantiles, frequent items, etc. The time and space bounds we show for using the CM sketch to solve these problems significantly improve those previously known\textemdash typically from 1/{$\epsilon$}2 to 1/{$\epsilon$} in factor.},
   file = {/Users/sue/Zotero/storage/9YE3GB3W/Cormode and Muthukrishnan - 2005 - An improved data stream summary the count-min ske.pdf},
   journal = {Journal of Algorithms},
   language = {en},
@@ -152,7 +152,7 @@
   publisher = {{ACM Press}},
   address = {{Chicago, IL, USA}},
   doi = {10.1145/1142351.1142389},
-  abstract = {Skew is prevalent in data streams, and should be taken into account by algorithms that analyze the data. The problem of finding ``biased quantiles''\textemdash{} that is, approximate quantiles which must be more accurate for more extreme values \textemdash{} is a framework for summarizing such skewed data on data streams. We present the first deterministic algorithms for answering biased quantiles queries accurately with small\textemdash{}sublinear in the input size\textemdash{} space and time bounds in one pass. The space bound is near-optimal, and the amortized update cost is close to constant, making it practical for handling high speed network data streams. We not only demonstrate theoretical properties of the algorithm, but also show it uses less space than existing methods in many practical settings, and is fast to maintain.},
+  abstract = {Skew is prevalent in data streams, and should be taken into account by algorithms that analyze the data. The problem of finding ``biased quantiles''\textemdash{} that is, approximate quantiles which must be more accurate for more extreme values \textemdash{} is a framework for summarizing such skewed data on data streams. We present the first deterministic algorithms for answering biased quantiles queries accurately with small\textemdash sublinear in the input size\textemdash{} space and time bounds in one pass. The space bound is near-optimal, and the amortized update cost is close to constant, making it practical for handling high speed network data streams. We not only demonstrate theoretical properties of the algorithm, but also show it uses less space than existing methods in many practical settings, and is fast to maintain.},
   file = {/Users/sue/Zotero/storage/Q4ZA82QZ/Cormode et al. - 2006 - Space- and time-efficient deterministic algorithms.pdf},
   isbn = {978-1-59593-318-8},
   language = {en}
@@ -178,7 +178,7 @@
   author = {Dunning, Ted and Ertl, Otmar},
   year = {2019},
   month = feb,
-  abstract = {We present on-line algorithms for computing approximations of rank-based statistics that give high accuracy, particularly near the tails of a distribution, with very small sketches. Notably, the method allows a quantile \$q\$ to be computed with an accuracy relative to \$\textbackslash{}max(q, 1-q)\$ rather than absolute accuracy as with most other methods. This new algorithm is robust with respect to skewed distributions or ordered datasets and allows separately computed summaries to be combined with no loss in accuracy. An open-source Java implementation of this algorithm is available from the author. Independent implementations in Go and Python are also available.},
+  abstract = {We present on-line algorithms for computing approximations of rank-based statistics that give high accuracy, particularly near the tails of a distribution, with very small sketches. Notably, the method allows a quantile \$q\$ to be computed with an accuracy relative to \$\textbackslash max(q, 1-q)\$ rather than absolute accuracy as with most other methods. This new algorithm is robust with respect to skewed distributions or ordered datasets and allows separately computed summaries to be combined with no loss in accuracy. An open-source Java implementation of this algorithm is available from the author. Independent implementations in Go and Python are also available.},
   archivePrefix = {arXiv},
   eprint = {1902.04023},
   eprinttype = {arxiv},
@@ -252,7 +252,7 @@
   pages = {119--139},
   issn = {0022-0000},
   doi = {10.1006/jcss.1997.1504},
-  abstract = {In the first part of the paper we consider the problem of dynamically apportioning resources among a set of options in a worst-case on-line framework. The model we study can be interpreted as a broad, abstract extension of the well-studied on-line prediction model to a general decision-theoretic setting. We show that the multiplicative weight-update Littlestone\textendash{}Warmuth rule can be adapted to this model, yielding bounds that are slightly weaker in some cases, but applicable to a considerably more general class of learning problems. We show how the resulting learning algorithm can be applied to a variety of problems, including gambling, multiple-outcome prediction, repeated games, and prediction of points in Rn. In the second part of the paper we apply the multiplicative weight-update technique to derive a new boosting algorithm. This boosting algorithm does not require any prior knowledge about the performance of the weak learning algorithm. We also study generalizations of the new boosting algorithm to the problem of learning functions whose range, rather than being binary, is an arbitrary finite set or a bounded segment of the real line.},
+  abstract = {In the first part of the paper we consider the problem of dynamically apportioning resources among a set of options in a worst-case on-line framework. The model we study can be interpreted as a broad, abstract extension of the well-studied on-line prediction model to a general decision-theoretic setting. We show that the multiplicative weight-update Littlestone\textendash Warmuth rule can be adapted to this model, yielding bounds that are slightly weaker in some cases, but applicable to a considerably more general class of learning problems. We show how the resulting learning algorithm can be applied to a variety of problems, including gambling, multiple-outcome prediction, repeated games, and prediction of points in Rn. In the second part of the paper we apply the multiplicative weight-update technique to derive a new boosting algorithm. This boosting algorithm does not require any prior knowledge about the performance of the weak learning algorithm. We also study generalizations of the new boosting algorithm to the problem of learning functions whose range, rather than being binary, is an arbitrary finite set or a bounded segment of the real line.},
   file = {/Users/sue/Zotero/storage/8WS72FHI/Freund and Schapire - 1997 - A Decision-Theoretic Generalization of On-Line Lea.pdf;/Users/sue/Zotero/storage/CBPVDZDY/S002200009791504X.html},
   journal = {Journal of Computer and System Sciences},
   number = {1}
@@ -328,10 +328,25 @@
   pages = {2044--2059},
   issn = {0097-5397},
   doi = {10.1137/07069328X},
-  abstract = {When trying to process a data stream in small space, how important is the order in which the data arrive? Are there problems that are unsolvable when the ordering is worst case, but that can be solved (with high probability) when the order is chosen uniformly at random? If we consider the stream as if ordered by an adversary, what happens if we restrict the power of the adversary? We study these questions in the context of quantile estimation, one of the most well studied problems in the data-stream model. Our results include an \$O(\$polylog \$n)\$-space, \$O(\textbackslash{}log\textbackslash{}log n)\$-pass algorithm for exact selection in a randomly ordered stream of n elements. This resolves an open question of Munro and Paterson [Theoret. Comput. Sci., 23 (1980), pp. 315\textendash{}323]. We then demonstrate an exponential separation between the random-order and adversarial-order models: using \$O(\$polylog \$n)\$ space, exact selection requires \$\textbackslash{}Omega(\textbackslash{}log n/\textbackslash{}log\textbackslash{}log n)\$ passes in the adversarial-order model. This lower bound, in contrast to previous results, applies to fully general randomized algorithms and is established via a new bound on the communication complexity of a natural pointer-chasing style problem. We also prove the first fully general lower bounds in the random-order model: finding an element with rank \$n/2\textbackslash{}pm n\^\{\textbackslash{}delta\}\$ in the single-pass random-order model with probability at least \$9/10\$ requires \$\textbackslash{}Omega(\textbackslash{}sqrt\{n\^\{1-3\textbackslash{}delta\}/\textbackslash{}log n\})\$ space.},
+  abstract = {When trying to process a data stream in small space, how important is the order in which the data arrive? Are there problems that are unsolvable when the ordering is worst case, but that can be solved (with high probability) when the order is chosen uniformly at random? If we consider the stream as if ordered by an adversary, what happens if we restrict the power of the adversary? We study these questions in the context of quantile estimation, one of the most well studied problems in the data-stream model. Our results include an \$O(\$polylog \$n)\$-space, \$O(\textbackslash log\textbackslash log n)\$-pass algorithm for exact selection in a randomly ordered stream of n elements. This resolves an open question of Munro and Paterson [Theoret. Comput. Sci., 23 (1980), pp. 315\textendash 323]. We then demonstrate an exponential separation between the random-order and adversarial-order models: using \$O(\$polylog \$n)\$ space, exact selection requires \$\textbackslash Omega(\textbackslash log n/\textbackslash log\textbackslash log n)\$ passes in the adversarial-order model. This lower bound, in contrast to previous results, applies to fully general randomized algorithms and is established via a new bound on the communication complexity of a natural pointer-chasing style problem. We also prove the first fully general lower bounds in the random-order model: finding an element with rank \$n/2\textbackslash pm n\^\{\textbackslash delta\}\$ in the single-pass random-order model with probability at least \$9/10\$ requires \$\textbackslash Omega(\textbackslash sqrt\{n\^\{1-3\textbackslash delta\}/\textbackslash log n\})\$ space.},
   file = {/Users/sue/Zotero/storage/W4A8HBP4/Guha and McGregor - 2009 - Stream Order and Order Statistics Quantile Estima.pdf;/Users/sue/Zotero/storage/XRTFKI4K/07069328X.html},
   journal = {SIAM Journal on Computing},
   number = {5}
+}
+
+@article{gurevichSequentialAbstractstateMachines2000,
+  title = {Sequential Abstract-State Machines Capture Sequential Algorithms},
+  author = {Gurevich, Yuri},
+  year = {2000},
+  month = jul,
+  volume = {1},
+  pages = {77--111},
+  issn = {1529-3785, 1557-945X},
+  doi = {10.1145/343369.343384},
+  file = {/Users/sue/Zotero/storage/KAH4G4KV/Gurevich - 2000 - Sequential abstract-state machines capture sequent.pdf},
+  journal = {ACM Transactions on Computational Logic (TOCL)},
+  language = {en},
+  number = {1}
 }
 
 @article{hammerJointTrackingMultiple2019b,
@@ -437,7 +452,7 @@
   publisher = {{Springer}},
   address = {{Berlin, Heidelberg}},
   doi = {10.1007/978-3-642-14553-7_11},
-  abstract = {This paper studies the space complexity of the {$\epsilon$}-approximate quantiles problem, which asks for some data structure that enables us to determine, after reading a whole data stream, a {$\varphi$}-quantile (for any 0 {$\leq$} {$\varphi$} {$\leq$} 1) of the stream within some error bound {$\epsilon$}. The best known algorithm for the problem uses {$\mathsl{O}$}(1{$\mathsl{E}$}log{$\mathsl{E}\mathsl{N}$})O(1{$\epsilon$}log⁡{$\epsilon$}N)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log \textbackslash{}varepsilon N) words where N is the total number of items in the stream, or uses {$\mathsl{O}$}(1{$\mathsl{E}$}log|{$\mathsl{U}$}|)O(1{$\epsilon$}log⁡|U|)O(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}\textbackslash{}log |U|) words where U is the set of possible items. It is known that the space lower bound of the problem is {$\Omega$}(1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words; however, improvement of this bound is elusive.In this paper, we prove that any comparison-based algorithm for finding {$\epsilon$}-approximate quantiles needs {$\Omega$}(1{$\mathsl{E}$}log1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$}log⁡1{$\epsilon$})\textbackslash{}Omega(\textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\} \textbackslash{}log \textbackslash{}frac\{1\}\{\textbackslash{}varepsilon\}) words.},
+  abstract = {This paper studies the space complexity of the {$\epsilon$}-approximate quantiles problem, which asks for some data structure that enables us to determine, after reading a whole data stream, a {$\varphi$}-quantile (for any 0 {$\leq$} {$\varphi$} {$\leq$} 1) of the stream within some error bound {$\epsilon$}. The best known algorithm for the problem uses {$\mathsl{O}$}(1{$\mathsl{E}$}log{$\mathsl{E}\mathsl{N}$})O(1{$\epsilon$}log⁡{$\epsilon$}N)O(\textbackslash frac\{1\}\{\textbackslash varepsilon\}\textbackslash log \textbackslash varepsilon N) words where N is the total number of items in the stream, or uses {$\mathsl{O}$}(1{$\mathsl{E}$}log|{$\mathsl{U}$}|)O(1{$\epsilon$}log⁡|U|)O(\textbackslash frac\{1\}\{\textbackslash varepsilon\}\textbackslash log |U|) words where U is the set of possible items. It is known that the space lower bound of the problem is {$\Omega$}(1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$})\textbackslash Omega(\textbackslash frac\{1\}\{\textbackslash varepsilon\}) words; however, improvement of this bound is elusive.In this paper, we prove that any comparison-based algorithm for finding {$\epsilon$}-approximate quantiles needs {$\Omega$}(1{$\mathsl{E}$}log1{$\mathsl{E}$}){$\Omega$}(1{$\epsilon$}log⁡1{$\epsilon$})\textbackslash Omega(\textbackslash frac\{1\}\{\textbackslash varepsilon\} \textbackslash log \textbackslash frac\{1\}\{\textbackslash varepsilon\}) words.},
   file = {/Users/sue/Zotero/storage/6MEL68J8/Hung and Ting - 2010 - An $Omega(frac 1 varepsilon log frac 1 va.pdf},
   isbn = {978-3-642-14553-7},
   keywords = {Data Stream,Distinct Item,General Memory,Item Memory,Space Complexity},
@@ -484,7 +499,7 @@
 
 @article{liechtySinglepassLowstorageArbitrary,
   title = {Single-Pass Low-Storage Arbitrary Quantile Estimation for Massive Datasets},
-  author = {Liechty, John C and Lin, Dennis K J and McDERMOTT, JAMES P},
+  author = {Liechty, John C and Lin, Dennis K J and McDermott, JAMES P},
   pages = {10},
   file = {/Users/sue/Zotero/storage/ULN3TXRW/Liechty et al. - Single-pass low-storage arbitrary quantile estimat.pdf},
   language = {en}
@@ -525,7 +540,7 @@
   author = {Ma, Qiang and Muthukrishnan, S. and Sandler, Mark},
   year = {2014},
   month = jul,
-  abstract = {Modern applications require processing streams of data for estimating statistical quantities such as quantiles with small amount of memory. In many such applications, in fact, one needs to compute such statistical quantities for each of a large number of groups, which additionally restricts the amount of memory available for the stream for any particular group. We address this challenge and introduce frugal streaming, that is algorithms that work with tiny \textendash{}typically, sub-streaming \textendash{} amount of memory per group.},
+  abstract = {Modern applications require processing streams of data for estimating statistical quantities such as quantiles with small amount of memory. In many such applications, in fact, one needs to compute such statistical quantities for each of a large number of groups, which additionally restricts the amount of memory available for the stream for any particular group. We address this challenge and introduce frugal streaming, that is algorithms that work with tiny \textendash typically, sub-streaming \textendash{} amount of memory per group.},
   archivePrefix = {arXiv},
   eprint = {1407.1121},
   eprinttype = {arxiv},
@@ -592,7 +607,7 @@
   pages = {315--323},
   issn = {0304-3975},
   doi = {10.1016/0304-3975(80)90061-4},
-  abstract = {When selecting from, or sorting, a file stored on a read-only tape and the internal storage is rather limited, several passes of the input tape may be required. We study the relation between the amount of internal storage available and the number of passes required to select the Kth highest of N inputs. We show, for example, that to find the median in two passes requires at least {$\omega$}(N12) and at most O(N12log N) internal storage. For probabilistic methods, \texttheta{}(N12) internal storage is necessary and sufficient for a single pass method which finds the median with arbitrarily high probability.},
+  abstract = {When selecting from, or sorting, a file stored on a read-only tape and the internal storage is rather limited, several passes of the input tape may be required. We study the relation between the amount of internal storage available and the number of passes required to select the Kth highest of N inputs. We show, for example, that to find the median in two passes requires at least {$\omega$}(N12) and at most O(N12log N) internal storage. For probabilistic methods, \texttheta (N12) internal storage is necessary and sufficient for a single pass method which finds the median with arbitrarily high probability.},
   file = {/Users/sue/Zotero/storage/ANEGN3DC/Munro and Paterson - 1980 - Selection and sorting with limited storage.pdf;/Users/sue/Zotero/storage/BSILCJ3P/0304397580900614.html},
   journal = {Theoretical Computer Science},
   language = {en},
@@ -655,6 +670,33 @@
   number = {SAND2008-6212, 1028931}
 }
 
+@article{raatikainenSequentialProcedureSimultaneous1993,
+  title = {Sequential {{Procedure}} for {{Simultaneous Estimation}} of {{Several Percentiles}}},
+  author = {Raatikainen, Kimmo E. E.},
+  year = {1993},
+  volume = {3},
+  pages = {108--133},
+  abstract = {Percentiles are convenient indices to characterize the entire range of the values of simulation outputs. However, they have only seldom been used in simulation studies. One of the reason has been the lack of sequential estimation procedures, which are needed to obtain estimates of predefined accuracy. In this paper we introduce a sequential procedure for estimating several percentiles simultaneously. The procedure uses the extended P  2  algorithm to estimate the percentiles. The variances of the percentile-estimates are estimated using a spectral method. Since the method applies a Bonferroni inequality, the covariances between the percentile-estimates are not needed. The procedure is shown to produce estimates having the predefined accuracy in eight queueing network models, representing multiprogrammed and time-shared computer systems. Key words: Percentile Estimation, Variance Estimation, Run Length Control 1. Introduction In most simulation studies the mean values of output data hav...},
+  file = {/Users/sue/Zotero/storage/GR58YTQ3/Raatikainen - 1993 - Sequential Procedure for Simultaneous Estimation o.pdf;/Users/sue/Zotero/storage/SNKXABMN/summary.html},
+  journal = {ACM Transactions on Modeling and Computer Simulation}
+}
+
+@article{raatikainenSimultaneousEstimationSeveral1987,
+  title = {Simultaneous Estimation of Several Percentiles},
+  author = {Raatikainen, Kimmo E. E.},
+  year = {1987},
+  month = oct,
+  volume = {49},
+  pages = {159--163},
+  publisher = {{SAGE Publications Ltd STM}},
+  issn = {0037-5497},
+  doi = {10.1177/003754978704900405},
+  abstract = {In many simulation studies the performance of the modeled system is characterized only by mean values of the performance indices. However, the percentiles are more informative in sum marizing the performance. Several simultaneous percentiles, pre sented for example in the form of the boxplot, provide the analyst with better understanding of the system's behaviour.The simultaneous estimation of several percentiles is a cumber some task. The extended P2-algorithm proposed in this study significantly reduces the computation of the estimation. The algorithm simultaneously estimates several percentiles without storing and sorting the observations. Empirical validation studies indicate the algorithm can be used in simulation studies.},
+  file = {/Users/sue/Zotero/storage/LP2WD3B9/Raatikainen - 1987 - Simultaneous estimation of several percentiles.pdf},
+  journal = {SIMULATION},
+  number = {4}
+}
+
 @article{ramirezX2MostComputationally2014,
   title = {X2 + \textmu{} Is the {{Most Computationally Efficient Smooth Approximation}} to |x|: A {{Proof}}},
   author = {Ramirez, Carlos and Sanchez, Reinaldo and Kreinovich, Vladik and Argaez, Miguel},
@@ -688,7 +730,7 @@
   author = {Schmidt, Mark and Roux, Nicolas Le and Bach, Francis},
   year = {2016},
   month = may,
-  abstract = {We propose the stochastic average gradient (SAG) method for optimizing the sum of a finite number of smooth convex functions. Like stochastic gradient (SG) methods, the SAG method's iteration cost is independent of the number of terms in the sum. However, by incorporating a memory of previous gradient values the SAG method achieves a faster convergence rate than black-box SG methods. The convergence rate is improved from O(1/k\^\{1/2\}) to O(1/k) in general, and when the sum is strongly-convex the convergence rate is improved from the sub-linear O(1/k) to a linear convergence rate of the form O(p\^k) for p \textbackslash{}textless\{\} 1. Further, in many cases the convergence rate of the new method is also faster than black-box deterministic gradient methods, in terms of the number of gradient evaluations. Numerical experiments indicate that the new algorithm often dramatically outperforms existing SG and deterministic gradient methods, and that the performance may be further improved through the use of non-uniform sampling strategies.},
+  abstract = {We propose the stochastic average gradient (SAG) method for optimizing the sum of a finite number of smooth convex functions. Like stochastic gradient (SG) methods, the SAG method's iteration cost is independent of the number of terms in the sum. However, by incorporating a memory of previous gradient values the SAG method achieves a faster convergence rate than black-box SG methods. The convergence rate is improved from O(1/k\^\{1/2\}) to O(1/k) in general, and when the sum is strongly-convex the convergence rate is improved from the sub-linear O(1/k) to a linear convergence rate of the form O(p\^k) for p \textbackslash textless\{\} 1. Further, in many cases the convergence rate of the new method is also faster than black-box deterministic gradient methods, in terms of the number of gradient evaluations. Numerical experiments indicate that the new algorithm often dramatically outperforms existing SG and deterministic gradient methods, and that the performance may be further improved through the use of non-uniform sampling strategies.},
   archivePrefix = {arXiv},
   eprint = {1309.2388},
   eprinttype = {arxiv},

@@ -5,9 +5,9 @@
 *.fls
 *.log
 *.synctex.gz
-*.pdf
 *.zip
 *.DS_Store
-*.png
 *.csv
+*.txt
 /thesis/kaobook/
+/code/*.png
