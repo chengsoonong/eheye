@@ -32,3 +32,5 @@ In this project, we explore the usage of SGD on quantile estimation on data stre
 
 4. `anomaly_detection/`: Not included in the final thesis results.
    - Contains data from XPlane and an ipynb file that tries to build anomaly data according to the paper.
+
+5. `Final talk.pdf`: The presentation slides for my 15 minutes talk.
