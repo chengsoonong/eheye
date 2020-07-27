@@ -22,6 +22,10 @@ This folder contains experiment code and presentation code. The description of e
 - `Output_data_generation.py`: save the quantile estimation results into `.txt` files.
 - `Plot.py`: Draw figures from quantile estimation records.
 
+#### Output files
+
+- `Experiment_results`: saves all files generated from the code. Each sub-folder represents the experimenting method, which contains the quantile estimation data files in `.txt` format and the corresponding results in `.png` format. See next part for more details:
+
 #### Output structure
 
 The quantile estimation files and the plots files will be saved in the following way:
