@@ -221,7 +221,7 @@ def plot_hist(sample_dict):
         for i, samples in enumerate(value):
             sns.distplot(samples, ax = f, label = arm_name_dict[i], bins = 100, norm_hist=False) 
 
-        plt.xlim([-1, 10])
+        plt.xlim([-0.1, 5])
         # plt.ylim([0,0.5])
         # plt.ylim([0, 0.4])
         plt.legend()
