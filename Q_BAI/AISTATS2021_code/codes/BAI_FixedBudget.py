@@ -21,14 +21,20 @@ class BAI_FixedBudget(ABC):
     -------------------------------------------------------------------------
     env: list
         sequence of instances of Environment (reward distribution of arms).
-    true_quantile_list: list
-        sequence of tau-quantile of arms, i.e. {Q_i^tau}_{i=1}^{K}
-    epsilon: float (0,1)
-        accuracy level
-    tau: float (0,1)
-        quantile level
+
+    true_ss_dict: dict
+        dict of true/population summary statistics (ss)
+        key: name of summary statistics + '_' + parameter (e.g. quantile level) 
+             e.g. quantile_0.5; mean
+        value: list of summary statistics for each arm (length: K)
+
+    true_ss_list: list
+        list of true/population summary statistics (ss)
+    ss_para: float
+        summary statistics hyperparameter, e.g. quantile level
+
     num_arms: int
-        totoal number of arms K
+        total number of arms K
     m: int
         number of arms for recommendation set 
     budget: int
@@ -36,10 +42,12 @@ class BAI_FixedBudget(ABC):
 
     rec_set: set
         set of m recommended arms
-    m_max_quantile: float
-        max^m Q_i^{tau} 
-    m_plus_one_max_quantile: float
-        max^{m+1} Q_i^{tau}, for calculating gaps
+    m_max_ss: float
+        m^th max of summary statistics
+        e.g. max^m Q_i^{tau} 
+    m_plus_one_max_ss: float
+        {m+1}^th max of summary statistics, for calculating gaps
+        max^{m+1} Q_i^{tau}
     m_argmax_arm: int
         arm index: argmax^m Q_i^{tau}
     sample_rewards: dict 
@@ -48,19 +56,17 @@ class BAI_FixedBudget(ABC):
     selectedActions: list
         sequence of pulled arm ID 
     """
-    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+    def __init__(self, env, true_ss_dict, epsilon, m, 
                 fixed_samples = None, budget = 2000):
         """
         Parameters
         ----------------------------------------------------------------------
         env: list
             sequence of instances of Environment (reward distribution of arms).
-        true_quantile_list: list
+        true_ss_list: list
             sequence of tau-quantile of arms, i.e. {Q_i^\tau}_{i=1}^{K}
         epsilon: float (0,1)
             accuracy level
-        tau: float (0,1)
-            quantile level
         m: int
             number of arms for recommendation set 
 
@@ -69,16 +75,25 @@ class BAI_FixedBudget(ABC):
         """
 
         self.env = env
-        self.true_quantile_list = true_quantile_list
         self.epsilon = epsilon
-        self.tau = tau
+
+        self.true_ss_dict = true_ss_dict
+        assert len(self.true_ss_dict.keys()) == 1
+        # assume only consider one summary statistic
+        self.ss_name = list(self.true_ss_dict.keys())[0].split('_')[0]
+        if len(list(self.true_ss_dict.keys())[0].split('_'))> 1:
+            self.ss_para = float(list(self.true_ss_dict.keys())[0].split('_')[-1])
+        else:
+            self.ss_para = None
+        self.true_ss_list = list(self.true_ss_dict.values())[0]
+
         self.m = m
         self.budget = budget
         
         self.num_arms = len(self.env)
-        self.m_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m-1]
-        self.m_plus_one_max_quantile = np.sort(self.true_quantile_list)[::-1][self.m]
-        self.m_argmax_arm = np.argsort(-1 * np.asarray(self.true_quantile_list))[self.m-1]
+        self.m_max_ss = np.sort(self.true_ss_list)[::-1][self.m-1]
+        # self.m_plus_one_max_ss = np.sort(self.true_ss_list)[::-1][self.m]
+        # self.m_argmax_arm = np.argsort(-1 * np.asarray(self.true_ss_list))[self.m-1]
         self.sample_rewards = defaultdict(list)
         self.selectedActions = []
 
@@ -99,10 +114,10 @@ class BAI_FixedBudget(ABC):
         """Evaluate the performance (probability of error).
         """
         #print('rec_Set: ', self.rec_set)
-        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        rec_set_min = np.min(np.asarray(self.true_ss_list)[np.asarray(list(self.rec_set))])
         #print('rec_set_min: ', rec_set_min)
-        #print('m_max_quantile: ', self.m_max_quantile )
-        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        #print('m_max_ss: ', self.m_max_ss )
+        simple_regret_rec_set =  self.m_max_ss - rec_set_min
         # the probability is calculated in terms of a large number of experiments
         if simple_regret_rec_set > self.epsilon:
             return 1
@@ -139,9 +154,9 @@ class BAI_FixedBudget(ABC):
 class Q_SAR(BAI_FixedBudget):
     """Quantile Successive accepts and rejects algorithm.
     """
-    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+    def __init__(self, env, true_ss_list, epsilon, m, 
                 fixed_samples, budget):
-        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+        super().__init__(env, true_ss_list, epsilon, m, 
                 fixed_samples,budget)
         
         self.barlogK = 0.5
@@ -189,32 +204,38 @@ class Q_SAR(BAI_FixedBudget):
                     else:
                         self.sample(i)
             # step 2
-            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            ss = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
             #print('active set: ', self.active_set)
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.tau)
-            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+                if self.ss_name == 'quantile':
+                    ss[i] = np.quantile(list(reward), self.ss_para)
+                elif self.ss_name == 'mean':
+                    ss[i] = np.mean(list(reward))
+                else:
+                    assert True, 'Unknown summary statistics!'
 
-            for rank, idx in enumerate(argsort_quantiles):
-                rank_dict[list(quantiles.keys())[idx]] = rank
+            argsort_ss = np.argsort(list(ss.values()))[::-1]
+
+            for rank, idx in enumerate(argsort_ss):
+                rank_dict[list(ss.keys())[idx]] = rank
                 if rank == self.l: # l_p + 1
-                    q_l_1 = list(quantiles.keys())[idx]
+                    q_l_1 = list(ss.keys())[idx]
                 if rank == self.l -1: # l_p
-                    q_l = list(quantiles.keys())[idx]
+                    q_l = list(ss.keys())[idx]
 
             empirical_gap_dict = {} # key: arm idx; value: empirical gap
             for idx, rank in sorted(rank_dict.items(), key=lambda item: item[1]):
                 if rank <= self.l - 1: # i <= l_p, rank starts from 0, so l-1
-                    empirical_gap_dict[idx] = quantiles[idx] - quantiles[q_l_1]
+                    empirical_gap_dict[idx] = ss[idx] - ss[q_l_1]
                 else:
-                    empirical_gap_dict[idx] = quantiles[q_l] - quantiles[idx]
+                    empirical_gap_dict[idx] = ss[q_l] - ss[idx]
                 
                 if empirical_gap_dict[idx] < 0:
                     print('ERROR: empirical gap small than 0')
-                    print('quantiles: ', quantiles)
+                    print('ss: ', ss)
                     print('rank_dict: ', rank_dict)
                     print('q_l_1: ', q_l_1)
                     print('q_l: ', q_l)
@@ -228,7 +249,7 @@ class Q_SAR(BAI_FixedBudget):
             self.active_set.remove(i_p)
 
             # step 4
-            if quantiles[i_p] > quantiles[q_l_1] - self.epsilon:
+            if ss[i_p] > ss[q_l_1] - self.epsilon:
                 self.rec_set.add(i_p)
                 self.l -= 1
 
@@ -236,7 +257,7 @@ class Q_SAR(BAI_FixedBudget):
 
             if self.print_flag: # for debug
                 print('phase: ', p)
-                print('quantiles: ', quantiles)
+                print('ss: ', ss)
                 print('rank_dict: ', rank_dict)
                 print('empirical_gap_dict: ', empirical_gap_dict)
                 print('active_Set: ', self.active_set)
@@ -273,20 +294,25 @@ class Q_SAR_Simplified(Q_SAR):
                     else:
                         self.sample(i)
             # step 2
-            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            ss = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
             #print('active set: ', self.active_set)
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.tau)
-            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+                if self.ss_name == 'quantile':
+                    ss[i] = np.quantile(list(reward), self.ss_para)
+                elif self.ss_name == 'mean':
+                    ss[i] = np.mean(list(reward))
+                else:
+                    assert True, 'Unknown summary statistics!'
+            argsort_ss = np.argsort(list(ss.values()))[::-1]
             if self.print_flag:
-                print('qauntiles: ', quantiles)
-                print('argsorted quantiles: ', argsort_quantiles)
+                print('ss: ', ss)
+                print('argsorted ss: ', argsort_ss)
 
-            for rank, idx in enumerate(argsort_quantiles):
-                arm_idx = list(quantiles.keys())[idx]
+            for rank, idx in enumerate(argsort_ss):
+                arm_idx = list(ss.keys())[idx]
                 rank_dict[arm_idx] = rank
                 if rank == 0:
                     a_best = arm_idx
@@ -294,11 +320,11 @@ class Q_SAR_Simplified(Q_SAR):
                     q_l_1 = arm_idx
                 if rank == self.l -1: # l_p
                     q_l = arm_idx
-                if rank == len(argsort_quantiles) - 1:
+                if rank == len(argsort_ss) - 1:
                     a_worst = arm_idx
 
-            gap_accept = quantiles[a_best] - quantiles[q_l_1]
-            gap_reject = quantiles[q_l] - quantiles[a_worst]
+            gap_accept = ss[a_best] - ss[q_l_1]
+            gap_reject = ss[q_l] - ss[a_worst]
 
             if self.print_flag:
                 print('rank dict: ', rank_dict)
@@ -330,20 +356,59 @@ class Q_SAR_Simplified(Q_SAR):
         #plt.show()
 
 class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
-    """Quantile Successive accepts and rejects algorithm, a simplified version.
+    """Implement the large margin idea.
+    Only allowed the quantile input. 
+    Assume the middle quantile level (the second large one) is criteria for good arms.
     """
-    def __init__(self, env, epsilon, tauL, tauH, 
-                 true_quantile_tauL, true_quantile_tauH, m, 
-                 budget):
+    def __init__(self, env, true_ss_dict, epsilon, m, 
+                fixed_samples = None, budget = 2000):
         """
         Parameters
-        ----------------------------------------------------------
-        budget: int
-            number of total round/budget.
+        ----------------------------------------------------------------------
+        env: list
+            sequence of instances of Environment (reward distribution of arms).
+        true_ss_list: list
+            sequence of tau-quantile of arms, i.e. {Q_i^\tau}_{i=1}^{K}
+        epsilon: float (0,1)
+            accuracy level
+        m: int
+            number of arms for recommendation set 
+
+        fixed_samples: dict, default is None
+            key: arm_dix; values: list of fixed samples
         """
-        super().__init__(env, true_quantile_list, epsilon, tau, m, 
-                fixed_samples, budget)
+
+        self.env = env
+        self.epsilon = epsilon
+
+        self.true_ss_dict = true_ss_dict
+        self.tau_list = []
+        
+        # assume there are three level of quantiles
+        for key, value in self.true_ss_dict:
+            assert key.split('_')[0] == 'quantile'
+            self.tau_list.append(float(key.split('_')[-1]))
+        
+        self.tau_list = sorted(self.tau_list)
+
+        self.m = m
         self.budget = budget
+        
+        self.num_arms = len(self.env)
+        criteria_ss = self.true_ss_dict[self.tau_list[1]]
+        self.m_max_ss = np.sort(criteria_ss)[::-1][self.m-1]
+        # self.m_plus_one_max_ss = np.sort(criteria_ss)[::-1][self.m]
+        # self.m_argmax_arm = np.argsort(-1 * np.asarray(criteria_ss))[self.m-1]
+        self.sample_rewards = defaultdict(list)
+        self.selectedActions = []
+
+        # recommendations
+        self.rec_set = set()
+        
+        # For debug
+        self.print_flag = False
+        self.print_every = 100
+        self.fixed_samples = fixed_samples
         
         self.barlogK = 0.5
         for i in range(2, self.num_arms + 1):
@@ -392,16 +457,20 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
                     else:
                         self.sample(i)
             # step 2
-            quantiles = {} # key: arm idx; value: empirical tau-quantile
-            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            quantiles = defaultdict(dict) # key: arm idx; value: 
+                                                # { key: quantile level; value: empirical tau-quantile}
+            rank_dict = defaultdict(dict) # key: arm idx; value: 
+                                # { key: quantile level; value: rank according to empirical tau-quantile}
             #print('active set: ', self.active_set)
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.tau)
+                for tau in self.ss_para:
+                    quantiles[i][tau] = np.quantile(list(reward), tau)
+                    
             argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
             if self.print_flag:
-                print('qauntiles: ', quantiles)
+                print('quantiles: ', quantiles)
                 print('argsorted quantiles: ', argsort_quantiles)
 
             for rank, idx in enumerate(argsort_quantiles):
@@ -452,10 +521,10 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         """Evaluate the performance (probability of error).
         """
         #print('rec_Set: ', self.rec_set)
-        rec_set_min = np.min(np.asarray(self.true_quantile_list)[np.asarray(list(self.rec_set))])
+        rec_set_min = np.min(np.asarray(self.true_ss_list)[np.asarray(list(self.rec_set))])
         #print('rec_set_min: ', rec_set_min)
-        #print('m_max_quantile: ', self.m_max_quantile )
-        simple_regret_rec_set =  self.m_max_quantile - rec_set_min
+        #print('m_max_ss: ', self.m_max_ss )
+        simple_regret_rec_set =  self.m_max_ss - rec_set_min
         # the probability is calculated in terms of a large number of experiments
         if simple_regret_rec_set > self.epsilon:
             return 1
@@ -490,7 +559,7 @@ class uniform_sampling(BAI_FixedBudget):
         emp_quantile_list = []
         for idx in range(self.num_arms):
             reward = self.sample_rewards[idx]
-            emp_quantile = np.quantile(reward, self.tau)
+            emp_quantile = np.quantile(reward, self.ss_para)
             emp_quantile_list.append(emp_quantile)
 
         self.rec_set = set(np.argsort(emp_quantile_list)[::-1][:self.m])
@@ -501,9 +570,9 @@ class batch_elimination(BAI_FixedBudget):
        Functional Bandits, Algorithm 1.
        Select x1 = ... = xL = 1. i.e. L = K-1. Functional as quantiles.
     """
-    def __init__(self, env, true_quantile_list, epsilon, tau, m, 
+    def __init__(self, env, true_ss_list, epsilon, m, 
                 fixed_samples, budget):
-        super().__init__(env, true_quantile_list, epsilon, tau, m, 
+        super().__init__(env, true_ss_list, epsilon, m, 
                 fixed_samples,budget)
 
         # number of arms left to recommend
@@ -530,7 +599,7 @@ class batch_elimination(BAI_FixedBudget):
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.tau)
+                quantiles[i] = np.quantile(list(reward), self.ss_para)
             argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
 
             for rank, idx in enumerate(argsort_quantiles):

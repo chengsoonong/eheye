@@ -4,15 +4,18 @@ import numpy as np
 # This file implements the simulated games for bandits algorithm. 
 
 def simulate(env, summary_stat, policy, epsilon, m, budget, num_expers, 
-            p, fixed_samples_list = None, tau = None):
+            p, fixed_samples_list = None):
     """Simulate best arm identification wrt specified summary statistics (tau-quantile, mean). 
     
     Paramters
     --------------------------------------------------------
     env: list
         sequence of instances of Environment (reward distribution of arms).
-    summary_stat: list
-        sequence of summary statistics of arms, e.g. tau-quantile, mean, etc. 
+    summary_stat: dict
+        dict of true/population summary statistics (ss)
+        key: name of summary statistics + '_' + parameter (e.g. quantile level) 
+             e.g. quantile_0.5; mean
+        value: list of summary statistics for each arm (length: K)
     policy: object
         instance of Q_BAI, Mean_BAI
     epsilon: float
@@ -28,11 +31,6 @@ def simulate(env, summary_stat, policy, epsilon, m, budget, num_expers,
     fixed_samples_list: list of dict, default is None
         each element is the sample dict for one exper
         key: arm_dix; values: list of fixed samples
-    
-   
-    ------------Only for quantiles-------------------------------------
-    tau: float
-        quantile level
     """
     result = [] # list, element: 1 if simple regret bigger than epsilon (indicates error occurs);
                 #                0 otherwise 
@@ -43,14 +41,10 @@ def simulate(env, summary_stat, policy, epsilon, m, budget, num_expers,
             samples = fixed_samples_list[i]
         else:
             samples = None
-
-        if tau != None: # quantiles
-            agent = policy(env, summary_stat, epsilon, tau, m, 
-                    samples, budget)
-        else: # mean
-            agent = policy(env, summary_stat, epsilon, m, 
-                    hyperpara, samples, udget_or_confi)
-            est_H_flag, b
+        
+        agent = policy(env, summary_stat, epsilon, m, 
+                samples, budget)
+        
         agent.simulate()
         result.append(agent.evaluate())
         #if est_L_flag:
