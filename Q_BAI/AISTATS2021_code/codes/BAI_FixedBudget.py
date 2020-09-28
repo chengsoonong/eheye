@@ -358,7 +358,7 @@ class Q_SAR_Simplified(Q_SAR):
 class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
     """Implement the large margin idea.
     Only allowed the quantile input. 
-    Assume the middle quantile level (the second large one) is criteria for good arms.
+    Assume the low quantile level (the smallest one) is criteria for good arms.
     """
     def __init__(self, env, true_ss_dict, epsilon, m, 
                 fixed_samples = None, budget = 2000):
@@ -385,18 +385,19 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         self.tau_list = []
         
         # assume there are three level of quantiles
-        for key, value in self.true_ss_dict:
+        for key, value in self.true_ss_dict.items():
             assert key.split('_')[0] == 'quantile'
             self.tau_list.append(float(key.split('_')[-1]))
         
-        self.tau_list = sorted(self.tau_list)
+        self.tau_list = sorted(self.tau_list) # increasing order
 
         self.m = m
         self.budget = budget
         
         self.num_arms = len(self.env)
-        criteria_ss = self.true_ss_dict[self.tau_list[1]]
-        self.m_max_ss = np.sort(criteria_ss)[::-1][self.m-1]
+        self.criteria_ss = self.true_ss_dict['quantile_' + str(self.tau_list[0])]
+        print(self.true_ss_dict)
+        self.m_max_ss = np.sort(self.criteria_ss)[::-1][self.m-1]
         # self.m_plus_one_max_ss = np.sort(criteria_ss)[::-1][self.m]
         # self.m_argmax_arm = np.argsort(-1 * np.asarray(criteria_ss))[self.m-1]
         self.sample_rewards = defaultdict(list)
@@ -457,36 +458,49 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
                     else:
                         self.sample(i)
             # step 2
-            quantiles = defaultdict(dict) # key: arm idx; value: 
-                                                # { key: quantile level; value: empirical tau-quantile}
-            rank_dict = defaultdict(dict) # key: arm idx; value: 
-                                # { key: quantile level; value: rank according to empirical tau-quantile}
+            quantiles = defaultdict(dict) # key:  quantile level; value: 
+                                                # { key: arm idx; value: empirical tau-quantile}
+            rank_dict = defaultdict(dict) # key: quantile level ; value: 
+                                # { key: arm idx; value: rank according to empirical tau-quantile}
             #print('active set: ', self.active_set)
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                for tau in self.ss_para:
-                    quantiles[i][tau] = np.quantile(list(reward), tau)
+                for tau in self.tau_list:
+                    quantiles[tau][i] = np.quantile(list(reward), tau)
                     
-            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+            argsort_quantiles = {}
+            for tau in self.tau_list:
+                argsort_quantiles[tau] = np.argsort(list(quantiles[tau].values()))[::-1]
+
             if self.print_flag:
                 print('quantiles: ', quantiles)
                 print('argsorted quantiles: ', argsort_quantiles)
 
-            for rank, idx in enumerate(argsort_quantiles):
-                arm_idx = list(quantiles.keys())[idx]
-                rank_dict[arm_idx] = rank
-                if rank == 0:
-                    a_best = arm_idx
-                if rank == self.l: # l_p + 1
-                    q_l_1 = arm_idx
-                if rank == self.l -1: # l_p
-                    q_l = arm_idx
-                if rank == len(argsort_quantiles) - 1:
-                    a_worst = arm_idx
+            # create dict: key as quantile level
+            a_best = {}
+            a_worst = {}
+            q_l_1 = {}
+            q_l = {}
 
-            gap_accept = quantiles[a_best] - quantiles[q_l_1]
-            gap_reject = quantiles[q_l] - quantiles[a_worst]
+            for tau in self.tau_list:
+                for rank, idx in enumerate(argsort_quantiles[tau]):
+                    arm_idx = list(quantiles[tau].keys())[idx]
+                    rank_dict[tau][arm_idx] = rank
+                    if rank == 0:
+                        a_best[tau] = arm_idx
+                    if rank == self.l: # l_p + 1
+                        q_l_1[tau] = arm_idx
+                    if rank == self.l -1: # l_p
+                        q_l[tau] = arm_idx
+                    if rank == len(argsort_quantiles) - 1:
+                        a_worst[tau] = arm_idx
+
+            tau_Low = self.tau_list[0]
+            tau_High = self.tau_list[-1]
+
+            gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_High][q_l_1[tau_High]]
+            gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_High][a_worst[tau_High]]
 
             if self.print_flag:
                 print('rank dict: ', rank_dict)
@@ -499,11 +513,11 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
 
             if gap_accept > gap_reject:
                 # print('accept ', a_best)
-                self.rec_set.add(a_best)
-                self.active_set.remove(a_best)
+                self.rec_set.add(a_best[tau_Low])
+                self.active_set.remove(a_best[tau_Low])
                 self.l -= 1
             else:
-                self.active_set.remove(a_worst)
+                self.active_set.remove(a_worst[tau_High])
 
             n_last_phase = n_current_phase
 
@@ -521,7 +535,7 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         """Evaluate the performance (probability of error).
         """
         #print('rec_Set: ', self.rec_set)
-        rec_set_min = np.min(np.asarray(self.true_ss_list)[np.asarray(list(self.rec_set))])
+        rec_set_min = np.min(np.asarray(self.true_ss_dict[self.criteria_ss])[np.asarray(list(self.rec_set))])
         #print('rec_set_min: ', rec_set_min)
         #print('m_max_ss: ', self.m_max_ss )
         simple_regret_rec_set =  self.m_max_ss - rec_set_min
