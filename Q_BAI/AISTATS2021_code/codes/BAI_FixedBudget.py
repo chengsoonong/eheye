@@ -78,7 +78,7 @@ class BAI_FixedBudget(ABC):
         self.epsilon = epsilon
 
         self.true_ss_dict = true_ss_dict
-        assert len(self.true_ss_dict.keys()) == 1
+        # assert len(self.true_ss_dict.keys()) == 1
         # assume only consider one summary statistic
         self.ss_name = list(self.true_ss_dict.keys())[0].split('_')[0]
         if len(list(self.true_ss_dict.keys())[0].split('_'))> 1:
@@ -396,7 +396,6 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         
         self.num_arms = len(self.env)
         self.criteria_ss = self.true_ss_dict['quantile_' + str(self.tau_list[0])]
-        print(self.true_ss_dict)
         self.m_max_ss = np.sort(self.criteria_ss)[::-1][self.m-1]
         # self.m_plus_one_max_ss = np.sort(criteria_ss)[::-1][self.m]
         # self.m_argmax_arm = np.argsort(-1 * np.asarray(criteria_ss))[self.m-1]
@@ -498,6 +497,8 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
 
             tau_Low = self.tau_list[0]
             tau_High = self.tau_list[-1]
+            # print('tau low: ', tau_Low)
+            # print('tau high: ', tau_High)
 
             gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_High][q_l_1[tau_High]]
             gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_High][a_worst[tau_High]]
@@ -535,7 +536,7 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         """Evaluate the performance (probability of error).
         """
         #print('rec_Set: ', self.rec_set)
-        rec_set_min = np.min(np.asarray(self.true_ss_dict[self.criteria_ss])[np.asarray(list(self.rec_set))])
+        rec_set_min = np.min(np.asarray(self.criteria_ss)[np.asarray(list(self.rec_set))])
         #print('rec_set_min: ', rec_set_min)
         #print('m_max_ss: ', self.m_max_ss )
         simple_regret_rec_set =  self.m_max_ss - rec_set_min
