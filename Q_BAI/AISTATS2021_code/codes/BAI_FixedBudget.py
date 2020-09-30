@@ -355,6 +355,89 @@ class Q_SAR_Simplified(Q_SAR):
         #plt.plot(list(range(len(self.p_list))), p_list, marker = '.')
         #plt.show()
 
+class OS_SAR_Simplified(Q_SAR):
+    """Order Statistics Successive accepts and rejects algorithm, a simplified version.
+    """
+    def simulate(self):
+        """Simulate experiments. 
+        """
+        n_last_phase = 0 # n_0
+        #p_list = []
+        for p in range(1, self.num_arms): # for p = 1, ..., K-1
+            n_current_phase = self.cal_n_p(p)
+            num_samples =  n_current_phase - n_last_phase
+            #p_list.append(num_samples)
+            # step 1
+            for i in self.active_set:
+                for j in range(num_samples):
+                    if self.fixed_samples != None:
+                        self.sample(i, len(self.sample_rewards[i]))
+                    else:
+                        self.sample(i)
+            # step 2
+            ss = {} # key: arm idx; value: empirical tau-quantile
+            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            #print('active set: ', self.active_set)
+            for i in self.active_set:
+                reward = list(self.sample_rewards[i])
+                # not sure why returns an array of one element instead of a scalar
+                if self.ss_name == 'quantile':
+                    # ss[i] = np.quantile(list(reward), self.ss_para)
+                    # change to order statistics
+                    ss[i] = sorted(reward)[int(len(reward) * (1 - self.ss_para))]
+                elif self.ss_name == 'mean':
+                    ss[i] = np.mean(list(reward))
+                else:
+                    assert True, 'Unknown summary statistics!'
+            argsort_ss = np.argsort(list(ss.values()))[::-1]
+            if self.print_flag:
+                print('ss: ', ss)
+                print('argsorted ss: ', argsort_ss)
+
+            for rank, idx in enumerate(argsort_ss):
+                arm_idx = list(ss.keys())[idx]
+                rank_dict[arm_idx] = rank
+                if rank == 0:
+                    a_best = arm_idx
+                if rank == self.l: # l_p + 1
+                    q_l_1 = arm_idx
+                if rank == self.l -1: # l_p
+                    q_l = arm_idx
+                if rank == len(argsort_ss) - 1:
+                    a_worst = arm_idx
+
+            gap_accept = ss[a_best] - ss[q_l_1]
+            gap_reject = ss[q_l] - ss[a_worst]
+
+            if self.print_flag:
+                print('rank dict: ', rank_dict)
+                print('a_best: ', a_best)
+                print('q_l_1: ', q_l_1)
+                print('q_l: ', q_l)
+                print('a_worst: ', a_worst)
+                print('gap accept: ', gap_accept)
+                print('gap reject: ', gap_reject)
+
+            if gap_accept > gap_reject:
+                # print('accept ', a_best)
+                self.rec_set.add(a_best)
+                self.active_set.remove(a_best)
+                self.l -= 1
+            else:
+                self.active_set.remove(a_worst)
+
+            n_last_phase = n_current_phase
+
+        assert len(self.active_set) == 1
+        self.rec_set = self.rec_set.union(self.active_set)
+        # print('rec_set: ', self.rec_set)
+        # print()
+        # TODO: the assert can be broken for epsilon > 0
+        assert len(self.rec_set) == self.m
+        #self.p_list = p_list
+        #plt.plot(list(range(len(self.p_list))), p_list, marker = '.')
+        #plt.show()
+
 class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
     """Implement the large margin idea.
     Only allowed the quantile input. 
@@ -377,7 +460,6 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         fixed_samples: dict, default is None
             key: arm_dix; values: list of fixed samples
         """
-
         self.env = env
         self.epsilon = epsilon
 
@@ -492,7 +574,7 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
                         q_l_1[tau] = arm_idx
                     if rank == self.l -1: # l_p
                         q_l[tau] = arm_idx
-                    if rank == len(argsort_quantiles) - 1:
+                    if rank == len(argsort_quantiles[tau]) - 1:
                         a_worst[tau] = arm_idx
 
             tau_Low = self.tau_list[0]
@@ -500,9 +582,19 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
             # print('tau low: ', tau_Low)
             # print('tau high: ', tau_High)
 
-            gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_High][q_l_1[tau_High]]
-            gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_High][a_worst[tau_High]]
+            # cheng proposed
+            # gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_High][q_l_1[tau_High]]
+            # gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_High][a_worst[tau_High]]
 
+            # same as Q-SAR (debug)
+            # gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_Low][q_l_1[tau_Low]]
+            # gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_Low][a_worst[tau_Low]]
+
+            # try others No1
+            gap_accept = quantiles[tau_High][a_best[tau_High]] - quantiles[tau_Low][q_l_1[tau_Low]]
+            gap_reject = quantiles[tau_High][q_l[tau_High]] - quantiles[tau_Low][a_worst[tau_Low]]
+
+            
             if self.print_flag:
                 print('rank dict: ', rank_dict)
                 print('a_best: ', a_best)
@@ -514,11 +606,14 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
 
             if gap_accept > gap_reject:
                 # print('accept ', a_best)
-                self.rec_set.add(a_best[tau_Low])
-                self.active_set.remove(a_best[tau_Low])
+                # self.rec_set.add(a_best[tau_Low])
+                # self.active_set.remove(a_best[tau_Low])
+                self.rec_set.add(a_best[tau_High])
+                self.active_set.remove(a_best[tau_High])
                 self.l -= 1
             else:
-                self.active_set.remove(a_worst[tau_High])
+                # self.active_set.remove(a_worst[tau_High])
+                self.active_set.remove(a_worst[tau_Low])
 
             n_last_phase = n_current_phase
 
