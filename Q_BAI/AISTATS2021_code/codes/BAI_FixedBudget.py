@@ -89,6 +89,7 @@ class BAI_FixedBudget(ABC):
 
         self.m = m
         self.budget = budget
+        self.left_budget = self.budget
         
         self.num_arms = len(self.env)
         self.m_max_ss = np.sort(self.true_ss_list)[::-1][self.m-1]
@@ -119,6 +120,10 @@ class BAI_FixedBudget(ABC):
         #print('m_max_ss: ', self.m_max_ss )
         simple_regret_rec_set =  self.m_max_ss - rec_set_min
         # the probability is calculated in terms of a large number of experiments
+
+        # if self.left_budget != 0:
+        #     print('Left budget: ', self.left_budget)
+
         if simple_regret_rec_set > self.epsilon:
             return 1
         else:
@@ -149,6 +154,7 @@ class BAI_FixedBudget(ABC):
             #print(self.fixed_samples[arm_idx])
             reward = self.fixed_samples[arm_idx][sample_idx]
         self.sample_rewards[arm_idx].append(reward)
+        self.left_budget -=1
         return reward
 
 class Q_SAR(BAI_FixedBudget):
@@ -213,7 +219,7 @@ class Q_SAR(BAI_FixedBudget):
                 if self.ss_name == 'quantile':
                     ss[i] = np.quantile(list(reward), self.ss_para)
                 elif self.ss_name == 'mean':
-                    ss[i] = np.mean(list(reward))
+                    ss[i] = np.mean(list(reward))      
                 else:
                     assert True, 'Unknown summary statistics!'
 
@@ -282,10 +288,18 @@ class Q_SAR_Simplified(Q_SAR):
         """
         n_last_phase = 0 # n_0
         #p_list = []
+        # sample_count = 0
         for p in range(1, self.num_arms): # for p = 1, ..., K-1
             n_current_phase = self.cal_n_p(p)
             num_samples =  n_current_phase - n_last_phase
             #p_list.append(num_samples)
+
+            # print('phase: ', p)
+            # print('num_samples: ', num_samples)
+            # print('active set: ', len(self.active_set))
+            # sample_count += num_samples * len(self.active_set)
+            # print('sample count: ', sample_count)
+
             # step 1
             for i in self.active_set:
                 for j in range(num_samples):
@@ -695,7 +709,7 @@ class batch_elimination(BAI_FixedBudget):
 
         H = (self.num_arms - 1) * (1 + self.num_arms/2.0)                                                                                                                                                         
         num_samples = int(self.budget/H)
-        for l in range(1, self.num_arms): # 1, ..., K - 1
+        for l in range(1, self.num_arms -self.m + 1): # 1, ..., K - 1
             for i in self.active_set:
                 for j in range(num_samples):
                     if self.fixed_samples != None:
@@ -730,4 +744,57 @@ class batch_elimination(BAI_FixedBudget):
         # only works for self.m = 1
         assert len(self.rec_set) == self.m
 
+class Q_SR(Q_SAR):
+    """Quantile Successive rejects algorithm.
+    """
+    def simulate(self):
+        """Simulate experiments. 
+        """
+        n_last_phase = 0 # n_0
+        # sample_count = 0
+        for p in range(1, self.num_arms - self.m + 1): # for p = 1, ..., K-1
+            n_current_phase = self.cal_n_p(p)
+            num_samples =  n_current_phase - n_last_phase
 
+            # print('phase: ', p)
+            # print('num_samples: ', num_samples)
+            # print('active set: ', len(self.active_set))
+            # sample_count += num_samples * len(self.active_set)
+            # print('sample count: ', sample_count)
+
+            # step 1
+            for i in self.active_set:
+                for j in range(num_samples):
+                    if self.fixed_samples != None:
+                        self.sample(i, len(self.sample_rewards[i]))
+                    else:
+                        self.sample(i)
+            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
+            #print('active set: ', self.active_set)
+            for i in self.active_set:
+                reward = self.sample_rewards[i]
+                # not sure why returns an array of one element instead of a scalar
+                quantiles[i] = np.quantile(list(reward), self.ss_para)
+            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+
+            for rank, idx in enumerate(argsort_quantiles):
+                arm_idx = list(quantiles.keys())[idx]
+                rank_dict[arm_idx] = rank
+                if rank == 0:
+                    a_best = arm_idx
+                if rank == self.l: # l_p + 1
+                    q_l_1 = arm_idx
+                if rank == self.l -1: # l_p
+                    q_l = arm_idx
+                if rank == len(argsort_quantiles) - 1:
+                    a_worst = arm_idx
+
+            self.active_set.remove(a_worst)
+            # print(self.active_set)
+
+            n_last_phase = n_current_phase
+
+        self.rec_set = self.active_set
+        # only works for self.m = 1
+        assert len(self.rec_set) == self.m

@@ -16,7 +16,7 @@ from sklearn.neighbors import KernelDensity
 
 # ---------------------------------------------------------------------------------
 
-def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
+def setup_env(envs_setting, tau =0.5, random_set = None):
     """Setup environment for simulations.
 
     Parameter:
@@ -30,8 +30,8 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
                 {Exp:    [2.0, 1.0, 1.5]},
                 {AbsGau: [0.5], Exp: [1.0, 1.5]}
                ]
-    ss_list: list of string
-        list of summary statistics names, with the name and parameter
+    tau: float (0,1)
+        level of quantile
 
     Return:
     --------------------------------------------------
@@ -49,8 +49,10 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
     """
     
     rewards_env = defaultdict(list)
+    quantiles = defaultdict(list)
     samples = defaultdict(list)
-    true_ss_dict = {}
+    means = defaultdict(list)
+    Ls = defaultdict(list)
     num_samples = 50000
 
     for envs_dict in envs_setting:
@@ -59,7 +61,6 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
         for env, para_list in envs_dict.items():
             env_name = str(env).split('.')[-1][:-2]
             name += env_name + '_' + str(para_list)
-        true_ss_dict[name] = defaultdict(list)
 
         for env, para_list in envs_dict.items(): 
             for para in para_list:
@@ -73,23 +74,10 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
                 rewards_env[name].append(current_env)
                 sample = current_env.sample(num_samples)
                 samples[name].append(sample)
-                
-                # for ss in ss_list:
-                #     ss_name = ss.split('_')[0]
-                #     ss_para = float(ss.split('_')[-1])
-                #     true_ss_dict[name][ss] = []
-                for ss in ss_list:
-                    ss_name = ss.split('_')[0]
-                    if len(ss.split('_'))> 1:
-                        ss_para = float(ss.split('_')[-1])
-                    if ss_name == 'quantile':
-                        true_ss_dict[name][ss].append(np.quantile(sample, ss_para))
-                    elif ss_name == 'mean':
-                        true_ss_dict[name][ss_name].append(np.mean(sample))
-                    else:
-                        assert True, 'Unknown summary statistics!'
-
-    return rewards_env, true_ss_dict, samples
+                quantiles[name].append(np.quantile(sample, tau))
+                Ls[name].append(current_env.hazard_rate(0))
+                means[name].append(np.mean(sample))
+    return rewards_env, quantiles, Ls, means, samples
 
 def generate_samples(envs_dict, tau =0.5, num_samples = 5000):
     """Generate samples for each env. 
