@@ -153,7 +153,7 @@ def plot_eva_budget(results, eva_method, type = 'lineplot', paper_flag = False, 
     save_flag: boolean
         True: save fig
     """
-    # fig = plt.figure(figsize=(4 * 3, 3* len(results.keys())))
+    plt.figure(figsize=(5, 4))
     
     for i, name in enumerate(results.keys()):
         # ax = fig.add_subplot(len(results.keys()),3, i+1)
@@ -219,8 +219,10 @@ def plot_eva_budget(results, eva_method, type = 'lineplot', paper_flag = False, 
         print(plot_df.head())   
         sns.lineplot(data=plot_df, x='Budget', y='Probability of Error', 
                     hue = 'Policy', style = 'Policy', markers=True, dashes=False)
+        plt.title(title)
+        plt.ylim(-0.05, 1.05)
 
-        return plot_df
+        
            
         
     # plt.xticks(rotation=90)
@@ -230,9 +232,12 @@ def plot_eva_budget(results, eva_method, type = 'lineplot', paper_flag = False, 
 
     # if log_scale:
     #     ax.set_yscale('log')
-    # if save_flag:
-    #     file_name = '../plots/' + title + '.pdf'
-    #     fig.savefig(file_name, bbox_inches='tight')
+    if save_flag:
+        title = title.replace('.', ' ')
+        file_title = title.replace(' ', '_')
+        file_name = '../plots/' + file_title + '.pdf'
+        plt.savefig(file_name, bbox_inches='tight')
+    return plot_df
 
 def plot_eva_m(results, eva_method, type = 'lineplot', paper_flag = False, log_scale= False, 
                 plot_confi_interval = False, method = 'all', exper = 'all'):
