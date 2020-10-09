@@ -220,7 +220,7 @@ def plot_eva_budget(results, eva_method, type = 'lineplot', paper_flag = False, 
         sns.lineplot(data=plot_df, x='Budget', y='Probability of Error', 
                     hue = 'Policy', style = 'Policy', markers=True, dashes=False)
         plt.title(title)
-        plt.ylim(-0.05, 1.05)
+        plt.ylim(-0.05, 0.85)
 
         
            

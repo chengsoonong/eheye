@@ -707,7 +707,11 @@ class batch_elimination(BAI_FixedBudget):
 
     def simulate(self):
 
-        H = (self.num_arms - 1) * (1 + self.num_arms/2.0)                                                                                                                                                         
+        H = (self.num_arms - 1) * (1 + self.num_arms/2.0) 
+        # H = 0
+        # for i in range(1,self.num_arms - self.m + 2):
+        #     H+= self.num_arms - i
+        # print(H)                                                                                                                                                     
         num_samples = int(self.budget/H)
         for l in range(1, self.num_arms -self.m + 1): # 1, ..., K - 1
             for i in self.active_set:
@@ -747,6 +751,41 @@ class batch_elimination(BAI_FixedBudget):
 class Q_SR(Q_SAR):
     """Quantile Successive rejects algorithm.
     """
+    def __init__(self, env, true_ss_list, epsilon, m, 
+                fixed_samples, budget):
+        super().__init__(env, true_ss_list, epsilon, m, 
+                fixed_samples,budget)
+        
+        self.barlogK = self.m/(self.m + 1)
+        for i in range(1, self.num_arms - self.m + 1):
+            self.barlogK += 1.0/(self.num_arms + 1 - i)
+        
+        # number of arms left to recommend
+        self.l = self.m
+        
+        # active arms with idx 0, 1, ... K-1
+        self.active_set = set(list(range(self.num_arms)))
+
+    def cal_n_p(self,p):
+        """Calculate n_p, the number of samples of each arm for phase p
+
+        Parameters
+        ----------------------------------------------------------------
+        p: int
+            current phase
+
+        Return
+        -----------------------------------------------------------------
+        n_p: int
+            the number of samples of each arm for phase p
+        """
+        n_p_float = 1.0/self.barlogK * (self.budget - self.num_arms)/ (self.num_arms + 1 - p)
+        if n_p_float - int(n_p_float) > 0:
+            n_p = int(n_p_float) + 1
+        else:
+            n_p = int(n_p_float)
+        return n_p
+
     def simulate(self):
         """Simulate experiments. 
         """
@@ -769,17 +808,22 @@ class Q_SR(Q_SAR):
                         self.sample(i, len(self.sample_rewards[i]))
                     else:
                         self.sample(i)
-            quantiles = {} # key: arm idx; value: empirical tau-quantile
+            ss = {} # key: arm idx; value: empirical tau-quantile
             rank_dict = {} # key: arm idx; value: rank according to empirical tau-quantile
             #print('active set: ', self.active_set)
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                quantiles[i] = np.quantile(list(reward), self.ss_para)
-            argsort_quantiles = np.argsort(list(quantiles.values()))[::-1]
+                if self.ss_name == 'quantile':
+                    ss[i] = np.quantile(list(reward), self.ss_para)
+                elif self.ss_name == 'mean':
+                    ss[i] = np.mean(list(reward))
+                else:
+                    assert True, 'Unknown summary statistics!'
+            argsort_ss = np.argsort(list(ss.values()))[::-1]
 
-            for rank, idx in enumerate(argsort_quantiles):
-                arm_idx = list(quantiles.keys())[idx]
+            for rank, idx in enumerate(argsort_ss):
+                arm_idx = list(ss.keys())[idx]
                 rank_dict[arm_idx] = rank
                 if rank == 0:
                     a_best = arm_idx
@@ -787,7 +831,7 @@ class Q_SR(Q_SAR):
                     q_l_1 = arm_idx
                 if rank == self.l -1: # l_p
                     q_l = arm_idx
-                if rank == len(argsort_quantiles) - 1:
+                if rank == len(argsort_ss) - 1:
                     a_worst = arm_idx
 
             self.active_set.remove(a_worst)
