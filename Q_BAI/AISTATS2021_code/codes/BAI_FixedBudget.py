@@ -321,46 +321,55 @@ class Q_SAR_Simplified(Q_SAR):
                 else:
                     assert True, 'Unknown summary statistics!'
             argsort_ss = np.argsort(list(ss.values()))[::-1]
-            if self.print_flag:
-                print('ss: ', ss)
-                print('argsorted ss: ', argsort_ss)
+            # if self.print_flag:
+            # print('ss: ', ss)
+            # print('argsorted ss: ', argsort_ss)
 
-            for rank, idx in enumerate(argsort_ss):
-                arm_idx = list(ss.keys())[idx]
-                rank_dict[arm_idx] = rank
-                if rank == 0:
-                    a_best = arm_idx
-                if rank == self.l: # l_p + 1
-                    q_l_1 = arm_idx
-                if rank == self.l -1: # l_p
-                    q_l = arm_idx
-                if rank == len(argsort_ss) - 1:
-                    a_worst = arm_idx
-
-            gap_accept = ss[a_best] - ss[q_l_1]
-            gap_reject = ss[q_l] - ss[a_worst]
-
-            if self.print_flag:
-                print('rank dict: ', rank_dict)
-                print('a_best: ', a_best)
-                print('q_l_1: ', q_l_1)
-                print('q_l: ', q_l)
-                print('a_worst: ', a_worst)
-                print('gap accept: ', gap_accept)
-                print('gap reject: ', gap_reject)
-
-            if gap_accept > gap_reject:
-                # print('accept ', a_best)
-                self.rec_set.add(a_best)
-                self.active_set.remove(a_best)
-                self.l -= 1
+            if self.l == len(ss):
+                for i in ss.keys():
+                    self.rec_set.add(i)
+                break
             else:
-                self.active_set.remove(a_worst)
 
-            n_last_phase = n_current_phase
+                for rank, idx in enumerate(argsort_ss):
+                    arm_idx = list(ss.keys())[idx]
+                    rank_dict[arm_idx] = rank
+                    if rank == 0:
+                        a_best = arm_idx
+                    if rank == self.l: # l_p + 1
+                        q_l_1 = arm_idx
+                    if rank == self.l -1: # l_p
+                        q_l = arm_idx
+                    if rank == len(argsort_ss) - 1:
+                        a_worst = arm_idx
+                # print('l:', self.l)
+                # print('rank dict: ', rank_dict)
+                # print('a_best: ', a_best)
+                # print('q_l_1: ', q_l_1)
+                # print('q_l: ', q_l)
+                # print('a_worst: ', a_worst)
+                
 
-        assert len(self.active_set) == 1
-        self.rec_set = self.rec_set.union(self.active_set)
+                gap_accept = ss[a_best] - ss[q_l_1]
+                gap_reject = ss[q_l] - ss[a_worst]
+
+                # if self.print_flag:
+                    
+                # print('gap accept: ', gap_accept)
+                # print('gap reject: ', gap_reject)
+
+                if gap_accept > gap_reject:
+                    # print('accept ', a_best)
+                    self.rec_set.add(a_best)
+                    self.active_set.remove(a_best)
+                    self.l -= 1
+                else:
+                    self.active_set.remove(a_worst)
+
+                n_last_phase = n_current_phase
+
+        if len(self.active_set) == 1:
+            self.rec_set = self.rec_set.union(self.active_set)
         # print('rec_set: ', self.rec_set)
         # print()
         # TODO: the assert can be broken for epsilon > 0

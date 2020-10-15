@@ -4,6 +4,14 @@ from scipy.optimize import curve_fit
 import seaborn as sns
 import pandas as pd
 from collections import defaultdict
+import matplotlib
+
+
+font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 30}
+
+matplotlib.rc('font', **font)
 
 # Version: June/2020
 # This file implements the plots methods for bandits algorithm. 
@@ -215,12 +223,14 @@ def plot_eva_budget(results, eva_method, type = 'lineplot', paper_flag = False, 
         # for label, values in mean_dict.items():
             # plot_dict = {'budget': budget_dict[label],
             #             'mean': mean_dict[label]}
-
+       
         print(plot_df.head())   
-        sns.lineplot(data=plot_df, x='Budget', y='Probability of Error', 
+        b = sns.lineplot(data=plot_df, x='Budget', y='Probability of Error', 
                     hue = 'Policy', style = 'Policy', markers=True, dashes=False)
-        plt.title(title)
-        plt.ylim(-0.05, 0.85)
+        b.set_xlabel('Budget', fontsize = 16)
+        b.set_ylabel('Probability of Error', fontsize = 16)
+        plt.title(title, fontsize = 16)
+        plt.ylim(-0.05, 1.05)
 
         
            
@@ -326,7 +336,7 @@ def plot_hist(sample_dict):
         j += 1
         f = plt.subplot(len(sample_dict.keys()),3, j)
        
-        plt.title('Reward Histogram')
+        plt.title('Simulated Rewards Histogram')
         plt.xlabel('Reward')
         plt.ylabel('Frequency')
 
@@ -340,8 +350,8 @@ def plot_hist(sample_dict):
         for i, samples in enumerate(value):
             sns.distplot(samples, ax = f, label = arm_name_dict[i], bins = 100, norm_hist=False) 
 
-        plt.xlim([-0.1, 5])
-        # plt.ylim([0,0.5])
+        plt.xlim([-1, 20])
+        plt.ylim([0,0.5])
         # plt.ylim([0, 0.4])
         plt.legend()
     file_name = 'Hist_'  + key + '.pdf'
