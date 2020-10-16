@@ -722,6 +722,8 @@ class batch_elimination(BAI_FixedBudget):
         #     H+= self.num_arms - i
         # print(H)                                                                                                                                                     
         num_samples = int(self.budget/H)
+        if num_samples < 1:
+            num_samples = 1
         for l in range(1, self.num_arms -self.m + 1): # 1, ..., K - 1
             for i in self.active_set:
                 for j in range(num_samples):
