@@ -605,7 +605,6 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
             # print('tau low: ', tau_Low)
             # print('tau high: ', tau_High)
 
-            # cheng proposed
             # gap_accept = quantiles[tau_Low][a_best[tau_Low]] - quantiles[tau_High][q_l_1[tau_High]]
             # gap_reject = quantiles[tau_Low][q_l[tau_Low]] - quantiles[tau_High][a_worst[tau_High]]
 

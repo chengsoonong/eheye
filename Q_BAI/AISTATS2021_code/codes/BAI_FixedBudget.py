@@ -161,7 +161,7 @@ class Q_SAR(BAI_FixedBudget):
     """Quantile Successive accepts and rejects algorithm.
     """
     def __init__(self, env, true_ss_list, epsilon, m, 
-                fixed_samples, budget):
+                fixed_samples, budget, L):
         super().__init__(env, true_ss_list, epsilon, m, 
                 fixed_samples,budget)
         
@@ -174,6 +174,9 @@ class Q_SAR(BAI_FixedBudget):
         
         # active arms with idx 0, 1, ... K-1
         self.active_set = set(list(range(self.num_arms)))
+
+        # lower bound of hazard rate, only used for calculate the upper bound of prob of error
+        self.L = L 
 
     def cal_n_p(self,p):
         """Calculate n_p, the number of samples of each arm for phase p
@@ -378,6 +381,75 @@ class Q_SAR_Simplified(Q_SAR):
         #plt.plot(list(range(len(self.p_list))), p_list, marker = '.')
         #plt.show()
 
+    def prob_error_bound(self, t):
+        b = 1 # FIXME: b should have a range, here I just took 1, need to check.
+        L_C = np.max(list(self.L.values())[0])
+        L_H = np.min(list(self.L.values())[0])
+        print('L_C: ', L_C)
+        print('L_H: ', L_H)
+
+        sorted_quantile_list = np.sort(self.true_ss_list)[::-1]
+        mth_quantile = sorted_quantile_list[self.m-1]
+        m_plus_one_th_quantile = sorted_quantile_list[self.m]
+
+        # calculate Delta
+        Delta_list = []
+        for i, quantile in enumerate(self.true_ss_list):
+            if quantile >= mth_quantile:
+                Delta_list.append(quantile - m_plus_one_th_quantile)
+            else:
+                Delta_list.append(mth_quantile - quantile)
+        sorted_Delta_list = np.sort(Delta_list)[::-1]
+        print('sorted delta list: ', sorted_Delta_list)
+
+        # calculate problem complexity (H)
+        H_candidates = []
+        for i in range(self.num_arms):
+            tempH = min((1-self.ss_para)/(4 + L_H * sorted_Delta_list[i]), (1-self.ss_para)**2/8)
+            H_candidates.append(i/(L_H**2 * sorted_Delta_list[i]**2 * tempH))
+        H = np.max(H_candidates)
+        print('H: ', H)
+
+        # calculate the constant term (C)
+        tempC = max((1-self.ss_para)/(4 + L_C * sorted_Delta_list[self.num_arms-1]), (1-self.ss_para)**2/8)
+        C = (1.0/4*(1-self.ss_para) + b/(2*sorted_Delta_list[0])) * (L_C**2 * sorted_Delta_list[i]**2 * tempC)
+        print('C: ', C)
+
+        bound = 2 * self.num_arms**2 * np.exp(- (t - self.num_arms)/(16 * self.barlogK * H) + C)
+
+        return bound
+
+    # def prob_error_bound(self,t):
+    #     # for mean based SAR
+    #     sorted_quantile_list = np.sort(self.true_ss_list)[::-1]
+    #     mth_quantile = sorted_quantile_list[self.m-1]
+    #     m_plus_one_th_quantile = sorted_quantile_list[self.m]
+
+    #     # calculate Delta
+    #     Delta_list = []
+    #     for i, quantile in enumerate(self.true_ss_list):
+    #         if quantile >= mth_quantile:
+    #             Delta_list.append(quantile - m_plus_one_th_quantile)
+    #         else:
+    #             Delta_list.append(mth_quantile - quantile)
+    #     sorted_Delta_list = np.sort(Delta_list)[::-1]
+    #     print('sorted delta list: ', sorted_Delta_list)
+
+    #      # calculate problem complexity (H)
+    #     H_candidates = []
+    #     for i in range(self.num_arms):
+    #         H_candidates.append(i/(sorted_Delta_list[i]**2))
+    #     H = np.max(H_candidates)
+    #     print('H: ', H)
+
+    #     bound = 2 * self.num_arms**2 * np.exp(- (t - self.num_arms)/(8 * self.barlogK * H))
+
+    #     return bound
+
+
+
+
+
 class OS_SAR_Simplified(Q_SAR):
     """Order Statistics Successive accepts and rejects algorithm, a simplified version.
     """
@@ -487,20 +559,20 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
         self.epsilon = epsilon
 
         self.true_ss_dict = true_ss_dict
-        self.tau_list = []
+        self.ss_para_list = []
         
         # assume there are three level of quantiles
         for key, value in self.true_ss_dict.items():
             assert key.split('_')[0] == 'quantile'
-            self.tau_list.append(float(key.split('_')[-1]))
+            self.ss_para_list.append(float(key.split('_')[-1]))
         
-        self.tau_list = sorted(self.tau_list) # increasing order
+        self.ss_para_list = sorted(self.ss_para_list) # increasing order
 
         self.m = m
         self.budget = budget
         
         self.num_arms = len(self.env)
-        self.criteria_ss = self.true_ss_dict['quantile_' + str(self.tau_list[0])]
+        self.criteria_ss = self.true_ss_dict['quantile_' + str(self.ss_para_list[0])]
         self.m_max_ss = np.sort(self.criteria_ss)[::-1][self.m-1]
         # self.m_plus_one_max_ss = np.sort(criteria_ss)[::-1][self.m]
         # self.m_argmax_arm = np.argsort(-1 * np.asarray(criteria_ss))[self.m-1]
@@ -570,11 +642,11 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
             for i in self.active_set:
                 reward = self.sample_rewards[i]
                 # not sure why returns an array of one element instead of a scalar
-                for tau in self.tau_list:
+                for tau in self.ss_para_list:
                     quantiles[tau][i] = np.quantile(list(reward), tau)
                     
             argsort_quantiles = {}
-            for tau in self.tau_list:
+            for tau in self.ss_para_list:
                 argsort_quantiles[tau] = np.argsort(list(quantiles[tau].values()))[::-1]
 
             if self.print_flag:
@@ -587,7 +659,7 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
             q_l_1 = {}
             q_l = {}
 
-            for tau in self.tau_list:
+            for tau in self.ss_para_list:
                 for rank, idx in enumerate(argsort_quantiles[tau]):
                     arm_idx = list(quantiles[tau].keys())[idx]
                     rank_dict[tau][arm_idx] = rank
@@ -600,8 +672,8 @@ class Q_SAR_Simplified_Large_Margin(BAI_FixedBudget):
                     if rank == len(argsort_quantiles[tau]) - 1:
                         a_worst[tau] = arm_idx
 
-            tau_Low = self.tau_list[0]
-            tau_High = self.tau_list[-1]
+            tau_Low = self.ss_para_list[0]
+            tau_High = self.ss_para_list[-1]
             # print('tau low: ', tau_Low)
             # print('tau high: ', tau_High)
 

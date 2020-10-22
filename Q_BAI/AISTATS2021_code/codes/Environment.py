@@ -51,6 +51,7 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
     rewards_env = defaultdict(list)
     samples = defaultdict(list)
     true_ss_dict = {}
+    L = defaultdict(list) # lower bound of hazard rate
     num_samples = 50000
 
     for envs_dict in envs_setting:
@@ -60,7 +61,7 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
             env_name = str(env).split('.')[-1][:-2]
             name += env_name + '_' + str(para_list)
         true_ss_dict[name] = defaultdict(list)
-
+       
         for env, para_list in envs_dict.items(): 
             for para in para_list:
                 if random_set == None:
@@ -73,6 +74,8 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
                 rewards_env[name].append(current_env)
                 sample = current_env.sample(num_samples)
                 samples[name].append(sample)
+                # the lower bound is at 0 for current environments (AbsGau, Exp)
+                L[name].append(current_env.hazard_rate(0))
                 
                 # for ss in ss_list:
                 #     ss_name = ss.split('_')[0]
@@ -89,7 +92,7 @@ def setup_env(envs_setting, ss_list = ['quantile_0.5'], random_set = None):
                     else:
                         assert True, 'Unknown summary statistics!'
 
-    return rewards_env, true_ss_dict, samples
+    return rewards_env, true_ss_dict, samples, L
 
 def generate_samples(envs_dict, tau =0.5, num_samples = 5000):
     """Generate samples for each env. 

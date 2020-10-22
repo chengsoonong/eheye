@@ -4,7 +4,7 @@ import numpy as np
 # This file implements the simulated games for bandits algorithm. 
 
 def simulate(env, summary_stat, policy, epsilon, m, budget, num_expers, 
-            p, fixed_samples_list = None):
+            p, fixed_samples_list = None, L = None):
     """Simulate best arm identification wrt specified summary statistics (tau-quantile, mean). 
     
     Paramters
@@ -43,13 +43,15 @@ def simulate(env, summary_stat, policy, epsilon, m, budget, num_expers,
             samples = None
         
         agent = policy(env, summary_stat, epsilon, m, 
-                samples, budget)
+                samples, budget, L)
         
         agent.simulate()
         result.append(agent.evaluate())
         #if est_L_flag:
         #    estimated_L.append(agent.estimated_L_dict)
         
+    bound = agent.prob_error_bound(budget)
+    print('prob error bound: ', bound)
     return result
 
 def simulate_mean(env, summary_stat, policy, epsilon, m, budget_or_confi,
