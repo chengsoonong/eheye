@@ -18,10 +18,10 @@ This week I fixed some formatting errors with the way I preprocessed the yeast d
 
 After the code ran without errors I noticed that the prediction always saved an empty numpy array, so after some digging around in the script I found that they were only saving the prediction probabilities so I had to do a little more editing to make it work for regression and instead output the model prediction and not the model prediction passed through a softmax function. 
 
-I was able to run the fine-tuning of the DNABERT model on the yeast data (PGD promoters) two times with different values for _adam_epsilon_ and see that the evaluation scores were improving with each iteration, which is promising. However, the scores so far are quite poor so some hyperparameter tuning will be required (R2 of 0.444 and 0.52).
+I was able to run the fine-tuning of the DNABERT model on the yeast data (PGD promoters) two times with different values for _adam_epsilon_ and see that the evaluation scores were improving with each iteration, which is promising. However, the scores so far are quite poor so some hyperparameter tuning will be required (R2 of 0.444 and 0.420).
 
 This weeks meeting I presented the DNABERT paper to Mengyan. Some things the three of us discussed:
-- There are 4 tasks, classifcation on yeast DNA and human DNA and regression on yeast DNA and human DNA.
+- There are 4 tasks, classification on yeast DNA and human DNA and regression on yeast DNA and human DNA.
 - We are missing the negative class for classification on the yeast data and the negative class for regression on the human data.
 - Hopefully I have some meaningful results with the yeast data soon so we can make a decision on what to do next (by the mid-semester break)
 
@@ -30,7 +30,7 @@ Next week I will present the yeast promoter paper.
 ### Answers to the questions Mengyan had:
 
 __Why separate TATA and non-TATA promoters?__
-I must have got confused reading the paper (I will blame their communication but I probably wasn't careful enough when reading it) but the fine-tuning of DNABERT-Prom-300 and DNABERT-Prom-core used a dataset that included both TATA and non-TATA promoters. They just specify in their Supplementary Materials that they had to construct the negative set of this dataset separately for the TATA and non-TATA promoters. 
+I must confused myself reading the paper but the fine-tuning of DNABERT-Prom-300 and DNABERT-Prom-core used a dataset that included both TATA and non-TATA promoters. They just specify in their Supplementary Materials that they had to construct the negative set of this dataset separately for the TATA and non-TATA promoters. 
 
 > "We constructed the negative set separately for TATA and non-TATA promoters ... We trained our model using TATA and non-TATA core promoters altogether while predict separately on TATA and non-TATA datasets."
 
