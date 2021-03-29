@@ -30,7 +30,7 @@ Next week I will present the yeast promoter paper.
 ### Answers to the questions Mengyan had:
 
 __Why separate TATA and non-TATA promoters?__
-I must confused myself reading the paper but the fine-tuning of DNABERT-Prom-300 and DNABERT-Prom-core used a dataset that included both TATA and non-TATA promoters. They just specify in their Supplementary Materials that they had to construct the negative set of this dataset separately for the TATA and non-TATA promoters. 
+I must have confused myself reading the paper but the fine-tuning of DNABERT-Prom-300 and DNABERT-Prom-core used a dataset that included both TATA and non-TATA promoters. They just specify in their Supplementary Materials that they had to construct the negative set of this dataset separately for the TATA and non-TATA promoters. 
 
 > "We constructed the negative set separately for TATA and non-TATA promoters ... We trained our model using TATA and non-TATA core promoters altogether while predict separately on TATA and non-TATA datasets."
 
