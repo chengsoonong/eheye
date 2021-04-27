@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{ASC CSO Methods}
+\author{u6650550 }
+\date{April 2021}
+
+\begin{document}
+
+\maketitle
+\section{Background}
+\subsection{BERT}
+-brief intro about transformers in general (embedding, encoder/decoder, attention, cite original google paper)
+
+Bidirectional Encoder Representations from Transformers (BERT) is based off the original transformer in ... BERT overcomes shortcomings of previous language models by incorporating a bidirectional architecture and reduces the need for custom task-specific model architectures by adopting a  \textit{fine-tuning} approach to language modelling, instead of a \textit{feature-based} approach (ie. ELMo). 
+`
+\section{Methods}
+This project involved three tasks: (1) A classification task on human promoters using DNABERT, (2) a regression task on yeast promoters and (3) a classification task on yeast promoters. Tasks 2 and 3 were explored using two models, the first being DNABERT (transformer) and the second a CNN which uses the learned embeddings of DNABERT as inputs. 
+
+\subsection{Human promoter classification with DNABERT}
+One of the downstream tasks addressed in the paper (DNABERT citation) was a promoter classification task using the human promoters from the Eukaryotic Promoter Database (EPDnew citation). Fine-tuning DNABERT on this task was straightforward by following the example outlined in the DNABERT repository (repo citation).
+
+\subsection{Yeast promoter regression and classification}
+DNABERT is flexible in its downstream task applications and was simply adapted to allow for fine-tuning on a regression task. This involved creating a new data processor and metric function to use in evaluation. DNABERT provides a function that formats the sequences into a k-mer representation which is required for the DNABERT model.
+
+An earlier approach utilised a CNN to predict expression level of yeast promoters (yeast citation). This model one-hot encoded input DNA sequences so each sequence was represented by a matrix with 4 rows for each base and a column for each position. As one of the promoter libraries used to train the model included promoters in an induced state and an uninduced state, the model output had to be a 2 element vector corresponding to the two different expression levels. As the provided code for the original CNN was written in Python 2 and Tensorflow1, the pipeline was rewritten in PyTorch using Google Colab. The pipeline is as follows:
+
+1. One-hot encodes all input sequences and splits the data into training, validation and test sets.
+
+2. Subset each sequence with a sliding window which shifts 0-8 base pairs, generating a dataset that is 8 times the size of the original.
+
+3. Train the model for 100 epochs.
+
+This base model serves as a comparison between a PyTorch and Tensorflow1 implementation of the same model architecture.
+
+To evaluate whether a different feature representation is more effective, the output from the DNABERT embedding layer is used as the input to the CNN instead of the one-hot encoded sequences.
+
+\end{document}
