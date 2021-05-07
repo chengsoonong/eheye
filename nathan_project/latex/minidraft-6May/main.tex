@@ -1,5 +1,25 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{thmtools}
+\usepackage{thm-restate}
+\usepackage{enumerate}
+\usepackage{xcolor}
+\usepackage{textgreek}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{authblk}
+\usepackage{soul}
+
 \usepackage[style=numeric,backend=biber, maxnames=10, maxcitenames=3, giveninits=true]{biblatex}
 \newcommand{\mengyan}[1]{\textcolor{magenta}{#1}}
 \title{Promoter Prediction}
@@ -12,15 +32,32 @@
 
 \maketitle
 \section{Introduction}
+
+\mengyan{High-level comments: \\
+1) In the induction, try to address what tasks we are working with, what's the goal, what's the methods, and what's the results (placeholder for now). You current writing focuses mostly on previous work.\\
+2) It would be good to introduce the view of regression and classficiation in both machine learning and biology (definitions, evaluations, biological meanings)}
+
 Biological promoters are crucial for gene and protein expression regulation \cite{smolke2020promoter}. They play an important role in engineered metabolic pathways and nearly all synthetic or natural gene circuits \cite{smolke2020promoter, Redden2015}. - \textit{will need a bit more on promoters and promoter engineering}
 
-Current methods of creating promoter sequences include mutagenenis \cite{Alper12678} and screening libraries \cite{Redden2015}. However, the emergence of more and more deep-learning methods  has seen models such as convolutional neural networks (CNNs) \cite{smolke2020promoter} and, more recently, transformer neural networks \cite{dnabert2020} applied to bioinformatics tasks. Specifically, Kotopka and Smolke \cite{smolke2020promoter} outlined in their paper a CNN-guided approach to generation of artificial promoters for the yeast \textit{Saccharomyces cerevisiae} by constructing a CNN model trained to predict protein expression levels of given constitutive or inducible promoters. A newer approach by Ji et al. adapted the Bidirectional Encoder Representations from Transformers (BERT) model to DNA \cite{dnabert2020}. The original BERT model is based off the transformer model by Google \cite{vaswani2017attention} which achieves state-of-the-art performance on most natural language processing tasks. The BERT model adopts a pre-training and fine-tuning structure, where in the pre-training stage the model gains a general understanding of DNA (or language) via self-supervision. This model can then be fine-tuned with task specific data to model different downstream tasks which could either be a classification or regression task.
+Current methods of creating promoter sequences include mutagenenis \cite{Alper12678} and screening libraries \cite{Redden2015}. However, the emergence of more and more deep-learning methods  has seen models such as convolutional neural networks (CNNs) \cite{smolke2020promoter} and, more recently, transformer neural networks \cite{dnabert2020} applied to bioinformatics tasks. 
+\mengyan{please cite the original work in the above sentence.}
+Specifically, Kotopka and Smolke \cite{smolke2020promoter} outlined in their paper a CNN-guided approach to generation of artificial promoters for the yeast \textit{Saccharomyces cerevisiae} by constructing a CNN model trained to predict protein expression levels of given constitutive or inducible promoters. 
 
-There is a case to be made about the relative importance of promoter classification and predicting a number-value for promoter strength (regression) from a biological viewpoint. For instance, classification can help elucidate more general features of DNA and specific genomes. \textit{- need to do more reading for this}
+A newer approach by Ji et al. \mengyan{use cite instead} adapted the Bidirectional Encoder Representations from Transformers (BERT) model to DNA \cite{dnabert2020}. The original BERT model is based \mengyan{\st{off} on} the transformer model by Google \cite{vaswani2017attention} which achieves state-of-the-art performance on most natural language processing tasks. 
+The BERT model adopts a pre-training and fine-tuning structure, where in the pre-training stage the model gains a general understanding of DNA (or language) via self-supervision. 
+This model can then be fine-tuned with task specific data to model different downstream tasks which could either be a classification or regression task.
+\mengyan{Add some description about DNABERT?}
 
-However, as mentioned by Nevoigt et al. an ideal inducible promoter for industrial yeast fermentation must be tightly regulated and express at high levels after induction \cite{nevoight2007promoter}, among other things, and so by constructing a model that is able to quickly determine how effective a certain promoter will be the process of promoter design hopefully becomes more efficient.
+\mengyan{From here, begin to introduce the problems we work on.}
+There is a case to be made about the relative importance of promoter classification and predicting a number-value for promoter strength (regression) from a biological viewpoint. 
+For instance, classification can help elucidate more general features of DNA and specific genomes. \textit{- need to do more reading for this}
+\mengyan{It would be good to address what's goal and difference of the regression, classficiation tasks. First in general ML defintion, then in our case.}
+
+However, as mentioned by Nevoigt et al. \mengyan{use cite, include year} an ideal inducible promoter for industrial yeast fermentation must be tightly regulated and express at high levels after induction \cite{nevoight2007promoter}, among other things, and so by constructing a model that is able to quickly determine how effective a certain promoter will be the process of promoter design hopefully becomes more efficient.
+\mengyan{I might miss something here. What do you want to tell us by having this paragraph?}
 
 This project aims to (i) reproduce the CNN as described by Kotopka and Smolke for the task of predicting protein expression in constitutive and inducible yeast promoters, (ii) apply the DNABERT model by Ji et al. to this task and (iii) combine both models.
+\mengyan{We should introduce the idea how to combine two models, and why we want to do that. Have some reading about what BERT embedding can provide more than one-hot embedding.}
  
 
 \section{Background}
