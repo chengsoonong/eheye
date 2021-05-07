@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[style=numeric,backend=biber, maxnames=10, maxcitenames=3, giveninits=true]{biblatex}
+\newcommand{\mengyan}[1]{\textcolor{magenta}{#1}}
+\title{Promoter Prediction}
+\author{u6650550 }
+\date{April 2021}
+
+\addbibresource{references.bib}
+
+\begin{document}
+
+\maketitle
+\section{Introduction}
+Biological promoters are crucial for gene and protein expression regulation \cite{smolke2020promoter}. They play an important role in engineered metabolic pathways and nearly all synthetic or natural gene circuits \cite{smolke2020promoter, Redden2015}. - \textit{will need a bit more on promoters and promoter engineering}
+
+Current methods of creating promoter sequences include mutagenenis \cite{Alper12678} and screening libraries \cite{Redden2015}. However, the emergence of more and more deep-learning methods  has seen models such as convolutional neural networks (CNNs) \cite{smolke2020promoter} and, more recently, transformer neural networks \cite{dnabert2020} applied to bioinformatics tasks. Specifically, Kotopka and Smolke \cite{smolke2020promoter} outlined in their paper a CNN-guided approach to generation of artificial promoters for the yeast \textit{Saccharomyces cerevisiae} by constructing a CNN model trained to predict protein expression levels of given constitutive or inducible promoters. A newer approach by Ji et al. adapted the Bidirectional Encoder Representations from Transformers (BERT) model to DNA \cite{dnabert2020}. The original BERT model is based off the transformer model by Google \cite{vaswani2017attention} which achieves state-of-the-art performance on most natural language processing tasks. The BERT model adopts a pre-training and fine-tuning structure, where in the pre-training stage the model gains a general understanding of DNA (or language) via self-supervision. This model can then be fine-tuned with task specific data to model different downstream tasks which could either be a classification or regression task.
+
+There is a case to be made about the relative importance of promoter classification and predicting a number-value for promoter strength (regression) from a biological viewpoint. For instance, classification can help elucidate more general features of DNA and specific genomes. \textit{- need to do more reading for this}
+
+However, as mentioned by Nevoigt et al. an ideal inducible promoter for industrial yeast fermentation must be tightly regulated and express at high levels after induction \cite{nevoight2007promoter}, among other things, and so by constructing a model that is able to quickly determine how effective a certain promoter will be the process of promoter design hopefully becomes more efficient.
+
+This project aims to (i) reproduce the CNN as described by Kotopka and Smolke for the task of predicting protein expression in constitutive and inducible yeast promoters, (ii) apply the DNABERT model by Ji et al. to this task and (iii) combine both models.
+ 
+
+\section{Background}
+\subsection{Yeast Promoters}
+\textit{Section going into more detail the promoters used in the yeast paper (GPD and ZEV), more about promoters in general and the current techniques used to find new promoter sequences}
+
+\subsection{Convolutional neural networks}
+
+\subsection{BERT}
+BERT overcomes shortcomings of previous language models by incorporating a bidirectional architecture and reduces the need for custom task-specific model architectures by adopting a  \textit{fine-tuning} approach to language modelling, instead of a \textit{feature-based} approach (ie. ELMo). 
+
+\subsubsection{Architecture}
+The transformer model architecture utilises an encoder-decoder structure and relies entirely on the attention mechanism \cite{vaswani2017attention}. BERT instead consists of stacked transformer encoder layers with a regression or classification head on top. \textit{Will elaborate on the sub-layers of each encoder layer, tokenization and include some diagrams}
+
+\subsubsection{Attention}
+The attention mechanism helps add more context to input vectors. A query represents a single token embedding, and it is matrix multiplied with all other (keys) token embeddings within the same sequence. These are then multiplied with the value vectors. In self attention the query, key and value vectors are all token embeddings from the same sequence. \textit{Will add more detail to this section and include citations}
+
+
+
+\section{Methods}
+This project explores three tasks: (i) reproducing the CNN by Kotopka and Smolke, (ii) fine-tuning the DNABERT model by Ji et al. to a yeast promoter regression task and (iii) combining both models. 
+
+\subsection{Reproducing the CNN}
+In order to eventually combined the CNN and DNABERT, both models need to be written in a common ML framework. As the original CNN was written in Tensorflow 1 and DNABERT in PyTorch, the CNN was rewritten in PyTorch as per the model specifications provided by Kotopka and Smolke.
+
+This model one-hot encoded input DNA sequences so each sequence was represented by a matrix with 4 rows for each base and a column for each position. As one of the promoter libraries used to train the model included promoters in an induced state and an uninduced state, the model output had to be a 2 element vector corresponding to the two different expression levels. The pipeline is as follows:
+
+1. One-hot encodes all input sequences and splits the data into training, validation and test sets.
+
+2. Subset each sequence with a sliding window which shifts 0-8 base pairs, generating a dataset that is 8 times the size of the original.
+
+3. Train the model until validation loss stops improving.
+
+The ZEV library contained approximately 250,000 promoter sequences while the PGD library contained approximately 675,000 promoter sequences. Adam was used as the optimizer and Huber loss was the selected loss function. 
+
+\subsection{DNABERT applied to yeast promoter regression}
+DNABERT is flexible in its downstream task applications and was simply adapted to allow for fine-tuning on a regression task. This involved creating a new data processor and metric function to use in evaluation. Instead of one-hot encoding the DNA sequences, DNABERT represents input sequences using k-mers, which is mapped to a vocabulary by a custom tokenizer.
+
+\printbibliography
+
+\end{document}
