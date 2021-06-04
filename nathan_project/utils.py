@@ -422,7 +422,7 @@ def load_data(task='human', pipeline='onehot'):
         valX, valy = one_hot_encode(val['Seq']), val['label'].values
 
         val_dataset = PromoterSequences((valX, valy))
-        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=128, shuffle=True)
 
         return val_loader
 
@@ -431,7 +431,7 @@ def load_data(task='human', pipeline='onehot'):
 
         config, tokenizer, dnabert_base = load_dnabert('example/dnabert_model_base', n_outputs)
 
-        val_dataset = PromoterTokenizer((valX[:50], valy[:50]), tokenizer)
-        val_loader = DataLoader(val_dataset, batch_size=2, shuffle=True)
+        val_dataset = PromoterTokenizer((valX, valy), tokenizer)
+        val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 
         return val_loader, config, dnabert_base
