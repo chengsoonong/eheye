@@ -2,8 +2,6 @@
 
 Code submitted as part of my S1 2021 project.
 
-All code can be found in 'code' directory.
-
 Organised in two jupyter notebooks: 
 
 - `train_pipelines.ipynb`:
