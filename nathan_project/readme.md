@@ -37,7 +37,9 @@ Then open either `train_pipelines.ipynb` or `results.ipynb`.
 
 ## Step 3: Downloading trained models and data
 
-Download the three folders `data`, `dnabert_model_base` and `trained_models` from [here](https://drive.google.com/drive/folders/1O4B3GWgbR6ooU0y-EI9zo7H7y6fkmzOe?usp=sharing) and place in 'example/', such that the directory 'example' will now include 3 folders: data, dnabert_model_base and trained_models. This will allow you to train DNABERT models from scratch using `train_pipelines.ipynb`, as well as reproducing the results using `results.ipynb`.
+First create a folder 'example' in 'nathan-project'.
+
+Then, download the three folders `data`, `dnabert_model_base` and `trained_models` from [here](https://drive.google.com/drive/folders/1O4B3GWgbR6ooU0y-EI9zo7H7y6fkmzOe?usp=sharing) and place in 'example', such that the directory 'example' will now include 3 folders: 'data', 'dnabert_model_base' and 'trained_models'. This will allow you to train DNABERT models from scratch using `train_pipelines.ipynb`, as well as reproducing the results using `results.ipynb`.
 
 The models are named in the following way:
 - Pretrained DNABERT: This is the pretrained DNABERT model downloaded from [DNABERT](https://github.com/jerryji1993/DNABERT) and can be used to train the DNABERT pipelines from scratch. The relevant files are located within the directory `dnabert_model_base`.
