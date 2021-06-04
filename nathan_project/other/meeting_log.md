@@ -40,3 +40,20 @@ Besides a different tokenization and masking method (contiguous) I am unable to 
 __DNABERT pretraining data__
 I mentioned how they created their pretraining data but forgot exactly what they meant when they said non-overlapping splitting and random sampling. Quoted from the Supplementary Materials:
 > "Since human genomes are much longer than 512, we used two methods to generate training data. First, we directly split a complete human genome into non-overlapping sub-sequences. Second, we randomly sampled sub-sequences from a complete human genome. The length of each sub-sequence lies in the range of 5 and 510. Specifically, with a 50% probability, we set the length of a sub-sequence as 510.  With another 50% probability, we set its length as a random integer between 5 and 510.  We regarded each sub-sequence as an independent sequence to train the model."
+
+## Week 6
+Still having trouble reproducing the results but also having some trouble getting identical runs (even though seed has been set). Talked about the plan for the next couple weeks with Mengyan, she suggested running things in parallel with multiple google colab instances. R2 scores aren't the whole story so I will need to start plotting predictions everytime.
+
+The ideas for the next couple weeks are to get the DNABERT final hidden states passed to a CNN and try getting the PyTorch CNN to achieve similar results. Also will be using smaller datasets to make sure everything is running without errors.
+
+## Week 7
+No meeting this week, but I was able to get consistent results now with DNABERT now but still can't get close to the reported results or the results Mengyan got. Figured out how to return the final hidden states of DNABERT, just need to check whether this can be used like a normal pytorch module. Can't reproduce CNN results in pytorch so will have to try and figure out how to get their original code to work.
+
+## Week 8
+Talked about starting getting some sections of the report written and about what to talk about in the presentation. Focus on a more biological perspective when thinking about the project. 
+
+## Week 9
+Could do a tsne plot to visualise DNABERT embeddings, and colour by label value. Or a heatmap plot. Also talked about maybe getting attention plots if time permits. 
+
+## Week 10
+Talked about maybe using a subset of the ZEV promoters so I have some results for the presentation as it would be too difficult to use both promoter types. Also talked about using the same pipelines on human promoters. Did practice presentation on Friday.
