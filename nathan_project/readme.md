@@ -57,3 +57,7 @@ The data includes yeast (ZEV) promoters (split into train, val, test) and human 
 	As Ji et al. create a custom tokenizer that maps kmer tokens to a token id, this had to be included.
 - `utils.py`:
 	Used to declutter the two notebooks by containing all the main classes and functions used/written in the project
+	
+### Presentation and Report
+
+The final presentation slide and report can be found [here](https://github.com/chengsoonong/eheye/tree/master/nathan_project/other/presentation) and [here](https://github.com/chengsoonong/eheye/blob/master/nathan_project/other/final_report.pdf).
